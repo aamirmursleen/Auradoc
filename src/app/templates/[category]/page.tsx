@@ -12,7 +12,8 @@ import {
   Star,
   Sparkles,
   ArrowRight,
-  Eye
+  Eye,
+  X
 } from 'lucide-react'
 import {
   templates,
