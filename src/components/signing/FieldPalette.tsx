@@ -44,7 +44,7 @@ const DraggableFieldButton: React.FC<{
 
   return (
     <button
-      ref={drag}
+      ref={drag as unknown as React.LegacyRef<HTMLButtonElement>}
       onClick={() => !disabled && onAddField(fieldType)}
       disabled={disabled}
       className={`
