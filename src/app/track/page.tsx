@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   FileText,
@@ -136,7 +136,7 @@ const formatRelativeTime = (date: Date) => {
   return `${days}d ago`
 }
 
-const TrackDocumentPage: React.FC = () => {
+const TrackDocumentPageInner: React.FC = () => {
   const searchParams = useSearchParams()
   const [documentData, setDocumentData] = useState<DocumentTrackingData | null>(null)
   const [showEmailSimulation, setShowEmailSimulation] = useState(false)
@@ -762,6 +762,18 @@ const TrackDocumentPage: React.FC = () => {
         </div>
       )}
     </div>
+  )
+}
+
+const TrackDocumentPage: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
+      </div>
+    }>
+      <TrackDocumentPageInner />
+    </Suspense>
   )
 }
 
