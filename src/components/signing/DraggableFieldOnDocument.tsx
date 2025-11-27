@@ -48,7 +48,7 @@ const DraggableFieldOnDocument: React.FC<DraggableFieldOnDocumentProps> = ({
 }) => {
   const [isResizing, setIsResizing] = useState(false)
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 })
-  const fieldRef = useRef<HTMLDivElement>(null)
+  const fieldRef = useRef<HTMLDivElement | null>(null)
 
   const config = FIELD_CONFIGS[field.field_type]
 
