@@ -104,6 +104,7 @@ const TemplatesPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<TemplateCategory | 'all' | 'popular'>('all')
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const categoryScrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
