@@ -28,7 +28,7 @@ async function sha256(buffer: ArrayBuffer): Promise<string> {
 async function hashString(str: string): Promise<string> {
   const encoder = new TextEncoder()
   const data = encoder.encode(str)
-  return sha256(data)
+  return sha256(data.buffer as ArrayBuffer)
 }
 
 // Extract PDF page count (basic extraction)
