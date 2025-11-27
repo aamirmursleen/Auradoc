@@ -551,7 +551,7 @@ const DocumentEditorInner: React.FC = () => {
 
           {/* Canvas Area */}
           <div
-            ref={drop}
+            ref={drop as unknown as React.LegacyRef<HTMLDivElement>}
             className="flex-1 overflow-auto p-6 flex justify-center"
             onClick={() => setSelectedFieldId(null)}
           >
