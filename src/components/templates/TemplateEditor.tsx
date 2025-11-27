@@ -465,28 +465,64 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
     }
   }
 
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false)
+  const downloadRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (downloadRef.current && !downloadRef.current.contains(event.target as Node)) {
+        setShowDownloadOptions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   // Handle download
-  const handleDownload = () => {
+  const handleDownload = (format: 'pdf' | 'html' | 'print' = 'pdf') => {
+    setShowDownloadOptions(false)
+
     const fullHtml = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>${template.name}</title>
   <style>
-    body { margin: 0; padding: 20px; }
-    @media print { body { padding: 0; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 40px; font-family: Arial, sans-serif; background: white; }
+    @media print {
+      body { padding: 20px; }
+      @page { margin: 0.5in; }
+    }
   </style>
 </head>
 <body>${documentHtml}</body>
 </html>`
 
-    const blob = new Blob([fullHtml], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${template.name.replace(/\s+/g, '_')}.html`
-    link.click()
-    URL.revokeObjectURL(url)
+    if (format === 'print' || format === 'pdf') {
+      // Open in new window for print/PDF
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(fullHtml)
+        printWindow.document.close()
+        printWindow.focus()
+
+        // Wait for content to load then print
+        setTimeout(() => {
+          printWindow.print()
+        }, 500)
+      }
+    } else if (format === 'html') {
+      // Download as HTML file
+      const blob = new Blob([fullHtml], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${template.name.replace(/\s+/g, '_')}.html`
+      link.click()
+      URL.revokeObjectURL(url)
+    }
   }
 
   // Proceed to sign
@@ -551,26 +587,59 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
           <span className="font-medium text-gray-900">{template.name}</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Download
-          </button>
-          <button
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
-          >
-            <Share2 className="w-4 h-4" />
-            Share
-          </button>
-          <button
-            onClick={handleProceedToSign}
-            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
-          >
-            Proceed to Sign
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="relative" ref={downloadRef}>
+            <button
+              onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+              className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2 font-medium shadow-md hover:shadow-lg"
+            >
+              <Download className="w-4 h-4" />
+              Download
+              <ChevronDown className={`w-4 h-4 transition-transform ${showDownloadOptions ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Download Options Dropdown */}
+            {showDownloadOptions && (
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                <button
+                  onClick={() => handleDownload('pdf')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Download PDF</p>
+                    <p className="text-xs text-gray-500">Best for sharing</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleDownload('html')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Download HTML</p>
+                    <p className="text-xs text-gray-500">Editable format</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleDownload('print')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Copy className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Print</p>
+                    <p className="text-xs text-gray-500">Print directly</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -681,6 +750,17 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Fixed Bottom Action Button */}
+          <div className="p-4 border-t border-gray-200 bg-white">
+            <button
+              onClick={() => handleDownload('pdf')}
+              className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl transition-all flex items-center justify-center gap-2 font-semibold shadow-lg hover:shadow-xl"
+            >
+              <Download className="w-5 h-5" />
+              Download Template
+            </button>
           </div>
         </div>
 
@@ -806,6 +886,17 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
             <span className="text-xs font-medium">Your Feedback</span>
           </button>
         </div>
+      </div>
+
+      {/* Floating Download CTA - Always Visible */}
+      <div className="fixed bottom-6 right-6 z-[60]">
+        <button
+          onClick={() => handleDownload('pdf')}
+          className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all flex items-center gap-3 font-bold shadow-2xl hover:shadow-green-500/30 hover:scale-105 transform"
+        >
+          <Download className="w-6 h-6" />
+          <span className="text-lg">Download Template</span>
+        </button>
       </div>
     </div>
   )

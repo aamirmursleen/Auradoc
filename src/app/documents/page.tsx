@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import {
   FileText,
   Send,
@@ -18,27 +19,13 @@ import {
   Download,
   Share2,
   Copy,
-  Calendar,
-  User,
-  ArrowRight,
   Inbox,
-  Sparkles
+  Sparkles,
+  ArrowRight,
+  Loader2
 } from 'lucide-react'
-
-// Document status types
-type DocumentStatus = 'created' | 'delivered' | 'opened' | 'signed' | 'completed'
-
-interface Document {
-  id: string
-  name: string
-  status: DocumentStatus
-  createdAt: Date
-  updatedAt: Date
-  recipient: {
-    name: string
-    email: string
-  }
-}
+import { getUserDocuments, deleteDocument } from '@/lib/documents'
+import { Document, DocumentStatus } from '@/lib/types'
 
 // Status configuration
 const statusConfig: Record<DocumentStatus, {
@@ -80,7 +67,8 @@ const statusConfig: Record<DocumentStatus, {
 }
 
 // Format date
-const formatDate = (date: Date) => {
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
@@ -89,7 +77,8 @@ const formatDate = (date: Date) => {
 }
 
 // Format relative time
-const formatRelativeTime = (date: Date) => {
+const formatRelativeTime = (dateString: string) => {
+  const date = new Date(dateString)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
   const minutes = Math.floor(diff / 60000)
@@ -100,58 +89,42 @@ const formatRelativeTime = (date: Date) => {
   if (minutes < 60) return `${minutes}m ago`
   if (hours < 24) return `${hours}h ago`
   if (days < 7) return `${days}d ago`
-  return formatDate(date)
+  return formatDate(dateString)
 }
 
 const DocumentsPage: React.FC = () => {
   const router = useRouter()
+  const { user, isLoaded } = useUser()
   const [documents, setDocuments] = useState<Document[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<DocumentStatus | 'all'>('all')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
-  // Load documents from localStorage
+  // Load documents from Supabase
   useEffect(() => {
-    const loadDocuments = () => {
-      const docs: Document[] = []
+    const loadDocuments = async () => {
+      if (!isLoaded || !user) return
 
-      // Get all keys from localStorage that start with auradoc_tracking_
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
-        if (key && key.startsWith('auradoc_tracking_')) {
-          try {
-            const data = JSON.parse(localStorage.getItem(key) || '')
-            docs.push({
-              id: data.id,
-              name: data.name,
-              status: data.currentStatus,
-              createdAt: new Date(data.createdAt),
-              updatedAt: new Date(data.events[data.events.length - 1]?.timestamp || data.createdAt),
-              recipient: data.recipient
-            })
-          } catch (e) {
-            console.error('Error parsing document:', e)
-          }
-        }
+      try {
+        setLoading(true)
+        const docs = await getUserDocuments(user.id)
+        setDocuments(docs)
+      } catch (error) {
+        console.error('Error loading documents:', error)
+      } finally {
+        setLoading(false)
       }
-
-      // Sort by updated date, newest first
-      docs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-      setDocuments(docs)
     }
 
     loadDocuments()
-
-    // Listen for storage changes
-    window.addEventListener('storage', loadDocuments)
-    return () => window.removeEventListener('storage', loadDocuments)
-  }, [])
+  }, [user, isLoaded])
 
   // Filter documents
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.recipient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.recipient.email.toLowerCase().includes(searchQuery.toLowerCase())
+      (doc.recipient_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (doc.recipient_email?.toLowerCase().includes(searchQuery.toLowerCase()))
 
     const matchesStatus = statusFilter === 'all' || doc.status === statusFilter
 
@@ -159,10 +132,14 @@ const DocumentsPage: React.FC = () => {
   })
 
   // Delete document
-  const handleDelete = (id: string) => {
-    localStorage.removeItem(`auradoc_tracking_${id}`)
-    setDocuments(prev => prev.filter(doc => doc.id !== id))
-    setActiveMenu(null)
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDocument(id)
+      setDocuments(prev => prev.filter(doc => doc.id !== id))
+      setActiveMenu(null)
+    } catch (error) {
+      console.error('Error deleting document:', error)
+    }
   }
 
   // Create new document
@@ -176,6 +153,30 @@ const DocumentsPage: React.FC = () => {
     pending: documents.filter(d => ['created', 'delivered', 'opened'].includes(d.status)).length,
     completed: documents.filter(d => d.status === 'completed').length,
     awaitingSignature: documents.filter(d => d.status === 'opened').length
+  }
+
+  if (!isLoaded || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading documents...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please sign in to view your documents</p>
+          <Link href="/sign-in" className="text-primary-500 hover:underline">
+            Sign In
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -323,8 +324,8 @@ const DocumentsPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-gray-900">{doc.recipient.name}</p>
-                          <p className="text-sm text-gray-500">{doc.recipient.email}</p>
+                          <p className="font-medium text-gray-900">{doc.recipient_name || '-'}</p>
+                          <p className="text-sm text-gray-500">{doc.recipient_email || '-'}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -334,8 +335,8 @@ const DocumentsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-gray-900">{formatRelativeTime(doc.updatedAt)}</p>
-                        <p className="text-sm text-gray-500">{formatDate(doc.createdAt)}</p>
+                        <p className="text-gray-900">{formatRelativeTime(doc.updated_at)}</p>
+                        <p className="text-sm text-gray-500">{formatDate(doc.created_at)}</p>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
