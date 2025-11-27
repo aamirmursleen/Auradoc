@@ -75,6 +75,7 @@ export default function CategoryPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
 
   // Get category info
   const categoryName = categoryLabels[category as TemplateCategory] || category
