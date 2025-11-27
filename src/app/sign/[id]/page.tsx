@@ -122,7 +122,7 @@ export default function SignDocumentPage() {
   const handleSignatureCreated = (sig: string | null) => {
     if (sig && activeFieldId) {
       setSignature(sig)
-      setSignedFields(prev => new Set([...prev, activeFieldId]))
+      setSignedFields(prev => new Set([...Array.from(prev), activeFieldId]))
       setShowSignaturePad(false)
       setActiveFieldId(null)
     }
