@@ -258,7 +258,7 @@ const VerifyPage: React.FC = () => {
             {/* TOP RIGHT - Verify Document Button */}
             {uploadedFile && selectedVerification && !verificationResult && (
               <button
-                onClick={handleVerify}
+                onClick={() => handleVerify()}
                 disabled={processing}
                 className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold text-lg hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/25 flex items-center gap-2 disabled:opacity-50"
               >
