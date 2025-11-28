@@ -14,8 +14,7 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Templates', href: '/templates' },
-    { name: 'Sign Document', href: '/sign' },
-    { name: 'Track', href: '/track' },
+    { name: 'SignDocument', href: '/sign-document' },
     { name: 'Verify', href: '/verify' },
     { name: 'Documents', href: '/documents' },
   ]
