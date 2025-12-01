@@ -1,20 +1,21 @@
 // Email Service using Resend API
 // Handles all email notifications for document signing workflow
+// Updated with Odoo-style email templates
 
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Email sender configuration
-const FROM_EMAIL = 'AuraDoc <noreply@auradoc.com>'
-const COMPANY_NAME = 'AuraDoc'
+// Email sender configuration - Using Resend's test domain for now
+const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
+const COMPANY_NAME = 'MamaSign'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 // Types for email service
 export interface Signer {
   name: string
   email: string
-  order: number // 1, 2, 3... for sequential signing
+  order: number
   status: 'pending' | 'sent' | 'opened' | 'signed'
   signedAt?: string
 }
@@ -25,71 +26,74 @@ export interface DocumentEmailData {
   senderName: string
   senderEmail: string
   signers: Signer[]
-  message?: string // Optional personal message
+  message?: string
   dueDate?: string
 }
 
-// ============================================
-// EMAIL TEMPLATES (Beautiful Minimalist Design)
-// ============================================
+// Odoo-style email template
+function getOdooStyleTemplate(params: {
+  recipientName: string
+  senderName: string
+  documentName: string
+  message?: string
+  signingLink: string
+  expiresAt?: string
+}) {
+  const { recipientName, senderName, documentName, message, signingLink, expiresAt } = params
 
-function getBaseStyles() {
-  return `
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; background-color: #f5f5f5; }
-    .container { max-width: 560px; margin: 0 auto; background: white; }
-    .header { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); padding: 40px 32px; text-align: center; }
-    .header h1 { color: white; font-size: 24px; font-weight: 600; margin: 0; }
-    .header p { color: rgba(255,255,255,0.9); font-size: 14px; margin: 8px 0 0 0; }
-    .content { padding: 40px 32px; }
-    .greeting { font-size: 18px; font-weight: 600; color: #1a1a1a; margin: 0 0 16px 0; }
-    .message { color: #4a5568; font-size: 15px; margin: 0 0 24px 0; }
-    .document-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 24px 0; }
-    .document-name { font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px 0; }
-    .document-meta { font-size: 13px; color: #64748b; margin: 0; }
-    .cta-button { display: inline-block; background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white !important; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; margin: 24px 0; }
-    .cta-button:hover { opacity: 0.9; }
-    .progress-bar { background: #e2e8f0; border-radius: 4px; height: 8px; margin: 16px 0; overflow: hidden; }
-    .progress-fill { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); height: 100%; border-radius: 4px; }
-    .signer-list { margin: 16px 0; }
-    .signer-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
-    .signer-status { width: 24px; height: 24px; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-    .status-signed { background: #dcfce7; color: #16a34a; }
-    .status-current { background: #dbeafe; color: #2563eb; }
-    .status-pending { background: #f1f5f9; color: #94a3b8; }
-    .footer { padding: 24px 32px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0; }
-    .footer p { font-size: 12px; color: #94a3b8; margin: 4px 0; }
-    .footer a { color: #4F46E5; text-decoration: none; }
-    .personal-message { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; margin: 24px 0; border-radius: 0 8px 8px 0; }
-    .personal-message p { margin: 0; color: #92400e; font-size: 14px; font-style: italic; }
-  `
-}
-
-function emailWrapper(content: string, preheader: string = '') {
   return `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AuraDoc</title>
-  <style>${getBaseStyles()}</style>
 </head>
-<body>
-  <div style="display:none;max-height:0;overflow:hidden;">${preheader}</div>
-  <div class="container">
-    ${content}
-  </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #714B67 0%, #875A7B 100%); padding: 30px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">MamaSign</h1>
+              <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Secure Document Signing</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${recipientName}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;"><strong>${senderName}</strong> has sent you a document to sign. Please review and sign the document at your earliest convenience.</p>
+              ${message ? `<div style="background-color: #FFF8E7; border-left: 4px solid #F0AD4E; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 0 6px 6px 0;"><p style="margin: 0; font-size: 14px; color: #8A6D3B; font-style: italic;">"${message}"</p></div>` : ''}
+              <div style="background-color: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
+                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #333333;">${documentName}</p>
+                <p style="margin: 0; font-size: 13px; color: #888888;">From: ${senderName}</p>
+                ${expiresAt ? `<p style="margin: 5px 0 0 0; font-size: 12px; color: #DC3545;">Expires: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
+              </div>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${signingLink}" style="display: inline-block; background: linear-gradient(135deg, #714B67 0%, #875A7B 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(113, 75, 103, 0.3);">Sign Document</a>
+              </div>
+              <div style="background-color: #E8F5E9; border-radius: 6px; padding: 15px; margin: 25px 0 0 0;">
+                <p style="margin: 0; font-size: 13px; color: #2E7D32; text-align: center;">This document is encrypted and securely stored. Your signature will be legally binding.</p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8F9FA; padding: 25px 40px; border-top: 1px solid #E9ECEF; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #714B67;">${COMPANY_NAME}</p>
+              <p style="margin: 0; font-size: 12px; color: #999999;">Secure document signing made simple</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `
 }
 
-// ============================================
-// EMAIL SENDING FUNCTIONS
-// ============================================
-
 /**
- * Send signing invite to a signer (new simpler interface)
+ * Send signing invite to a signer (Odoo-style template)
  */
 export async function sendSigningInvite(params: {
   to: string
@@ -103,47 +107,21 @@ export async function sendSigningInvite(params: {
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   const { to, signerName, senderName, senderEmail, documentName, signingLink, message, expiresAt } = params
 
-  const content = `
-    <div class="header">
-      <h1>📝 Document Ready for Signature</h1>
-      <p>From ${senderName}</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${signerName},</p>
-      <p class="message">${senderName} has sent you a document to sign. Please review and sign at your earliest convenience.</p>
-
-      ${message ? `
-        <div class="personal-message">
-          <p>"${message}"</p>
-        </div>
-      ` : ''}
-
-      <div class="document-card">
-        <p class="document-name">📄 ${documentName}</p>
-        <p class="document-meta">From: ${senderName} (${senderEmail})</p>
-        ${expiresAt ? `<p class="document-meta">Expires: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
-      </div>
-
-      <div style="text-align: center;">
-        <a href="${signingLink}" class="cta-button">Review & Sign Document</a>
-      </div>
-
-      <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 24px;">
-        This link is unique to you. Do not share it with others.
-      </p>
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-      <p>Secure document signing made simple</p>
-    </div>
-  `
+  const html = getOdooStyleTemplate({
+    recipientName: signerName,
+    senderName,
+    documentName,
+    message,
+    signingLink,
+    expiresAt
+  })
 
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to,
       subject: `${senderName} sent you "${documentName}" to sign`,
-      html: emailWrapper(content, `Please sign: ${documentName}`),
+      html,
     })
 
     return { success: true, id: result.data?.id }
@@ -161,109 +139,27 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
   if (!signer) return { success: false, error: 'Signer not found' }
 
   const signUrl = `${APP_URL}/sign/${data.documentId}?signer=${signer.email}`
-  const position = signerIndex + 1
-  const total = data.signers.length
 
-  const content = `
-    <div class="header">
-      <h1>📝 Document Ready for Signature</h1>
-      <p>From ${data.senderName}</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${signer.name},</p>
-      <p class="message">${data.senderName} has sent you a document to sign. Please review and sign at your earliest convenience.</p>
-
-      ${data.message ? `
-        <div class="personal-message">
-          <p>"${data.message}"</p>
-        </div>
-      ` : ''}
-
-      <div class="document-card">
-        <p class="document-name">📄 ${data.documentName}</p>
-        <p class="document-meta">From: ${data.senderName} (${data.senderEmail})</p>
-        ${data.dueDate ? `<p class="document-meta">Due: ${new Date(data.dueDate).toLocaleDateString()}</p>` : ''}
-        ${total > 1 ? `<p class="document-meta">You are signer ${position} of ${total}</p>` : ''}
-      </div>
-
-      ${total > 1 ? `
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${((signerIndex) / total) * 100}%"></div>
-        </div>
-        <p style="font-size: 13px; color: #64748b; text-align: center;">${signerIndex} of ${total} signatures complete</p>
-      ` : ''}
-
-      <div style="text-align: center;">
-        <a href="${signUrl}" class="cta-button">Review & Sign Document</a>
-      </div>
-
-      <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 24px;">
-        This link is unique to you. Do not share it with others.
-      </p>
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-      <p>Secure document signing made simple</p>
-    </div>
-  `
+  const html = getOdooStyleTemplate({
+    recipientName: signer.name,
+    senderName: data.senderName,
+    documentName: data.documentName,
+    message: data.message,
+    signingLink: signUrl,
+    expiresAt: data.dueDate
+  })
 
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: signer.email,
       subject: `${data.senderName} sent you "${data.documentName}" to sign`,
-      html: emailWrapper(content, `Please sign: ${data.documentName}`),
+      html,
     })
 
     return { success: true, data: result }
   } catch (error) {
     console.error('Failed to send signing request:', error)
-    return { success: false, error }
-  }
-}
-
-/**
- * Notify sender when document is opened
- */
-export async function sendDocumentOpenedNotification(data: DocumentEmailData, signerIndex: number) {
-  const signer = data.signers[signerIndex]
-  if (!signer) return { success: false, error: 'Signer not found' }
-
-  const content = `
-    <div class="header" style="background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);">
-      <h1>👀 Document Viewed</h1>
-      <p>${data.documentName}</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${data.senderName},</p>
-      <p class="message"><strong>${signer.name}</strong> just opened your document "${data.documentName}". They may be reviewing it now.</p>
-
-      <div class="document-card">
-        <p class="document-name">📄 ${data.documentName}</p>
-        <p class="document-meta">Opened by: ${signer.name} (${signer.email})</p>
-        <p class="document-meta">Opened at: ${new Date().toLocaleString()}</p>
-      </div>
-
-      <p style="font-size: 14px; color: #64748b;">
-        You'll receive another notification when they complete their signature.
-      </p>
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-    </div>
-  `
-
-  try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: data.senderEmail,
-      subject: `${signer.name} viewed "${data.documentName}"`,
-      html: emailWrapper(content, `${signer.name} is reviewing your document`),
-    })
-
-    return { success: true, data: result }
-  } catch (error) {
-    console.error('Failed to send opened notification:', error)
     return { success: false, error }
   }
 }
@@ -281,52 +177,77 @@ export async function sendSignatureCompletedNotification(
 
   const signedCount = signerIndex + 1
   const total = data.signers.length
-  const progress = Math.round((signedCount / total) * 100)
+  const downloadLink = `${APP_URL}/documents/${data.documentId}`
 
-  const content = `
-    <div class="header" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);">
-      <h1>${isComplete ? '🎉 All Signatures Complete!' : '✅ Signature Received'}</h1>
-      <p>${data.documentName}</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${data.senderName},</p>
-      <p class="message">
-        ${isComplete
-          ? `Great news! All signers have completed signing "${data.documentName}". The document is now fully executed.`
-          : `<strong>${signer.name}</strong> has signed "${data.documentName}". ${total - signedCount} signature${total - signedCount === 1 ? '' : 's'} remaining.`
-        }
-      </p>
-
-      <div class="document-card">
-        <p class="document-name">📄 ${data.documentName}</p>
-        <p class="document-meta">Signed by: ${signer.name} (${signer.email})</p>
-        <p class="document-meta">Signed at: ${new Date().toLocaleString()}</p>
-      </div>
-
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progress}%"></div>
-      </div>
-      <p style="font-size: 13px; color: #64748b; text-align: center;">${signedCount} of ${total} signatures complete (${progress}%)</p>
-
-      ${isComplete ? `
-        <div style="text-align: center;">
-          <a href="${APP_URL}/documents/${data.documentId}" class="cta-button">Download Signed Document</a>
-        </div>
-      ` : ''}
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-    </div>
-  `
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, ${isComplete ? '#28A745' : '#17A2B8'} 0%, ${isComplete ? '#20C997' : '#20C997'} 100%); padding: 30px 40px; text-align: center;">
+              <div style="font-size: 50px; margin-bottom: 10px;">${isComplete ? '🎉' : '✅'}</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">${isComplete ? 'All Signatures Complete!' : 'New Signature Received'}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${data.senderName}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">${isComplete ? `Great news! All signers have completed signing "<strong>${data.documentName}</strong>". The document is now fully executed and ready for download.` : `<strong>${signer.name}</strong> has signed "<strong>${data.documentName}</strong>".`}</p>
+              <div style="background-color: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 8px; padding: 20px; margin: 0 0 25px 0;">
+                <h3 style="margin: 0 0 15px 0; font-size: 14px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">Signature Details</h3>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF;"><span style="font-size: 13px; color: #888888;">Document:</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF; text-align: right;"><span style="font-size: 14px; color: #333333; font-weight: 500;">${data.documentName}</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF;"><span style="font-size: 13px; color: #888888;">Signed by:</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF; text-align: right;"><span style="font-size: 14px; color: #333333; font-weight: 500;">${signer.name}</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF;"><span style="font-size: 13px; color: #888888;">Email:</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF; text-align: right;"><span style="font-size: 14px; color: #333333;">${signer.email}</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;"><span style="font-size: 13px; color: #888888;">Signed at:</span></td>
+                    <td style="padding: 8px 0; text-align: right;"><span style="font-size: 14px; color: #333333;">${new Date().toLocaleString()}</span></td>
+                  </tr>
+                </table>
+              </div>
+              ${total > 1 ? `<div style="margin: 0 0 25px 0;"><p style="font-size: 13px; color: #666666; margin-bottom: 8px;">Signing Progress: <strong>${signedCount}/${total} Complete</strong></p><div style="background-color: #E9ECEF; border-radius: 10px; height: 10px; overflow: hidden;"><div style="background: linear-gradient(135deg, ${isComplete ? '#28A745' : '#714B67'} 0%, ${isComplete ? '#20C997' : '#875A7B'} 100%); width: ${Math.round((signedCount / total) * 100)}%; height: 100%; border-radius: 10px;"></div></div></div>` : ''}
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${downloadLink}" style="display: inline-block; background: linear-gradient(135deg, ${isComplete ? '#28A745' : '#714B67'} 0%, ${isComplete ? '#20C997' : '#875A7B'} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600;">${isComplete ? 'Download Signed Document' : 'View Document Status'}</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8F9FA; padding: 25px 40px; border-top: 1px solid #E9ECEF; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #714B67;">${COMPANY_NAME}</p>
+              <p style="margin: 0; font-size: 12px; color: #999999;">Secure document signing made simple</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
 
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.senderEmail,
-      subject: isComplete
-        ? `✅ "${data.documentName}" is fully signed!`
-        : `${signer.name} signed "${data.documentName}" (${signedCount}/${total})`,
-      html: emailWrapper(content, isComplete ? 'All signatures complete!' : `${signedCount} of ${total} signatures`),
+      subject: isComplete ? `"${data.documentName}" is fully signed!` : `${signer.name} signed "${data.documentName}" (${signedCount}/${total})`,
+      html,
     })
 
     return { success: true, data: result }
@@ -347,54 +268,127 @@ export async function sendSignerConfirmation(
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const content = `
-    <div class="header" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);">
-      <h1>✅ Signature Confirmed</h1>
-      <p>Thank you for signing</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${signer.name},</p>
-      <p class="message">
-        Your signature on "${data.documentName}" has been recorded.
-        ${isComplete
-          ? 'All parties have now signed, and the document is complete.'
-          : 'We\'ll notify you when all parties have signed and the document is complete.'
-        }
-      </p>
+  const downloadLink = `${APP_URL}/documents/${data.documentId}/download`
 
-      <div class="document-card">
-        <p class="document-name">📄 ${data.documentName}</p>
-        <p class="document-meta">Sent by: ${data.senderName}</p>
-        <p class="document-meta">Signed at: ${new Date().toLocaleString()}</p>
-      </div>
-
-      ${isComplete ? `
-        <div style="text-align: center;">
-          <a href="${APP_URL}/documents/${data.documentId}/download" class="cta-button">Download Your Copy</a>
-        </div>
-      ` : `
-        <p style="font-size: 14px; color: #64748b; text-align: center;">
-          Waiting for other signatures...
-        </p>
-      `}
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-      <p>Keep this email for your records</p>
-    </div>
-  `
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #28A745 0%, #20C997 100%); padding: 30px 40px; text-align: center;">
+              <div style="font-size: 50px; margin-bottom: 10px;">✅</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Signature Confirmed!</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${signer.name}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">Your signature on "<strong>${data.documentName}</strong>" has been successfully recorded. ${isComplete ? 'All parties have now signed, and the document is complete. You can download your copy below.' : 'We will notify you when all parties have signed and the document is complete.'}</p>
+              <div style="background-color: #E8F5E9; border: 1px solid #C8E6C9; border-radius: 8px; padding: 20px; margin: 0 0 25px 0;">
+                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #2E7D32;">${data.documentName}</p>
+                <p style="margin: 0; font-size: 13px; color: #4CAF50;">Signed on ${new Date().toLocaleString()}</p>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: #666666;">Requested by: ${data.senderName}</p>
+              </div>
+              ${isComplete ? `<div style="text-align: center; margin: 30px 0;"><a href="${downloadLink}" style="display: inline-block; background: linear-gradient(135deg, #28A745 0%, #20C997 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600;">Download Your Copy</a></div>` : '<div style="text-align: center; padding: 20px; background-color: #FFF8E7; border-radius: 6px;"><p style="margin: 0; font-size: 14px; color: #8A6D3B;">Waiting for other signatures...</p></div>'}
+              <p style="margin: 25px 0 0 0; font-size: 13px; color: #999999; text-align: center;">Please keep this email for your records.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8F9FA; padding: 25px 40px; border-top: 1px solid #E9ECEF; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #714B67;">${COMPANY_NAME}</p>
+              <p style="margin: 0; font-size: 12px; color: #999999;">Secure document signing made simple</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
 
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: signer.email,
       subject: `Your signature on "${data.documentName}" is confirmed`,
-      html: emailWrapper(content, 'Your signature has been recorded'),
+      html,
     })
 
     return { success: true, data: result }
   } catch (error) {
     console.error('Failed to send signer confirmation:', error)
+    return { success: false, error }
+  }
+}
+
+/**
+ * Notify sender when document is opened
+ */
+export async function sendDocumentOpenedNotification(data: DocumentEmailData, signerIndex: number) {
+  const signer = data.signers[signerIndex]
+  if (!signer) return { success: false, error: 'Signer not found' }
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #17A2B8 0%, #20C997 100%); padding: 30px 40px; text-align: center;">
+              <div style="font-size: 40px; margin-bottom: 10px;">👀</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">Document Viewed</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 35px 40px;">
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${data.senderName}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.6;"><strong>${signer.name}</strong> just opened your document "<strong>${data.documentName}</strong>". They may be reviewing it now.</p>
+              <div style="background-color: #F8F9FA; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 13px; color: #666666;">Viewer: <strong>${signer.email}</strong><br>Opened at: <strong>${new Date().toLocaleString()}</strong></p>
+              </div>
+              <p style="margin: 20px 0 0 0; font-size: 14px; color: #888888;">You'll receive another notification when they complete their signature.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8F9FA; padding: 20px 40px; text-align: center; border-top: 1px solid #E9ECEF;">
+              <p style="margin: 0; font-size: 12px; color: #999999;">Powered by <strong style="color: #714B67;">${COMPANY_NAME}</strong></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  try {
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.senderEmail,
+      subject: `${signer.name} viewed "${data.documentName}"`,
+      html,
+    })
+
+    return { success: true, data: result }
+  } catch (error) {
+    console.error('Failed to send opened notification:', error)
     return { success: false, error }
   }
 }
@@ -406,50 +400,9 @@ export async function sendDocumentCompletedToAll(data: DocumentEmailData) {
   const results = []
 
   for (const signer of data.signers) {
-    const content = `
-      <div class="header" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);">
-        <h1>🎉 Document Complete!</h1>
-        <p>All signatures collected</p>
-      </div>
-      <div class="content">
-        <p class="greeting">Hi ${signer.name},</p>
-        <p class="message">
-          Great news! "${data.documentName}" has been signed by all parties and is now complete.
-        </p>
-
-        <div class="document-card">
-          <p class="document-name">📄 ${data.documentName}</p>
-          <p class="document-meta">Completed: ${new Date().toLocaleString()}</p>
-        </div>
-
-        <div class="signer-list">
-          <p style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 8px;">ALL SIGNERS:</p>
-          ${data.signers.map(s => `
-            <div style="display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
-              <span style="width: 20px; height: 20px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 10px;">✓</span>
-              <span style="font-size: 14px; color: #374151;">${s.name}</span>
-            </div>
-          `).join('')}
-        </div>
-
-        <div style="text-align: center;">
-          <a href="${APP_URL}/documents/${data.documentId}/download" class="cta-button">Download Signed Document</a>
-        </div>
-      </div>
-      <div class="footer">
-        <p>Powered by ${COMPANY_NAME}</p>
-        <p>This document is legally binding</p>
-      </div>
-    `
-
     try {
-      const result = await resend.emails.send({
-        from: FROM_EMAIL,
-        to: signer.email,
-        subject: `✅ "${data.documentName}" is complete - Download your copy`,
-        html: emailWrapper(content, 'Your document is ready for download'),
-      })
-      results.push({ email: signer.email, success: true, data: result })
+      const result = await sendSignerConfirmation(data, data.signers.indexOf(signer), true)
+      results.push({ email: signer.email, success: result.success, data: result })
     } catch (error) {
       results.push({ email: signer.email, success: false, error })
     }
@@ -464,65 +417,66 @@ export async function sendDocumentCompletedToAll(data: DocumentEmailData) {
 export async function sendSigningReminder(
   data: DocumentEmailData,
   signerIndex: number,
-  reminderNumber: number // 1, 2, 3...
+  reminderNumber: number
 ) {
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
   const signUrl = `${APP_URL}/sign/${data.documentId}?signer=${signer.email}`
+  const isUrgent = reminderNumber >= 3
 
-  const urgencyLevel = reminderNumber >= 3 ? 'urgent' : reminderNumber >= 2 ? 'reminder' : 'gentle'
-
-  const headerColors = {
-    gentle: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-    reminder: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-    urgent: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
-  }
-
-  const messages = {
-    gentle: `Just a friendly reminder that "${data.documentName}" is waiting for your signature.`,
-    reminder: `Your signature is still needed on "${data.documentName}". ${data.senderName} is waiting for you to complete this document.`,
-    urgent: `Urgent: "${data.documentName}" requires your immediate attention. This document has been waiting for your signature.`
-  }
-
-  const content = `
-    <div class="header" style="background: ${headerColors[urgencyLevel]};">
-      <h1>${urgencyLevel === 'urgent' ? '⚠️' : '⏰'} Signature Reminder</h1>
-      <p>Action needed</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${signer.name},</p>
-      <p class="message">${messages[urgencyLevel]}</p>
-
-      <div class="document-card">
-        <p class="document-name">📄 ${data.documentName}</p>
-        <p class="document-meta">From: ${data.senderName}</p>
-        ${data.dueDate ? `<p class="document-meta" style="color: ${urgencyLevel === 'urgent' ? '#dc2626' : '#64748b'};">Due: ${new Date(data.dueDate).toLocaleDateString()}</p>` : ''}
-      </div>
-
-      <div style="text-align: center;">
-        <a href="${signUrl}" class="cta-button" style="${urgencyLevel === 'urgent' ? 'background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);' : ''}">
-          Sign Now
-        </a>
-      </div>
-
-      <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 24px;">
-        If you have questions, please contact ${data.senderEmail}
-      </p>
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-    </div>
-  `
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, ${isUrgent ? '#DC3545' : '#FFC107'} 0%, ${isUrgent ? '#C82333' : '#E0A800'} 100%); padding: 30px 40px; text-align: center;">
+              <div style="font-size: 40px; margin-bottom: 10px;">${isUrgent ? '⚠️' : '⏰'}</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">${isUrgent ? 'Urgent: Signature Required' : 'Reminder: Signature Needed'}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 35px 40px;">
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${signer.name}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.6;">${isUrgent ? `This is an urgent reminder that "<strong>${data.documentName}</strong>" requires your immediate attention.` : `Just a friendly reminder that "<strong>${data.documentName}</strong>" is still waiting for your signature.`}</p>
+              <div style="background-color: #F8F9FA; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600; color: #333333;">${data.documentName}</p>
+                <p style="margin: 0; font-size: 13px; color: #666666;">From: ${data.senderName}</p>
+                ${data.dueDate ? `<p style="margin: 8px 0 0 0; font-size: 13px; color: ${isUrgent ? '#DC3545' : '#666666'};">Due: ${new Date(data.dueDate).toLocaleDateString()}</p>` : ''}
+              </div>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${signUrl}" style="display: inline-block; background: linear-gradient(135deg, ${isUrgent ? '#DC3545' : '#714B67'} 0%, ${isUrgent ? '#C82333' : '#875A7B'} 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600;">Sign Now</a>
+              </div>
+              <p style="margin: 20px 0 0 0; font-size: 13px; color: #999999; text-align: center;">If you have questions, please contact ${data.senderEmail}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8F9FA; padding: 20px 40px; text-align: center; border-top: 1px solid #E9ECEF;">
+              <p style="margin: 0; font-size: 12px; color: #999999;">Powered by <strong style="color: #714B67;">${COMPANY_NAME}</strong></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
 
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: signer.email,
-      subject: urgencyLevel === 'urgent'
-        ? `⚠️ Urgent: Your signature is needed on "${data.documentName}"`
-        : `Reminder: "${data.documentName}" awaits your signature`,
-      html: emailWrapper(content, `Reminder ${reminderNumber}: Please sign ${data.documentName}`),
+      subject: isUrgent ? `Urgent: Your signature is needed on "${data.documentName}"` : `Reminder: "${data.documentName}" awaits your signature`,
+      html,
     })
 
     return { success: true, data: result }
@@ -543,48 +497,57 @@ export async function sendDocumentDeclined(
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const content = `
-    <div class="header" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
-      <h1>❌ Document Declined</h1>
-      <p>${data.documentName}</p>
-    </div>
-    <div class="content">
-      <p class="greeting">Hi ${data.senderName},</p>
-      <p class="message">
-        Unfortunately, <strong>${signer.name}</strong> has declined to sign "${data.documentName}".
-      </p>
-
-      ${reason ? `
-        <div class="personal-message" style="background: #fef2f2; border-left-color: #dc2626;">
-          <p style="color: #991b1b;"><strong>Reason:</strong> "${reason}"</p>
-        </div>
-      ` : ''}
-
-      <div class="document-card">
-        <p class="document-name">📄 ${data.documentName}</p>
-        <p class="document-meta">Declined by: ${signer.name} (${signer.email})</p>
-        <p class="document-meta">Declined at: ${new Date().toLocaleString()}</p>
-      </div>
-
-      <p style="font-size: 14px; color: #64748b;">
-        You may want to reach out to ${signer.name} to discuss their concerns, or create a new document with revisions.
-      </p>
-
-      <div style="text-align: center;">
-        <a href="${APP_URL}/documents" class="cta-button" style="background: #64748b;">View Documents</a>
-      </div>
-    </div>
-    <div class="footer">
-      <p>Powered by ${COMPANY_NAME}</p>
-    </div>
-  `
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #DC3545 0%, #C82333 100%); padding: 30px 40px; text-align: center;">
+              <div style="font-size: 40px; margin-bottom: 10px;">❌</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">Document Declined</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 35px 40px;">
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${data.senderName}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.6;">Unfortunately, <strong>${signer.name}</strong> has declined to sign "<strong>${data.documentName}</strong>".</p>
+              ${reason ? `<div style="background-color: #FEE2E2; border-left: 4px solid #DC3545; padding: 15px 20px; margin: 20px 0; border-radius: 0 6px 6px 0;"><p style="margin: 0; font-size: 14px; color: #991B1B;"><strong>Reason:</strong> "${reason}"</p></div>` : ''}
+              <div style="background-color: #F8F9FA; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 13px; color: #666666;">Document: <strong>${data.documentName}</strong><br>Declined by: <strong>${signer.name}</strong> (${signer.email})<br>Declined at: <strong>${new Date().toLocaleString()}</strong></p>
+              </div>
+              <p style="margin: 20px 0; font-size: 14px; color: #666666;">You may want to reach out to ${signer.name} to discuss their concerns, or create a new document with revisions.</p>
+              <div style="text-align: center; margin: 25px 0;">
+                <a href="${APP_URL}/documents" style="display: inline-block; background: #6C757D; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 6px; font-size: 15px; font-weight: 600;">View Documents</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8F9FA; padding: 20px 40px; text-align: center; border-top: 1px solid #E9ECEF;">
+              <p style="margin: 0; font-size: 12px; color: #999999;">Powered by <strong style="color: #714B67;">${COMPANY_NAME}</strong></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
 
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.senderEmail,
-      subject: `❌ ${signer.name} declined to sign "${data.documentName}"`,
-      html: emailWrapper(content, `${signer.name} declined your document`),
+      subject: `${signer.name} declined to sign "${data.documentName}"`,
+      html,
     })
 
     return { success: true, data: result }

@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import SignatureCanvasLib from 'react-signature-canvas'
-import { Download, Check, RotateCcw, Palette, Upload, PenTool, Image } from 'lucide-react'
+import { Download, Check, RotateCcw, Palette, Upload, PenTool, Image, Camera, X, Loader2 } from 'lucide-react'
 
 interface SignatureCanvasProps {
   onSignatureChange: (signature: string | null) => void
@@ -10,7 +10,7 @@ interface SignatureCanvasProps {
   height?: number
 }
 
-type SignatureMode = 'draw' | 'upload'
+type SignatureMode = 'draw' | 'upload' | 'camera'
 
 const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   onSignatureChange,
@@ -20,6 +20,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   const signatureRef = useRef<SignatureCanvasLib>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [isEmpty, setIsEmpty] = useState(true)
   const [penColor, setPenColor] = useState('#1e293b')
@@ -27,6 +29,9 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [mode, setMode] = useState<SignatureMode>('draw')
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [isCameraActive, setIsCameraActive] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [cameraError, setCameraError] = useState<string | null>(null)
 
   const colors = [
     { name: 'Black', value: '#1e293b' },
@@ -48,6 +53,16 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     return () => window.removeEventListener('resize', updateCanvasSize)
   }, [width])
 
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream
+        stream.getTracks().forEach(track => track.stop())
+      }
+    }
+  }, [])
+
   const handleClear = () => {
     if (mode === 'draw' && signatureRef.current) {
       signatureRef.current.clear()
@@ -55,6 +70,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     setUploadedImage(null)
     setIsEmpty(true)
     onSignatureChange(null)
+    stopCamera()
   }
 
   const handleEnd = () => {
@@ -73,7 +89,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
 
     if (mode === 'draw' && signatureRef.current && !signatureRef.current.isEmpty()) {
       dataURL = signatureRef.current.toDataURL('image/png')
-    } else if (mode === 'upload' && uploadedImage) {
+    } else if ((mode === 'upload' || mode === 'camera') && uploadedImage) {
       dataURL = uploadedImage
     }
 
@@ -92,22 +108,94 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
 
   const handleModeChange = (newMode: SignatureMode) => {
     if (newMode !== mode) {
-      // Clear current signature when switching modes
       handleClear()
       setMode(newMode)
+      setCameraError(null)
     }
   }
+
+  // Remove background from image (extract signature)
+  const removeBackground = useCallback((imageData: ImageData): ImageData => {
+    const data = imageData.data
+
+    // Find the dominant background color (assume it's the most common color near edges)
+    const threshold = 200 // Pixels with brightness above this are considered background
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i]
+      const g = data[i + 1]
+      const b = data[i + 2]
+
+      // Calculate brightness
+      const brightness = (r + g + b) / 3
+
+      // If pixel is bright (likely background), make it transparent
+      if (brightness > threshold) {
+        data[i + 3] = 0 // Set alpha to 0 (transparent)
+      } else {
+        // Enhance dark pixels (signature) - make them more prominent
+        const factor = Math.max(0, (threshold - brightness) / threshold)
+        data[i] = Math.round(data[i] * factor) // R
+        data[i + 1] = Math.round(data[i + 1] * factor) // G
+        data[i + 2] = Math.round(data[i + 2] * factor) // B
+        data[i + 3] = Math.round(255 * Math.min(1, factor * 2)) // Alpha
+      }
+    }
+
+    return imageData
+  }, [])
+
+  // Process image to extract signature
+  const processImage = useCallback((imageSrc: string) => {
+    setIsProcessing(true)
+
+    const img = new window.Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) {
+        setIsProcessing(false)
+        return
+      }
+
+      // Set canvas size
+      canvas.width = img.width
+      canvas.height = img.height
+
+      // Draw image
+      ctx.drawImage(img, 0, 0)
+
+      // Get image data and remove background
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const processedData = removeBackground(imageData)
+      ctx.putImageData(processedData, 0, 0)
+
+      // Convert to data URL
+      const processedImage = canvas.toDataURL('image/png')
+      setUploadedImage(processedImage)
+      setIsEmpty(false)
+      onSignatureChange(processedImage)
+      setIsProcessing(false)
+    }
+
+    img.onerror = () => {
+      setIsProcessing(false)
+      alert('Failed to process image')
+    }
+
+    img.src = imageSrc
+  }, [onSignatureChange, removeBackground])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         alert('Please upload an image file (PNG, JPG, etc.)')
         return
       }
 
-      // Validate file size (2MB max for signature image)
       if (file.size > 2 * 1024 * 1024) {
         alert('Image size should be less than 2MB')
         return
@@ -116,9 +204,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       const reader = new FileReader()
       reader.onload = (event) => {
         const dataURL = event.target?.result as string
-        setUploadedImage(dataURL)
-        setIsEmpty(false)
-        onSignatureChange(dataURL)
+        // Process the image to remove background
+        processImage(dataURL)
       }
       reader.readAsDataURL(file)
     }
@@ -128,31 +215,89 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     fileInputRef.current?.click()
   }
 
+  // Camera functions
+  const startCamera = async () => {
+    try {
+      setCameraError(null)
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      })
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        setIsCameraActive(true)
+      }
+    } catch (err) {
+      console.error('Camera error:', err)
+      setCameraError('Unable to access camera. Please check permissions or use upload instead.')
+    }
+  }
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream
+      stream.getTracks().forEach(track => track.stop())
+      videoRef.current.srcObject = null
+    }
+    setIsCameraActive(false)
+  }
+
+  const capturePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return
+
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+
+    if (!ctx) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0)
+
+    const imageData = canvas.toDataURL('image/png')
+
+    // Stop camera and process the captured image
+    stopCamera()
+    processImage(imageData)
+  }
+
   return (
     <div className="space-y-4">
       {/* Mode Selector */}
-      <div className="flex items-center justify-center gap-2 p-1 bg-gray-100 rounded-xl">
+      <div className="flex items-center justify-center gap-1 p-1 bg-gray-100 rounded-xl">
         <button
           onClick={() => handleModeChange('draw')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
             mode === 'draw'
               ? 'bg-white text-primary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
           <PenTool className="w-4 h-4" />
-          Draw Signature
+          <span className="hidden sm:inline">Draw</span>
         </button>
         <button
           onClick={() => handleModeChange('upload')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
             mode === 'upload'
               ? 'bg-white text-primary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
           <Upload className="w-4 h-4" />
-          Upload Image
+          <span className="hidden sm:inline">Upload</span>
+        </button>
+        <button
+          onClick={() => handleModeChange('camera')}
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+            mode === 'camera'
+              ? 'bg-white text-primary-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Camera className="w-4 h-4" />
+          <span className="hidden sm:inline">Camera</span>
         </button>
       </div>
 
@@ -160,11 +305,10 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl">
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium text-gray-600">
-            {mode === 'draw' ? 'Draw your signature below' : 'Upload your signature image'}
+            {mode === 'draw' ? 'Draw your signature' : mode === 'upload' ? 'Upload signature image' : 'Capture with camera'}
           </span>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Color Picker - only show in draw mode */}
           {mode === 'draw' && (
             <div className="relative">
               <button
@@ -198,7 +342,6 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             </div>
           )}
 
-          {/* Upload Button - only show in upload mode */}
           {mode === 'upload' && (
             <button
               onClick={triggerFileInput}
@@ -209,17 +352,15 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             </button>
           )}
 
-          {/* Clear Button */}
           <button
             onClick={handleClear}
-            disabled={isEmpty}
+            disabled={isEmpty && !isCameraActive}
             className="p-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
             title="Clear signature"
           >
             <RotateCcw className="w-5 h-5 text-gray-600 group-hover:text-primary-600" />
           </button>
 
-          {/* Download Button */}
           <button
             onClick={handleDownload}
             disabled={isEmpty}
@@ -240,8 +381,19 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
         className="hidden"
       />
 
-      {/* Canvas Container - Draw Mode */}
-      {mode === 'draw' && (
+      {/* Hidden canvas for photo capture */}
+      <canvas ref={canvasRef} className="hidden" />
+
+      {/* Processing Indicator */}
+      {isProcessing && (
+        <div className="flex items-center justify-center gap-2 p-4 bg-blue-50 rounded-xl text-blue-700">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Extracting signature from image...</span>
+        </div>
+      )}
+
+      {/* Draw Mode */}
+      {mode === 'draw' && !isProcessing && (
         <div
           ref={containerRef}
           className={`signature-canvas-container ${!isEmpty ? 'has-signature' : ''}`}
@@ -260,12 +412,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             maxWidth={3}
             velocityFilterWeight={0.7}
           />
-
-          {/* Signature Line */}
           <div className="absolute bottom-8 left-8 right-8 border-b-2 border-gray-300 pointer-events-none" />
           <span className="absolute bottom-2 left-8 text-xs text-gray-400">Sign above this line</span>
-
-          {/* Status Indicator */}
           {!isEmpty && (
             <div className="absolute top-3 right-3 flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium success-badge">
               <Check className="w-3 h-3" />
@@ -275,24 +423,25 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
         </div>
       )}
 
-      {/* Upload Container - Upload Mode */}
-      {mode === 'upload' && (
+      {/* Upload Mode */}
+      {mode === 'upload' && !isProcessing && (
         <div
           ref={containerRef}
           className={`signature-canvas-container ${!isEmpty ? 'has-signature' : ''}`}
           style={{ minHeight: `${height}px` }}
         >
           {uploadedImage ? (
-            <div className="relative w-full h-full flex items-center justify-center p-4">
-              <img
-                src={uploadedImage}
-                alt="Uploaded signature"
-                className="max-w-full max-h-[180px] object-contain"
-              />
-              {/* Status Indicator */}
+            <div className="relative w-full h-full flex items-center justify-center p-4" style={{ minHeight: `${height}px` }}>
+              <div className="bg-gray-100 p-4 rounded-lg" style={{ backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAIElEQVQoU2NkYGD4z0AEYGRgYGBkIA5gwGpKpAYNlQIA3dgFATntO/MAAAAASUVORK5CYII=")' }}>
+                <img
+                  src={uploadedImage}
+                  alt="Uploaded signature"
+                  className="max-w-full max-h-[160px] object-contain"
+                />
+              </div>
               <div className="absolute top-3 right-3 flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium success-badge">
                 <Check className="w-3 h-3" />
-                <span>Uploaded</span>
+                <span>Extracted</span>
               </div>
             </div>
           ) : (
@@ -305,7 +454,86 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
                 <Upload className="w-8 h-8 text-gray-400" />
               </div>
               <p className="text-gray-600 font-medium">Click to upload signature image</p>
-              <p className="text-gray-400 text-sm mt-1">PNG, JPG up to 2MB</p>
+              <p className="text-gray-400 text-sm mt-1">Background will be automatically removed</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Camera Mode */}
+      {mode === 'camera' && !isProcessing && (
+        <div
+          ref={containerRef}
+          className={`signature-canvas-container ${!isEmpty ? 'has-signature' : ''}`}
+          style={{ minHeight: `${height}px` }}
+        >
+          {cameraError ? (
+            <div className="w-full flex flex-col items-center justify-center p-4" style={{ height: `${height}px` }}>
+              <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
+                <X className="w-8 h-8 text-red-400" />
+              </div>
+              <p className="text-red-600 font-medium text-center">{cameraError}</p>
+              <button
+                onClick={() => handleModeChange('upload')}
+                className="mt-4 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                Use Upload Instead
+              </button>
+            </div>
+          ) : uploadedImage ? (
+            <div className="relative w-full h-full flex items-center justify-center p-4" style={{ minHeight: `${height}px` }}>
+              <div className="bg-gray-100 p-4 rounded-lg" style={{ backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAIElEQVQoU2NkYGD4z0AEYGRgYGBkIA5gwGpKpAYNlQIA3dgFATntO/MAAAAASUVORK5CYII=")' }}>
+                <img
+                  src={uploadedImage}
+                  alt="Captured signature"
+                  className="max-w-full max-h-[160px] object-contain"
+                />
+              </div>
+              <div className="absolute top-3 right-3 flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium success-badge">
+                <Check className="w-3 h-3" />
+                <span>Captured</span>
+              </div>
+            </div>
+          ) : isCameraActive ? (
+            <div className="relative w-full" style={{ minHeight: `${height}px` }}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full rounded-xl"
+                style={{ maxHeight: `${height + 100}px` }}
+              />
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+                <button
+                  onClick={capturePhoto}
+                  className="px-6 py-3 bg-primary-500 text-white rounded-full font-semibold hover:bg-primary-600 transition-colors flex items-center gap-2 shadow-lg"
+                >
+                  <Camera className="w-5 h-5" />
+                  Capture
+                </button>
+                <button
+                  onClick={stopCamera}
+                  className="px-4 py-3 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="absolute top-4 left-4 right-4 text-center text-white text-sm bg-black/50 py-2 rounded-lg">
+                Position your signature in the frame
+              </p>
+            </div>
+          ) : (
+            <div
+              onClick={startCamera}
+              className="w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+              style={{ height: `${height}px` }}
+            >
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+                <Camera className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-600 font-medium">Click to open camera</p>
+              <p className="text-gray-400 text-sm mt-1">Take a photo of your signature</p>
+              <p className="text-gray-400 text-xs mt-1">Background will be automatically removed</p>
             </div>
           )}
         </div>
@@ -314,8 +542,10 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       {/* Help Text */}
       <p className="text-xs text-gray-500 text-center">
         {mode === 'draw'
-          ? 'Use your mouse or touchscreen to draw your signature. Your signature will be legally binding.'
-          : 'Upload a clear image of your signature. Transparent PNG images work best.'}
+          ? 'Use your mouse or touchscreen to draw your signature.'
+          : mode === 'upload'
+          ? 'Upload a photo of your signature. Background will be removed automatically.'
+          : 'Take a photo of your signature on paper. Background will be removed automatically.'}
       </p>
     </div>
   )
