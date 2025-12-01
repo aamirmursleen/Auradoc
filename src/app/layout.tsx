@@ -8,7 +8,7 @@ import Footer from '@/components/layout/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Auradoc - Professional E-Signature Platform',
+  title: 'MamaSign - Professional E-Signature Platform',
   description: 'Sign documents electronically with legally-binding digital signatures. Fast, secure, and professional.',
 }
 
@@ -18,7 +18,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      dynamic
+    >
       <html lang="en">
         <body className={`${inter.className} antialiased`}>
           <div className="flex flex-col min-h-screen">
