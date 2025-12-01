@@ -15,6 +15,7 @@ import {
   Lock,
   Globe,
 } from 'lucide-react'
+import HeroSection from '@/components/home/HeroSection'
 
 const HomePage: React.FC = () => {
   const features = [
@@ -81,64 +82,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-primary-50">
-        {/* Background Decorations */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full opacity-20 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-200 rounded-full opacity-20 blur-3xl" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <div className="animate-in space-y-8">
-            {/* Badge */}
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-100 rounded-full">
-              <span className="text-primary-700 text-sm font-medium">
-                Trusted by 50,000+ businesses worldwide
-              </span>
-              <CheckCircle className="w-4 h-4 text-primary-600" />
-            </div>
-
-            {/* Main Heading */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
-              Sign Documents
-              <span className="block gradient-text">Effortlessly</span>
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Professional e-signature platform for businesses of all sizes.
-              Get documents signed in minutes with legally-binding digital signatures.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/sign" className="btn-primary text-lg px-8 py-4">
-                Start Signing Free
-                <ArrowRight className="w-5 h-5 ml-2 inline" />
-              </Link>
-              <Link href="/features" className="btn-secondary text-lg px-8 py-4">
-                See How It Works
-              </Link>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-gray-500">
-              <div className="flex items-center space-x-2">
-                <Lock className="w-5 h-5 text-green-600" />
-                <span className="text-sm">256-bit Encryption</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-sm">Legally Binding</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="w-5 h-5 text-green-600" />
-                <span className="text-sm">SOC 2 Compliant</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Stats Section */}
       <section className="py-16 bg-gray-900">

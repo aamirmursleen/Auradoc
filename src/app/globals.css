@@ -124,3 +124,113 @@ select:focus {
     box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
   }
 }
+
+/* 3D Hero Animations */
+.hero-3d-container {
+  perspective: 1000px;
+}
+
+.document-3d {
+  animation: float3d 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes float3d {
+  0%, 100% {
+    transform: translateY(0) rotateX(2deg) rotateY(-2deg);
+  }
+  50% {
+    transform: translateY(-15px) rotateX(-2deg) rotateY(2deg);
+  }
+}
+
+/* Floating animations for mini cards */
+.animate-float-1 {
+  animation: float1 4s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float2 5s ease-in-out infinite;
+}
+
+.animate-float-3 {
+  animation: float3 4.5s ease-in-out infinite;
+}
+
+@keyframes float1 {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+@keyframes float2 {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-5deg);
+  }
+}
+
+@keyframes float3 {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+/* Glow animation */
+.animate-float-glow {
+  animation: floatGlow 4s ease-in-out infinite;
+}
+
+@keyframes floatGlow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+/* Shimmer effect for document lines */
+.animate-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Slow bounce for signature icon */
+.animate-bounce-slow {
+  animation: bounceSlow 2s ease-in-out infinite;
+}
+
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Signature text style */
+.signature-text {
+  font-family: cursive;
+}
