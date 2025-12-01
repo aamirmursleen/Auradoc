@@ -4,20 +4,22 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/sign/(.*)',  // Public signing page for external signers
-  '/api/test-email(.*)',
-  '/api/signing-requests/(.*)',  // Allow public access to signing API
+  '/sign(.*)',
+  '/templates(.*)',
+  '/verify(.*)',
+  '/sign-document(.*)',
+  '/track(.*)',
+  '/documents(.*)',
+  '/api/(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
-  }
+  // All routes are public - authentication is optional
+  // Pages will show login prompt if user data is needed
 })
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files
     '/((?!.+\.[\w]+$|_next).*)',
     '/',
     '/(api|trpc)(.*)',
