@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Menu, X, FileSignature, ChevronDown } from 'lucide-react'
-import { useUser, UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
+import { Menu, X } from 'lucide-react'
+import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -29,12 +29,16 @@ const Header: React.FC = () => {
           {/* Logo */}
           <button
             onClick={() => handleNavClick('/')}
-            className="flex items-center space-x-2 group cursor-pointer"
+            className="flex items-center group cursor-pointer"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
-              <FileSignature className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold gradient-text">MamaSign</span>
+            <Image
+              src="/mamasign-logo.png"
+              alt="MamaSign"
+              width={180}
+              height={45}
+              className="h-10 w-auto group-hover:scale-105 transition-transform duration-300"
+              priority
+            />
           </button>
 
           {/* Desktop Navigation */}
