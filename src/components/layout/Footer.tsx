@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
                 <FileSignature className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">Auradoc</span>
+              <span className="text-2xl font-bold text-white">MamaSign</span>
             </Link>
             <p className="mt-4 text-gray-400 max-w-md">
               Professional e-signature platform for businesses of all sizes.
@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
             <div className="mt-6 space-y-3">
               <div className="flex items-center space-x-3 text-gray-400">
                 <Mail className="w-5 h-5 text-primary-400" />
-                <span>support@auradoc.com</span>
+                <span>support@mamasign.com</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-400">
                 <Phone className="w-5 h-5 text-primary-400" />
@@ -117,7 +117,7 @@ const Footer: React.FC = () => {
         {/* Bottom Section */}
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            &copy; {currentYear} Auradoc. All rights reserved.
+            &copy; {currentYear} MamaSign. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             {socialLinks.map((social) => (

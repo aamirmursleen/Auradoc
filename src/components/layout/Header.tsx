@@ -4,11 +4,10 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Menu, X, FileSignature, ChevronDown } from 'lucide-react'
-import { useUser, UserButton } from '@clerk/nextjs'
+import { useUser, UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user, isLoaded } = useUser()
   const router = useRouter()
 
   const navigation = [
@@ -35,7 +34,7 @@ const Header: React.FC = () => {
             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
               <FileSignature className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold gradient-text">Auradoc</span>
+            <span className="text-2xl font-bold gradient-text">MamaSign</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -54,24 +53,23 @@ const Header: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {isLoaded && user ? (
+            <SignedIn>
               <UserButton afterSignOutUrl="/" />
-            ) : (
-              <>
-                <button
-                  onClick={() => handleNavClick('/sign-in')}
-                  className="text-gray-600 hover:text-primary-600 font-medium transition-colors duration-200 cursor-pointer"
-                >
-                  Log in
-                </button>
-                <button
-                  onClick={() => handleNavClick('/sign-up')}
-                  className="btn-primary cursor-pointer"
-                >
-                  Get Started
-                </button>
-              </>
-            )}
+            </SignedIn>
+            <SignedOut>
+              <button
+                onClick={() => handleNavClick('/sign-in')}
+                className="text-gray-600 hover:text-primary-600 font-medium transition-colors duration-200 cursor-pointer"
+              >
+                Log in
+              </button>
+              <button
+                onClick={() => handleNavClick('/sign-up')}
+                className="btn-primary cursor-pointer"
+              >
+                Get Started
+              </button>
+            </SignedOut>
           </div>
 
           {/* Mobile Menu Button */}
@@ -104,32 +102,31 @@ const Header: React.FC = () => {
                 </button>
               ))}
               <hr className="border-gray-100" />
-              {isLoaded && user ? (
+              <SignedIn>
                 <div className="py-2">
                   <UserButton afterSignOutUrl="/" />
                 </div>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      handleNavClick('/sign-in')
-                      setIsMenuOpen(false)
-                    }}
-                    className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200 text-left cursor-pointer"
-                  >
-                    Log in
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleNavClick('/sign-up')
-                      setIsMenuOpen(false)
-                    }}
-                    className="btn-primary text-center cursor-pointer"
-                  >
-                    Get Started
-                  </button>
-                </>
-              )}
+              </SignedIn>
+              <SignedOut>
+                <button
+                  onClick={() => {
+                    handleNavClick('/sign-in')
+                    setIsMenuOpen(false)
+                  }}
+                  className="text-gray-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200 text-left cursor-pointer"
+                >
+                  Log in
+                </button>
+                <button
+                  onClick={() => {
+                    handleNavClick('/sign-up')
+                    setIsMenuOpen(false)
+                  }}
+                  className="btn-primary text-center cursor-pointer"
+                >
+                  Get Started
+                </button>
+              </SignedOut>
             </div>
           </div>
         )}
