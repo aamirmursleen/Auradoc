@@ -134,18 +134,28 @@ export async function verifyDocument(
 // ============ GET USER'S REGISTERED DOCUMENTS ============
 
 export async function getUserVerifications(userId: string): Promise<DocumentVerification[]> {
-  const { data, error } = await supabase
-    .from('document_verifications')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from('document_verifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching verifications:', error)
-    throw error
+    if (error) {
+      // If table doesn't exist or permission denied, return empty array
+      if (error.code === '42P01' || error.code === 'PGRST116' || error.code === '42501') {
+        console.warn('Verifications table not accessible:', error.message)
+        return []
+      }
+      console.error('Error fetching verifications:', error)
+      return []
+    }
+
+    return data || []
+  } catch (err) {
+    console.error('Unexpected error fetching verifications:', err)
+    return []
   }
-
-  return data || []
 }
 
 // ============ GET SINGLE VERIFICATION ============

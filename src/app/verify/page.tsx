@@ -68,7 +68,13 @@ const VerifyPage: React.FC = () => {
   // Load user's verifications
   useEffect(() => {
     const loadVerifications = async () => {
-      if (!isLoaded || !user) return
+      if (!isLoaded) return
+
+      // If no user, just stop loading
+      if (!user) {
+        setLoading(false)
+        return
+      }
 
       try {
         setLoading(true)
@@ -76,6 +82,8 @@ const VerifyPage: React.FC = () => {
         setVerifications(data)
       } catch (error) {
         console.error('Error loading verifications:', error)
+        // Don't let error block the page - just show empty state
+        setVerifications([])
       } finally {
         setLoading(false)
       }
