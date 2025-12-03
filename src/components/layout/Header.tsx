@@ -12,10 +12,10 @@ const Header: React.FC = () => {
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Templates', href: '/templates' },
+    { name: 'ResumeTemplates', href: '/templates' },
     { name: 'SignDocument', href: '/sign-document' },
-    { name: 'Verify', href: '/verify' },
-    { name: 'Documents', href: '/documents' },
+    { name: 'Create Invoice', href: '/create-invoice' },
+    { name: 'Verify Pdfs', href: '/verify' },
   ]
 
   const handleNavClick = (href: string) => {
