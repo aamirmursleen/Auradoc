@@ -38,6 +38,7 @@ import {
   DocumentVerification,
   VerificationReport
 } from '@/lib/verification'
+import { incrementVerifyCount } from '@/lib/usageLimit'
 import { formatFileSize, ComparisonResult, generateDocumentHash, HashResult } from '@/lib/hash'
 
 const VerifyPage: React.FC = () => {
@@ -175,6 +176,11 @@ const VerifyPage: React.FC = () => {
       )
       setVerificationResult({ report, comparison: result.comparison })
       setShowResultModal(true) // Show popup with result
+
+      // Increment usage count after successful verification
+      if (user?.id) {
+        incrementVerifyCount(user.id)
+      }
     } catch (error) {
       console.error('Error verifying document:', error)
     } finally {

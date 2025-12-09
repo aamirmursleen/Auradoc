@@ -4,149 +4,86 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import {
   Check,
-  X,
   ArrowRight,
+  CheckCircle,
+  Shield,
   Zap,
-  Building2,
-  Users,
-  Crown,
-  HelpCircle,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react'
 
 const PricingPage: React.FC = () => {
-  const [isAnnual, setIsAnnual] = useState(true)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
-  const plans = [
+  const pricingTiers = [
     {
-      name: 'Free',
-      icon: Zap,
-      description: 'Perfect for individuals getting started with e-signatures',
-      monthlyPrice: 0,
-      annualPrice: 0,
-      features: [
-        { text: '3 documents per month', included: true },
-        { text: 'Basic e-signatures', included: true },
-        { text: 'Email notifications', included: true },
-        { text: 'Mobile signing', included: true },
-        { text: 'Document templates', included: false },
-        { text: 'Team collaboration', included: false },
-        { text: 'API access', included: false },
-        { text: 'Priority support', included: false },
-      ],
-      cta: 'Get Started Free',
-      ctaLink: '/sign-up',
-      popular: false,
+      price: 19,
+      milestone: '1-500',
+      label: 'First 500 users',
+      current: true,
     },
     {
-      name: 'Professional',
-      icon: Users,
-      description: 'For professionals and small teams who need more power',
-      monthlyPrice: 15,
-      annualPrice: 12,
-      features: [
-        { text: 'Unlimited documents', included: true },
-        { text: 'Advanced e-signatures', included: true },
-        { text: 'Email notifications', included: true },
-        { text: 'Mobile signing', included: true },
-        { text: '10 document templates', included: true },
-        { text: 'Up to 5 team members', included: true },
-        { text: 'Basic API access', included: true },
-        { text: 'Email support', included: true },
-      ],
-      cta: 'Start Free Trial',
-      ctaLink: '/sign-up?plan=professional',
-      popular: true,
+      price: 39,
+      milestone: '501-1000',
+      label: '501-1000 users',
+      current: false,
     },
     {
-      name: 'Business',
-      icon: Building2,
-      description: 'For growing businesses that need advanced features',
-      monthlyPrice: 45,
-      annualPrice: 36,
-      features: [
-        { text: 'Unlimited documents', included: true },
-        { text: 'Advanced e-signatures', included: true },
-        { text: 'Custom branding', included: true },
-        { text: 'Bulk sending', included: true },
-        { text: 'Unlimited templates', included: true },
-        { text: 'Unlimited team members', included: true },
-        { text: 'Full API access', included: true },
-        { text: 'Priority support', included: true },
-      ],
-      cta: 'Start Free Trial',
-      ctaLink: '/sign-up?plan=business',
-      popular: false,
+      price: 59,
+      milestone: '1001+',
+      label: '1001+ users',
+      current: false,
     },
-    {
-      name: 'Enterprise',
-      icon: Crown,
-      description: 'For large organizations with custom requirements',
-      monthlyPrice: null,
-      annualPrice: null,
-      features: [
-        { text: 'Everything in Business', included: true },
-        { text: 'Custom integrations', included: true },
-        { text: 'SSO / SAML', included: true },
-        { text: 'Dedicated account manager', included: true },
-        { text: 'Custom SLA', included: true },
-        { text: 'On-premise deployment', included: true },
-        { text: 'Advanced analytics', included: true },
-        { text: '24/7 phone support', included: true },
-      ],
-      cta: 'Contact Sales',
-      ctaLink: '/contact',
-      popular: false,
-    },
+  ]
+
+  const features = [
+    'Unlimited document signing',
+    'Unlimited PDF verification',
+    'Unlimited invoice creation',
+    'All resume templates',
+    'Custom branding',
+    'Priority support',
+    'Lifetime updates',
+    'No monthly fees',
+    'API access',
+    'Team collaboration',
+    'Advanced analytics',
+    'White-label option',
   ]
 
   const faqs = [
     {
-      question: 'Is there a free trial available?',
-      answer: 'Yes! All paid plans come with a 14-day free trial. No credit card required to start. You can explore all features and decide which plan works best for you.',
+      question: 'What is a lifetime deal?',
+      answer: 'A lifetime deal means you pay once and get access to MamaSign forever. No monthly or annual subscriptions. All updates and new features are included at no extra cost.',
     },
     {
-      question: 'Can I change my plan later?',
-      answer: 'Absolutely. You can upgrade or downgrade your plan at any time. If you upgrade, you\'ll be charged the prorated difference. If you downgrade, the change will take effect at the end of your billing cycle.',
+      question: 'Will the price increase later?',
+      answer: 'Yes! The price increases as we reach user milestones. Currently, we are in the first tier ($19 for first 500 users). Once we hit 500 users, the price jumps to $39, and so on. Lock in your price now before it goes up.',
     },
     {
-      question: 'Are documents legally binding?',
-      answer: 'Yes, all documents signed with MamaSign are legally binding in most countries. We comply with major e-signature laws including ESIGN Act (USA), eIDAS (EU), and similar regulations worldwide.',
+      question: 'Are there any hidden fees?',
+      answer: 'Absolutely not. The one-time payment includes everything - all features, unlimited usage, lifetime updates, and priority support. No hidden fees, no recurring charges.',
     },
     {
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers for annual plans. Enterprise customers can also pay via invoice.',
+      question: 'What if I am not satisfied?',
+      answer: 'We offer a 30-day money-back guarantee, no questions asked. If MamaSign is not right for you, simply contact us within 30 days for a full refund.',
     },
     {
-      question: 'What happens to my documents if I cancel?',
-      answer: 'Your signed documents remain accessible for 30 days after cancellation. We recommend downloading all important documents before your subscription ends. Enterprise customers have custom retention options.',
+      question: 'Do I need technical skills to use MamaSign?',
+      answer: 'Not at all! MamaSign is designed to be incredibly user-friendly. If you can use email, you can use MamaSign. Plus, we have comprehensive documentation and priority support to help you get started.',
     },
     {
-      question: 'Do you offer discounts for nonprofits?',
-      answer: 'Yes! We offer 50% off for verified nonprofit organizations. Contact our sales team with proof of nonprofit status to get your discount code.',
+      question: 'Can I upgrade my license later?',
+      answer: 'Your lifetime license is already the complete package with all features included. There is nothing to upgrade to - you get everything from day one.',
     },
     {
       question: 'Is my data secure?',
       answer: 'Absolutely. We use 256-bit AES encryption, are SOC 2 Type II certified, and comply with GDPR, HIPAA, and other major security standards. Your documents are encrypted both at rest and in transit.',
     },
     {
-      question: 'Can I integrate MamaSign with other tools?',
-      answer: 'Yes! We offer integrations with popular tools like Salesforce, Google Drive, Dropbox, and more. Our REST API is also available for custom integrations on Professional plans and above.',
+      question: 'What payment methods do you accept?',
+      answer: 'We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers. All payments are processed securely through industry-standard payment processors.',
     },
-  ]
-
-  const comparisonFeatures = [
-    { name: 'Documents per month', free: '3', professional: 'Unlimited', business: 'Unlimited', enterprise: 'Unlimited' },
-    { name: 'Team members', free: '1', professional: '5', business: 'Unlimited', enterprise: 'Unlimited' },
-    { name: 'Templates', free: '-', professional: '10', business: 'Unlimited', enterprise: 'Unlimited' },
-    { name: 'API requests/month', free: '-', professional: '1,000', business: '10,000', enterprise: 'Unlimited' },
-    { name: 'Storage', free: '100 MB', professional: '5 GB', business: '50 GB', enterprise: 'Unlimited' },
-    { name: 'Audit trail', free: 'Basic', professional: 'Advanced', business: 'Advanced', enterprise: 'Advanced + Custom' },
-    { name: 'Custom branding', free: '-', professional: '-', business: '✓', enterprise: '✓' },
-    { name: 'SSO / SAML', free: '-', professional: '-', business: '-', enterprise: '✓' },
-    { name: 'Dedicated support', free: '-', professional: '-', business: '-', enterprise: '✓' },
   ]
 
   return (
@@ -161,154 +98,130 @@ const PricingPage: React.FC = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Simple, Transparent
-              <span className="block mt-2 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 bg-clip-text text-transparent">
-                Pricing
+              One Price.
+              <span className="block mt-2 bg-gradient-to-r from-primary-600 via-accent-600 to-cyan-500 bg-clip-text text-transparent">
+                Forever Yours.
               </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-              Choose the plan that fits your needs. Start free and upgrade as you grow. No hidden fees, no surprises.
+              Get lifetime access to all MamaSign features with a single payment. No subscriptions, no monthly fees, no surprises.
             </p>
+          </div>
+        </div>
+      </section>
 
-            {/* Billing Toggle */}
-            <div className="inline-flex items-center p-1 bg-gray-100 rounded-xl">
-              <button
-                onClick={() => setIsAnnual(false)}
-                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  !isAnnual ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
+      {/* Pricing Tiers Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Lifetime Deal Pricing
+            </h2>
+            <p className="text-xl text-gray-600">
+              Price increases with each milestone. Lock in your discount now!
+            </p>
+          </div>
+
+          {/* Milestone Pricing Cards */}
+          <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8 mb-16">
+            {pricingTiers.map((tier, index) => (
+              <div
+                key={index}
+                className={`relative ${tier.current ? 'transform scale-105' : 'opacity-75'}`}
               >
-                Monthly
-              </button>
-              <button
-                onClick={() => setIsAnnual(true)}
-                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  isAnnual ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Annual
-                <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                  Save 20%
-                </span>
-              </button>
+                <div
+                  className={`bg-white rounded-2xl p-8 shadow-xl transition-all duration-300 hover:transform hover:scale-105 ${
+                    tier.current
+                      ? 'border-4 border-primary-500'
+                      : 'border-2 border-gray-200'
+                  }`}
+                >
+                  {tier.current && (
+                    <div className="absolute -top-3 -right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                      Last chance!
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <div
+                      className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 shadow-2xl ${
+                        tier.current
+                          ? 'bg-gradient-to-br from-primary-500 to-accent-500'
+                          : 'bg-gray-100'
+                      }`}
+                    >
+                      <div className={tier.current ? 'text-white' : 'text-gray-700'}>
+                        <div className="text-4xl font-bold">${tier.price}</div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 font-medium mb-2">{tier.label}</p>
+                    {tier.current && (
+                      <div className="mt-3 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold inline-block">
+                        CURRENT TIER
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center mb-12">
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center px-12 py-5 text-lg font-bold text-white bg-gradient-to-r from-primary-600 to-accent-600 rounded-xl shadow-2xl hover:shadow-primary-500/50 transition-all duration-300 transform hover:scale-105 uppercase tracking-wide"
+            >
+              Get Lifetime Deal
+              <ArrowRight className="w-6 h-6 ml-3" />
+            </Link>
+            <p className="mt-4 text-sm text-gray-500">
+              One-time payment. Lifetime access. 30-day money-back guarantee.
+            </p>
+          </div>
+
+          {/* Guarantee Badge */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center space-x-2 bg-green-50 border-2 border-green-200 rounded-full px-6 py-3">
+              <Shield className="w-5 h-5 text-green-600" />
+              <span className="text-green-800 font-semibold">30-Day Money-Back Guarantee</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Pricing Cards */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {plans.map((plan, index) => (
-              <div
-                key={index}
-                className={`relative p-8 rounded-2xl border-2 transition-all duration-300 hover:-translate-y-1 ${
-                  plan.popular
-                    ? 'border-blue-500 shadow-xl shadow-blue-500/20'
-                    : 'border-gray-100 hover:border-gray-200 hover:shadow-lg'
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium px-4 py-1 rounded-full">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
-                  <plan.icon className="w-6 h-6 text-white" />
-                </div>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <p className="text-gray-600 text-sm mb-6">{plan.description}</p>
-
-                <div className="mb-6">
-                  {plan.monthlyPrice !== null ? (
-                    <>
-                      <span className="text-4xl font-bold text-gray-900">
-                        ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
-                      </span>
-                      <span className="text-gray-600">/month</span>
-                      {isAnnual && plan.annualPrice !== plan.monthlyPrice && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          Billed annually (${(plan.annualPrice || 0) * 12}/year)
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <span className="text-2xl font-bold text-gray-900">Custom Pricing</span>
-                  )}
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start">
-                      {feature.included ? (
-                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <X className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0 mt-0.5" />
-                      )}
-                      <span className={feature.included ? 'text-gray-700' : 'text-gray-400'}>
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href={plan.ctaLink}
-                  className={`w-full inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    plan.popular
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/30'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {plan.cta}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Comparison Table */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* What's Included Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Compare Plans
+              Everything Included
             </h2>
             <p className="text-xl text-gray-600">
-              See what's included in each plan
+              Get full access to all features with your lifetime license
             </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
-              <thead>
-                <tr className="bg-gray-900 text-white">
-                  <th className="px-6 py-4 text-left font-semibold">Feature</th>
-                  <th className="px-6 py-4 text-center font-semibold">Free</th>
-                  <th className="px-6 py-4 text-center font-semibold">Professional</th>
-                  <th className="px-6 py-4 text-center font-semibold">Business</th>
-                  <th className="px-6 py-4 text-center font-semibold">Enterprise</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonFeatures.map((feature, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 font-medium text-gray-900">{feature.name}</td>
-                    <td className="px-6 py-4 text-center text-gray-600">{feature.free}</td>
-                    <td className="px-6 py-4 text-center text-gray-600">{feature.professional}</td>
-                    <td className="px-6 py-4 text-center text-gray-600">{feature.business}</td>
-                    <td className="px-6 py-4 text-center text-gray-600">{feature.enterprise}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border border-gray-100">
+            <div className="grid md:grid-cols-2 gap-6">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-center">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="ml-4 text-gray-700 text-lg">{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Value Proposition */}
+            <div className="mt-12 pt-8 border-t border-gray-200 text-center">
+              <p className="text-2xl font-bold text-gray-900 mb-2">
+                Everything for a one-time payment of just $19
+              </p>
+              <p className="text-gray-600">
+                Compare this to competitors charging $15-50/month. You will save hundreds over a year!
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -321,7 +234,7 @@ const PricingPage: React.FC = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-xl text-gray-600">
-              Everything you need to know about our pricing
+              Everything you need to know about the lifetime deal
             </p>
           </div>
 
@@ -353,23 +266,45 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+      {/* Final CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-primary-600 to-accent-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Ready to Get Started?
+            Do not Miss This Limited-Time Offer
           </h2>
           <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of businesses using MamaSign. Start your free trial today.
+            Join the first 500 users and lock in the lowest price. Once this tier fills up, the price increases to $39.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/sign-up" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105">
-              Start Free Trial
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-primary-600 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+            >
+              Get Started Now
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
-            <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300">
-              Talk to Sales
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300"
+            >
+              Have Questions? Contact Us
             </Link>
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="mt-12 flex flex-wrap justify-center gap-8 items-center text-white/80">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-5 h-5" />
+              <span>Secure Payment</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-5 h-5" />
+              <span>30-Day Guarantee</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Zap className="w-5 h-5" />
+              <span>Instant Access</span>
+            </div>
           </div>
         </div>
       </section>

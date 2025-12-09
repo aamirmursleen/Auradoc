@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { incrementInvoiceCount } from '@/lib/usageLimit'
 import {
   FileText,
   Upload,
@@ -236,6 +237,16 @@ const CreateInvoicePage: React.FC = () => {
     if (invoiceData.items.length > 1) {
       handleInputChange('items', invoiceData.items.filter((_, i) => i !== index))
     }
+  }
+
+  // Handle PDF download and increment usage count
+  const handleDownloadPDF = () => {
+    // Increment invoice count when generating/downloading
+    if (user?.id) {
+      incrementInvoiceCount(user.id)
+    }
+    // TODO: Add actual PDF generation logic here
+    window.print()
   }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -845,6 +856,7 @@ const CreateInvoicePage: React.FC = () => {
                     Preview Invoice
                   </button>
                   <button
+                    onClick={handleDownloadPDF}
                     className="py-4 text-white font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
                     style={{ backgroundColor: selectedTemplateData?.colors.primary }}
                   >
@@ -889,6 +901,7 @@ const CreateInvoicePage: React.FC = () => {
                   Print
                 </button>
                 <button
+                  onClick={handleDownloadPDF}
                   className="px-4 py-2 text-white rounded-lg transition-all hover:shadow-lg flex items-center gap-2 text-sm font-medium"
                   style={{ backgroundColor: selectedTemplateData?.colors.primary }}
                 >

@@ -42,6 +42,7 @@ import {
   Mail
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
+import { incrementSignCount } from '@/lib/usageLimit'
 
 // Dynamically import PDF viewer
 const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
@@ -488,6 +489,11 @@ const SignDocumentPage: React.FC = () => {
       }
 
       setSendSuccess(true)
+
+      // Increment usage count after successful send
+      if (user?.id) {
+        incrementSignCount(user.id)
+      }
       setShowSendModal(false)
 
       // Show success message
