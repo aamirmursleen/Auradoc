@@ -6,16 +6,20 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/sign(.*)',
   '/templates(.*)',
-  '/verify(.*)',
-  '/sign-document(.*)',
   '/track(.*)',
-  '/documents(.*)',
   '/api/(.*)',
 ])
 
+const isProtectedRoute = createRouteMatcher([
+  '/verify(.*)',
+  '/sign-document(.*)',
+])
+
 export default clerkMiddleware(async (auth, req) => {
-  // All routes are public - authentication is optional
-  // Pages will show login prompt if user data is needed
+  // Protected routes require authentication
+  if (isProtectedRoute(req)) {
+    await auth.protect()
+  }
 })
 
 export const config = {
