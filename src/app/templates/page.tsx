@@ -192,9 +192,9 @@ const TemplatesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900/80">
       {/* Hero Section - Compact */}
-      <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600 text-white pt-8 pb-6 px-4">
+      <section className="bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 text-white pt-8 pb-6 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
@@ -228,14 +228,14 @@ const TemplatesPage: React.FC = () => {
       </section>
 
       {/* Category Tags - Scrollable like template.net */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-40 bg-gray-900/80 border-b border-gray-700/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="relative flex items-center py-3">
             {/* Left scroll button */}
             {canScrollLeft && (
               <button
                 onClick={() => scrollCategories('left')}
-                className="absolute left-0 z-10 w-10 h-10 bg-gradient-to-r from-white via-white to-transparent flex items-center justify-start"
+                className="absolute left-0 z-10 w-10 h-10 bg-gradient-to-r from-gray-900/80 via-gray-900/80 to-transparent flex items-center justify-start"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-600" />
               </button>
@@ -300,7 +300,7 @@ const TemplatesPage: React.FC = () => {
             {canScrollRight && (
               <button
                 onClick={() => scrollCategories('right')}
-                className="absolute right-0 z-10 w-10 h-10 bg-gradient-to-l from-white via-white to-transparent flex items-center justify-end"
+                className="absolute right-0 z-10 w-10 h-10 bg-gradient-to-l from-gray-900/80 via-gray-900/80 to-transparent flex items-center justify-end"
               >
                 <ChevronRight className="w-5 h-5 text-gray-600" />
               </button>
@@ -314,8 +314,8 @@ const TemplatesPage: React.FC = () => {
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-gray-600">
-              <span className="font-semibold text-gray-900">{filteredTemplates.length}</span> templates
+            <p className="text-gray-300">
+              <span className="font-semibold text-white">{filteredTemplates.length}</span> templates
               {searchQuery && (
                 <span> for "<span className="font-medium text-primary-600">{searchQuery}</span>"</span>
               )}
@@ -324,7 +324,7 @@ const TemplatesPage: React.FC = () => {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1">
+          <div className="flex items-center gap-2 bg-gray-900/80 rounded-lg border border-gray-700/50 p-1">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
@@ -360,7 +360,7 @@ const TemplatesPage: React.FC = () => {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className="group relative bg-white rounded-2xl border border-gray-100 hover:border-primary-300 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative bg-gray-900/80 rounded-2xl border border-gray-700/50 hover:border-primary-300 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden"
                 >
                   {/* Document Preview Thumbnail */}
                   <div className="relative h-52 bg-gray-50 border-b border-gray-100 overflow-hidden">
@@ -411,12 +411,12 @@ const TemplatesPage: React.FC = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-1 line-clamp-1">
+                    <h3 className="font-semibold text-white group-hover:text-primary-600 transition-colors mb-1 line-clamp-1">
                       {template.name}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+                    <p className="text-sm text-gray-400 line-clamp-2 mb-3">
                       {template.description}
                     </p>
 
@@ -438,7 +438,7 @@ const TemplatesPage: React.FC = () => {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className="bg-white rounded-xl border border-gray-100 hover:border-primary-300 p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group"
+                  className="bg-gray-900/80 rounded-xl border border-gray-700/50 hover:border-primary-300 p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group"
                 >
                   {/* Mini Preview */}
                   <div className="w-20 h-28 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden flex-shrink-0 relative">
@@ -464,10 +464,10 @@ const TemplatesPage: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                    <h3 className="font-semibold text-white group-hover:text-primary-600 transition-colors">
                       {template.name}
                     </h3>
-                    <p className="text-sm text-gray-500 line-clamp-1">{template.description}</p>
+                    <p className="text-sm text-gray-400 line-clamp-1">{template.description}</p>
                     <p className="text-xs text-gray-400 mt-1">{template.fields.length} fields to fill</p>
                   </div>
 
@@ -491,8 +491,8 @@ const TemplatesPage: React.FC = () => {
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-10 h-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
-            <p className="text-gray-500 mb-6">
+            <h3 className="text-xl font-semibold text-white mb-2">No templates found</h3>
+            <p className="text-gray-300 mb-6">
               Try adjusting your search or filter to find what you're looking for.
             </p>
             <button

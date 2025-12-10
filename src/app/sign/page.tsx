@@ -37,7 +37,7 @@ import SignatureCanvas from '@/components/signature/SignatureCanvas'
 const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-[500px] bg-gray-100 rounded-xl">
+    <div className="flex items-center justify-center h-[500px] bg-gray-900/80 rounded-xl">
       <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
     </div>
   )
@@ -546,10 +546,10 @@ const SignPage: React.FC = () => {
           ref={sig.id === activeSignatureId ? signatureRef : undefined}
           className={`absolute border-2 rounded-lg shadow-xl group select-none
             ${sig.isConfirmed
-              ? 'border-green-500 bg-white/90 cursor-default'
+              ? 'border-green-500 bg-gray-900/80/90 cursor-default'
               : isDragging && activeSignatureId === sig.id
-                ? 'border-primary-500 bg-white/95 cursor-grabbing shadow-2xl scale-105'
-                : 'border-primary-400 border-dashed bg-white/95 cursor-grab hover:border-primary-500 hover:shadow-2xl'
+                ? 'border-primary-500 bg-gray-900/80/95 cursor-grabbing shadow-2xl scale-105'
+                : 'border-primary-400 border-dashed bg-gray-900/80/95 cursor-grab hover:border-primary-500 hover:shadow-2xl'
             }
             transition-shadow duration-200
           `}
@@ -606,7 +606,7 @@ const SignPage: React.FC = () => {
           )}
           {/* Helper text */}
           {!sig.isConfirmed && (
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
               Drag to position
             </div>
           )}
@@ -625,10 +625,10 @@ const SignPage: React.FC = () => {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Document Signed Successfully!
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               Your document has been signed and is ready to download.
             </p>
           </div>
@@ -638,23 +638,23 @@ const SignPage: React.FC = () => {
             <div className="lg:col-span-1 space-y-4">
               <div className="card">
                 <div className="card-body">
-                  <h3 className="font-semibold text-gray-900 mb-4">Document Details</h3>
+                  <h3 className="font-semibold text-white mb-4">Document Details</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Document</span>
-                      <span className="font-medium text-gray-900 truncate max-w-[150px]">
+                      <span className="text-gray-400">Document</span>
+                      <span className="font-medium text-white truncate max-w-[150px]">
                         {signedDocument.documentName}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Signed At</span>
-                      <span className="font-medium text-gray-900">
+                      <span className="text-gray-400">Signed At</span>
+                      <span className="font-medium text-white">
                         {new Date(signedDocument.signedAt).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Document ID</span>
-                      <span className="font-mono text-xs text-gray-700">
+                      <span className="text-gray-400">Document ID</span>
+                      <span className="font-mono text-xs text-gray-400">
                         {signedDocument.id.slice(0, 8)}...
                       </span>
                     </div>
@@ -673,7 +673,7 @@ const SignPage: React.FC = () => {
 
               <button
                 onClick={handleStartOver}
-                className="w-full py-3 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+                className="w-full py-3 px-4 bg-gray-900/80 border border-gray-300 text-gray-400 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-900/80 transition-colors"
               >
                 <FileSignature className="w-5 h-5" />
                 Sign Another Document
@@ -704,7 +704,7 @@ const SignPage: React.FC = () => {
             <div className="lg:col-span-2">
               <div className="card">
                 <div className="card-header flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <h3 className="font-semibold text-white flex items-center gap-2">
                     <Eye className="w-5 h-5 text-primary-500" />
                     Signed Document Preview
                   </h3>
@@ -715,7 +715,7 @@ const SignPage: React.FC = () => {
                       <img
                         src={signedDocument.signedImageUrl}
                         alt="Signed document"
-                        className="shadow-xl bg-white max-w-full"
+                        className="shadow-xl bg-gray-900/80 max-w-full"
                         style={{ maxHeight: '550px' }}
                       />
                     )}
@@ -739,10 +739,10 @@ const SignPage: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
             Sign Your Document
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Upload a document, create your signature, and place it where needed.
           </p>
         </div>
@@ -753,7 +753,7 @@ const SignPage: React.FC = () => {
             {/* Upload Card */}
             <div className="card">
               <div className="card-body">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                   <Upload className="w-5 h-5 text-primary-500" />
                   Upload Document
                 </h3>
@@ -770,10 +770,10 @@ const SignPage: React.FC = () => {
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 text-sm truncate max-w-[150px]">
+                          <p className="font-medium text-white text-sm truncate max-w-[150px]">
                             {document.name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-400">
                             {(document.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
@@ -782,13 +782,13 @@ const SignPage: React.FC = () => {
                         onClick={removeDocument}
                         className="p-1 hover:bg-green-100 rounded-lg transition-colors"
                       >
-                        <X className="w-5 h-5 text-gray-500" />
+                        <X className="w-5 h-5 text-gray-400" />
                       </button>
                     </div>
                   </div>
                 ) : (
                   <label
-                    className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-primary-400 hover:bg-gray-50 transition-all block"
+                    className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-primary-400 hover:bg-gray-900/80 transition-all block"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                   >
@@ -799,7 +799,7 @@ const SignPage: React.FC = () => {
                       className="hidden"
                     />
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600 font-medium">
+                    <p className="text-sm text-gray-300 font-medium">
                       Click or drag file
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
@@ -813,7 +813,7 @@ const SignPage: React.FC = () => {
             {/* Create Signature Card */}
             <div className="card border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white">
               <div className="card-body">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                   <PenTool className="w-5 h-5 text-primary-500" />
                   Your Signature
                 </h3>
@@ -821,7 +821,7 @@ const SignPage: React.FC = () => {
                 {/* Show current signature being placed (unconfirmed) */}
                 {currentPlacingSignature ? (
                   <div className="space-y-3">
-                    <div className="bg-white border-2 border-primary-400 rounded-xl p-3">
+                    <div className="bg-gray-900/80 border-2 border-primary-400 rounded-xl p-3">
                       <img
                         src={currentPlacingSignature.signatureImage}
                         alt="Current signature"
@@ -935,29 +935,29 @@ const SignPage: React.FC = () => {
             {document && (
               <div className="card">
                 <div className="card-body">
-                  <h3 className="font-semibold text-gray-900 mb-3 text-sm">Zoom</h3>
+                  <h3 className="font-semibold text-white mb-3 text-sm">Zoom</h3>
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => setZoom(z => Math.max(0.5, z - 0.1))}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg hover:bg-gray-900/80 transition-colors"
                     >
-                      <ZoomOut className="w-5 h-5 text-gray-600" />
+                      <ZoomOut className="w-5 h-5 text-gray-300" />
                     </button>
-                    <span className="text-sm font-medium text-gray-700 min-w-[60px] text-center">
+                    <span className="text-sm font-medium text-gray-400 min-w-[60px] text-center">
                       {Math.round(zoom * 100)}%
                     </span>
                     <button
                       onClick={() => setZoom(z => Math.min(2, z + 0.1))}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg hover:bg-gray-900/80 transition-colors"
                     >
-                      <ZoomIn className="w-5 h-5 text-gray-600" />
+                      <ZoomIn className="w-5 h-5 text-gray-300" />
                     </button>
                     <button
                       onClick={() => setZoom(1)}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg hover:bg-gray-900/80 transition-colors"
                       title="Reset"
                     >
-                      <RotateCcw className="w-5 h-5 text-gray-600" />
+                      <RotateCcw className="w-5 h-5 text-gray-300" />
                     </button>
                   </div>
                 </div>
@@ -979,7 +979,7 @@ const SignPage: React.FC = () => {
               <div className="card-body p-0">
                 {!document ? (
                   <label
-                    className="flex flex-col items-center justify-center h-[600px] cursor-pointer hover:bg-gray-50 transition-colors rounded-2xl"
+                    className="flex flex-col items-center justify-center h-[600px] cursor-pointer hover:bg-gray-900/80 transition-colors rounded-2xl"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                   >
@@ -990,13 +990,13 @@ const SignPage: React.FC = () => {
                       className="hidden"
                     />
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <div className="w-20 h-20 bg-gray-900/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <Upload className="w-10 h-10 text-gray-400" />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                      <h3 className="text-xl font-semibold text-gray-400 mb-2">
                         Drop your document here
                       </h3>
-                      <p className="text-gray-500 mb-4">
+                      <p className="text-gray-400 mb-4">
                         or click to browse
                       </p>
                       <div className="flex items-center justify-center gap-4 text-sm text-gray-400">
@@ -1012,7 +1012,7 @@ const SignPage: React.FC = () => {
                     </div>
                   </label>
                 ) : (
-                  <div className="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-100">
+                  <div className="border-2 border-gray-700/50 rounded-xl overflow-hidden bg-gray-900/80">
                     {/* PDF Document */}
                     {isPDF && (
                       <div
@@ -1048,7 +1048,7 @@ const SignPage: React.FC = () => {
                           <img
                             src={documentPreview}
                             alt="Document preview"
-                            className="shadow-lg bg-white"
+                            className="shadow-lg bg-gray-900/80"
                             draggable={false}
                           />
                           {SignaturesOverlay}
@@ -1091,7 +1091,7 @@ const SignPage: React.FC = () => {
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-gray-500">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-gray-400">
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-green-600" />
             <span className="text-sm">256-bit Encryption</span>
@@ -1109,17 +1109,17 @@ const SignPage: React.FC = () => {
         {/* Signature Pad Modal */}
         {showSignaturePad && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="bg-gray-900/80 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-white">
                     Create Your Signature
                   </h3>
                   <button
                     onClick={() => setShowSignaturePad(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-900/80 rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
                 <SignatureCanvas onSignatureChange={handleSignatureCreated} />
@@ -1131,31 +1131,31 @@ const SignPage: React.FC = () => {
         {/* Send for Signatures Modal - Odoo Style */}
         {showSendModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
+            <div className="bg-gray-900/80 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-5 border-b border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <div className="flex items-center justify-between p-5 border-b border-gray-700/50">
+                <h3 className="text-xl font-semibold text-white flex items-center gap-2">
                   <Send className="w-5 h-5 text-primary-500" />
                   New Signature Request
                 </h3>
                 <button
                   onClick={() => setShowSendModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-900/80 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
 
               {/* Modal Body */}
               <div className="p-5 space-y-4">
                 {/* Document Info */}
-                <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-gray-900/80 rounded-xl p-4 flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
                     <FileText className="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">{document?.name}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-medium text-white text-sm">{document?.name}</p>
+                    <p className="text-xs text-gray-400">
                       {document && (document.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
@@ -1163,7 +1163,7 @@ const SignPage: React.FC = () => {
 
                 {/* Signers */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     Signers *
                   </label>
                   <div className="space-y-2">
@@ -1211,7 +1211,7 @@ const SignPage: React.FC = () => {
 
                 {/* Subject */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     Subject
                   </label>
                   <input
@@ -1225,7 +1225,7 @@ const SignPage: React.FC = () => {
 
                 {/* CC */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     CC (comma separated)
                   </label>
                   <input
@@ -1239,7 +1239,7 @@ const SignPage: React.FC = () => {
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     <MessageSquare className="w-4 h-4 inline mr-1" />
                     Message (optional)
                   </label>
@@ -1262,10 +1262,10 @@ const SignPage: React.FC = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+              <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-700/50 bg-gray-900/80 rounded-b-2xl">
                 <button
                   onClick={() => setShowSendModal(false)}
-                  className="px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-gray-400 font-medium rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Cancel
                 </button>

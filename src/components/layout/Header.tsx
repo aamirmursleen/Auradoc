@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
@@ -23,22 +22,18 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-[100] bg-gray-900/95 backdrop-blur-lg border-b border-gray-700/50 shadow-lg shadow-black/20">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          {/* Logo */}
+          {/* Logo - Simple Text like CALENDARJET */}
           <button
             onClick={() => handleNavClick('/')}
             className="flex items-center group cursor-pointer"
           >
-            <Image
-              src="/mamasign-logo-full.png"
-              alt="MamaSign - Professional e-signature for everyone"
-              width={280}
-              height={70}
-              className="h-14 w-auto group-hover:scale-105 transition-transform duration-300"
-              priority
-            />
+            <span className="text-2xl md:text-3xl font-black italic tracking-tight">
+              <span className="text-cyan-400">MAMA</span>
+              <span className="text-purple-400">SIGN</span>
+            </span>
           </button>
 
           {/* Desktop Navigation */}
@@ -47,10 +42,10 @@ const Header: React.FC = () => {
               <button
                 key={item.name}
                 onClick={() => handleNavClick(item.href)}
-                className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200 relative group cursor-pointer"
+                className="text-gray-300 hover:text-cyan-400 font-medium transition-colors duration-200 relative group cursor-pointer"
               >
                 {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 group-hover:w-full transition-all duration-300" />
               </button>
             ))}
           </div>
@@ -63,13 +58,13 @@ const Header: React.FC = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200 cursor-pointer"
+                className="text-gray-300 hover:text-cyan-400 font-medium transition-colors duration-200 cursor-pointer"
               >
                 Log in
               </button>
               <button
                 onClick={() => handleNavClick('/sign-up')}
-                className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 cursor-pointer"
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-medium rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 cursor-pointer hover:from-cyan-400 hover:via-blue-500 hover:to-purple-500"
               >
                 Get Started
               </button>
@@ -79,19 +74,19 @@ const Header: React.FC = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors"
           >
             {isMenuOpen ? (
-              <X className="w-6 h-6 text-gray-600" />
+              <X className="w-6 h-6 text-gray-300" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-600" />
+              <Menu className="w-6 h-6 text-gray-300" />
             )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100 animate-in">
+          <div className="md:hidden py-4 border-t border-gray-700/50 animate-in">
             <div className="flex flex-col space-y-4">
               {navigation.map((item) => (
                 <button
@@ -100,12 +95,12 @@ const Header: React.FC = () => {
                     handleNavClick(item.href)
                     setIsMenuOpen(false)
                   }}
-                  className="text-gray-600 hover:text-blue-600 font-medium py-2 transition-colors duration-200 text-left cursor-pointer"
+                  className="text-gray-300 hover:text-cyan-400 font-medium py-2 transition-colors duration-200 text-left cursor-pointer"
                 >
                   {item.name}
                 </button>
               ))}
-              <hr className="border-gray-100" />
+              <hr className="border-gray-700/50" />
               <SignedIn>
                 <div className="py-2">
                   <UserButton afterSignOutUrl="/" />
@@ -117,7 +112,7 @@ const Header: React.FC = () => {
                     handleNavClick('/sign-in')
                     setIsMenuOpen(false)
                   }}
-                  className="text-gray-600 hover:text-blue-600 font-medium py-2 transition-colors duration-200 text-left cursor-pointer"
+                  className="text-gray-300 hover:text-cyan-400 font-medium py-2 transition-colors duration-200 text-left cursor-pointer"
                 >
                   Log in
                 </button>
@@ -126,7 +121,7 @@ const Header: React.FC = () => {
                     handleNavClick('/sign-up')
                     setIsMenuOpen(false)
                   }}
-                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg text-center cursor-pointer"
+                  className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-medium rounded-lg text-center cursor-pointer"
                 >
                   Get Started
                 </button>

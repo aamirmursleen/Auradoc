@@ -99,21 +99,21 @@ const AboutPage: React.FC = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <section className="relative py-20 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400 rounded-full opacity-10 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400 rounded-full opacity-10 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full opacity-10 blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
               Making Document Signing
-              <span className="block mt-2 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Simple for Everyone
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
               We believe signing documents shouldn't be complicated. That's why we built MamaSign - to make e-signatures accessible, secure, and delightfully easy.
             </p>
           </div>
@@ -137,14 +137,14 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Our Story */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                 Our Story
               </h2>
-              <div className="space-y-4 text-lg text-gray-600">
+              <div className="space-y-4 text-lg text-gray-300">
                 <p>
                   MamaSign was born out of frustration. Our founders, Sarah and Michael, were tired of dealing with complicated, expensive e-signature tools that made simple tasks unnecessarily difficult.
                 </p>
@@ -157,8 +157,8 @@ const AboutPage: React.FC = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-3xl blur-3xl opacity-20" />
+              <div className="relative bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl p-8 text-white">
                 <FileSignature className="w-16 h-16 mb-6 opacity-80" />
                 <blockquote className="text-2xl font-medium mb-6">
                   "We wanted to build the e-signature platform we wished existed - simple, powerful, and accessible to everyone."
@@ -174,25 +174,25 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Our Values */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Our Values
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               The principles that guide everything we do
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6">
+              <div key={index} className="bg-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+                <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6">
                   <value.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
+                <h3 className="text-xl font-semibold text-white mb-3">{value.title}</h3>
+                <p className="text-gray-300">{value.description}</p>
               </div>
             ))}
           </div>
@@ -200,31 +200,31 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Timeline */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Our Journey
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-300">
               Key milestones in our story
             </p>
           </div>
 
           <div className="relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-cyan-500 via-blue-600 to-purple-600 rounded-full" />
 
             {milestones.map((milestone, index) => (
               <div key={index} className={`relative flex items-center mb-8 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
                 <div className={`w-5/12 ${index % 2 === 0 ? 'text-right pr-8' : 'text-left pl-8'}`}>
-                  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-lg">
-                    <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  <div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700/50 shadow-lg shadow-cyan-500/20">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                       {milestone.year}
                     </span>
-                    <p className="text-gray-600 mt-2">{milestone.event}</p>
+                    <p className="text-gray-300 mt-2">{milestone.event}</p>
                   </div>
                 </div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-4 border-blue-500 rounded-full" />
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-gray-950 border-4 border-cyan-500 rounded-full" />
               </div>
             ))}
           </div>
@@ -232,31 +232,31 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Leadership Team */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Leadership Team
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Meet the people building the future of document signing
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {team.map((member, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div key={index} className="bg-gray-800/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Users className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>
-                <p className="text-blue-600 font-medium mb-3">{member.role}</p>
-                <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
+                <h3 className="text-xl font-semibold text-white mb-1">{member.name}</h3>
+                <p className="text-cyan-400 font-medium mb-3">{member.role}</p>
+                <p className="text-gray-300 text-sm mb-4">{member.bio}</p>
                 <div className="flex items-center justify-center gap-3">
-                  <a href="#" className="text-gray-400 hover:text-blue-500 transition-colors">
+                  <a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors">
                     <Linkedin className="w-5 h-5" />
                   </a>
-                  <a href="#" className="text-gray-400 hover:text-blue-500 transition-colors">
+                  <a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors">
                     <Twitter className="w-5 h-5" />
                   </a>
                 </div>
@@ -267,13 +267,13 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Office Locations */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Our Offices
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-300">
               A global team serving customers worldwide
             </p>
           </div>
@@ -284,13 +284,13 @@ const AboutPage: React.FC = () => {
               { city: 'London', country: 'United Kingdom', type: 'EMEA Office' },
               { city: 'Singapore', country: 'Singapore', type: 'APAC Office' },
             ].map((office, index) => (
-              <div key={index} className="p-8 bg-gray-50 rounded-2xl text-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div key={index} className="p-8 bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 text-center">
+                <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <MapPin className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">{office.city}</h3>
-                <p className="text-gray-600 mb-2">{office.country}</p>
-                <span className="text-sm text-blue-600 font-medium">{office.type}</span>
+                <h3 className="text-xl font-semibold text-white mb-1">{office.city}</h3>
+                <p className="text-gray-300 mb-2">{office.country}</p>
+                <span className="text-sm text-cyan-400 font-medium">{office.type}</span>
               </div>
             ))}
           </div>
@@ -326,7 +326,7 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-20 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Join Us on Our Mission
@@ -335,7 +335,7 @@ const AboutPage: React.FC = () => {
             We're always looking for talented people to join our team. Help us build the future of document signing.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/careers" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300">
+            <Link href="/careers" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300">
               View Open Positions
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>

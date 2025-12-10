@@ -181,7 +181,7 @@ const CompliancePage: React.FC = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <section className="relative py-20 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400 rounded-full opacity-10 blur-3xl" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400 rounded-full opacity-10 blur-3xl" />
@@ -192,21 +192,21 @@ const CompliancePage: React.FC = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <FileCheck className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
               Compliance &
-              <span className="block mt-2 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Certifications
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
               MamaSign meets the highest standards for security and compliance, helping you meet your regulatory requirements with confidence.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                 Request Compliance Pack
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
-              <a href="#regulations" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-700 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300">
+              <a href="#regulations" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-300 bg-gray-900/80 border-2 border-gray-700/50 rounded-xl hover:border-gray-600 hover:bg-gray-800/80 transition-all duration-300">
                 View Certifications
               </a>
             </div>
@@ -237,22 +237,22 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Regulations */}
-      <section id="regulations" className="py-20 bg-white">
+      <section id="regulations" className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Regulatory Compliance
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               We help you meet compliance requirements across multiple regulations and jurisdictions
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {regulations.map((reg) => (
-              <div key={reg.id} className="bg-gray-50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300">
+              <div key={reg.id} className="bg-gray-900/80 border border-gray-700/50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                     <reg.icon className="w-6 h-6 text-white" />
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -263,12 +263,12 @@ const CompliancePage: React.FC = () => {
                     {reg.status}
                   </span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">{reg.name}</h3>
-                <p className="text-sm text-blue-600 mb-3">{reg.region}</p>
-                <p className="text-gray-600 text-sm mb-4">{reg.description}</p>
+                <h3 className="text-xl font-semibold text-white mb-1">{reg.name}</h3>
+                <p className="text-sm text-blue-400 mb-3">{reg.region}</p>
+                <p className="text-gray-300 text-sm mb-4">{reg.description}</p>
                 <ul className="space-y-2">
                   {reg.features.map((feature, i) => (
-                    <li key={i} className="flex items-start text-sm text-gray-600">
+                    <li key={i} className="flex items-start text-sm text-gray-300">
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                       {feature}
                     </li>
@@ -281,27 +281,27 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Industry Compliance */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Industry-Specific Compliance
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               We understand the unique compliance needs of different industries
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {industries.map((industry, index) => (
-              <div key={index} className="bg-white rounded-xl p-8 border border-gray-200 hover:shadow-lg transition-all duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+              <div key={index} className="bg-gray-900/80 rounded-xl p-8 border border-gray-700/50 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4">
                   <industry.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{industry.name}</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">{industry.name}</h3>
                 <div className="flex flex-wrap gap-2">
                   {industry.regulations.map((reg, i) => (
-                    <span key={i} className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    <span key={i} className="px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full">
                       {reg}
                     </span>
                   ))}
@@ -313,27 +313,27 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Documentation */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Compliance Documentation
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Access the documentation you need for your compliance requirements
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {documents.map((doc, index) => (
-              <div key={index} className="flex items-center justify-between p-6 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer">
+              <div key={index} className="flex items-center justify-between p-6 bg-gray-900/80 border border-gray-700/50 rounded-xl hover:bg-blue-600/20 transition-colors cursor-pointer">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                    <FileText className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center mr-4">
+                    <FileText className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{doc.name}</h4>
-                    <p className="text-sm text-gray-500">{doc.description}</p>
+                    <h4 className="font-medium text-white">{doc.name}</h4>
+                    <p className="text-sm text-gray-400">{doc.description}</p>
                   </div>
                 </div>
                 <Download className="w-5 h-5 text-gray-400" />
@@ -342,10 +342,10 @@ const CompliancePage: React.FC = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-300 mb-4">
               Need additional documentation for your compliance review?
             </p>
-            <Link href="/contact" className="inline-flex items-center text-blue-600 font-medium hover:text-blue-700">
+            <Link href="/contact" className="inline-flex items-center text-blue-400 font-medium hover:text-blue-300">
               Contact our compliance team
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -354,25 +354,25 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-900/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Compliance FAQ
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-300">
               Common questions about e-signature compliance
             </p>
           </div>
 
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="flex items-start text-lg font-semibold text-gray-900 mb-3">
-                  <HelpCircle className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div key={index} className="bg-gray-900/80 rounded-xl p-6 border border-gray-700/50">
+                <h3 className="flex items-start text-lg font-semibold text-white mb-3">
+                  <HelpCircle className="w-5 h-5 text-blue-400 mr-3 flex-shrink-0 mt-0.5" />
                   {faq.question}
                 </h3>
-                <p className="text-gray-600 ml-8">{faq.answer}</p>
+                <p className="text-gray-300 ml-8">{faq.answer}</p>
               </div>
             ))}
           </div>

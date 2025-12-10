@@ -192,15 +192,15 @@ async function sendForSignature() {
       </section>
 
       {/* Quick Start Code */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                 Get Started in
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Minutes</span>
+                <span className="bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent"> Minutes</span>
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
+              <p className="text-lg text-gray-300 mb-8">
                 Our SDK makes it easy to integrate e-signatures into your application. Install the package, add your API key, and start sending documents for signature.
               </p>
 
@@ -214,7 +214,7 @@ async function sendForSignature() {
                 ].map((item, index) => (
                   <div key={index} className="flex items-center">
                     <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span className="text-gray-700">{item}</span>
+                    <span className="text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
@@ -250,25 +250,25 @@ async function sendForSignature() {
       </section>
 
       {/* API Features */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Built for Developers
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-300">
               Everything you need to build a great integration
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="p-6 bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+              <div key={index} className="p-6 bg-gray-900/80 rounded-xl border border-gray-700/50 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4">
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-300">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -276,31 +276,31 @@ async function sendForSignature() {
       </section>
 
       {/* API Endpoints */}
-      <section id="docs" className="py-20 bg-white">
+      <section id="docs" className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               API Endpoints
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-300">
               Core endpoints to manage documents and signatures
             </p>
           </div>
 
-          <div className="bg-gray-50 rounded-2xl p-6">
+          <div className="bg-gray-900/80 border border-gray-700/50 rounded-2xl p-6">
             <div className="space-y-4">
               {endpoints.map((endpoint, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all duration-300"
+                  className="flex items-center justify-between p-4 bg-gray-900/80 rounded-lg border border-gray-700/50 hover:border-blue-600 hover:shadow-md transition-all duration-300"
                 >
                   <div className="flex items-center">
                     <span className={`${endpoint.color} text-white text-xs font-bold px-3 py-1 rounded mr-4`}>
                       {endpoint.method}
                     </span>
-                    <code className="text-gray-900 font-mono">{endpoint.path}</code>
+                    <code className="text-white font-mono">{endpoint.path}</code>
                   </div>
-                  <p className="text-gray-600 hidden md:block">{endpoint.description}</p>
+                  <p className="text-gray-300 hidden md:block">{endpoint.description}</p>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </div>
               ))}
@@ -308,7 +308,7 @@ async function sendForSignature() {
           </div>
 
           <div className="mt-8 text-center">
-            <Link href="/api-docs/reference" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/api-docs/reference" className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium">
               View Full API Reference
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -373,23 +373,23 @@ async function sendForSignature() {
       </section>
 
       {/* SDKs */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Official SDKs
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-300">
               Get up and running quickly with our official libraries
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {sdks.map((sdk, index) => (
-              <div key={index} className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-all duration-300">
+              <div key={index} className="p-6 bg-gray-900/80 border border-gray-700/50 rounded-xl hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center mb-4">
                   <span className="text-2xl mr-3">{sdk.icon}</span>
-                  <h3 className="text-lg font-semibold text-gray-900">{sdk.name}</h3>
+                  <h3 className="text-lg font-semibold text-white">{sdk.name}</h3>
                 </div>
                 <div className="flex items-center bg-gray-900 rounded-lg p-3">
                   <code className="text-sm text-gray-300 flex-1 overflow-x-auto">{sdk.command}</code>

@@ -227,7 +227,7 @@ Your continued use of the Service after the changes take effect constitutes your
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <section className="relative py-20 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400 rounded-full opacity-10 blur-3xl" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400 rounded-full opacity-10 blur-3xl" />
@@ -235,16 +235,16 @@ Your continued use of the Service after the changes take effect constitutes your
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <FileText className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
               Terms of Service
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-4">
               Please read these terms carefully before using MamaSign. By using our service, you agree to be bound by these terms.
             </p>
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
               <span>Effective: {effectiveDate}</span>
               <span>•</span>
               <span>Last Updated: {lastUpdated}</span>
@@ -254,18 +254,18 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Table of Contents */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-gray-900/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Table of Contents</h2>
+          <h2 className="text-xl font-semibold text-white mb-6">Table of Contents</h2>
           <nav className="grid sm:grid-cols-2 gap-4">
             {sections.map((section, index) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors"
+                className="flex items-center p-4 bg-gray-900/80 rounded-lg border border-gray-700/50 hover:bg-blue-600/20 transition-colors"
               >
-                <span className="text-blue-600 font-medium mr-3">{index + 1}.</span>
-                <span className="text-gray-700">{section.title}</span>
+                <span className="text-blue-400 font-medium mr-3">{index + 1}.</span>
+                <span className="text-gray-300">{section.title}</span>
               </a>
             ))}
           </nav>
@@ -273,23 +273,23 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Terms Content */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-gray-900/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {sections.map((section, index) => (
             <div key={section.id} id={section.id} className="mb-12 scroll-mt-8">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mr-4">
                   <section.icon className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-white">
                   {index + 1}. {section.title}
                 </h2>
               </div>
 
-              <div className="bg-white rounded-xl p-8 shadow-lg">
+              <div className="bg-gray-900/80 rounded-xl p-8 shadow-lg border border-gray-700/50">
                 <div className="prose prose-gray max-w-none">
                   {section.content.split('\n\n').map((paragraph, i) => (
-                    <p key={i} className="text-gray-600 leading-relaxed mb-4 whitespace-pre-line">
+                    <p key={i} className="text-gray-300 leading-relaxed mb-4 whitespace-pre-line">
                       {paragraph}
                     </p>
                   ))}
@@ -301,7 +301,7 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-900/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-center">
             <Mail className="w-12 h-12 text-blue-400 mx-auto mb-4" />

@@ -286,11 +286,11 @@ const CreateInvoicePage: React.FC = () => {
   const selectedTemplateData = invoiceTemplates.find(t => t.id === invoiceData.selectedTemplate)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900/80">
       <div className="flex">
         {/* Left Side - Template Selection */}
-        <div className="w-80 bg-white border-r border-gray-200 min-h-screen p-6 overflow-y-auto">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Template</h2>
+        <div className="w-80 bg-gray-900/80 border-r border-gray-700/50 min-h-screen p-6 overflow-y-auto">
+          <h2 className="text-lg font-semibold text-white mb-4">Choose Template</h2>
 
           <div className="space-y-4">
             {invoiceTemplates.map((template) => (
@@ -300,7 +300,7 @@ const CreateInvoicePage: React.FC = () => {
                 className={`w-full text-left rounded-xl overflow-hidden border-2 transition-all ${
                   invoiceData.selectedTemplate === template.id
                     ? 'border-blue-500 ring-2 ring-blue-100'
-                    : 'border-gray-200 hover:border-gray-300'
+                    : 'border-gray-700/50 hover:border-gray-300'
                 }`}
               >
                 {/* Template Preview */}
@@ -309,7 +309,7 @@ const CreateInvoicePage: React.FC = () => {
                   style={{ backgroundColor: template.colors.accent }}
                 >
                   {/* Mini Invoice Preview */}
-                  <div className="absolute inset-2 bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="absolute inset-2 bg-gray-900/80 rounded-lg shadow-sm overflow-hidden">
                     <div
                       className="h-8"
                       style={{ backgroundColor: template.colors.primary }}
@@ -346,9 +346,9 @@ const CreateInvoicePage: React.FC = () => {
                 </div>
 
                 {/* Template Info */}
-                <div className="p-3 bg-white">
-                  <h3 className="font-medium text-gray-900 text-sm">{template.name}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{template.description}</p>
+                <div className="p-3 bg-gray-900/80">
+                  <h3 className="font-medium text-white text-sm">{template.name}</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">{template.description}</p>
                 </div>
               </button>
             ))}
@@ -359,16 +359,16 @@ const CreateInvoicePage: React.FC = () => {
         <div className="flex-1 p-8">
           <div className="max-w-3xl mx-auto">
             {/* Logo Upload Section */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+            <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 p-4 mb-6">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">Invoice Branding</h3>
+                <h3 className="text-sm font-semibold text-white">Invoice Branding</h3>
                 <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">Optional</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Business Logo */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-2">Your Logo</label>
+                  <label className="block text-xs text-gray-400 mb-2">Your Logo</label>
                   <input
                     type="file"
                     ref={logoInputRef}
@@ -377,7 +377,7 @@ const CreateInvoicePage: React.FC = () => {
                     className="hidden"
                   />
                   {invoiceData.businessLogo ? (
-                    <div className="relative group h-20 border border-gray-200 rounded-lg flex items-center justify-center bg-gray-50 p-2">
+                    <div className="relative group h-20 border border-gray-700/50 rounded-lg flex items-center justify-center bg-gray-900/80 p-2">
                       <img
                         src={invoiceData.businessLogo}
                         alt="Logo"
@@ -393,7 +393,7 @@ const CreateInvoicePage: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => logoInputRef.current?.click()}
-                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-gray-500 hover:text-blue-600"
+                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-gray-400 hover:text-blue-600"
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span className="text-xs font-medium">Add your logo</span>
@@ -403,7 +403,7 @@ const CreateInvoicePage: React.FC = () => {
 
                 {/* Background/Watermark Logo */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-2">Background Logo (Watermark)</label>
+                  <label className="block text-xs text-gray-400 mb-2">Background Logo (Watermark)</label>
                   <input
                     type="file"
                     ref={bgLogoInputRef}
@@ -412,7 +412,7 @@ const CreateInvoicePage: React.FC = () => {
                     className="hidden"
                   />
                   {invoiceData.backgroundLogo ? (
-                    <div className="relative group h-20 border border-gray-200 rounded-lg flex items-center justify-center bg-gray-50 p-2">
+                    <div className="relative group h-20 border border-gray-700/50 rounded-lg flex items-center justify-center bg-gray-900/80 p-2">
                       <img
                         src={invoiceData.backgroundLogo}
                         alt="Background Logo"
@@ -428,7 +428,7 @@ const CreateInvoicePage: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => bgLogoInputRef.current?.click()}
-                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all text-gray-500 hover:text-purple-600"
+                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all text-gray-400 hover:text-purple-600"
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span className="text-xs font-medium">Add background logo</span>
@@ -452,18 +452,18 @@ const CreateInvoicePage: React.FC = () => {
             {/* Form Sections */}
             <div className="space-y-6">
               {/* FROM Section */}
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 overflow-hidden">
                 <button
                   onClick={() => setExpandedSection(expandedSection === 'from' ? null : 'from')}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-900/80 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
                       <Building2 className="w-4 h-4 text-blue-600" />
                     </div>
                     <div className="text-left">
-                      <p className="text-xs text-gray-500 uppercase tracking-wider">FROM</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">FROM</p>
+                      <p className="text-sm font-medium text-white">
                         {invoiceData.businessName || 'Add your business details'}
                       </p>
                     </div>
@@ -475,13 +475,13 @@ const CreateInvoicePage: React.FC = () => {
                 </button>
 
                 {expandedSection === 'from' && (
-                  <div className="p-4 pt-0 border-t border-gray-100 space-y-4">
+                  <div className="p-4 pt-0 border-t border-gray-700/50 space-y-4">
                     <input
                       type="text"
                       value={invoiceData.businessName}
                       onChange={(e) => handleInputChange('businessName', e.target.value)}
                       placeholder="Business Name"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <input
@@ -489,14 +489,14 @@ const CreateInvoicePage: React.FC = () => {
                         value={invoiceData.businessEmail}
                         onChange={(e) => handleInputChange('businessEmail', e.target.value)}
                         placeholder="Email"
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <input
                         type="tel"
                         value={invoiceData.businessPhone}
                         onChange={(e) => handleInputChange('businessPhone', e.target.value)}
                         placeholder="Phone"
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                     <textarea
@@ -504,25 +504,25 @@ const CreateInvoicePage: React.FC = () => {
                       onChange={(e) => handleInputChange('businessAddress', e.target.value)}
                       placeholder="Address"
                       rows={2}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
                   </div>
                 )}
               </div>
 
               {/* BILL TO Section */}
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 overflow-hidden">
                 <button
                   onClick={() => setExpandedSection(expandedSection === 'billto' ? null : 'billto')}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-900/80 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
                       <User className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="text-left">
-                      <p className="text-xs text-gray-500 uppercase tracking-wider">BILL TO</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">BILL TO</p>
+                      <p className="text-sm font-medium text-white">
                         {invoiceData.clientName || 'Add customer details'}
                       </p>
                     </div>
@@ -534,13 +534,13 @@ const CreateInvoicePage: React.FC = () => {
                 </button>
 
                 {expandedSection === 'billto' && (
-                  <div className="p-4 pt-0 border-t border-gray-100 space-y-4">
+                  <div className="p-4 pt-0 border-t border-gray-700/50 space-y-4">
                     <input
                       type="text"
                       value={invoiceData.clientName}
                       onChange={(e) => handleInputChange('clientName', e.target.value)}
                       placeholder="Client Name"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <input
@@ -548,14 +548,14 @@ const CreateInvoicePage: React.FC = () => {
                         value={invoiceData.clientEmail}
                         onChange={(e) => handleInputChange('clientEmail', e.target.value)}
                         placeholder="Email"
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <input
                         type="tel"
                         value={invoiceData.clientPhone}
                         onChange={(e) => handleInputChange('clientPhone', e.target.value)}
                         placeholder="Phone"
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                     <textarea
@@ -563,46 +563,46 @@ const CreateInvoicePage: React.FC = () => {
                       onChange={(e) => handleInputChange('clientAddress', e.target.value)}
                       placeholder="Address"
                       rows={2}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-2.5 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
                   </div>
                 )}
               </div>
 
               {/* Invoice Details */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">3.</span>
-                  <span className="text-sm font-medium text-gray-700">Invoice Details</span>
+                  <span className="text-sm font-medium text-gray-400">Invoice Details</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Invoice number *</label>
+                    <label className="block text-xs text-gray-400 mb-1">Invoice number *</label>
                     <input
                       type="text"
                       value={invoiceData.invoiceNumber}
                       onChange={(e) => handleInputChange('invoiceNumber', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Issue date *</label>
+                    <label className="block text-xs text-gray-400 mb-1">Issue date *</label>
                     <div className="relative">
                       <input
                         type="date"
                         value={invoiceData.issueDate}
                         onChange={(e) => handleInputChange('issueDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Due date *</label>
+                    <label className="block text-xs text-gray-400 mb-1">Due date *</label>
                     <select
                       value={invoiceData.dueDate}
                       onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                      className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-gray-900/80"
                     >
                       <option value="7 days">7 days</option>
                       <option value="14 days">14 days</option>
@@ -612,26 +612,26 @@ const CreateInvoicePage: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Delivery date</label>
+                    <label className="block text-xs text-gray-400 mb-1">Delivery date</label>
                     <div className="relative">
                       <input
                         type="date"
                         value={invoiceData.deliveryDate}
                         onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Currency Selector */}
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <label className="block text-xs text-gray-500 mb-2">Currency</label>
+                <div className="mt-4 pt-4 border-t border-gray-700/50">
+                  <label className="block text-xs text-gray-400 mb-2">Currency</label>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-                      className="w-full md:w-64 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-left flex items-center justify-between"
+                      className="w-full md:w-64 px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/80 text-left flex items-center justify-between"
                     >
                       <span className="flex items-center gap-2">
                         <span className="font-medium">{selectedCurrency.symbol}</span>
@@ -642,14 +642,14 @@ const CreateInvoicePage: React.FC = () => {
                     </button>
 
                     {showCurrencyDropdown && (
-                      <div className="absolute z-20 mt-1 w-full md:w-80 bg-white border border-gray-200 rounded-lg shadow-lg">
-                        <div className="p-2 border-b border-gray-100">
+                      <div className="absolute z-20 mt-1 w-full md:w-80 bg-gray-900/80 border border-gray-700/50 rounded-lg shadow-lg">
+                        <div className="p-2 border-b border-gray-700/50">
                           <input
                             type="text"
                             value={currencySearch}
                             onChange={(e) => setCurrencySearch(e.target.value)}
                             placeholder="Search currency..."
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             autoFocus
                           />
                         </div>
@@ -663,13 +663,13 @@ const CreateInvoicePage: React.FC = () => {
                                 setShowCurrencyDropdown(false)
                                 setCurrencySearch('')
                               }}
-                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-900/80 flex items-center gap-3 ${
                                 invoiceData.currency === currency.code ? 'bg-blue-50 text-blue-600' : ''
                               }`}
                             >
                               <span className="w-8 font-medium">{currency.symbol}</span>
                               <span className="font-medium">{currency.code}</span>
-                              <span className="text-gray-500">{currency.name}</span>
+                              <span className="text-gray-400">{currency.name}</span>
                               {invoiceData.currency === currency.code && (
                                 <Check className="w-4 h-4 ml-auto text-blue-600" />
                               )}
@@ -691,15 +691,15 @@ const CreateInvoicePage: React.FC = () => {
               </div>
 
               {/* Items Section */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">4.</span>
-                  <span className="text-sm font-medium text-gray-700">I invoice you:</span>
+                  <span className="text-sm font-medium text-gray-400">I invoice you:</span>
                   <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full font-medium ml-auto">5.</span>
                 </div>
 
                 {/* Items Header */}
-                <div className="grid grid-cols-12 gap-2 mb-2 text-xs text-gray-500 font-medium">
+                <div className="grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 font-medium">
                   <div className="col-span-4">Item</div>
                   <div className="col-span-1 text-center">Quantity</div>
                   <div className="col-span-2 text-center">Unit</div>
@@ -720,7 +720,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.name}
                             onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                             placeholder="Enter a name here"
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
                         <div className="col-span-1">
@@ -729,7 +729,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.quantity}
                             onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
                             min="0"
-                            className="w-full px-2 py-2 border border-gray-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 border border-gray-700/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
                         <div className="col-span-2">
@@ -738,7 +738,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.unit}
                             onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
                             placeholder="pcs"
-                            className="w-full px-2 py-2 border border-gray-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 border border-gray-700/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
                         <div className="col-span-2">
@@ -749,7 +749,7 @@ const CreateInvoicePage: React.FC = () => {
                             min="0"
                             step="0.01"
                             placeholder="0.00"
-                            className="w-full px-2 py-2 border border-gray-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 border border-gray-700/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
                         <div className="col-span-1">
@@ -759,10 +759,10 @@ const CreateInvoicePage: React.FC = () => {
                             onChange={(e) => handleItemChange(index, 'tax', parseFloat(e.target.value) || 0)}
                             min="0"
                             max="100"
-                            className="w-full px-2 py-2 border border-gray-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 border border-gray-700/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
-                        <div className="col-span-1 text-right text-sm font-medium text-gray-900">
+                        <div className="col-span-1 text-right text-sm font-medium text-white">
                           {(item.quantity * item.price).toFixed(2)}
                         </div>
                         <div className="col-span-1 text-center">
@@ -781,7 +781,7 @@ const CreateInvoicePage: React.FC = () => {
                           onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                           placeholder="Enter a description here"
                           rows={1}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                          className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                         />
                       </div>
                     </div>
@@ -800,38 +800,38 @@ const CreateInvoicePage: React.FC = () => {
 
               {/* Notes & Bank Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">9.</span>
-                    <label className="text-sm font-medium text-gray-700">Add a note</label>
+                    <label className="text-sm font-medium text-gray-400">Add a note</label>
                   </div>
                   <textarea
                     value={invoiceData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     placeholder="Notes for the client..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   />
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-4">
-                  <label className="text-sm font-medium text-gray-700 block mb-3">Add bank details</label>
+                <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 p-4">
+                  <label className="text-sm font-medium text-gray-400 block mb-3">Add bank details</label>
                   <textarea
                     value={invoiceData.bankDetails}
                     onChange={(e) => handleInputChange('bankDetails', e.target.value)}
                     placeholder="Bank name, Account number, etc..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-700/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   />
                 </div>
               </div>
 
               {/* Totals */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="bg-gray-900/80 rounded-xl border border-gray-700/50 p-4">
                 <div className="flex justify-end">
                   <div className="w-64 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">SUBTOTAL</span>
+                      <span className="text-gray-300">SUBTOTAL</span>
                       <span className="font-medium">{formatCurrency(subtotal)}</span>
                     </div>
                     <div
@@ -850,7 +850,7 @@ const CreateInvoicePage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setShowPreview(true)}
-                    className="py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl transition-all hover:bg-gray-200 flex items-center justify-center gap-2"
+                    className="py-4 bg-gray-900/80 text-gray-400 font-semibold rounded-xl transition-all hover:bg-gray-200 flex items-center justify-center gap-2"
                   >
                     <Eye className="w-5 h-5" />
                     Preview Invoice
@@ -864,7 +864,7 @@ const CreateInvoicePage: React.FC = () => {
                     Generate PDF
                   </button>
                 </div>
-                <button className="w-full py-3 text-gray-600 font-medium hover:text-gray-900 transition-colors flex items-center justify-center gap-2">
+                <button className="w-full py-3 text-gray-300 font-medium hover:text-white transition-colors flex items-center justify-center gap-2">
                   <Send className="w-4 h-4" />
                   Send document by email
                 </button>
@@ -882,21 +882,21 @@ const CreateInvoicePage: React.FC = () => {
             if (e.target === e.currentTarget) setShowPreview(false)
           }}
         >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-gray-900/80 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gray-900/80">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium"
+                  className="px-4 py-2 bg-gray-900/80 text-gray-400 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium"
                 >
                   <ChevronDown className="w-4 h-4 rotate-90" />
                   Back to Edit
                 </button>
-                <h2 className="text-lg font-semibold text-gray-900">Invoice Preview</h2>
+                <h2 className="text-lg font-semibold text-white">Invoice Preview</h2>
               </div>
               <div className="flex items-center gap-2">
-                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium">
+                <button className="px-4 py-2 bg-gray-900/80 text-gray-400 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium">
                   <Printer className="w-4 h-4" />
                   Print
                 </button>
@@ -920,8 +920,8 @@ const CreateInvoicePage: React.FC = () => {
             </div>
 
             {/* Invoice Preview Content */}
-            <div className="flex-1 overflow-auto p-6 bg-gray-100">
-              <div className="bg-white shadow-lg mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
+            <div className="flex-1 overflow-auto p-6 bg-gray-900/80">
+              <div className="bg-gray-900/80 shadow-lg mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                 {/* Background Logo / Watermark */}
                 {invoiceData.backgroundLogo && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -956,9 +956,9 @@ const CreateInvoicePage: React.FC = () => {
                       </div>
                     )}
                     {invoiceData.businessLogo && invoiceData.businessName && (
-                      <div className="text-lg font-semibold text-gray-900">{invoiceData.businessName}</div>
+                      <div className="text-lg font-semibold text-white">{invoiceData.businessName}</div>
                     )}
-                    <div className="text-sm text-gray-600 mt-2 space-y-0.5">
+                    <div className="text-sm text-gray-300 mt-2 space-y-0.5">
                       {invoiceData.businessEmail && <div>{invoiceData.businessEmail}</div>}
                       {invoiceData.businessPhone && <div>{invoiceData.businessPhone}</div>}
                       {invoiceData.businessAddress && <div className="whitespace-pre-line">{invoiceData.businessAddress}</div>}
@@ -972,9 +972,9 @@ const CreateInvoicePage: React.FC = () => {
                       INVOICE
                     </div>
                     <div className="text-sm space-y-1">
-                      <div><span className="text-gray-500">Invoice #:</span> <span className="font-semibold">{invoiceData.invoiceNumber}</span></div>
-                      <div><span className="text-gray-500">Date:</span> <span className="font-semibold">{new Date(invoiceData.issueDate).toLocaleDateString()}</span></div>
-                      <div><span className="text-gray-500">Due:</span> <span className="font-semibold">{invoiceData.dueDate}</span></div>
+                      <div><span className="text-gray-400">Invoice #:</span> <span className="font-semibold">{invoiceData.invoiceNumber}</span></div>
+                      <div><span className="text-gray-400">Date:</span> <span className="font-semibold">{new Date(invoiceData.issueDate).toLocaleDateString()}</span></div>
+                      <div><span className="text-gray-400">Due:</span> <span className="font-semibold">{invoiceData.dueDate}</span></div>
                     </div>
                   </div>
                 </div>
@@ -987,8 +987,8 @@ const CreateInvoicePage: React.FC = () => {
                   >
                     Bill To
                   </div>
-                  <div className="font-semibold text-gray-900">{invoiceData.clientName || 'Client Name'}</div>
-                  <div className="text-sm text-gray-600 mt-1 space-y-0.5">
+                  <div className="font-semibold text-white">{invoiceData.clientName || 'Client Name'}</div>
+                  <div className="text-sm text-gray-300 mt-1 space-y-0.5">
                     {invoiceData.clientEmail && <div>{invoiceData.clientEmail}</div>}
                     {invoiceData.clientPhone && <div>{invoiceData.clientPhone}</div>}
                     {invoiceData.clientAddress && <div className="whitespace-pre-line">{invoiceData.clientAddress}</div>}
@@ -1009,15 +1009,15 @@ const CreateInvoicePage: React.FC = () => {
                     </thead>
                     <tbody>
                       {invoiceData.items.map((item, index) => (
-                        <tr key={item.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                        <tr key={item.id} className={index % 2 === 0 ? 'bg-gray-900/80' : 'bg-gray-900/80'}>
                           <td className="py-3 px-4">
-                            <div className="font-medium text-gray-900">{item.name || 'Item'}</div>
-                            {item.description && <div className="text-sm text-gray-500">{item.description}</div>}
+                            <div className="font-medium text-white">{item.name || 'Item'}</div>
+                            {item.description && <div className="text-sm text-gray-400">{item.description}</div>}
                           </td>
-                          <td className="py-3 px-4 text-center text-gray-600">{item.quantity}</td>
-                          <td className="py-3 px-4 text-center text-gray-600">{item.unit || '-'}</td>
-                          <td className="py-3 px-4 text-right text-gray-600">{formatCurrency(item.price)}</td>
-                          <td className="py-3 px-4 text-right font-medium text-gray-900">{formatCurrency(item.quantity * item.price)}</td>
+                          <td className="py-3 px-4 text-center text-gray-300">{item.quantity}</td>
+                          <td className="py-3 px-4 text-center text-gray-300">{item.unit || '-'}</td>
+                          <td className="py-3 px-4 text-right text-gray-300">{formatCurrency(item.price)}</td>
+                          <td className="py-3 px-4 text-right font-medium text-white">{formatCurrency(item.quantity * item.price)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1027,13 +1027,13 @@ const CreateInvoicePage: React.FC = () => {
                 {/* Totals */}
                 <div className="flex justify-end mb-8">
                   <div className="w-72">
-                    <div className="flex justify-between py-2 border-b border-gray-200 text-sm">
-                      <span className="text-gray-600">Subtotal</span>
+                    <div className="flex justify-between py-2 border-b border-gray-700/50 text-sm">
+                      <span className="text-gray-300">Subtotal</span>
                       <span className="font-medium">{formatCurrency(subtotal)}</span>
                     </div>
                     {totalTax > 0 && (
-                      <div className="flex justify-between py-2 border-b border-gray-200 text-sm">
-                        <span className="text-gray-600">Tax</span>
+                      <div className="flex justify-between py-2 border-b border-gray-700/50 text-sm">
+                        <span className="text-gray-300">Tax</span>
                         <span className="font-medium">{formatCurrency(totalTax)}</span>
                       </div>
                     )}
@@ -1049,25 +1049,25 @@ const CreateInvoicePage: React.FC = () => {
 
                 {/* Notes & Bank Details */}
                 {(invoiceData.notes || invoiceData.bankDetails) && (
-                  <div className="border-t border-gray-200 pt-6 grid grid-cols-2 gap-6">
+                  <div className="border-t border-gray-700/50 pt-6 grid grid-cols-2 gap-6">
                     {invoiceData.notes && (
                       <div>
-                        <div className="text-sm font-semibold text-gray-900 mb-2">Notes</div>
-                        <div className="text-sm text-gray-600 whitespace-pre-line">{invoiceData.notes}</div>
+                        <div className="text-sm font-semibold text-white mb-2">Notes</div>
+                        <div className="text-sm text-gray-300 whitespace-pre-line">{invoiceData.notes}</div>
                       </div>
                     )}
                     {invoiceData.bankDetails && (
                       <div>
-                        <div className="text-sm font-semibold text-gray-900 mb-2">Bank Details</div>
-                        <div className="text-sm text-gray-600 whitespace-pre-line">{invoiceData.bankDetails}</div>
+                        <div className="text-sm font-semibold text-white mb-2">Bank Details</div>
+                        <div className="text-sm text-gray-300 whitespace-pre-line">{invoiceData.bankDetails}</div>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Footer */}
-                <div className="mt-12 pt-6 border-t border-gray-200 text-center">
-                  <div className="text-sm text-gray-500">Thank you for your business!</div>
+                <div className="mt-12 pt-6 border-t border-gray-700/50 text-center">
+                  <div className="text-sm text-gray-400">Thank you for your business!</div>
                 </div>
               </div>
             </div>

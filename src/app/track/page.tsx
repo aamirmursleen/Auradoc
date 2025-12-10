@@ -73,8 +73,8 @@ const statusConfig: Record<DocumentStatus, {
   created: {
     label: 'Created',
     icon: FileText,
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-100',
+    color: 'text-gray-300',
+    bgColor: 'bg-gray-900/80',
     borderColor: 'border-gray-300'
   },
   delivered: {
@@ -349,7 +349,7 @@ const TrackDocumentPageInner: React.FC = () => {
 
   if (!documentData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900/80 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
       </div>
     )
@@ -359,34 +359,34 @@ const TrackDocumentPageInner: React.FC = () => {
   const currentStatusIndex = statusOrder.indexOf(documentData.currentStatus)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900/80">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-gray-900/80 border-b border-gray-700/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-900/80 rounded-lg transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                <ArrowLeft className="w-5 h-5 text-gray-300" />
               </Link>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">Track Document</h1>
-                <p className="text-sm text-gray-500">{documentData.name}</p>
+                <h1 className="text-lg font-semibold text-white">Track Document</h1>
+                <p className="text-sm text-gray-400">{documentData.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-gray-300 hover:bg-gray-900/80 rounded-lg transition-colors flex items-center gap-2"
               >
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied!' : 'Copy Link'}
               </button>
               <button
                 onClick={handleResetDemo}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-gray-300 hover:bg-gray-900/80 rounded-lg transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reset Demo
@@ -401,8 +401,8 @@ const TrackDocumentPageInner: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Status Progress Bar */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Document Status</h2>
+            <div className="bg-gray-900/80 rounded-2xl shadow-sm border border-gray-700/50 p-6">
+              <h2 className="text-lg font-semibold text-white mb-6">Document Status</h2>
 
               {/* Progress Steps */}
               <div className="relative">
@@ -431,7 +431,7 @@ const TrackDocumentPageInner: React.FC = () => {
                               ? isCurrent
                                 ? `${config.bgColor} ${config.borderColor} border-2 ring-4 ring-${config.color.split('-')[1]}-100`
                                 : 'bg-green-500 border-green-500'
-                              : 'bg-gray-100 border-gray-200 border-2'
+                              : 'bg-gray-900/80 border-gray-700/50 border-2'
                             }
                           `}
                         >
@@ -522,8 +522,8 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Audit Trail Timeline */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="bg-gray-900/80 rounded-2xl shadow-sm border border-gray-700/50 p-6">
+              <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-primary-500" />
                 Audit Trail
               </h2>
@@ -551,14 +551,14 @@ const TrackDocumentPageInner: React.FC = () => {
                       <div className="ml-4">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-medium text-gray-900">{config.label}</h3>
-                            <p className="text-sm text-gray-600 mt-0.5">{event.description}</p>
+                            <h3 className="font-medium text-white">{config.label}</h3>
+                            <p className="text-sm text-gray-300 mt-0.5">{event.description}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-white">
                               {formatRelativeTime(event.timestamp)}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-400">
                               {formatDate(event.timestamp)}
                             </p>
                           </div>
@@ -566,7 +566,7 @@ const TrackDocumentPageInner: React.FC = () => {
 
                         {/* Additional details */}
                         {(event.ipAddress || event.device) && (
-                          <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-500">
+                          <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
                             {event.ipAddress && (
                               <span className="flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
@@ -592,49 +592,49 @@ const TrackDocumentPageInner: React.FC = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Document Info */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Document Details</h2>
+            <div className="bg-gray-900/80 rounded-2xl shadow-sm border border-gray-700/50 p-6">
+              <h2 className="text-lg font-semibold text-white mb-4">Document Details</h2>
 
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-500">Document Name</p>
-                    <p className="font-medium text-gray-900">{documentData.name}</p>
+                    <p className="text-sm text-gray-400">Document Name</p>
+                    <p className="font-medium text-white">{documentData.name}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-500">Created</p>
-                    <p className="font-medium text-gray-900">{formatDate(documentData.createdAt)}</p>
+                    <p className="text-sm text-gray-400">Created</p>
+                    <p className="font-medium text-white">{formatDate(documentData.createdAt)}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <User className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-500">From</p>
-                    <p className="font-medium text-gray-900">{documentData.sender.name}</p>
-                    <p className="text-sm text-gray-500">{documentData.sender.email}</p>
+                    <p className="text-sm text-gray-400">From</p>
+                    <p className="font-medium text-white">{documentData.sender.name}</p>
+                    <p className="text-sm text-gray-400">{documentData.sender.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <User className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-500">To</p>
-                    <p className="font-medium text-gray-900">{documentData.recipient.name}</p>
-                    <p className="text-sm text-gray-500">{documentData.recipient.email}</p>
+                    <p className="text-sm text-gray-400">To</p>
+                    <p className="font-medium text-white">{documentData.recipient.name}</p>
+                    <p className="text-sm text-gray-400">{documentData.recipient.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <Shield className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-500">Document ID</p>
-                    <p className="font-mono text-sm text-gray-900">{documentData.id}</p>
+                    <p className="text-sm text-gray-400">Document ID</p>
+                    <p className="font-mono text-sm text-white">{documentData.id}</p>
                   </div>
                 </div>
               </div>
@@ -648,8 +648,8 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Email Notifications */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-gray-900/80 rounded-2xl shadow-sm border border-gray-700/50 p-6">
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Mail className="w-5 h-5 text-primary-500" />
                 Email Notifications
               </h2>
@@ -659,20 +659,20 @@ const TrackDocumentPageInner: React.FC = () => {
                   {documentData.emailNotifications.slice().reverse().map((notification) => (
                     <div
                       key={notification.id}
-                      className="p-3 bg-gray-50 rounded-lg border border-gray-100"
+                      className="p-3 bg-gray-900/80 rounded-lg border border-gray-700/50"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
                           <Bell className="w-4 h-4 text-primary-500" />
-                          <span className="font-medium text-sm text-gray-900">
+                          <span className="font-medium text-sm text-white">
                             {notification.type}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-400">
                           {formatRelativeTime(notification.sentAt)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-300 mt-1">
                         Sent to: {notification.recipient}
                       </p>
                       <div className="flex items-center gap-1 mt-2">
@@ -685,7 +685,7 @@ const TrackDocumentPageInner: React.FC = () => {
               ) : (
                 <div className="text-center py-6">
                   <Mail className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">No notifications sent yet</p>
+                  <p className="text-sm text-gray-400">No notifications sent yet</p>
                 </div>
               )}
             </div>
@@ -693,12 +693,12 @@ const TrackDocumentPageInner: React.FC = () => {
             {/* Help Box */}
             <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-6 border border-primary-100">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm">
+                <div className="p-2 bg-gray-900/80 rounded-lg shadow-sm">
                   <Sparkles className="w-5 h-5 text-primary-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Demo Mode</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h3 className="font-semibold text-white">Demo Mode</h3>
+                  <p className="text-sm text-gray-300 mt-1">
                     This is a simulation of the audit trail feature. Click the action buttons to simulate document workflow.
                   </p>
                 </div>
@@ -711,34 +711,34 @@ const TrackDocumentPageInner: React.FC = () => {
       {/* Email Simulation Modal */}
       {showEmailSimulation && emailContent && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full animate-in">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="bg-gray-900/80 rounded-2xl shadow-2xl max-w-lg w-full animate-in">
+            <div className="p-4 border-b border-gray-700/50 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Mail className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Email Sent</h3>
-                  <p className="text-sm text-gray-500">Notification delivered</p>
+                  <h3 className="font-semibold text-white">Email Sent</h3>
+                  <p className="text-sm text-gray-400">Notification delivered</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowEmailSimulation(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-900/80 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
 
             <div className="p-6">
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <div className="mb-3 pb-3 border-b border-gray-200">
-                  <p className="text-sm text-gray-500">Subject:</p>
-                  <p className="font-medium text-gray-900">{emailContent.subject}</p>
+              <div className="bg-gray-900/80 rounded-xl p-4 border border-gray-700/50">
+                <div className="mb-3 pb-3 border-b border-gray-700/50">
+                  <p className="text-sm text-gray-400">Subject:</p>
+                  <p className="font-medium text-white">{emailContent.subject}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-2">Body:</p>
-                  <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+                  <p className="text-sm text-gray-400 mb-2">Body:</p>
+                  <pre className="text-sm text-gray-400 whitespace-pre-wrap font-sans">
                     {emailContent.body}
                   </pre>
                 </div>
@@ -750,7 +750,7 @@ const TrackDocumentPageInner: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-gray-100 flex justify-end">
+            <div className="p-4 border-t border-gray-700/50 flex justify-end">
               <button
                 onClick={() => setShowEmailSimulation(false)}
                 className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition-colors"
@@ -768,7 +768,7 @@ const TrackDocumentPageInner: React.FC = () => {
 const TrackDocumentPage: React.FC = () => {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900/80 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
       </div>
     }>

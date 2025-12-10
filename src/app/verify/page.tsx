@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
 import {
   Shield,
@@ -30,23 +29,21 @@ import {
   Zap
 } from 'lucide-react'
 import {
-  registerOriginalDocument,
-  verifyDocument,
-  getUserVerifications,
-  deleteVerification,
-  generateVerificationReport,
-  DocumentVerification,
-  VerificationReport
+  DocumentVerification
 } from '@/lib/verification'
-import { incrementVerifyCount } from '@/lib/usageLimit'
+
+interface VerificationReport {
+  status: 'VERIFIED' | 'TAMPERED'
+  summary: string
+  differences: Array<{ severity: 'CRITICAL' | 'HIGH' | 'MEDIUM'; description: string }>
+  recommendation: string
+}
 import { formatFileSize, ComparisonResult, generateDocumentHash, HashResult } from '@/lib/hash'
 
 const VerifyPage: React.FC = () => {
-  const { user, isLoaded } = useUser()
-
   // States
   const [verifications, setVerifications] = useState<DocumentVerification[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [dragActive, setDragActive] = useState(false)
 
@@ -66,32 +63,8 @@ const VerifyPage: React.FC = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [showResultModal, setShowResultModal] = useState(false)
 
-  // Load user's verifications
-  useEffect(() => {
-    const loadVerifications = async () => {
-      if (!isLoaded) return
-
-      // If no user, just stop loading
-      if (!user) {
-        setLoading(false)
-        return
-      }
-
-      try {
-        setLoading(true)
-        const data = await getUserVerifications(user.id)
-        setVerifications(data)
-      } catch (error) {
-        console.error('Error loading verifications:', error)
-        // Don't let error block the page - just show empty state
-        setVerifications([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadVerifications()
-  }, [user, isLoaded])
+  // No automatic loading - verifications will be empty for demo
+  // Users can still upload and verify documents locally
 
   // Handle drag events
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -141,12 +114,24 @@ const VerifyPage: React.FC = () => {
 
   // Register as original document
   const handleRegisterDocument = async () => {
-    if (!user || !uploadedFile || !uploadedHash) return
+    if (!uploadedFile || !uploadedHash) return
 
     try {
       setProcessing(true)
-      const result = await registerOriginalDocument(uploadedFile, user.id)
-      setVerifications(prev => [result.verification, ...prev])
+      // Create a local verification record
+      const newVerification: DocumentVerification = {
+        id: crypto.randomUUID(),
+        user_id: 'local-user',
+        document_name: uploadedFile.name,
+        document_hash: uploadedHash.hash,
+        file_size: uploadedFile.size,
+        file_type: uploadedFile.type,
+        page_count: uploadedHash.metadata.pageCount || null,
+        created_at: new Date().toISOString(),
+        verification_count: 0,
+        last_verified_at: null
+      }
+      setVerifications(prev => [newVerification, ...prev])
       setShowRegisterModal(false)
 
       // Clear upload
@@ -163,24 +148,38 @@ const VerifyPage: React.FC = () => {
   // Verify against selected original
   const handleVerify = async (verificationToUse?: DocumentVerification) => {
     const targetVerification = verificationToUse || selectedVerification || verifications[0]
-    if (!targetVerification || !uploadedFile) return
+    if (!targetVerification || !uploadedFile || !uploadedHash) return
 
     try {
       setProcessing(true)
       setSelectedVerification(targetVerification)
-      const result = await verifyDocument(uploadedFile, targetVerification.id)
-      const report = generateVerificationReport(
-        result.verification,
-        result.comparison,
-        result.uploadedHashResult
-      )
-      setVerificationResult({ report, comparison: result.comparison })
-      setShowResultModal(true) // Show popup with result
 
-      // Increment usage count after successful verification
-      if (user?.id) {
-        incrementVerifyCount(user.id)
+      // Local verification - compare hashes directly
+      const isMatch = uploadedHash.hash === targetVerification.document_hash
+
+      const comparison: ComparisonResult = {
+        hashMatch: isMatch,
+        sizeMatch: uploadedFile.size === targetVerification.file_size,
+        typeMatch: uploadedFile.type === targetVerification.file_type,
+        differences: isMatch ? [] : ['Document hash does not match the original']
       }
+
+      const report: VerificationReport = {
+        status: isMatch ? 'VERIFIED' : 'TAMPERED',
+        summary: isMatch
+          ? 'Document is authentic and matches the original.'
+          : 'Document has been modified or is different from the original.',
+        differences: isMatch ? [] : [{
+          severity: 'CRITICAL' as const,
+          description: 'The document hash does not match the registered original. This document may have been tampered with.'
+        }],
+        recommendation: isMatch
+          ? 'This document is safe to use.'
+          : 'Do not trust this document. Request the original from a trusted source.'
+      }
+
+      setVerificationResult({ report, comparison })
+      setShowResultModal(true)
     } catch (error) {
       console.error('Error verifying document:', error)
     } finally {
@@ -189,15 +188,10 @@ const VerifyPage: React.FC = () => {
   }
 
   // Delete verification
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteVerification(id)
-      setVerifications(prev => prev.filter(v => v.id !== id))
-      if (selectedVerification?.id === id) {
-        setSelectedVerification(null)
-      }
-    } catch (error) {
-      console.error('Error deleting verification:', error)
+  const handleDelete = (id: string) => {
+    setVerifications(prev => prev.filter(v => v.id !== id))
+    if (selectedVerification?.id === id) {
+      setSelectedVerification(null)
     }
   }
 
@@ -228,44 +222,19 @@ const VerifyPage: React.FC = () => {
     }).format(new Date(dateString))
   }
 
-  if (!isLoaded || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-primary-500 mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600 mb-4">Please sign in to verify documents</p>
-          <Link href="/sign-in" className="text-primary-500 hover:underline">
-            Sign In
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-950">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-gray-900/80 border-b border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary-100 rounded-xl">
-                <Shield className="w-8 h-8 text-primary-600" />
+              <div className="p-3 bg-cyan-900/50 rounded-xl">
+                <Shield className="w-8 h-8 text-cyan-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Document Verification</h1>
-                <p className="text-gray-500">Detect any tampering or modifications instantly</p>
+                <h1 className="text-2xl font-bold text-white">Document Verification</h1>
+                <p className="text-gray-400">Detect any tampering or modifications instantly</p>
               </div>
             </div>
 
@@ -274,7 +243,7 @@ const VerifyPage: React.FC = () => {
               <button
                 onClick={() => handleVerify()}
                 disabled={processing}
-                className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold text-lg hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/25 flex items-center gap-2 disabled:opacity-50"
+                className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-bold text-lg hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/25 flex items-center gap-2 disabled:opacity-50"
               >
                 {processing ? (
                   <>
@@ -302,10 +271,10 @@ const VerifyPage: React.FC = () => {
             {/* Upload Area */}
             {!uploadedFile ? (
               <div
-                className={`bg-white rounded-2xl shadow-lg border-2 border-dashed transition-all ${
+                className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-lg border-2 border-dashed transition-all ${
                   dragActive
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-300 hover:border-primary-400'
+                    ? 'border-cyan-500 bg-cyan-900/20'
+                    : 'border-gray-700 hover:border-cyan-500/50'
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -313,13 +282,13 @@ const VerifyPage: React.FC = () => {
                 onDrop={handleDrop}
               >
                 <div className="p-12 text-center">
-                  <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <FileUp className="w-10 h-10 text-primary-600" />
+                  <div className="w-20 h-20 bg-cyan-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <FileUp className="w-10 h-10 text-cyan-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h2 className="text-2xl font-bold text-white mb-2">
                     Upload Your Document
                   </h2>
-                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                  <p className="text-gray-400 mb-6 max-w-md mx-auto">
                     Drop your document here to check if it has been modified or tampered with
                   </p>
                   <input
@@ -334,7 +303,7 @@ const VerifyPage: React.FC = () => {
                   />
                   <label
                     htmlFor="file-upload"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-primary-500 text-white rounded-xl font-semibold cursor-pointer hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/25"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-semibold cursor-pointer hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/25"
                   >
                     <Upload className="w-5 h-5" />
                     Select Document
@@ -346,16 +315,16 @@ const VerifyPage: React.FC = () => {
               </div>
             ) : (
               /* Document Preview */
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-lg overflow-hidden">
                 {/* Preview Header */}
-                <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                <div className="p-4 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary-100 rounded-lg">
-                      <FileText className="w-6 h-6 text-primary-600" />
+                    <div className="p-2 bg-cyan-900/50 rounded-lg">
+                      <FileText className="w-6 h-6 text-cyan-400" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{uploadedFile.name}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-semibold text-white">{uploadedFile.name}</p>
+                      <p className="text-sm text-gray-400">
                         {formatFileSize(uploadedFile.size)}
                         {uploadedHash?.metadata.pageCount && ` • ${uploadedHash.metadata.pageCount} pages`}
                       </p>
@@ -363,9 +332,9 @@ const VerifyPage: React.FC = () => {
                   </div>
                   <button
                     onClick={clearUpload}
-                    className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
 
@@ -374,7 +343,7 @@ const VerifyPage: React.FC = () => {
                   {processing ? (
                     <div className="text-center py-12">
                       <Loader2 className="w-12 h-12 animate-spin text-primary-500 mx-auto mb-4" />
-                      <p className="text-gray-600">Analyzing document...</p>
+                      <p className="text-gray-300">Analyzing document...</p>
                     </div>
                   ) : (
                     <>
@@ -391,26 +360,26 @@ const VerifyPage: React.FC = () => {
 
                       {/* PDF Preview Placeholder */}
                       {uploadedFile.type === 'application/pdf' && (
-                        <div className="mb-6 bg-gray-100 rounded-xl p-8 text-center">
+                        <div className="mb-6 bg-gray-800 rounded-xl p-8 text-center">
                           <FileText className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                          <p className="text-gray-600">PDF Document</p>
+                          <p className="text-gray-300">PDF Document</p>
                         </div>
                       )}
 
                       {/* Hash Info */}
                       {uploadedHash && (
-                        <div className="bg-gray-50 rounded-xl p-4">
-                          <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <div className="bg-gray-800 rounded-xl p-4">
+                          <p className="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
                             <Hash className="w-4 h-4" />
                             Document Hash (SHA-256)
                           </p>
                           <div className="flex items-center gap-2">
-                            <code className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-gray-200 font-mono text-gray-600 truncate">
+                            <code className="flex-1 text-xs bg-gray-900 px-3 py-2 rounded-lg border border-gray-700 font-mono text-gray-300 truncate">
                               {uploadedHash.hash}
                             </code>
                             <button
                               onClick={() => copyHash(uploadedHash.hash)}
-                              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                             >
                               {copiedHash === uploadedHash.hash ? (
                                 <Check className="w-4 h-4 text-green-500" />
@@ -430,34 +399,34 @@ const VerifyPage: React.FC = () => {
 
             {/* How It Works */}
             {!uploadedFile && (
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">How It Works</h3>
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-sm p-6">
+                <h3 className="font-semibold text-white mb-4">How It Works</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                       1
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Upload Document</p>
-                      <p className="text-sm text-gray-500">Drop any document you want to verify</p>
+                      <p className="font-medium text-white">Upload Document</p>
+                      <p className="text-sm text-gray-400">Drop any document you want to verify</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                       2
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Select Original</p>
-                      <p className="text-sm text-gray-500">Choose from your registered originals</p>
+                      <p className="font-medium text-white">Select Original</p>
+                      <p className="text-sm text-gray-400">Choose from your registered originals</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                       3
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Get Results</p>
-                      <p className="text-sm text-gray-500">Instantly know if document is modified</p>
+                      <p className="font-medium text-white">Get Results</p>
+                      <p className="text-sm text-gray-400">Instantly know if document is modified</p>
                     </div>
                   </div>
                 </div>
@@ -473,7 +442,7 @@ const VerifyPage: React.FC = () => {
               <button
                 onClick={() => handleVerify()}
                 disabled={processing}
-                className="w-full py-5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-2xl font-bold text-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 flex items-center justify-center gap-3 disabled:opacity-50"
+                className="w-full py-5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-bold text-xl hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-3 disabled:opacity-50"
               >
                 {processing ? (
                   <>
@@ -491,8 +460,8 @@ const VerifyPage: React.FC = () => {
 
             {/* No registered documents message */}
             {uploadedFile && !verificationResult && verifications.length === 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
-                <div className="flex items-center gap-3 text-yellow-700">
+              <div className="bg-yellow-900/30 border border-yellow-500/30 rounded-2xl p-4">
+                <div className="flex items-center gap-3 text-yellow-400">
                   <AlertCircle className="w-5 h-5" />
                   <p className="text-sm font-medium">No original documents registered yet. Register this document first to verify future copies.</p>
                 </div>
@@ -501,14 +470,14 @@ const VerifyPage: React.FC = () => {
 
             {/* Register New Option */}
             {uploadedFile && !selectedVerification && !verificationResult && (
-              <div className="bg-white rounded-2xl shadow-sm p-6 border-2 border-dashed border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-2">New Document?</h3>
-                <p className="text-sm text-gray-500 mb-4">
+              <div className="bg-gray-900 rounded-2xl shadow-sm p-6 border-2 border-dashed border-gray-700">
+                <h3 className="font-semibold text-white mb-2">New Document?</h3>
+                <p className="text-sm text-gray-400 mb-4">
                   If this is an original document, register it for future verification.
                 </p>
                 <button
                   onClick={() => setShowRegisterModal(true)}
-                  className="w-full py-3 border-2 border-primary-500 text-primary-600 rounded-xl font-medium hover:bg-primary-50 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 border-2 border-cyan-500 text-cyan-400 rounded-xl font-medium hover:bg-cyan-900/30 transition-colors flex items-center justify-center gap-2"
                 >
                   <Shield className="w-5 h-5" />
                   Register as Original
@@ -517,25 +486,25 @@ const VerifyPage: React.FC = () => {
             )}
 
             {/* Registered Documents List */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-900">
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-4 bg-gray-900 border-b border-gray-800">
+                <h3 className="font-semibold text-white">
                   Your Registered Documents ({verifications.length})
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   {uploadedFile ? 'Select one to verify against' : 'Original documents for comparison'}
                 </p>
               </div>
 
               {verifications.length > 0 ? (
-                <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                <div className="divide-y divide-gray-800 max-h-96 overflow-y-auto">
                   {verifications.map((verification) => (
                     <div
                       key={verification.id}
                       className={`p-4 transition-colors cursor-pointer ${
                         selectedVerification?.id === verification.id
-                          ? 'bg-primary-50 border-l-4 border-primary-500'
-                          : 'hover:bg-gray-50'
+                          ? 'bg-cyan-900/30 border-l-4 border-cyan-500'
+                          : 'hover:bg-gray-800'
                       }`}
                       onClick={() => uploadedFile && setSelectedVerification(verification)}
                     >
@@ -543,20 +512,20 @@ const VerifyPage: React.FC = () => {
                         <div className="flex items-start gap-3">
                           <div className={`p-2 rounded-lg ${
                             selectedVerification?.id === verification.id
-                              ? 'bg-primary-100'
-                              : 'bg-gray-100'
+                              ? 'bg-cyan-900/50'
+                              : 'bg-gray-800'
                           }`}>
                             <FileText className={`w-5 h-5 ${
                               selectedVerification?.id === verification.id
-                                ? 'text-primary-600'
-                                : 'text-gray-500'
+                                ? 'text-cyan-400'
+                                : 'text-gray-400'
                             }`} />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 text-sm">
+                            <p className="font-medium text-white text-sm">
                               {verification.document_name}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-gray-400 mt-1">
                               {formatFileSize(verification.file_size)}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
@@ -576,7 +545,7 @@ const VerifyPage: React.FC = () => {
                       </div>
 
                       {selectedVerification?.id === verification.id && (
-                        <div className="mt-3 flex items-center gap-2 text-primary-600">
+                        <div className="mt-3 flex items-center gap-2 text-cyan-400">
                           <CheckCircle2 className="w-4 h-4" />
                           <span className="text-sm font-medium">Selected for comparison</span>
                         </div>
@@ -586,9 +555,9 @@ const VerifyPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="p-8 text-center">
-                  <Shield className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <Shield className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                   <p className="text-gray-500 text-sm">No registered documents yet</p>
-                  <p className="text-gray-400 text-xs mt-1">
+                  <p className="text-gray-600 text-xs mt-1">
                     Upload a document and register it as original
                   </p>
                 </div>
@@ -596,11 +565,11 @@ const VerifyPage: React.FC = () => {
             </div>
 
             {/* Info Box */}
-            <div className="bg-blue-50 rounded-xl p-4">
+            <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm text-blue-300">
                     <strong>SHA-256 Hash</strong> is used to detect even the smallest change in a document -
                     even a single character modification will produce a completely different hash.
                   </p>
@@ -613,25 +582,25 @@ const VerifyPage: React.FC = () => {
 
       {/* Register Modal */}
       {showRegisterModal && uploadedFile && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-primary-100 rounded-xl">
-                  <Shield className="w-6 h-6 text-primary-600" />
+                <div className="p-3 bg-cyan-900/50 rounded-xl">
+                  <Shield className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Register Original Document</h3>
-                  <p className="text-sm text-gray-500">Save this document's hash for future verification</p>
+                  <h3 className="text-lg font-bold text-white">Register Original Document</h3>
+                  <p className="text-sm text-gray-400">Save this document's hash for future verification</p>
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-4">
+              <div className="bg-gray-800 rounded-xl p-4 mb-4">
                 <div className="flex items-center gap-3">
                   <FileText className="w-10 h-10 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">{uploadedFile.name}</p>
-                    <p className="text-sm text-gray-500">{formatFileSize(uploadedFile.size)}</p>
+                    <p className="font-medium text-white">{uploadedFile.name}</p>
+                    <p className="text-sm text-gray-400">{formatFileSize(uploadedFile.size)}</p>
                   </div>
                 </div>
               </div>
@@ -639,14 +608,14 @@ const VerifyPage: React.FC = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowRegisterModal(false)}
-                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 py-3 border border-gray-700 text-gray-400 rounded-xl font-medium hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleRegisterDocument}
                   disabled={processing}
-                  className="flex-1 py-3 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-medium hover:from-cyan-600 hover:to-purple-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {processing ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -666,7 +635,7 @@ const VerifyPage: React.FC = () => {
       {/* VERIFICATION RESULT POPUP MODAL */}
       {showResultModal && verificationResult && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className={`bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200`}>
+          <div className={`bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200`}>
             {/* Status Header */}
             <div className={`p-6 ${
               verificationResult.report.status === 'TAMPERED'
@@ -709,13 +678,13 @@ const VerifyPage: React.FC = () => {
               {/* Summary */}
               <div className={`p-4 rounded-xl mb-4 ${
                 verificationResult.report.status === 'TAMPERED'
-                  ? 'bg-red-50 border border-red-200'
-                  : 'bg-green-50 border border-green-200'
+                  ? 'bg-red-900/30 border border-red-500/30'
+                  : 'bg-green-900/30 border border-green-500/30'
               }`}>
                 <p className={`text-sm ${
                   verificationResult.report.status === 'TAMPERED'
-                    ? 'text-red-700'
-                    : 'text-green-700'
+                    ? 'text-red-300'
+                    : 'text-green-300'
                 }`}>
                   {verificationResult.report.summary}
                 </p>
@@ -724,26 +693,26 @@ const VerifyPage: React.FC = () => {
               {/* Differences (if tampered) */}
               {verificationResult.report.differences.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                  <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
                     Detected Issues
                   </h4>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {verificationResult.report.differences.map((diff, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100"
+                        className="flex items-start gap-3 bg-gray-800 rounded-lg p-3 border border-gray-700"
                       >
                         <span className={`text-xs font-bold px-2 py-1 rounded ${
                           diff.severity === 'CRITICAL'
-                            ? 'bg-red-100 text-red-700'
+                            ? 'bg-red-900/50 text-red-400'
                             : diff.severity === 'HIGH'
-                            ? 'bg-orange-100 text-orange-700'
-                            : 'bg-yellow-100 text-yellow-700'
+                            ? 'bg-orange-900/50 text-orange-400'
+                            : 'bg-yellow-900/50 text-yellow-400'
                         }`}>
                           {diff.severity}
                         </span>
-                        <p className="text-sm text-gray-700 flex-1">{diff.description}</p>
+                        <p className="text-sm text-gray-400 flex-1">{diff.description}</p>
                       </div>
                     ))}
                   </div>
@@ -753,20 +722,20 @@ const VerifyPage: React.FC = () => {
               {/* Recommendation */}
               <div className={`p-4 rounded-xl ${
                 verificationResult.report.status === 'TAMPERED'
-                  ? 'bg-red-100'
-                  : 'bg-green-100'
+                  ? 'bg-red-900/50 border border-red-500/30'
+                  : 'bg-green-900/50 border border-green-500/30'
               }`}>
                 <h4 className={`font-semibold mb-1 ${
                   verificationResult.report.status === 'TAMPERED'
-                    ? 'text-red-800'
-                    : 'text-green-800'
+                    ? 'text-red-300'
+                    : 'text-green-300'
                 }`}>
                   Recommendation
                 </h4>
                 <p className={`text-sm ${
                   verificationResult.report.status === 'TAMPERED'
-                    ? 'text-red-700'
-                    : 'text-green-700'
+                    ? 'text-red-400'
+                    : 'text-green-400'
                 }`}>
                   {verificationResult.report.recommendation}
                 </p>
