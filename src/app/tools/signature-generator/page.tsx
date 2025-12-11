@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { PenTool, Download, Trash2, Type, Palette, Undo, CheckCircle } from 'lucide-react'
+import { PenTool, Download, Trash2, Type, Palette, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function SignatureGeneratorPage() {
@@ -23,23 +23,64 @@ export default function SignatureGeneratorPage() {
 
   const colors = ['#000000', '#1e40af', '#0f766e', '#7c2d12', '#581c87']
 
+  // Initialize canvas
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+
+    // Set display size
+    const rect = canvas.getBoundingClientRect()
+    canvas.style.width = '100%'
+    canvas.style.height = '200px'
+
+    // Set actual size in memory
+    canvas.width = rect.width * 2
+    canvas.height = 200 * 2
+
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size
-    canvas.width = canvas.offsetWidth * 2
-    canvas.height = canvas.offsetHeight * 2
     ctx.scale(2, 2)
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
     ctx.strokeStyle = selectedColor
     ctx.lineWidth = 2
+
+    // Fill with white background
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  }, [])
+
+  // Update stroke color when changed
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.strokeStyle = selectedColor
   }, [selectedColor])
 
+  const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current
+    if (!canvas) return { x: 0, y: 0 }
+
+    const rect = canvas.getBoundingClientRect()
+
+    if ('touches' in e) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      }
+    } else {
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      }
+    }
+  }
+
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault()
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -48,37 +89,21 @@ export default function SignatureGeneratorPage() {
     setIsDrawing(true)
     setHasSignature(true)
 
-    const rect = canvas.getBoundingClientRect()
-    let x, y
-    if ('touches' in e) {
-      x = e.touches[0].clientX - rect.left
-      y = e.touches[0].clientY - rect.top
-    } else {
-      x = e.clientX - rect.left
-      y = e.clientY - rect.top
-    }
-
+    const { x, y } = getCoordinates(e)
     ctx.beginPath()
     ctx.moveTo(x, y)
   }
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault()
     if (!isDrawing) return
+
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const rect = canvas.getBoundingClientRect()
-    let x, y
-    if ('touches' in e) {
-      x = e.touches[0].clientX - rect.left
-      y = e.touches[0].clientY - rect.top
-    } else {
-      x = e.clientX - rect.left
-      y = e.clientY - rect.top
-    }
-
+    const { x, y } = getCoordinates(e)
     ctx.lineTo(x, y)
     ctx.stroke()
   }
@@ -93,7 +118,8 @@ export default function SignatureGeneratorPage() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, canvas.width / 2, canvas.height / 2)
     setHasSignature(false)
   }
 
@@ -101,22 +127,39 @@ export default function SignatureGeneratorPage() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    if (mode === 'type' && typedName) {
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
+    // Create a new canvas for download
+    const downloadCanvas = document.createElement('canvas')
+    downloadCanvas.width = 600
+    downloadCanvas.height = 200
+    const ctx = downloadCanvas.getContext('2d')
+    if (!ctx) return
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.font = `48px "${selectedFont}", cursive`
+    // Fill with white background
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, 600, 200)
+
+    if (mode === 'type' && typedName) {
+      // Draw typed signature
+      ctx.font = `60px "${selectedFont}", cursive`
       ctx.fillStyle = selectedColor
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillText(typedName, canvas.offsetWidth / 2, canvas.offsetHeight / 2)
+      ctx.fillText(typedName, 300, 100)
+    } else if (mode === 'draw' && hasSignature) {
+      // Draw the canvas content
+      ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 600, 200)
+    } else {
+      alert('Please create a signature first!')
+      return
     }
 
+    // Download
     const link = document.createElement('a')
     link.download = 'my-signature.png'
-    link.href = canvas.toDataURL('image/png')
+    link.href = downloadCanvas.toDataURL('image/png')
+    document.body.appendChild(link)
     link.click()
+    document.body.removeChild(link)
   }
 
   return (
@@ -143,7 +186,7 @@ export default function SignatureGeneratorPage() {
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                 mode === 'draw'
                   ? 'bg-pink-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
               }`}
             >
               <PenTool className="w-5 h-5" />
@@ -154,7 +197,7 @@ export default function SignatureGeneratorPage() {
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                 mode === 'type'
                   ? 'bg-pink-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
               }`}
             >
               <Type className="w-5 h-5" />
@@ -163,9 +206,9 @@ export default function SignatureGeneratorPage() {
           </div>
 
           {/* Signature Area */}
-          <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
             {/* Toolbar */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Palette className="w-4 h-4 text-gray-500" />
@@ -174,8 +217,8 @@ export default function SignatureGeneratorPage() {
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`w-6 h-6 rounded-full border-2 transition-transform ${
-                          selectedColor === color ? 'scale-125 border-gray-400' : 'border-transparent'
+                        className={`w-7 h-7 rounded-full border-2 transition-all ${
+                          selectedColor === color ? 'scale-110 border-gray-400 ring-2 ring-offset-1 ring-gray-300' : 'border-gray-200'
                         }`}
                         style={{ backgroundColor: color }}
                       />
@@ -185,7 +228,7 @@ export default function SignatureGeneratorPage() {
               </div>
               <button
                 onClick={clearCanvas}
-                className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="text-sm">Clear</span>
@@ -194,18 +237,27 @@ export default function SignatureGeneratorPage() {
 
             {/* Canvas / Type Area */}
             {mode === 'draw' ? (
-              <canvas
-                ref={canvasRef}
-                className="w-full h-48 cursor-crosshair touch-none"
-                style={{ background: 'linear-gradient(#f9fafb 1px, transparent 1px)' }}
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={draw}
-                onTouchEnd={stopDrawing}
-              />
+              <div className="p-4">
+                <canvas
+                  ref={canvasRef}
+                  className="w-full h-[200px] cursor-crosshair touch-none border border-gray-200 rounded-lg"
+                  style={{
+                    background: 'white',
+                    backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px)',
+                    backgroundSize: '100% 40px'
+                  }}
+                  onMouseDown={startDrawing}
+                  onMouseMove={draw}
+                  onMouseUp={stopDrawing}
+                  onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
+                />
+                <p className="text-center text-sm text-gray-400 mt-2">
+                  Draw your signature above using mouse or touch
+                </p>
+              </div>
             ) : (
               <div className="p-8">
                 <input
@@ -216,11 +268,12 @@ export default function SignatureGeneratorPage() {
                     setHasSignature(!!e.target.value)
                   }}
                   placeholder="Type your name..."
-                  className="w-full text-center text-4xl border-b-2 border-gray-200 focus:border-pink-500 outline-none pb-2 mb-6"
+                  className="w-full text-center text-4xl border-b-2 border-gray-200 focus:border-pink-500 outline-none pb-2 mb-6 bg-transparent"
                   style={{ fontFamily: `"${selectedFont}", cursive`, color: selectedColor }}
                 />
 
                 {/* Font Selection */}
+                <p className="text-sm text-gray-500 mb-3 text-center">Choose a font style:</p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {fonts.map((font) => (
                     <button
@@ -229,11 +282,11 @@ export default function SignatureGeneratorPage() {
                       className={`px-4 py-2 rounded-lg text-lg transition-all ${
                         selectedFont === font.name
                           ? 'bg-pink-100 text-pink-700 border-2 border-pink-500'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
                       }`}
                       style={{ fontFamily: `"${font.name}", ${font.style}` }}
                     >
-                      Signature
+                      {typedName || 'Signature'}
                     </button>
                   ))}
                 </div>
@@ -248,15 +301,10 @@ export default function SignatureGeneratorPage() {
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download className="w-5 h-5" />
-                Download Signature
+                Download Signature (PNG)
               </button>
             </div>
           </div>
-
-          {/* Hidden canvas for typed signature */}
-          {mode === 'type' && (
-            <canvas ref={canvasRef} className="hidden" width="600" height="200" />
-          )}
         </div>
       </section>
 

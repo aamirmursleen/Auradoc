@@ -149,7 +149,7 @@ const FeaturesPage: React.FC = () => {
                 Start Signing Free
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/pricing" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-gray-100/50 backdrop-blur-xl border-2 border-gray-200/50 rounded-xl hover:border-cyan-500/50 hover:bg-gray-100 transition-all duration-300">
+              <Link href="/pricing" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-gray-100/50 backdrop-blur-xl border-2 border-gray-200 dark:border-gray-700/50 rounded-xl hover:border-cyan-500/50 hover:bg-gray-100 transition-all duration-300">
                 View Pricing
               </Link>
             </div>
@@ -174,7 +174,7 @@ const FeaturesPage: React.FC = () => {
             {mainFeatures.map((feature, index) => (
               <div
                 key={index}
-                className="group p-8 rounded-2xl border border-gray-200/50 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-1 bg-gray-100/50 backdrop-blur-xl"
+                className="group p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-1 bg-gray-100/50 backdrop-blur-xl"
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-7 h-7 text-gray-900" />
@@ -187,7 +187,7 @@ const FeaturesPage: React.FC = () => {
                 </p>
                 <ul className="space-y-2">
                   {feature.details.map((detail, i) => (
-                    <li key={i} className="flex items-center text-sm text-gray-600">
+                    <li key={i} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <CheckCircle className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
                       {detail}
                     </li>
@@ -214,7 +214,7 @@ const FeaturesPage: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {signingFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start p-6 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+              <div key={index} className="flex items-start p-6 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
                 <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                   <feature.icon className="w-6 h-6 text-cyan-600" />
                 </div>
@@ -242,7 +242,7 @@ const FeaturesPage: React.FC = () => {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {additionalFeatures.map((feature, index) => (
-              <div key={index} className="p-6 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+              <div key={index} className="p-6 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
                 <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-lg flex items-center justify-center mb-4">
                   <feature.icon className="w-5 h-5 text-gray-900" />
                 </div>
@@ -274,7 +274,7 @@ const FeaturesPage: React.FC = () => {
                   { icon: Eye, text: 'Tamper-evident seals and audit trails' },
                   { icon: Key, text: 'Two-factor authentication available' },
                 ].map((item, index) => (
-                  <div key={index} className="flex items-center p-4 bg-gray-100/50 backdrop-blur-xl rounded-lg border border-gray-200/50">
+                  <div key={index} className="flex items-center p-4 bg-gray-100/50 backdrop-blur-xl rounded-lg border border-gray-200 dark:border-gray-700/50">
                     <item.icon className="w-6 h-6 text-cyan-600 mr-4" />
                     <span className="text-gray-700">{item.text}</span>
                   </div>
@@ -283,7 +283,7 @@ const FeaturesPage: React.FC = () => {
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center border border-gray-200/50">
+              <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center border border-gray-200 dark:border-gray-700/50">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Shield className="w-12 h-12 text-gray-900" />
                 </div>
@@ -311,7 +311,7 @@ const FeaturesPage: React.FC = () => {
             Start signing documents for free today. No credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+            <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
               Get Started Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>

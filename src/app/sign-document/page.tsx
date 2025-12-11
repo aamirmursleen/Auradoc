@@ -761,7 +761,7 @@ const SignDocumentPage: React.FC = () => {
             {/* Add Signer Button */}
             <button
               onClick={addSigner}
-              className="w-full flex items-center justify-center gap-2 p-4 text-cyan-600 hover:bg-cyan-100 transition-colors"
+              className="w-full flex items-center justify-center gap-2 p-4 text-cyan-600 hover:bg-cyan-100 dark:bg-cyan-900/50 transition-colors"
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Add Signer</span>
@@ -839,7 +839,7 @@ const SignDocumentPage: React.FC = () => {
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className="w-20 h-20 bg-cyan-100 rounded-2xl flex items-center justify-center mb-4">
+                <div className="w-20 h-20 bg-cyan-100 dark:bg-cyan-900/50 rounded-2xl flex items-center justify-center mb-4">
                   <Upload className="w-10 h-10 text-cyan-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">

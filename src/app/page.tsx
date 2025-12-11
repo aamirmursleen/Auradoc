@@ -20,6 +20,17 @@ import {
   AlertTriangle,
   FileCheck,
   Clock,
+  Lock,
+  Zap,
+  Globe,
+  Award,
+  FileType,
+  Image,
+  Minimize2,
+  PenTool,
+  Layers,
+  Scissors,
+  Droplets,
 } from 'lucide-react'
 import HeroSection from '@/components/home/HeroSection'
 
@@ -35,23 +46,18 @@ const ResumePreview = ({ type, color }: { type: string; color: string }) => {
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg h-full">
-      {/* Header with photo placeholder */}
       <div className={`${c.header} h-8 relative`}>
         <div className="absolute -bottom-3 left-2 w-6 h-6 bg-gray-300 rounded-full border-2 border-white"></div>
       </div>
-      {/* Content */}
       <div className="p-2 pt-4">
-        {/* Name */}
         <div className="h-1.5 bg-gray-100 rounded w-16 mb-1"></div>
         <div className="h-1 bg-gray-400 rounded w-12 mb-2"></div>
-        {/* Section */}
         <div className={`h-1 ${c.accent} rounded w-10 mb-1`}></div>
         <div className="space-y-0.5 mb-2">
           <div className="h-0.5 bg-gray-300 rounded w-full"></div>
           <div className="h-0.5 bg-gray-300 rounded w-11/12"></div>
           <div className="h-0.5 bg-gray-300 rounded w-full"></div>
         </div>
-        {/* Another Section */}
         <div className={`h-1 ${c.accent} rounded w-8 mb-1`}></div>
         <div className="space-y-0.5">
           <div className="h-0.5 bg-gray-300 rounded w-full"></div>
@@ -62,7 +68,7 @@ const ResumePreview = ({ type, color }: { type: string; color: string }) => {
   )
 }
 
-// Mockup Components - Dark Theme
+// Mockup Components
 const TemplatesMockup = () => {
   const templates = [
     { name: 'Modern', color: 'cyan' },
@@ -75,7 +81,6 @@ const TemplatesMockup = () => {
     <Link href="/templates" className="block">
       <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 cursor-pointer group">
         <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-cyan-500/30 transition-all">
-          {/* Header */}
           <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="w-5 h-5 text-gray-900" />
@@ -83,8 +88,6 @@ const TemplatesMockup = () => {
             </div>
             <Download className="w-5 h-5 text-gray-900" />
           </div>
-
-          {/* Template Grid with Realistic Previews */}
           <div className="p-6 grid grid-cols-2 gap-4">
             {templates.map((template, idx) => (
               <div key={idx} className="cursor-pointer block">
@@ -97,16 +100,12 @@ const TemplatesMockup = () => {
               </div>
             ))}
           </div>
-
-          {/* Action Button */}
           <div className="px-6 pb-6">
             <div className="block w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-gray-900 py-3 rounded-lg font-medium group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-all text-center">
               Choose Template
             </div>
           </div>
         </div>
-
-        {/* Floating Badge */}
         <div className="absolute -top-4 -right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-cyan-500/30 flex items-center space-x-2">
           <Sparkles className="w-4 h-4" />
           <span className="text-sm font-semibold">ATS-Friendly</span>
@@ -121,7 +120,6 @@ const SignDocumentMockup = () => {
     <Link href="/sign-document" className="block">
       <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 cursor-pointer group">
         <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-purple-500/30 transition-all">
-          {/* Header */}
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileSignature className="w-5 h-5 text-gray-900" />
@@ -129,8 +127,6 @@ const SignDocumentMockup = () => {
             </div>
             <Users className="w-5 h-5 text-gray-900" />
           </div>
-
-          {/* Document Preview */}
           <div className="p-6">
             <div className="bg-gray-50/50 rounded-lg p-6 border-2 border-dashed border-purple-500/30 min-h-[200px] relative">
               <div className="space-y-3">
@@ -138,8 +134,6 @@ const SignDocumentMockup = () => {
                 <div className="h-3 bg-gray-300 rounded w-full"></div>
                 <div className="h-3 bg-gray-300 rounded w-5/6"></div>
               </div>
-
-              {/* Signature Placeholder */}
               <div className="absolute bottom-6 right-6 bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-500/50 rounded-lg p-4 w-40 group-hover:border-purple-400 transition-all">
                 <div className="flex items-center justify-center space-x-2">
                   <FileSignature className="w-5 h-5 text-purple-600" />
@@ -147,8 +141,6 @@ const SignDocumentMockup = () => {
                 </div>
               </div>
             </div>
-
-            {/* Signers */}
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between bg-purple-100 p-3 rounded-lg border border-purple-500/20">
                 <div className="flex items-center space-x-2">
@@ -167,8 +159,6 @@ const SignDocumentMockup = () => {
             </div>
           </div>
         </div>
-
-        {/* Notification Badge */}
         <div className="absolute -top-4 -right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-purple-500/30 flex items-center space-x-2">
           <Bell className="w-4 h-4" />
           <span className="text-sm font-semibold">Live Tracking</span>
@@ -183,7 +173,6 @@ const InvoiceMockup = () => {
     <Link href="/create-invoice" className="block">
       <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer group">
         <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-emerald-500/30 transition-all">
-          {/* Header */}
           <div className="bg-gradient-to-r from-emerald-500 to-green-500 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <CreditCard className="w-5 h-5 text-gray-900" />
@@ -191,10 +180,7 @@ const InvoiceMockup = () => {
             </div>
             <Download className="w-5 h-5 text-gray-900" />
           </div>
-
-          {/* Invoice Content */}
           <div className="p-6">
-            {/* Company Branding */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -210,8 +196,6 @@ const InvoiceMockup = () => {
                 <p className="text-sm font-semibold text-gray-700">Dec 11, 2024</p>
               </div>
             </div>
-
-            {/* Invoice Items */}
             <div className="space-y-2 mb-4">
               <div className="flex justify-between bg-gray-50/50 p-3 rounded border border-gray-200/50">
                 <span className="text-sm text-gray-700">Service Item 1</span>
@@ -222,8 +206,6 @@ const InvoiceMockup = () => {
                 <span className="text-sm font-medium text-gray-900">$750.00</span>
               </div>
             </div>
-
-            {/* Total */}
             <div className="border-t-2 border-gray-200 pt-3">
               <div className="flex justify-between items-center bg-gradient-to-r from-emerald-500 to-green-500 p-4 rounded-lg shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-all">
                 <div className="flex items-center space-x-2">
@@ -233,17 +215,8 @@ const InvoiceMockup = () => {
                 <span className="text-2xl font-bold text-gray-900">$1,250.00</span>
               </div>
             </div>
-
-            {/* Status Badge */}
-            <div className="mt-4 flex justify-center">
-              <div className="bg-emerald-100 text-emerald-600 px-4 py-2 rounded-full text-sm font-medium border border-emerald-500/30">
-                Ready to Send
-              </div>
-            </div>
           </div>
         </div>
-
-        {/* Auto-Calculate Badge */}
         <div className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-emerald-500/30 flex items-center space-x-2">
           <Calculator className="w-4 h-4" />
           <span className="text-sm font-semibold">Auto-Calculate</span>
@@ -258,7 +231,6 @@ const VerifyMockup = () => {
     <Link href="/verify" className="block">
       <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 cursor-pointer group">
         <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-orange-500/30 transition-all">
-          {/* Header */}
           <div className="bg-gradient-to-r from-orange-500 to-red-500 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-5 h-5 text-gray-900" />
@@ -266,10 +238,7 @@ const VerifyMockup = () => {
             </div>
             <Shield className="w-5 h-5 text-gray-900" />
           </div>
-
-          {/* Verification Process */}
           <div className="p-6">
-            {/* Upload Area */}
             <div className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-lg p-6 border-2 border-dashed border-orange-500/30 mb-6 group-hover:border-orange-400/50 transition-all">
               <div className="flex flex-col items-center justify-center space-y-3">
                 <FileCheck className="w-12 h-12 text-orange-600" />
@@ -277,11 +246,8 @@ const VerifyMockup = () => {
                 <div className="w-full bg-gray-300 rounded-full h-2">
                   <div className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full w-full"></div>
                 </div>
-                <p className="text-xs text-gray-500">Analyzing...</p>
               </div>
             </div>
-
-            {/* Verification Results */}
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-emerald-100 p-4 rounded-lg border border-emerald-500/30">
                 <div className="flex items-center space-x-3">
@@ -292,7 +258,6 @@ const VerifyMockup = () => {
                   </div>
                 </div>
               </div>
-
               <div className="flex items-center justify-between bg-emerald-100 p-4 rounded-lg border border-emerald-500/30">
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="w-5 h-5 text-emerald-600" />
@@ -302,21 +267,9 @@ const VerifyMockup = () => {
                   </div>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between bg-orange-900/30 p-4 rounded-lg border border-orange-500/30">
-                <div className="flex items-center space-x-3">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Timestamp</p>
-                    <p className="text-xs text-gray-600">Dec 11, 2024 10:30 AM</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
-
-        {/* Security Badge */}
         <div className="absolute -top-4 -right-4 bg-gradient-to-r from-orange-500 to-red-500 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-orange-500/30 flex items-center space-x-2">
           <Shield className="w-4 h-4" />
           <span className="text-sm font-semibold">SHA-256</span>
@@ -332,6 +285,24 @@ const HomePage: React.FC = () => {
     { value: '50K+', label: 'Happy Users' },
     { value: '99.9%', label: 'Uptime' },
     { value: '150+', label: 'Countries' },
+  ]
+
+  const trustBadges = [
+    { icon: Lock, label: '256-bit SSL Encryption' },
+    { icon: Shield, label: 'GDPR Compliant' },
+    { icon: Award, label: 'SOC 2 Certified' },
+    { icon: Globe, label: 'Available Worldwide' },
+  ]
+
+  const pdfTools = [
+    { name: 'PDF to Word', href: '/tools/pdf-to-word', icon: FileType, color: 'bg-blue-500', desc: 'Convert PDF to editable Word' },
+    { name: 'PDF Compressor', href: '/tools/pdf-compressor', icon: Minimize2, color: 'bg-green-500', desc: 'Reduce PDF file size' },
+    { name: 'Image to PDF', href: '/tools/image-to-pdf', icon: Image, color: 'bg-indigo-500', desc: 'Convert images to PDF' },
+    { name: 'Signature Generator', href: '/tools/signature-generator', icon: PenTool, color: 'bg-pink-500', desc: 'Create digital signatures' },
+    { name: 'PDF Merge', href: '/tools/pdf-merge', icon: Layers, color: 'bg-purple-500', desc: 'Combine multiple PDFs' },
+    { name: 'PDF Split', href: '/tools/pdf-split', icon: Scissors, color: 'bg-red-500', desc: 'Split PDF into pages' },
+    { name: 'Word to PDF', href: '/tools/word-to-pdf', icon: FileText, color: 'bg-cyan-500', desc: 'Convert Word to PDF' },
+    { name: 'Watermark PDF', href: '/tools/watermark-pdf', icon: Droplets, color: 'bg-teal-500', desc: 'Add watermarks to PDFs' },
   ]
 
   const features = [
@@ -403,19 +374,52 @@ const HomePage: React.FC = () => {
 
   const testimonials = [
     {
-      quote: "MamaSign has transformed how we handle contracts. What used to take days now takes minutes.",
+      quote: "MamaSign has transformed how we handle contracts. What used to take days now takes minutes. The interface is intuitive and our clients love how easy it is to sign.",
       author: 'Sarah Johnson',
+      role: 'Operations Director',
+      company: 'TechFlow Solutions',
       rating: 5,
+      image: 'SJ'
     },
     {
-      quote: "The best e-signature solution we've used. Simple, secure, and incredibly fast.",
+      quote: "The best e-signature solution we've used. Simple, secure, and incredibly fast. We've reduced our document turnaround time by 80% since switching to MamaSign.",
       author: 'Michael Chen',
+      role: 'Legal Counsel',
+      company: 'Chen & Associates',
       rating: 5,
+      image: 'MC'
     },
     {
-      quote: "Finally, an e-signature platform that just works. Our team loves it!",
+      quote: "Finally, an e-signature platform that just works. Our team loves it! The PDF tools are a bonus - we use the compressor daily for client deliverables.",
       author: 'Emily Rodriguez',
+      role: 'Project Manager',
+      company: 'Creative Agency Co.',
       rating: 5,
+      image: 'ER'
+    },
+    {
+      quote: "As a small business owner, MamaSign has been a game-changer. Professional invoices, easy contracts, all in one place. Highly recommend!",
+      author: 'David Kim',
+      role: 'Founder & CEO',
+      company: 'Startup Labs',
+      rating: 5,
+      image: 'DK'
+    },
+    {
+      quote: "The resume templates helped me land my dream job! ATS-friendly and beautiful designs. The whole platform is incredibly user-friendly.",
+      author: 'Jessica Williams',
+      role: 'Marketing Manager',
+      company: 'Global Brands Inc.',
+      rating: 5,
+      image: 'JW'
+    },
+    {
+      quote: "We process hundreds of documents monthly. MamaSign handles it all effortlessly. Customer support is also fantastic - always quick to help.",
+      author: 'Robert Anderson',
+      role: 'HR Director',
+      company: 'Enterprise Corp',
+      rating: 5,
+      image: 'RA'
     },
   ]
 
@@ -424,8 +428,22 @@ const HomePage: React.FC = () => {
       {/* Hero Section */}
       <HeroSection />
 
+      {/* Trust Badges */}
+      <section className="py-8 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {trustBadges.map((badge, index) => (
+              <div key={index} className="flex items-center justify-center gap-2 text-gray-300">
+                <badge.icon className="w-5 h-5 text-cyan-400" />
+                <span className="text-sm font-medium">{badge.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="py-12 md:py-16 bg-gray-50/50 border-y border-gray-200/50">
+      <section className="py-12 md:py-16 bg-gray-50/50 dark:bg-gray-800/50 border-y border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
@@ -433,22 +451,58 @@ const HomePage: React.FC = () => {
                 <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-2">
                   {stat.value}
                 </div>
-                <div className="text-sm md:text-base text-gray-600">{stat.label}</div>
+                <div className="text-sm md:text-base text-gray-600 dark:text-gray-300">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Showcase Section - Dark Theme */}
-      <section className="py-12 md:py-20 bg-white">
+      {/* Free PDF Tools Section */}
+      <section className="py-12 md:py-16 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 text-cyan-700 dark:text-cyan-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Zap className="w-4 h-4" />
+              100% Free - No Sign Up Required
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Free PDF Tools
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 dark:text-gray-300 max-w-2xl mx-auto">
+              Powerful PDF tools that work directly in your browser. No uploads to servers, your files stay private.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {pdfTools.map((tool, index) => (
+              <Link
+                key={index}
+                href={tool.href}
+                className="group p-4 md:p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-100 transition-all duration-300"
+              >
+                <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <tool.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-cyan-600 transition-colors">
+                  {tool.name}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{tool.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Showcase Section */}
+      <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-20">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Everything You Need in
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"> One Platform</span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 dark:text-gray-300 max-w-3xl mx-auto px-4">
               Powerful tools designed to streamline your document workflow, from resume building to e-signatures to invoicing.
             </p>
           </div>
@@ -461,16 +515,15 @@ const HomePage: React.FC = () => {
               return (
                 <div key={index} className="relative">
                   <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center ${!isEven ? 'lg:grid-flow-col-dense' : ''}`}>
-                    {/* Content Side */}
                     <div className={`${!isEven ? 'lg:col-start-2' : ''} order-2 lg:order-none`}>
                       <div className="mb-6 text-center lg:text-left">
                         <div className={`inline-block bg-gradient-to-r ${feature.gradient} text-gray-900 px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg`}>
                           {feature.subtitle}
                         </div>
-                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                           {feature.title}
                         </h3>
-                        <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8">
+                        <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 dark:text-gray-300 mb-6 md:mb-8">
                           {feature.description}
                         </p>
                       </div>
@@ -497,7 +550,6 @@ const HomePage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Mockup Side */}
                     <div className={`${!isEven ? 'lg:col-start-1 lg:row-start-1' : ''} order-1 lg:order-none`}>
                       <div className="relative max-w-md mx-auto lg:max-w-none">
                         <MockupComponent />
@@ -505,7 +557,6 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Decorative Background Element */}
                   <div className={`absolute top-1/2 -translate-y-1/2 -z-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r ${feature.bgGradient} rounded-full blur-3xl opacity-30 ${isEven ? '-left-32 md:-left-48' : '-right-32 md:-right-48'} hidden sm:block`}></div>
                 </div>
               )
@@ -515,33 +566,40 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-12 md:py-20 bg-gray-50/50 border-y border-gray-200/50">
+      <section className="py-12 md:py-20 bg-white border-y border-gray-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Loved by Businesses Worldwide
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Trusted by 50,000+ Businesses Worldwide
             </h2>
-            <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+            <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
               See what our customers have to say about MamaSign.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-gray-200/50 hover:border-cyan-500/30 hover:bg-gray-100/70 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2"
+                className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 hover:border-cyan-300 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2"
               >
                 <div className="flex mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                   ))}
                 </div>
-                <p className="text-gray-700 mb-6 text-base md:text-lg leading-relaxed">
+                <p className="text-gray-700 mb-6 text-base leading-relaxed">
                   "{testimonial.quote}"
                 </p>
-                <div>
-                  <p className="font-semibold text-gray-900">{testimonial.author}</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                    {testimonial.image}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{testimonial.author}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                    <p className="text-sm text-cyan-600">{testimonial.company}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -549,33 +607,66 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Why Choose Us Section */}
+      <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Why Choose MamaSign?
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Lightning Fast</h3>
+              <p className="text-gray-600">Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Bank-Level Security</h3>
+              <p className="text-gray-600">256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Award className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Legally Binding</h3>
+              <p className="text-gray-600">Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-12 md:py-20 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 relative overflow-hidden">
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-48 md:w-72 h-48 md:h-72 bg-white/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-64 md:w-96 h-64 md:h-96 bg-white/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Transform Your Document Workflow?
           </h2>
-          <p className="text-base md:text-xl text-gray-900/80 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
-            Join thousands of businesses who trust MamaSign for their document needs.
-            Get started for free today.
+          <p className="text-base md:text-xl text-white/90 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
+            Join 50,000+ businesses who trust MamaSign for their document needs.
+            Get started for free today - no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
             <Link
               href="/sign-document"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-cyan-600 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
             >
               Start Signing Free
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
             </Link>
             <Link
               href="/templates"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-gray-900 border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-500 ease-out"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-500 ease-out"
             >
               Build Your Resume
             </Link>

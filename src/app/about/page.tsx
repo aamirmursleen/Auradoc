@@ -129,7 +129,7 @@ const AboutPage: React.FC = () => {
                 <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
                   {stat.value}
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-gray-600 dark:text-gray-300">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -158,7 +158,7 @@ const AboutPage: React.FC = () => {
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl p-8 text-gray-900">
+              <div className="relative bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl p-8 text-gray-900 dark:text-white">
                 <FileSignature className="w-16 h-16 mb-6 opacity-80" />
                 <blockquote className="text-2xl font-medium mb-6">
                   "We wanted to build the e-signature platform we wished existed - simple, powerful, and accessible to everyone."
@@ -187,7 +187,7 @@ const AboutPage: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="bg-gray-100/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-200/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+              <div key={index} className="bg-gray-100/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6">
                   <value.icon className="w-7 h-7 text-gray-900" />
                 </div>
@@ -217,7 +217,7 @@ const AboutPage: React.FC = () => {
             {milestones.map((milestone, index) => (
               <div key={index} className={`relative flex items-center mb-8 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
                 <div className={`w-5/12 ${index % 2 === 0 ? 'text-right pr-8' : 'text-left pl-8'}`}>
-                  <div className="bg-gray-100/50 backdrop-blur-xl p-6 rounded-xl border border-gray-200/50 shadow-lg shadow-cyan-500/20">
+                  <div className="bg-gray-100/50 backdrop-blur-xl p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-lg shadow-cyan-500/20">
                     <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                       {milestone.year}
                     </span>
@@ -245,7 +245,7 @@ const AboutPage: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {team.map((member, index) => (
-              <div key={index} className="bg-gray-100/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-200/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 text-center">
+              <div key={index} className="bg-gray-100/50 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 text-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Users className="w-10 h-10 text-gray-900" />
                 </div>
@@ -284,7 +284,7 @@ const AboutPage: React.FC = () => {
               { city: 'London', country: 'United Kingdom', type: 'EMEA Office' },
               { city: 'Singapore', country: 'Singapore', type: 'APAC Office' },
             ].map((office, index) => (
-              <div key={index} className="p-8 bg-gray-100/50 backdrop-blur-xl rounded-2xl border border-gray-200/50 text-center">
+              <div key={index} className="p-8 bg-gray-100/50 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700/50 text-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <MapPin className="w-7 h-7 text-gray-900" />
                 </div>
@@ -304,7 +304,7 @@ const AboutPage: React.FC = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Awards & Recognition
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-300">
               Industry recognition for our innovation and excellence
             </p>
           </div>
@@ -316,7 +316,7 @@ const AboutPage: React.FC = () => {
               'TrustRadius Top Rated',
               'Forbes Cloud 100',
             ].map((award, index) => (
-              <div key={index} className="p-6 bg-gray-100 rounded-xl border border-gray-200 text-center">
+              <div key={index} className="p-6 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
                 <Award className="w-10 h-10 text-yellow-400 mx-auto mb-4" />
                 <p className="text-gray-900 font-medium">{award}</p>
               </div>
@@ -335,7 +335,7 @@ const AboutPage: React.FC = () => {
             We're always looking for talented people to join our team. Help us build the future of document signing.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/careers" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300">
+            <Link href="/careers" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300">
               View Open Positions
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>

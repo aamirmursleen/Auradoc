@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
-import { Image as ImageIcon, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Plus, X, GripVertical } from 'lucide-react'
+import { Image as ImageIcon, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Plus, X } from 'lucide-react'
 import Link from 'next/link'
+import { PDFDocument } from 'pdf-lib'
 
 export default function ImageToPDFPage() {
   const [files, setFiles] = useState<File[]>([])
@@ -10,6 +11,7 @@ export default function ImageToPDFPage() {
   const [converted, setConverted] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [previews, setPreviews] = useState<string[]>([])
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null)
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -34,8 +36,8 @@ export default function ImageToPDFPage() {
   const addFiles = (newFiles: File[]) => {
     setFiles(prev => [...prev, ...newFiles])
     setConverted(false)
+    setPdfBlob(null)
 
-    // Generate previews
     newFiles.forEach(file => {
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -58,15 +60,77 @@ export default function ImageToPDFPage() {
   const handleConvert = async () => {
     if (files.length === 0) return
     setConverting(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setConverting(false)
-    setConverted(true)
+
+    try {
+      const pdfDoc = await PDFDocument.create()
+
+      for (const file of files) {
+        const imageBytes = await file.arrayBuffer()
+
+        let image
+        if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+          image = await pdfDoc.embedJpg(imageBytes)
+        } else if (file.type === 'image/png') {
+          image = await pdfDoc.embedPng(imageBytes)
+        } else {
+          // For other formats, convert to PNG first using canvas
+          const img = new window.Image()
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+
+          await new Promise<void>((resolve) => {
+            img.onload = () => {
+              canvas.width = img.width
+              canvas.height = img.height
+              ctx?.drawImage(img, 0, 0)
+              resolve()
+            }
+            img.src = URL.createObjectURL(file)
+          })
+
+          const pngDataUrl = canvas.toDataURL('image/png')
+          const pngBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer())
+          image = await pdfDoc.embedPng(pngBytes)
+        }
+
+        const page = pdfDoc.addPage([image.width, image.height])
+        page.drawImage(image, {
+          x: 0,
+          y: 0,
+          width: image.width,
+          height: image.height,
+        })
+      }
+
+      const pdfBytes = await pdfDoc.save()
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+      setPdfBlob(blob)
+      setConverted(true)
+    } catch (error) {
+      console.error('Error creating PDF:', error)
+      alert('Error creating PDF. Please try again.')
+    } finally {
+      setConverting(false)
+    }
+  }
+
+  const downloadPdf = () => {
+    if (!pdfBlob) return
+    const url = URL.createObjectURL(pdfBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'images-to-pdf.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
 
   const clearAll = () => {
     setFiles([])
     setPreviews([])
     setConverted(false)
+    setPdfBlob(null)
   }
 
   return (
@@ -201,7 +265,10 @@ export default function ImageToPDFPage() {
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">PDF Created Successfully!</span>
                     </div>
-                    <button className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
+                    <button
+                      onClick={downloadPdf}
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    >
                       <Download className="w-5 h-5" />
                       Download PDF
                     </button>
@@ -229,7 +296,7 @@ export default function ImageToPDFPage() {
             {[
               { icon: ImageIcon, title: 'Multiple Images', desc: 'Combine multiple images into one PDF' },
               { icon: Zap, title: 'Instant Conversion', desc: 'Get your PDF in seconds' },
-              { icon: Shield, title: 'Privacy First', desc: 'Images never leave your browser' },
+              { icon: Shield, title: 'Privacy First', desc: 'Images processed in your browser' },
             ].map((feature, idx) => (
               <div key={idx} className="text-center p-6 rounded-2xl bg-gray-50">
                 <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-4">

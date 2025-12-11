@@ -104,7 +104,7 @@ const ContactPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8">
             {contactOptions.map((option, index) => (
-              <div key={index} className="p-8 bg-gray-100/50 backdrop-blur-xl rounded-2xl text-center hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 border border-gray-200/50">
+              <div key={index} className="p-8 bg-gray-100/50 backdrop-blur-xl rounded-2xl text-center hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 border border-gray-200 dark:border-gray-700/50">
                 <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <option.icon className="w-8 h-8 text-gray-900" />
                 </div>
@@ -126,7 +126,7 @@ const ContactPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/50">
+            <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700/50">
               {isSubmitted ? (
                 <div className="text-center py-12">
                   <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -159,7 +159,7 @@ const ContactPage: React.FC = () => {
                           required
                           value={formData.name}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 rounded-lg border border-gray-200/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
                           placeholder="John Doe"
                         />
                       </div>
@@ -174,7 +174,7 @@ const ContactPage: React.FC = () => {
                           required
                           value={formData.email}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 rounded-lg border border-gray-200/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
                           placeholder="john@example.com"
                         />
                       </div>
@@ -190,7 +190,7 @@ const ContactPage: React.FC = () => {
                         name="company"
                         value={formData.company}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
                         placeholder="Your Company"
                       />
                     </div>
@@ -205,7 +205,7 @@ const ContactPage: React.FC = () => {
                         required
                         value={formData.subject}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
                       >
                         <option value="">Select a subject</option>
                         <option value="sales">Sales Inquiry</option>
@@ -227,7 +227,7 @@ const ContactPage: React.FC = () => {
                         rows={5}
                         value={formData.message}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700/50 bg-gray-50/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all resize-none"
                         placeholder="How can we help you?"
                       />
                     </div>
@@ -247,7 +247,7 @@ const ContactPage: React.FC = () => {
             {/* Side Info */}
             <div className="space-y-8">
               {/* Quick Help */}
-              <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/50">
+              <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700/50">
                 <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                   <HelpCircle className="w-6 h-6 text-cyan-600 mr-2" />
                   Frequently Asked Questions
@@ -271,7 +271,7 @@ const ContactPage: React.FC = () => {
               </div>
 
               {/* For Enterprise */}
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-gray-900 border border-gray-200/50">
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-gray-900 border border-gray-200 dark:border-gray-700/50">
                 <Building2 className="w-12 h-12 mb-4 text-cyan-600" />
                 <h3 className="text-xl font-semibold mb-3">Enterprise Sales</h3>
                 <p className="text-gray-700 mb-6">
@@ -284,7 +284,7 @@ const ContactPage: React.FC = () => {
               </div>
 
               {/* Social Links */}
-              <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/50">
+              <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700/50">
                 <h3 className="text-xl font-semibold text-gray-900 mb-6">Follow Us</h3>
                 <div className="flex items-center gap-4">
                   <a href="#" className="w-12 h-12 bg-gray-700/50 rounded-full flex items-center justify-center hover:bg-cyan-500/20 hover:text-cyan-600 text-gray-700 transition-colors">
@@ -317,14 +317,14 @@ const ContactPage: React.FC = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {offices.map((office, index) => (
-              <div key={index} className="p-8 bg-gray-100/50 backdrop-blur-xl rounded-2xl border border-gray-200/50">
+              <div key={index} className="p-8 bg-gray-100/50 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700/50">
                 <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4">
                   <MapPin className="w-6 h-6 text-gray-900" />
                 </div>
                 <span className="text-sm text-cyan-600 font-medium">{office.type}</span>
                 <h3 className="text-xl font-semibold text-gray-900 mt-1 mb-2">{office.city}</h3>
                 <p className="text-gray-700 mb-1">{office.address}</p>
-                <p className="text-gray-600">{office.country}</p>
+                <p className="text-gray-600 dark:text-gray-300">{office.country}</p>
               </div>
             ))}
           </div>

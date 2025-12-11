@@ -133,7 +133,7 @@ const PricingPage: React.FC = () => {
                   className={`bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-xl transition-all duration-300 hover:transform hover:scale-105 ${
                     tier.current
                       ? 'border-4 border-cyan-500'
-                      : 'border-2 border-gray-200/50'
+                      : 'border-2 border-gray-200 dark:border-gray-700/50'
                   }`}
                 >
                   {tier.current && (
@@ -149,7 +149,7 @@ const PricingPage: React.FC = () => {
                           : 'bg-gray-700/50'
                       }`}
                     >
-                      <div className="text-gray-900">
+                      <div className="text-gray-900 dark:text-white">
                         <div className="text-4xl font-bold">${tier.price}</div>
                       </div>
                     </div>
@@ -174,7 +174,7 @@ const PricingPage: React.FC = () => {
               Get Lifetime Deal
               <ArrowRight className="w-6 h-6 ml-3" />
             </Link>
-            <p className="mt-4 text-sm text-gray-600">
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">
               One-time payment. Lifetime access. 30-day money-back guarantee.
             </p>
           </div>
@@ -201,7 +201,7 @@ const PricingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-xl border border-gray-200/50">
+          <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-xl border border-gray-200 dark:border-gray-700/50">
             <div className="grid md:grid-cols-2 gap-6">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center">
@@ -214,7 +214,7 @@ const PricingPage: React.FC = () => {
             </div>
 
             {/* Value Proposition */}
-            <div className="mt-12 pt-8 border-t border-gray-200/50 text-center">
+            <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700/50 text-center">
               <p className="text-2xl font-bold text-gray-900 mb-2">
                 Everything for a one-time payment of just $19
               </p>
@@ -242,7 +242,7 @@ const PricingPage: React.FC = () => {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="border border-gray-200/50 rounded-xl overflow-hidden bg-gray-100/50 backdrop-blur-xl"
+                className="border border-gray-200 dark:border-gray-700/50 rounded-xl overflow-hidden bg-gray-100/50 backdrop-blur-xl"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
@@ -278,7 +278,7 @@ const PricingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/sign-up"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
             >
               Get Started Now
               <ArrowRight className="w-5 h-5 ml-2" />

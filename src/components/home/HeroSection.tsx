@@ -14,7 +14,7 @@ import {
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center bg-gradient-to-br from-gray-50 via-white to-cyan-50 overflow-hidden">
+    <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-cyan-400 rounded-full opacity-10 blur-3xl animate-pulse" />
@@ -27,19 +27,19 @@ const HeroSection: React.FC = () => {
           {/* Left Content - Text */}
           <div className="animate-in space-y-6 md:space-y-8 text-center lg:text-left">
             {/* Badge */}
-            <div className="inline-flex items-center space-x-2 px-3 md:px-4 py-2 bg-gradient-to-r from-cyan-100 to-purple-100 rounded-full border border-cyan-200 backdrop-blur-xl">
+            <div className="inline-flex items-center space-x-2 px-3 md:px-4 py-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 rounded-full border border-cyan-200 dark:border-cyan-700 backdrop-blur-xl">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </span>
-              <span className="text-cyan-700 text-xs md:text-sm font-medium">
+              <span className="text-cyan-700 dark:text-cyan-300 text-xs md:text-sm font-medium">
                 Trusted by 50,000+ businesses worldwide
               </span>
               <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-cyan-500" />
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-[1.1]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 dark:text-white leading-[1.1]">
               Sign Documents
               <span className="block mt-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Effortlessly
@@ -47,7 +47,7 @@ const HeroSection: React.FC = () => {
             </h1>
 
             {/* Subheading */}
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed px-4 lg:px-0">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl mx-auto lg:mx-0 leading-relaxed px-4 lg:px-0">
               Professional e-signature platform for businesses of all sizes.
               Get documents signed in minutes with legally-binding digital signatures.
             </p>

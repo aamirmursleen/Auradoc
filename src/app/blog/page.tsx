@@ -13,9 +13,103 @@ import {
   TrendingUp,
   Shield,
   Zap,
-  Users,
   FileText,
 } from 'lucide-react'
+
+// Real blog posts with SEO-optimized content
+export const blogPosts = [
+  {
+    id: 1,
+    slug: 'how-to-esign-documents-legally',
+    title: 'How to Create Legally Binding E-Signatures: Complete Guide 2025',
+    excerpt: 'Learn everything about creating electronic signatures that are legally binding. Understand ESIGN Act, UETA, and eIDAS regulations that make your e-signatures valid in court.',
+    category: 'legal',
+    author: 'Sarah Ahmed',
+    date: 'December 10, 2024',
+    readTime: '12 min read',
+    featured: true,
+  },
+  {
+    id: 2,
+    slug: 'best-free-pdf-tools-2025',
+    title: 'Best Free PDF Tools in 2025: Complete Comparison Guide',
+    excerpt: 'Compare the top free PDF tools available online. From compression to conversion, find the best tools for your document needs without spending a dime.',
+    category: 'guides',
+    author: 'Michael Chen',
+    date: 'December 8, 2024',
+    readTime: '10 min read',
+  },
+  {
+    id: 3,
+    slug: 'pdf-compression-guide',
+    title: 'How to Compress PDF Files Without Losing Quality',
+    excerpt: 'Master PDF compression techniques to reduce file sizes while maintaining document quality. Perfect for email attachments and faster uploads.',
+    category: 'guides',
+    author: 'Emily Rodriguez',
+    date: 'December 5, 2024',
+    readTime: '8 min read',
+  },
+  {
+    id: 4,
+    slug: 'electronic-signature-vs-digital-signature',
+    title: 'Electronic Signature vs Digital Signature: Key Differences Explained',
+    excerpt: 'Understand the crucial differences between electronic and digital signatures, when to use each, and which one is right for your business needs.',
+    category: 'legal',
+    author: 'James Wilson',
+    date: 'December 3, 2024',
+    readTime: '9 min read',
+  },
+  {
+    id: 5,
+    slug: 'document-security-best-practices',
+    title: 'Document Security Best Practices: Protect Your Business Files',
+    excerpt: 'Essential security practices to protect your sensitive documents. Learn about encryption, access controls, audit trails, and more.',
+    category: 'security',
+    author: 'David Kim',
+    date: 'November 30, 2024',
+    readTime: '11 min read',
+  },
+  {
+    id: 6,
+    slug: 'esignature-real-estate-guide',
+    title: 'E-Signatures in Real Estate: A Complete Agent Guide',
+    excerpt: 'How real estate agents can use e-signatures to close deals faster. Includes tips for contracts, disclosures, and client management.',
+    category: 'business',
+    author: 'Priya Sharma',
+    date: 'November 28, 2024',
+    readTime: '10 min read',
+  },
+  {
+    id: 7,
+    slug: 'gdpr-esignature-compliance',
+    title: 'GDPR and E-Signatures: Everything You Need to Know',
+    excerpt: 'A comprehensive guide to GDPR compliance for electronic signatures in Europe. Learn requirements, best practices, and avoid costly mistakes.',
+    category: 'legal',
+    author: 'James Wilson',
+    date: 'November 25, 2024',
+    readTime: '13 min read',
+  },
+  {
+    id: 8,
+    slug: 'convert-pdf-to-word-guide',
+    title: 'How to Convert PDF to Word: Best Methods and Tips',
+    excerpt: 'Learn the best ways to convert PDF documents to editable Word files. Compare online tools, desktop software, and manual methods.',
+    category: 'guides',
+    author: 'Emily Rodriguez',
+    date: 'November 22, 2024',
+    readTime: '7 min read',
+  },
+  {
+    id: 9,
+    slug: 'remote-work-document-management',
+    title: 'Document Management for Remote Teams: Best Practices',
+    excerpt: 'How to manage documents effectively when your team works remotely. Tips for collaboration, version control, and secure sharing.',
+    category: 'business',
+    author: 'Sarah Ahmed',
+    date: 'November 20, 2024',
+    readTime: '9 min read',
+  },
+]
 
 const BlogPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all')
@@ -23,111 +117,26 @@ const BlogPage: React.FC = () => {
 
   const categories = [
     { id: 'all', name: 'All Posts' },
-    { id: 'product', name: 'Product Updates' },
     { id: 'guides', name: 'How-To Guides' },
     { id: 'security', name: 'Security' },
     { id: 'business', name: 'Business Tips' },
     { id: 'legal', name: 'Legal & Compliance' },
   ]
 
-  const featuredPost = {
-    id: 1,
-    title: 'The Future of E-Signatures: Trends to Watch in 2024',
-    excerpt: 'Discover the emerging trends shaping the e-signature industry, from AI-powered document processing to blockchain verification and beyond.',
-    category: 'business',
-    author: 'Sarah Ahmed',
-    date: 'January 15, 2024',
-    readTime: '8 min read',
-    image: null,
-  }
+  const featuredPost = blogPosts.find(post => post.featured) || blogPosts[0]
+  const regularPosts = blogPosts.filter(post => !post.featured)
 
-  const posts = [
-    {
-      id: 2,
-      title: 'How to Create Legally Binding E-Signatures: A Complete Guide',
-      excerpt: 'Everything you need to know about creating e-signatures that hold up in court, including compliance requirements and best practices.',
-      category: 'legal',
-      author: 'James Wilson',
-      date: 'January 12, 2024',
-      readTime: '10 min read',
-    },
-    {
-      id: 3,
-      title: 'Introducing Bulk Sending: Sign Documents at Scale',
-      excerpt: 'Our new bulk sending feature lets you send documents to hundreds of signers with just a few clicks. Here\'s how to use it.',
-      category: 'product',
-      author: 'Emily Rodriguez',
-      date: 'January 10, 2024',
-      readTime: '5 min read',
-    },
-    {
-      id: 4,
-      title: '5 Ways E-Signatures Are Transforming Real Estate',
-      excerpt: 'Real estate professionals are saving hours each week with digital signatures. Learn how top agents are closing deals faster.',
-      category: 'business',
-      author: 'Michael Chen',
-      date: 'January 8, 2024',
-      readTime: '6 min read',
-    },
-    {
-      id: 5,
-      title: 'Security Best Practices for Document Signing',
-      excerpt: 'Protect your sensitive documents with these essential security practices. From encryption to access controls, we cover it all.',
-      category: 'security',
-      author: 'David Kim',
-      date: 'January 5, 2024',
-      readTime: '7 min read',
-    },
-    {
-      id: 6,
-      title: 'How to Set Up Automated Document Workflows',
-      excerpt: 'Step-by-step guide to creating automated workflows that route documents to the right signers in the right order.',
-      category: 'guides',
-      author: 'Priya Sharma',
-      date: 'January 3, 2024',
-      readTime: '8 min read',
-    },
-    {
-      id: 7,
-      title: 'GDPR and E-Signatures: What You Need to Know',
-      excerpt: 'Understanding GDPR compliance for electronic signatures in Europe. Key requirements and how MamaSign helps you stay compliant.',
-      category: 'legal',
-      author: 'James Wilson',
-      date: 'December 28, 2023',
-      readTime: '9 min read',
-    },
-    {
-      id: 8,
-      title: 'New API Features: Webhooks and Batch Processing',
-      excerpt: 'Developers can now use webhooks for real-time notifications and batch processing for high-volume document handling.',
-      category: 'product',
-      author: 'Michael Chen',
-      date: 'December 22, 2023',
-      readTime: '4 min read',
-    },
-    {
-      id: 9,
-      title: 'Reducing Contract Turnaround Time by 80%',
-      excerpt: 'Case study: How a law firm reduced their contract processing time from 5 days to just 1 day using MamaSign.',
-      category: 'business',
-      author: 'Sarah Ahmed',
-      date: 'December 18, 2023',
-      readTime: '6 min read',
-    },
-  ]
-
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = regularPosts.filter((post) => {
     const matchesCategory = activeCategory === 'all' || post.category === activeCategory
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
-  const popularPosts = posts.slice(0, 4)
+  const popularPosts = blogPosts.slice(0, 4)
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'product': return Zap
       case 'guides': return BookOpen
       case 'security': return Shield
       case 'business': return TrendingUp
@@ -136,10 +145,20 @@ const BlogPage: React.FC = () => {
     }
   }
 
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'guides': return 'bg-blue-500/20 text-blue-600'
+      case 'security': return 'bg-red-500/20 text-red-600'
+      case 'business': return 'bg-green-500/20 text-green-600'
+      case 'legal': return 'bg-purple-500/20 text-purple-600'
+      default: return 'bg-cyan-500/20 text-cyan-600'
+    }
+  }
+
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+      <section className="relative py-20 bg-gradient-to-br from-cyan-50 via-white to-purple-50">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full opacity-10 blur-3xl" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl" />
@@ -149,23 +168,23 @@ const BlogPage: React.FC = () => {
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
               MamaSign
-              <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Blog
               </span>
             </h1>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
-              Insights, guides, and updates to help you get the most out of e-signatures and document management.
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+              Expert guides, industry insights, and practical tips for e-signatures, PDF tools, and document management.
             </p>
 
             {/* Search Bar */}
             <div className="relative max-w-xl mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search articles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200/50 bg-gray-100/50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all shadow-sm"
               />
             </div>
           </div>
@@ -175,48 +194,47 @@ const BlogPage: React.FC = () => {
       {/* Featured Post */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl overflow-hidden border border-gray-200/50">
-            <div className="grid lg:grid-cols-2 gap-8 p-8 lg:p-12">
-              <div className="flex flex-col justify-center">
-                <span className="inline-flex items-center w-fit px-3 py-1 bg-cyan-500/20 text-cyan-600 text-sm font-medium rounded-full mb-4">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Featured
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                  {featuredPost.title}
-                </h2>
-                <p className="text-lg text-gray-700 mb-6">
-                  {featuredPost.excerpt}
-                </p>
-                <div className="flex items-center text-gray-600 text-sm mb-6">
-                  <div className="flex items-center mr-6">
-                    <User className="w-4 h-4 mr-2" />
-                    {featuredPost.author}
+          <Link href={`/blog/${featuredPost.slug}`} className="block">
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 group">
+              <div className="grid lg:grid-cols-2 gap-8 p-8 lg:p-12">
+                <div className="flex flex-col justify-center">
+                  <span className="inline-flex items-center w-fit px-3 py-1 bg-cyan-500/20 text-cyan-400 text-sm font-medium rounded-full mb-4">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Featured Article
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">
+                    {featuredPost.title}
+                  </h2>
+                  <p className="text-lg text-gray-300 mb-6">
+                    {featuredPost.excerpt}
+                  </p>
+                  <div className="flex items-center text-gray-400 text-sm mb-6">
+                    <div className="flex items-center mr-6">
+                      <User className="w-4 h-4 mr-2" />
+                      {featuredPost.author}
+                    </div>
+                    <div className="flex items-center mr-6">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {featuredPost.date}
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 mr-2" />
+                      {featuredPost.readTime}
+                    </div>
                   </div>
-                  <div className="flex items-center mr-6">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {featuredPost.date}
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="w-4 h-4 mr-2" />
-                    {featuredPost.readTime}
-                  </div>
+                  <span className="inline-flex items-center text-cyan-400 font-medium group-hover:text-cyan-300">
+                    Read Article
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </span>
                 </div>
-                <Link
-                  href={`/blog/${featuredPost.id}`}
-                  className="inline-flex items-center text-cyan-600 hover:text-cyan-700 font-medium"
-                >
-                  Read Article
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
-              <div className="relative">
-                <div className="aspect-video bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-                  <BookOpen className="w-24 h-24 text-gray-900/50" />
+                <div className="relative hidden lg:block">
+                  <div className="aspect-video bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <BookOpen className="w-24 h-24 text-white/30" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </section>
 
@@ -234,8 +252,8 @@ const BlogPage: React.FC = () => {
                     onClick={() => setActiveCategory(category.id)}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                       activeCategory === category.id
-                        ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-gray-900'
-                        : 'bg-gray-100/50 text-gray-700 hover:bg-gray-100 border border-gray-200/50'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:border-gray-700'
                     }`}
                   >
                     {category.name}
@@ -248,77 +266,67 @@ const BlogPage: React.FC = () => {
                 {filteredPosts.map((post) => {
                   const CategoryIcon = getCategoryIcon(post.category)
                   return (
-                    <article
-                      key={post.id}
-                      className="bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200/50 overflow-hidden hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300"
-                    >
-                      <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                        <CategoryIcon className="w-12 h-12 text-gray-600" />
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="px-2 py-1 bg-cyan-500/20 text-cyan-600 text-xs font-medium rounded capitalize">
-                            {post.category}
-                          </span>
-                          <span className="text-gray-600 text-xs">{post.readTime}</span>
+                    <Link key={post.id} href={`/blog/${post.slug}`}>
+                      <article className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-cyan-300 transition-all duration-300 h-full group">
+                        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                          <CategoryIcon className="w-12 h-12 text-gray-400 group-hover:text-cyan-500 transition-colors" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-cyan-600 transition-colors">
-                          <Link href={`/blog/${post.id}`}>
+                        <div className="p-6">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className={`px-2 py-1 text-xs font-medium rounded capitalize ${getCategoryColor(post.category)}`}>
+                              {post.category}
+                            </span>
+                            <span className="text-gray-500 text-xs">{post.readTime}</span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-cyan-600 transition-colors line-clamp-2">
                             {post.title}
-                          </Link>
-                        </h3>
-                        <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between text-sm text-gray-600">
-                          <div className="flex items-center">
-                            <User className="w-4 h-4 mr-1" />
-                            {post.author}
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {post.date}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                            {post.excerpt}
+                          </p>
+                          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center">
+                              <User className="w-4 h-4 mr-1" />
+                              {post.author}
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              {post.date}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </article>
+                      </article>
+                    </Link>
                   )
                 })}
               </div>
 
               {filteredPosts.length === 0 && (
-                <div className="text-center py-12 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200/50">
-                  <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No articles found</h3>
-                  <p className="text-gray-700">Try adjusting your search or filter criteria</p>
+                  <p className="text-gray-600 dark:text-gray-300">Try adjusting your search or filter criteria</p>
                 </div>
               )}
-
-              {/* Load More */}
-              <div className="text-center mt-8">
-                <button className="px-8 py-3 bg-gray-100/50 border-2 border-gray-200/50 rounded-xl text-gray-700 font-medium hover:border-cyan-500/50 hover:bg-gray-100 transition-all duration-300">
-                  Load More Articles
-                </button>
-              </div>
             </div>
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
               {/* Popular Posts */}
-              <div className="bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200/50 p-6 mb-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Articles</h3>
                 <div className="space-y-4">
                   {popularPosts.map((post, index) => (
-                    <Link key={post.id} href={`/blog/${post.id}`} className="block group">
+                    <Link key={post.id} href={`/blog/${post.slug}`} className="block group">
                       <div className="flex gap-3">
-                        <span className="text-2xl font-bold text-gray-600 group-hover:text-cyan-600 transition-colors">
+                        <span className="text-2xl font-bold text-gray-300 group-hover:text-cyan-500 transition-colors">
                           {String(index + 1).padStart(2, '0')}
                         </span>
                         <div>
                           <h4 className="text-sm font-medium text-gray-900 group-hover:text-cyan-600 transition-colors line-clamp-2">
                             {post.title}
                           </h4>
-                          <span className="text-xs text-gray-600">{post.readTime}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{post.readTime}</span>
                         </div>
                       </div>
                     </Link>
@@ -327,35 +335,35 @@ const BlogPage: React.FC = () => {
               </div>
 
               {/* Newsletter */}
-              <div className="bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl p-6 text-gray-900">
-                <h3 className="text-lg font-semibold mb-2">Subscribe to Our Newsletter</h3>
-                <p className="text-gray-900/80 text-sm mb-4">
-                  Get the latest articles and product updates delivered to your inbox.
+              <div className="bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl p-6 text-white">
+                <h3 className="text-lg font-semibold mb-2">Subscribe to Newsletter</h3>
+                <p className="text-white/80 text-sm mb-4">
+                  Get the latest articles and tips delivered to your inbox.
                 </p>
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-gray-900 placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 mb-3"
+                  className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 mb-3"
                 />
-                <button className="w-full px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                <button className="w-full px-4 py-2 bg-white text-cyan-600 rounded-lg font-medium hover:bg-gray-100 transition-colors">
                   Subscribe
                 </button>
               </div>
 
               {/* Categories Widget */}
-              <div className="bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200/50 p-6 mt-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
                 <div className="space-y-2">
                   {categories.slice(1).map((category) => {
-                    const count = posts.filter(p => p.category === category.id).length
+                    const count = blogPosts.filter(p => p.category === category.id).length
                     return (
                       <button
                         key={category.id}
                         onClick={() => setActiveCategory(category.id)}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-200/50 transition-colors"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
                       >
                         <span className="text-gray-700">{category.name}</span>
-                        <span className="text-sm text-gray-600">{count}</span>
+                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{count}</span>
                       </button>
                     )
                   })}
@@ -372,10 +380,10 @@ const BlogPage: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Ready to Try MamaSign?
           </h2>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Start signing documents for free. No credit card required.
           </p>
-          <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+          <Link href="/sign-document" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
             Start Signing Free
             <ArrowRight className="w-5 h-5 ml-2" />
           </Link>

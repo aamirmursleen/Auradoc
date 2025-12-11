@@ -175,7 +175,7 @@ const SecurityPage: React.FC = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gray-50 border-t border-gray-200">
+      <section className="py-16 bg-gray-50 border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -183,7 +183,7 @@ const SecurityPage: React.FC = () => {
                 <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
                   {stat.value}
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-gray-600 dark:text-gray-300">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -204,7 +204,7 @@ const SecurityPage: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {securityFeatures.map((feature, index) => (
-              <div key={index} className="p-8 bg-gray-50/80 border border-gray-200/50 rounded-2xl hover:shadow-lg transition-all duration-300">
+              <div key={index} className="p-8 bg-gray-50/80 border border-gray-200 dark:border-gray-700/50 rounded-2xl hover:shadow-lg transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6">
                   <feature.icon className="w-7 h-7 text-gray-900" />
                 </div>
@@ -230,7 +230,7 @@ const SecurityPage: React.FC = () => {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {certifications.map((cert, index) => (
-              <div key={index} className="p-8 bg-gray-50/80 rounded-2xl border border-gray-200/50 text-center hover:shadow-lg transition-all duration-300">
+              <div key={index} className="p-8 bg-gray-50/80 rounded-2xl border border-gray-200 dark:border-gray-700/50 text-center hover:shadow-lg transition-all duration-300">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <cert.icon className="w-8 h-8 text-gray-900" />
                 </div>
@@ -263,12 +263,12 @@ const SecurityPage: React.FC = () => {
 
           <div className="grid md:grid-cols-2 gap-8">
             {securityPractices.map((category, index) => (
-              <div key={index} className="bg-gray-50/80 border border-gray-200/50 rounded-2xl p-8">
+              <div key={index} className="bg-gray-50/80 border border-gray-200 dark:border-gray-700/50 rounded-2xl p-8">
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mr-4">
                     <category.icon className="w-6 h-6 text-gray-900" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900">{category.category}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{category.category}</h3>
                 </div>
                 <ul className="space-y-3">
                   {category.practices.map((practice, i) => (
@@ -299,12 +299,12 @@ const SecurityPage: React.FC = () => {
               <p className="text-gray-600 mb-8">
                 We operate a responsible disclosure program and will work with researchers to fix issues and recognize their contributions.
               </p>
-              <Link href="/security/disclosure" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300">
+              <Link href="/security/disclosure" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
                 Report a Vulnerability
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </div>
-            <div className="bg-gray-100 rounded-2xl p-8 border border-gray-200">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">Program Highlights</h3>
               <ul className="space-y-4">
                 {[
@@ -336,7 +336,7 @@ const SecurityPage: React.FC = () => {
             Our security team is here to help. Contact us to discuss your security requirements or request documentation.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300">
+            <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
               Contact Security Team
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>

@@ -3,14 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 20;
-  --background-end-rgb: 15, 15, 30;
+  /* Light Mode (Default) */
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 249, 250, 251;
+  --background-end-rgb: 255, 255, 255;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 * {
   scroll-behavior: smooth;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 body {
   color: rgb(var(--foreground-rgb));
@@ -23,98 +26,119 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Dark Theme Base */
 .dark-theme {
   background: linear-gradient(135deg, #0a0a14 0%, #0f0f1e 50%, #0a0a14 100%);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Neon Glow Effects */
 .neon-glow-blue {
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-glow-cyan {
   box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-glow-purple {
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-glow-magenta {
   box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Signature Canvas Styles */
 .signature-canvas-container {
   @apply relative rounded-xl border-2 border-dashed border-gray-600 bg-gray-900/50 transition-all duration-300;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .signature-canvas-container:hover {
   @apply border-cyan-400;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .signature-canvas-container.has-signature {
   @apply border-solid border-cyan-500;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Button Styles - Dark Theme */
 .btn-primary {
   @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 rounded-lg shadow-lg hover:from-blue-500 hover:via-purple-500 hover:to-cyan-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300 transform hover:scale-105;
   box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .btn-primary:hover {
   box-shadow: 0 6px 30px rgba(6, 182, 212, 0.6);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .btn-secondary {
   @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-gray-200 bg-gray-800/80 border border-gray-600 rounded-lg shadow-sm hover:bg-gray-700/80 hover:border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .btn-danger {
   @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg shadow-lg hover:from-red-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300;
   box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Card Styles - Dark Theme */
 .card {
   @apply bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-700/50 overflow-hidden;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .card-header {
   @apply px-6 py-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .card-body {
   @apply p-6;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Glass Effect - Dark Theme */
 .glass {
   @apply bg-gray-900/60 backdrop-blur-xl border border-gray-700/50;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Gradient Text - Neon */
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .gradient-text-neon {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Animation Classes */
 .animate-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes fadeIn {
   from {
@@ -126,20 +150,24 @@ body {
     transform: translateY(0);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Scrollbar Styles - Dark Theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 ::-webkit-scrollbar-track {
   @apply bg-gray-900 rounded-full;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 ::-webkit-scrollbar-thumb {
   @apply bg-gray-600 rounded-full hover:bg-gray-500;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Focus States - Dark Theme */
 input:focus,
@@ -147,11 +175,13 @@ textarea:focus,
 select:focus {
   @apply outline-none ring-2 ring-cyan-500 ring-offset-2 ring-offset-gray-900;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Success Badge Animation */
 .success-badge {
   animation: successPulse 2s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes successPulse {
   0%, 100% {
@@ -161,16 +191,19 @@ select:focus {
     box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* 3D Hero Animations */
 .hero-3d-container {
   perspective: 1000px;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .document-3d {
   animation: float3d 6s ease-in-out infinite;
   transform-style: preserve-3d;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float3d {
   0%, 100% {
@@ -180,19 +213,23 @@ select:focus {
     transform: translateY(-15px) rotateX(-2deg) rotateY(2deg);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Floating animations for mini cards */
 .animate-float-1 {
   animation: float1 4s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .animate-float-2 {
   animation: float2 5s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .animate-float-3 {
   animation: float3 4.5s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float1 {
   0%, 100% {
@@ -202,6 +239,7 @@ select:focus {
     transform: translateY(-10px) rotate(5deg);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float2 {
   0%, 100% {
@@ -211,6 +249,7 @@ select:focus {
     transform: translateY(-12px) rotate(-5deg);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float3 {
   0%, 100% {
@@ -220,11 +259,13 @@ select:focus {
     transform: translateY(-8px) scale(1.05);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Glow animation */
 .animate-float-glow {
   animation: floatGlow 4s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes floatGlow {
   0%, 100% {
@@ -236,6 +277,7 @@ select:focus {
     transform: scale(1.05);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Shimmer effect for document lines - Dark Theme */
 .animate-shimmer {
@@ -243,6 +285,7 @@ select:focus {
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes shimmer {
   0% {
@@ -252,11 +295,13 @@ select:focus {
     background-position: -200% 0;
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Slow bounce for signature icon */
 .animate-bounce-slow {
   animation: bounceSlow 2s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes bounceSlow {
   0%, 100% {
@@ -266,11 +311,13 @@ select:focus {
     transform: translateY(-5px);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Signature text style */
 .signature-text {
   font-family: cursive;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Stars Background */
 .stars-bg {
@@ -283,16 +330,19 @@ select:focus {
   background-size: 200px 200px;
   animation: twinkle 5s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes twinkle {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Neon Border Animation */
 .neon-border {
   position: relative;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-border::before {
   content: '';
@@ -305,17 +355,20 @@ select:focus {
   animation: neonBorder 3s linear infinite;
   opacity: 0.7;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes neonBorder {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Pulse Glow */
 .pulse-glow {
   animation: pulseGlow 2s ease-in-out infinite;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes pulseGlow {
   0%, 100% {
@@ -325,25 +378,30 @@ select:focus {
     box-shadow: 0 0 40px rgba(6, 182, 212, 0.8), 0 0 60px rgba(168, 85, 247, 0.4);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Smooth Transitions */
 .transition-smooth {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .hover-lift {
   transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .hover-lift:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Fade In Up Animation */
 .fade-in-up {
   animation: fadeInUp 0.6s ease-out forwards;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes fadeInUp {
   from {
@@ -355,11 +413,13 @@ select:focus {
     transform: translateY(0);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Scale In Animation */
 .scale-in {
   animation: scaleIn 0.4s ease-out forwards;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes scaleIn {
   from {
@@ -371,6 +431,7 @@ select:focus {
     transform: scale(1);
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Stagger Animation Delays */
 .stagger-1 { animation-delay: 0.1s; }
@@ -386,6 +447,7 @@ select:focus {
     padding-right: 1rem;
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
@@ -412,26 +474,31 @@ select:focus {
     animation-duration: 3s;
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Smooth Card Hover */
 .card-hover {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(6, 182, 212, 0.15);
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Link Hover Effect */
 a, button {
   transition: all 0.3s ease;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Image Smooth Loading */
 img {
   transition: opacity 0.3s ease;
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
@@ -444,3 +511,4 @@ img {
     scroll-behavior: auto !important;
   }
 }
+/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
