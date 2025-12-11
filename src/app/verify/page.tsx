@@ -39,8 +39,6 @@ interface VerificationReport {
   recommendation: string
 }
 import { formatFileSize, ComparisonResult, generateDocumentHash, HashResult, DifferenceDetail } from '@/lib/hash'
-import { canAnonymousVerify, getRemainingAnonymousVerify, incrementAnonymousVerifyCount, isProUser, FREE_LIMIT } from '@/lib/usageLimit'
-import UpgradeModal from '@/components/UpgradeModal'
 
 const VerifyPage: React.FC = () => {
   // States
@@ -48,16 +46,6 @@ const VerifyPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [dragActive, setDragActive] = useState(false)
-
-  // Usage limit state
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [usageCount, setUsageCount] = useState(0)
-
-  // Check usage on mount
-  useEffect(() => {
-    const remaining = getRemainingAnonymousVerify()
-    setUsageCount(FREE_LIMIT - remaining)
-  }, [])
 
   // Upload states
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
@@ -158,12 +146,6 @@ const VerifyPage: React.FC = () => {
 
   // Verify against selected original
   const handleVerify = async (verificationToUse?: DocumentVerification) => {
-    // Check usage limit for free users
-    if (!isProUser() && !canAnonymousVerify()) {
-      setShowUpgradeModal(true)
-      return
-    }
-
     const targetVerification = verificationToUse || selectedVerification || verifications[0]
     if (!targetVerification || !uploadedFile || !uploadedHash) return
 
@@ -209,10 +191,6 @@ const VerifyPage: React.FC = () => {
 
       setVerificationResult({ report, comparison })
       setShowResultModal(true)
-
-      // Increment usage count after successful verification
-      incrementAnonymousVerifyCount()
-      setUsageCount(prev => prev + 1)
     } catch (error) {
       console.error('Error verifying document:', error)
     } finally {
@@ -793,14 +771,6 @@ const VerifyPage: React.FC = () => {
         </div>
       )}
 
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        feature="verify"
-        usedCount={usageCount}
-        limit={FREE_LIMIT}
-      />
     </div>
   )
 }
