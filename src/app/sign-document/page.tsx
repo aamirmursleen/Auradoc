@@ -42,7 +42,8 @@ import {
   Mail
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
-import { incrementSignCount } from '@/lib/usageLimit'
+import { incrementSignCount, canAnonymousSign, getRemainingAnonymousSign, incrementAnonymousSignCount, isProUser, FREE_LIMIT } from '@/lib/usageLimit'
+import UpgradeModal from '@/components/UpgradeModal'
 
 // Dynamically import PDF viewer
 const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
@@ -125,6 +126,16 @@ interface TemplateProperties {
 
 const SignDocumentPage: React.FC = () => {
   const { user } = useUser()
+
+  // Usage limit state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [usageCount, setUsageCount] = useState(0)
+
+  // Check usage on mount
+  useEffect(() => {
+    const remaining = getRemainingAnonymousSign()
+    setUsageCount(FREE_LIMIT - remaining)
+  }, [])
 
   // Document state
   const [document, setDocument] = useState<File | null>(null)
@@ -421,6 +432,12 @@ const SignDocumentPage: React.FC = () => {
 
   // Send document for signing
   const handleSendForSigning = async () => {
+    // Check usage limit for free users
+    if (!isProUser() && !canAnonymousSign()) {
+      setShowUpgradeModal(true)
+      return
+    }
+
     // Validate emails
     const invalidSigners = signers.filter(s => !s.email || !s.email.includes('@'))
     if (invalidSigners.length > 0) {
@@ -493,6 +510,10 @@ const SignDocumentPage: React.FC = () => {
       // Increment usage count after successful send
       if (user?.id) {
         incrementSignCount(user.id)
+      } else {
+        // Anonymous user - track in localStorage
+        incrementAnonymousSignCount()
+        setUsageCount(prev => prev + 1)
       }
       setShowSendModal(false)
 
@@ -1356,6 +1377,15 @@ const SignDocumentPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="sign"
+        usedCount={usageCount}
+        limit={FREE_LIMIT}
+      />
     </div>
   )
 }

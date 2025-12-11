@@ -3,6 +3,65 @@
 
 const FREE_DOCUMENT_LIMIT = 5
 const STORAGE_KEY = 'mamasign_document_usage'
+const PRO_KEY = 'mamasign_is_pro'
+
+// Check if user has pro access (works for anonymous users too)
+export function isProUser(): boolean {
+  if (typeof window === 'undefined') return false
+  return localStorage.getItem(PRO_KEY) === 'true'
+}
+
+// Set pro status (called after successful Stripe payment)
+export function setProStatus(isPro: boolean = true): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(PRO_KEY, isPro ? 'true' : 'false')
+}
+
+// Anonymous usage tracking (for users not logged in)
+export function getAnonymousUsage(): { signCount: number; verifyCount: number } {
+  if (typeof window === 'undefined') return { signCount: 0, verifyCount: 0 }
+  try {
+    const stored = localStorage.getItem('mamasign_anon_usage')
+    if (stored) return JSON.parse(stored)
+  } catch (e) {}
+  return { signCount: 0, verifyCount: 0 }
+}
+
+export function incrementAnonymousSignCount(): number {
+  if (typeof window === 'undefined') return 0
+  const usage = getAnonymousUsage()
+  usage.signCount += 1
+  localStorage.setItem('mamasign_anon_usage', JSON.stringify(usage))
+  return usage.signCount
+}
+
+export function incrementAnonymousVerifyCount(): number {
+  if (typeof window === 'undefined') return 0
+  const usage = getAnonymousUsage()
+  usage.verifyCount += 1
+  localStorage.setItem('mamasign_anon_usage', JSON.stringify(usage))
+  return usage.verifyCount
+}
+
+export function canAnonymousSign(): boolean {
+  if (isProUser()) return true
+  return getAnonymousUsage().signCount < FREE_DOCUMENT_LIMIT
+}
+
+export function canAnonymousVerify(): boolean {
+  if (isProUser()) return true
+  return getAnonymousUsage().verifyCount < FREE_DOCUMENT_LIMIT
+}
+
+export function getRemainingAnonymousSign(): number {
+  if (isProUser()) return Infinity
+  return Math.max(0, FREE_DOCUMENT_LIMIT - getAnonymousUsage().signCount)
+}
+
+export function getRemainingAnonymousVerify(): number {
+  if (isProUser()) return Infinity
+  return Math.max(0, FREE_DOCUMENT_LIMIT - getAnonymousUsage().verifyCount)
+}
 
 export interface UsageData {
   userId: string
