@@ -38,7 +38,7 @@ interface VerificationReport {
   differences: Array<{ severity: 'CRITICAL' | 'HIGH' | 'MEDIUM'; description: string }>
   recommendation: string
 }
-import { formatFileSize, ComparisonResult, generateDocumentHash, HashResult } from '@/lib/hash'
+import { formatFileSize, ComparisonResult, generateDocumentHash, HashResult, DifferenceDetail } from '@/lib/hash'
 
 const VerifyPage: React.FC = () => {
   // States
@@ -123,13 +123,12 @@ const VerifyPage: React.FC = () => {
         id: crypto.randomUUID(),
         user_id: 'local-user',
         document_name: uploadedFile.name,
-        document_hash: uploadedHash.hash,
+        original_hash: uploadedHash.hash,
         file_size: uploadedFile.size,
         file_type: uploadedFile.type,
         page_count: uploadedHash.metadata.pageCount || null,
-        created_at: new Date().toISOString(),
-        verification_count: 0,
-        last_verified_at: null
+        metadata: uploadedHash.metadata,
+        created_at: new Date().toISOString()
       }
       setVerifications(prev => [newVerification, ...prev])
       setShowRegisterModal(false)
@@ -155,13 +154,25 @@ const VerifyPage: React.FC = () => {
       setSelectedVerification(targetVerification)
 
       // Local verification - compare hashes directly
-      const isMatch = uploadedHash.hash === targetVerification.document_hash
+      const isMatch = uploadedHash.hash === targetVerification.original_hash
 
       const comparison: ComparisonResult = {
+        isTampered: !isMatch,
+        confidenceLevel: 'HIGH',
         hashMatch: isMatch,
         sizeMatch: uploadedFile.size === targetVerification.file_size,
         typeMatch: uploadedFile.type === targetVerification.file_type,
-        differences: isMatch ? [] : ['Document hash does not match the original']
+        pageCountMatch: uploadedHash.metadata.pageCount === targetVerification.page_count,
+        differences: isMatch ? [] : [{
+          type: 'HASH' as const,
+          description: 'Document hash does not match the original',
+          originalValue: targetVerification.original_hash.substring(0, 16) + '...',
+          newValue: uploadedHash.hash.substring(0, 16) + '...',
+          severity: 'CRITICAL' as const
+        }],
+        summary: isMatch
+          ? 'Document integrity verified. No modifications detected.'
+          : 'Document has been TAMPERED. The hash does not match the original.'
       }
 
       const report: VerificationReport = {
