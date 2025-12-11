@@ -140,7 +140,7 @@ export default function PDFSplitPage() {
         copiedPages.forEach(page => newPdf.addPage(page))
 
         const pdfBytes = await newPdf.save()
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+        const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
         results.push({
           name: `extracted-pages.pdf`,
           blob
@@ -153,7 +153,7 @@ export default function PDFSplitPage() {
           newPdf.addPage(copiedPage)
 
           const pdfBytes = await newPdf.save()
-          const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+          const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
           results.push({
             name: `page-${i + 1}.pdf`,
             blob

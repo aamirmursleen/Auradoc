@@ -33,8 +33,8 @@ export default function GoogleAnalytics() {
 
 // Helper function to track custom events
 export const trackEvent = (action: string, category: string, label?: string, value?: number) => {
-  if (typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag) {
-    (window as Window & { gtag: (...args: unknown[]) => void }).gtag('event', action, {
+  if (typeof window !== 'undefined' && (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag) {
+    (window as unknown as { gtag: (...args: unknown[]) => void }).gtag('event', action, {
       event_category: category,
       event_label: label,
       value: value,
