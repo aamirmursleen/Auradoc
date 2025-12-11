@@ -97,13 +97,13 @@ const PricingPage: React.FC = () => {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
               One Price.
               <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Forever Yours.
               </span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
               Get lifetime access to all MamaSign features with a single payment. No subscriptions, no monthly fees, no surprises.
             </p>
           </div>
@@ -111,13 +111,13 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* Pricing Tiers Section */}
-      <section className="py-20 bg-gray-950">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Lifetime Deal Pricing
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               Price increases with each milestone. Lock in your discount now!
             </p>
           </div>
@@ -130,14 +130,14 @@ const PricingPage: React.FC = () => {
                 className={`relative ${tier.current ? 'transform scale-105' : 'opacity-75'}`}
               >
                 <div
-                  className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 shadow-xl transition-all duration-300 hover:transform hover:scale-105 ${
+                  className={`bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 shadow-xl transition-all duration-300 hover:transform hover:scale-105 ${
                     tier.current
                       ? 'border-4 border-cyan-500'
-                      : 'border-2 border-gray-700/50'
+                      : 'border-2 border-gray-200/50'
                   }`}
                 >
                   {tier.current && (
-                    <div className="absolute -top-3 -right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                    <div className="absolute -top-3 -right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-gray-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
                       Last chance!
                     </div>
                   )}
@@ -149,13 +149,13 @@ const PricingPage: React.FC = () => {
                           : 'bg-gray-700/50'
                       }`}
                     >
-                      <div className="text-white">
+                      <div className="text-gray-900">
                         <div className="text-4xl font-bold">${tier.price}</div>
                       </div>
                     </div>
-                    <p className="text-gray-300 font-medium mb-2">{tier.label}</p>
+                    <p className="text-gray-700 font-medium mb-2">{tier.label}</p>
                     {tier.current && (
-                      <div className="mt-3 px-3 py-1.5 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-semibold inline-block">
+                      <div className="mt-3 px-3 py-1.5 bg-cyan-500/20 text-cyan-600 rounded-full text-sm font-semibold inline-block">
                         CURRENT TIER
                       </div>
                     )}
@@ -169,12 +169,12 @@ const PricingPage: React.FC = () => {
           <div className="text-center mb-12">
             <Link
               href="/sign-up"
-              className="inline-flex items-center justify-center px-12 py-5 text-lg font-bold text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105 uppercase tracking-wide"
+              className="inline-flex items-center justify-center px-12 py-5 text-lg font-bold text-gray-900 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105 uppercase tracking-wide"
             >
               Get Lifetime Deal
               <ArrowRight className="w-6 h-6 ml-3" />
             </Link>
-            <p className="mt-4 text-sm text-gray-400">
+            <p className="mt-4 text-sm text-gray-600">
               One-time payment. Lifetime access. 30-day money-back guarantee.
             </p>
           </div>
@@ -193,32 +193,32 @@ const PricingPage: React.FC = () => {
       <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-950">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Everything Included
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               Get full access to all features with your lifetime license
             </p>
           </div>
 
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-xl border border-gray-700/50">
+          <div className="bg-gray-100/50 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-xl border border-gray-200/50">
             <div className="grid md:grid-cols-2 gap-6">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-white" />
+                    <CheckCircle className="w-5 h-5 text-gray-900" />
                   </div>
-                  <span className="ml-4 text-gray-300 text-lg">{feature}</span>
+                  <span className="ml-4 text-gray-700 text-lg">{feature}</span>
                 </div>
               ))}
             </div>
 
             {/* Value Proposition */}
-            <div className="mt-12 pt-8 border-t border-gray-700/50 text-center">
-              <p className="text-2xl font-bold text-white mb-2">
+            <div className="mt-12 pt-8 border-t border-gray-200/50 text-center">
+              <p className="text-2xl font-bold text-gray-900 mb-2">
                 Everything for a one-time payment of just $19
               </p>
-              <p className="text-gray-300">
+              <p className="text-gray-700">
                 Compare this to competitors charging $15-50/month. You will save hundreds over a year!
               </p>
             </div>
@@ -227,13 +227,13 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-gray-950">
+      <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               Everything you need to know about the lifetime deal
             </p>
           </div>
@@ -242,22 +242,22 @@ const PricingPage: React.FC = () => {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="border border-gray-700/50 rounded-xl overflow-hidden bg-gray-800/50 backdrop-blur-xl"
+                className="border border-gray-200/50 rounded-xl overflow-hidden bg-gray-100/50 backdrop-blur-xl"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-800 transition-colors"
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-100 transition-colors"
                 >
-                  <span className="font-medium text-white pr-4">{faq.question}</span>
+                  <span className="font-medium text-gray-900 pr-4">{faq.question}</span>
                   {openFaq === index ? (
-                    <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    <ChevronUp className="w-5 h-5 text-gray-600 flex-shrink-0" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    <ChevronDown className="w-5 h-5 text-gray-600 flex-shrink-0" />
                   )}
                 </button>
                 {openFaq === index && (
                   <div className="px-6 pb-6">
-                    <p className="text-gray-300">{faq.answer}</p>
+                    <p className="text-gray-700">{faq.answer}</p>
                   </div>
                 )}
               </div>
@@ -269,10 +269,10 @@ const PricingPage: React.FC = () => {
       {/* Final CTA Section */}
       <section className="py-20 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Do not Miss This Limited-Time Offer
           </h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-900/80 mb-8 max-w-2xl mx-auto">
             Join the first 500 users and lock in the lowest price. Once this tier fills up, the price increases to $39.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -285,14 +285,14 @@ const PricingPage: React.FC = () => {
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300"
             >
               Have Questions? Contact Us
             </Link>
           </div>
 
           {/* Trust Indicators */}
-          <div className="mt-12 flex flex-wrap justify-center gap-8 items-center text-white/80">
+          <div className="mt-12 flex flex-wrap justify-center gap-8 items-center text-gray-900/80">
             <div className="flex items-center space-x-2">
               <Shield className="w-5 h-5" />
               <span>Secure Payment</span>

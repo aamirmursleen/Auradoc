@@ -186,27 +186,27 @@ export default function TemplateDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className={`bg-gradient-to-br ${style.gradient} text-white pt-8 pb-6 px-4`}>
+      <section className={`bg-gradient-to-br ${style.gradient} text-gray-900 pt-8 pb-6 px-4`}>
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-white/80 text-sm mb-4">
-            <Link href="/templates" className="hover:text-white">Templates</Link>
+          <div className="flex items-center gap-2 text-gray-900/80 text-sm mb-4">
+            <Link href="/templates" className="hover:text-gray-900">Templates</Link>
             <span>/</span>
-            <span className="text-white">{categoryName}</span>
+            <span className="text-gray-900">{categoryName}</span>
           </div>
 
           <div className="text-center mb-6">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
               {categoryName} Templates
             </h1>
-            <p className="text-white/80 text-sm md:text-base max-w-xl mx-auto">
+            <p className="text-gray-900/80 text-sm md:text-base max-w-xl mx-auto">
               Professional {categoryName.toLowerCase()} templates ready to customize and use
             </p>
           </div>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
             <input
               type="text"
               placeholder={`Search ${categoryName.toLowerCase()} templates...`}
@@ -217,7 +217,7 @@ export default function TemplateDetailPage() {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -238,7 +238,7 @@ export default function TemplateDetailPage() {
               <ArrowLeft className="w-5 h-5" />
               All Templates
             </Link>
-            <span className="text-gray-300">|</span>
+            <span className="text-gray-700">|</span>
             <p className="text-gray-600">
               <span className="font-semibold text-gray-900">{categoryTemplates.length}</span> templates
               {searchQuery && (
@@ -250,7 +250,7 @@ export default function TemplateDetailPage() {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'
+                viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-gray-600'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -258,7 +258,7 @@ export default function TemplateDetailPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'
+                viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-gray-600'
               }`}
             >
               <List className="w-5 h-5" />
@@ -320,11 +320,11 @@ export default function TemplateDetailPage() {
                   <div className="p-4">
                     {/* Category Badge */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r ${style.gradient} text-white text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r ${style.gradient} text-gray-900 text-xs font-medium rounded-full`}>
                         <FileText className="w-3 h-3" />
                         {categoryName}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-600">
                         {template.fields.length} fields
                       </span>
                     </div>
@@ -345,7 +345,7 @@ export default function TemplateDetailPage() {
                         e.stopPropagation()
                         handleUseTemplate(template)
                       }}
-                      className="w-full py-2 bg-gray-100 hover:bg-primary-500 text-gray-700 hover:text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                      className="w-full py-2 bg-gray-100 hover:bg-primary-500 text-gray-700 hover:text-gray-900 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -369,7 +369,7 @@ export default function TemplateDetailPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r ${style.gradient} text-white text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r ${style.gradient} text-gray-900 text-xs font-medium rounded-full`}>
                         {categoryName}
                       </span>
                       {template.popular && (
@@ -387,7 +387,7 @@ export default function TemplateDetailPage() {
                       {template.name}
                     </h3>
                     <p className="text-sm text-gray-500 line-clamp-1">{template.description}</p>
-                    <p className="text-xs text-gray-400 mt-1">{template.fields.length} fields to fill</p>
+                    <p className="text-xs text-gray-600 mt-1">{template.fields.length} fields to fill</p>
                   </div>
 
                   <button
@@ -395,7 +395,7 @@ export default function TemplateDetailPage() {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-primary-500 text-gray-900 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"
                   >
                     Use
                     <ArrowRight className="w-4 h-4" />
@@ -408,7 +408,7 @@ export default function TemplateDetailPage() {
           // No results
           <div className="text-center py-16">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-10 h-10 text-gray-400" />
+              <Search className="w-10 h-10 text-gray-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
             <p className="text-gray-500 mb-6">
@@ -416,7 +416,7 @@ export default function TemplateDetailPage() {
             </p>
             <button
               onClick={() => setSearchQuery('')}
-              className="px-6 py-3 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-colors"
+              className="px-6 py-3 bg-primary-500 text-gray-900 rounded-xl font-medium hover:bg-primary-600 transition-colors"
             >
               Clear Search
             </button>
@@ -473,13 +473,13 @@ export default function TemplateDetailPage() {
                 {/* Main CTA Button */}
                 <button
                   onClick={() => handleUseTemplate(selectedTemplate)}
-                  className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all mb-3"
+                  className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-gray-900 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all mb-3"
                 >
                   <PenLine className="w-4 h-4" />
                   Edit this free template
                 </button>
 
-                <p className="text-center text-gray-400 text-xs mb-4">
+                <p className="text-center text-gray-600 text-xs mb-4">
                   No sign up needed
                 </p>
 
@@ -496,7 +496,7 @@ export default function TemplateDetailPage() {
                 {/* AI Generator Button */}
                 <button
                   onClick={() => handleUseTemplate(selectedTemplate)}
-                  className="w-full py-2.5 bg-gradient-to-r from-primary-500 to-purple-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 text-sm transition-all hover:opacity-90"
+                  className="w-full py-2.5 bg-gradient-to-r from-primary-500 to-purple-500 text-gray-900 rounded-lg font-medium flex items-center justify-center gap-2 text-sm transition-all hover:opacity-90"
                 >
                   <Sparkles className="w-4 h-4" />
                   Generate with AI

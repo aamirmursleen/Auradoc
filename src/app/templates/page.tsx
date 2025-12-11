@@ -192,22 +192,22 @@ const TemplatesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900/80">
+    <div className="min-h-screen bg-gray-50/80">
       {/* Hero Section - Compact */}
-      <section className="bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 text-white pt-8 pb-6 px-4">
+      <section className="bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 text-gray-900 pt-8 pb-6 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
               Document Templates
             </h1>
-            <p className="text-white/80 text-sm md:text-base max-w-xl mx-auto">
+            <p className="text-gray-900/80 text-sm md:text-base max-w-xl mx-auto">
               Professional templates ready to customize, sign, and send
             </p>
           </div>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
             <input
               type="text"
               placeholder="Search templates... (contract, invoice, NDA, offer letter)"
@@ -218,7 +218,7 @@ const TemplatesPage: React.FC = () => {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -228,7 +228,7 @@ const TemplatesPage: React.FC = () => {
       </section>
 
       {/* Category Tags - Scrollable like template.net */}
-      <div className="sticky top-0 z-40 bg-gray-900/80 border-b border-gray-700/50 shadow-sm">
+      <div className="sticky top-0 z-40 bg-gray-50/80 border-b border-gray-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="relative flex items-center py-3">
             {/* Left scroll button */}
@@ -279,7 +279,7 @@ const TemplatesPage: React.FC = () => {
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all
                       ${isActive
-                        ? 'bg-primary-500 text-white shadow-md scale-105'
+                        ? 'bg-primary-500 text-gray-900 shadow-md scale-105'
                         : `${cat.bgColor} ${cat.color}`
                       }
                     `}
@@ -314,8 +314,8 @@ const TemplatesPage: React.FC = () => {
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-gray-300">
-              <span className="font-semibold text-white">{filteredTemplates.length}</span> templates
+            <p className="text-gray-700">
+              <span className="font-semibold text-gray-900">{filteredTemplates.length}</span> templates
               {searchQuery && (
                 <span> for "<span className="font-medium text-primary-600">{searchQuery}</span>"</span>
               )}
@@ -324,11 +324,11 @@ const TemplatesPage: React.FC = () => {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-2 bg-gray-900/80 rounded-lg border border-gray-700/50 p-1">
+          <div className="flex items-center gap-2 bg-gray-50/80 rounded-lg border border-gray-200/50 p-1">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'
+                viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-gray-600'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -336,7 +336,7 @@ const TemplatesPage: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'
+                viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-gray-600'
               }`}
             >
               <List className="w-5 h-5" />
@@ -360,7 +360,7 @@ const TemplatesPage: React.FC = () => {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className="group relative bg-gray-900/80 rounded-2xl border border-gray-700/50 hover:border-primary-300 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative bg-gray-50/80 rounded-2xl border border-gray-200/50 hover:border-primary-300 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden"
                 >
                   {/* Document Preview Thumbnail */}
                   <div className="relative h-52 bg-gray-50 border-b border-gray-100 overflow-hidden">
@@ -401,22 +401,22 @@ const TemplatesPage: React.FC = () => {
                   <div className="p-4">
                     {/* Category Badge */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r ${colors.gradient} text-white text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r ${colors.gradient} text-gray-900 text-xs font-medium rounded-full`}>
                         <IconComponent className="w-3 h-3" />
                         {categoryLabels[template.category]}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-600">
                         {template.fields.length} fields
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-semibold text-white group-hover:text-primary-600 transition-colors mb-1 line-clamp-1">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-1 line-clamp-1">
                       {template.name}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-sm text-gray-400 line-clamp-2 mb-3">
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                       {template.description}
                     </p>
 
@@ -426,7 +426,7 @@ const TemplatesPage: React.FC = () => {
                         e.stopPropagation()
                         handleUseTemplate(template)
                       }}
-                      className="w-full py-2 bg-gray-100 hover:bg-primary-500 text-gray-700 hover:text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                      className="w-full py-2 bg-gray-100 hover:bg-primary-500 text-gray-700 hover:text-gray-900 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -438,7 +438,7 @@ const TemplatesPage: React.FC = () => {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className="bg-gray-900/80 rounded-xl border border-gray-700/50 hover:border-primary-300 p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group"
+                  className="bg-gray-50/80 rounded-xl border border-gray-200/50 hover:border-primary-300 p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group"
                 >
                   {/* Mini Preview */}
                   <div className="w-20 h-28 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden flex-shrink-0 relative">
@@ -450,7 +450,7 @@ const TemplatesPage: React.FC = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r ${colors.gradient} text-white text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r ${colors.gradient} text-gray-900 text-xs font-medium rounded-full`}>
                         {categoryLabels[template.category]}
                       </span>
                       {template.popular && (
@@ -464,11 +464,11 @@ const TemplatesPage: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-semibold text-white group-hover:text-primary-600 transition-colors">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                       {template.name}
                     </h3>
-                    <p className="text-sm text-gray-400 line-clamp-1">{template.description}</p>
-                    <p className="text-xs text-gray-400 mt-1">{template.fields.length} fields to fill</p>
+                    <p className="text-sm text-gray-600 line-clamp-1">{template.description}</p>
+                    <p className="text-xs text-gray-600 mt-1">{template.fields.length} fields to fill</p>
                   </div>
 
                   <button
@@ -476,7 +476,7 @@ const TemplatesPage: React.FC = () => {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-primary-500 text-gray-900 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"
                   >
                     Use
                     <ArrowRight className="w-4 h-4" />
@@ -489,10 +489,10 @@ const TemplatesPage: React.FC = () => {
           // No results
           <div className="text-center py-16">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-10 h-10 text-gray-400" />
+              <Search className="w-10 h-10 text-gray-600" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No templates found</h3>
-            <p className="text-gray-300 mb-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
+            <p className="text-gray-700 mb-6">
               Try adjusting your search or filter to find what you're looking for.
             </p>
             <button
@@ -500,7 +500,7 @@ const TemplatesPage: React.FC = () => {
                 setSearchQuery('')
                 setSelectedCategory('all')
               }}
-              className="px-6 py-3 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-colors"
+              className="px-6 py-3 bg-primary-500 text-gray-900 rounded-xl font-medium hover:bg-primary-600 transition-colors"
             >
               Clear Filters
             </button>
@@ -509,10 +509,10 @@ const TemplatesPage: React.FC = () => {
 
         {/* CTA Section */}
         <div className="mt-16 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 md:p-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
             Can't Find What You Need?
           </h2>
-          <p className="text-gray-400 mb-6 max-w-xl mx-auto">
+          <p className="text-gray-600 mb-6 max-w-xl mx-auto">
             Upload your own document and add signatures directly.
             Our platform supports PDF, PNG, and JPG files.
           </p>

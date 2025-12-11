@@ -166,25 +166,25 @@ const TemplateLibraryPage: React.FC = () => {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
               Document
               <span className="block mt-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Template Library
               </span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
               Choose from our collection of professionally designed templates. Customize and send for signature in minutes.
             </p>
 
             {/* Search Bar */}
             <div className="relative max-w-xl mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
               <input
                 type="text"
                 placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-700/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all bg-gray-900/80 text-white"
+                className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all bg-gray-50/80 text-gray-900"
               />
             </div>
           </div>
@@ -192,13 +192,13 @@ const TemplateLibraryPage: React.FC = () => {
       </section>
 
       {/* Main Content */}
-      <section className="py-20 bg-gray-900/80">
+      <section className="py-20 bg-gray-50/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Sidebar Categories */}
             <div className="lg:col-span-1">
               <div className="sticky top-8">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4 flex items-center">
+                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4 flex items-center">
                   <Filter className="w-4 h-4 mr-2" />
                   Categories
                 </h3>
@@ -210,7 +210,7 @@ const TemplateLibraryPage: React.FC = () => {
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-300 ${
                         activeCategory === category.id
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'text-gray-300 hover:bg-gray-900/80'
+                          : 'text-gray-700 hover:bg-gray-50/80'
                       }`}
                     >
                       <div className="flex items-center">
@@ -218,7 +218,7 @@ const TemplateLibraryPage: React.FC = () => {
                         <span className="font-medium">{category.name}</span>
                       </div>
                       <span className={`text-sm ${
-                        activeCategory === category.id ? 'text-blue-600' : 'text-gray-400'
+                        activeCategory === category.id ? 'text-blue-600' : 'text-gray-600'
                       }`}>
                         {category.count}
                       </span>
@@ -231,10 +231,10 @@ const TemplateLibraryPage: React.FC = () => {
             {/* Templates Grid */}
             <div className="lg:col-span-3">
               <div className="flex items-center justify-between mb-6">
-                <p className="text-gray-300">
+                <p className="text-gray-700">
                   Showing <span className="font-semibold">{filteredTemplates.length}</span> templates
                 </p>
-                <select className="px-4 py-2 border border-gray-700/50 rounded-lg text-gray-300 focus:outline-none focus:border-blue-500 bg-gray-900/80">
+                <select className="px-4 py-2 border border-gray-200/50 rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 bg-gray-50/80">
                   <option>Most Popular</option>
                   <option>Newest First</option>
                   <option>Highest Rated</option>
@@ -245,7 +245,7 @@ const TemplateLibraryPage: React.FC = () => {
                 {filteredTemplates.map((template) => (
                   <div
                     key={template.id}
-                    className="group p-6 bg-gray-900/80 rounded-xl border border-gray-700/50 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
+                    className="group p-6 bg-gray-50/80 rounded-xl border border-gray-200/50 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
                   >
                     {template.popular && (
                       <span className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full mb-4">
@@ -256,18 +256,18 @@ const TemplateLibraryPage: React.FC = () => {
 
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <FileText className="w-6 h-6 text-white" />
+                        <FileText className="w-6 h-6 text-gray-900" />
                       </div>
                     </div>
 
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                       {template.name}
                     </h3>
-                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                    <p className="text-gray-700 text-sm mb-4 line-clamp-2">
                       {template.description}
                     </p>
 
-                    <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
                       <div className="flex items-center">
                         <Download className="w-4 h-4 mr-1" />
                         {template.downloads.toLocaleString()}
@@ -281,12 +281,12 @@ const TemplateLibraryPage: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <Link
                         href={`/templates/${template.id}`}
-                        className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+                        className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-gray-900 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
                       >
                         Use Template
                       </Link>
-                      <button className="p-2 border border-gray-700/50 rounded-lg hover:bg-gray-900/80 transition-colors">
-                        <Eye className="w-5 h-5 text-gray-400" />
+                      <button className="p-2 border border-gray-200/50 rounded-lg hover:bg-gray-50/80 transition-colors">
+                        <Eye className="w-5 h-5 text-gray-600" />
                       </button>
                     </div>
                   </div>
@@ -295,9 +295,9 @@ const TemplateLibraryPage: React.FC = () => {
 
               {filteredTemplates.length === 0 && (
                 <div className="text-center py-12">
-                  <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No templates found</h3>
-                  <p className="text-gray-300">Try adjusting your search or filter criteria</p>
+                  <FileText className="w-16 h-16 text-gray-700 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
+                  <p className="text-gray-700">Try adjusting your search or filter criteria</p>
                 </div>
               )}
             </div>
@@ -306,24 +306,24 @@ const TemplateLibraryPage: React.FC = () => {
       </section>
 
       {/* Create Custom Template CTA */}
-      <section className="py-20 bg-gray-900/80">
+      <section className="py-20 bg-gray-50/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-12 text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <FileText className="w-8 h-8 text-white" />
+              <FileText className="w-8 h-8 text-gray-900" />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Can't Find What You Need?
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
               Create your own custom template or upload an existing document. Our editor makes it easy to add signature fields and send for signing.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/templates/create" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-900/80 transition-all duration-300">
+              <Link href="/templates/create" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-50/80 transition-all duration-300">
                 Create Custom Template
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
-              <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300">
+              <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300">
                 Upload Document
               </Link>
             </div>
@@ -332,13 +332,13 @@ const TemplateLibraryPage: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-900/80">
+      <section className="py-20 bg-gray-50/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Why Use Our Templates?
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               Save time and ensure compliance with professionally crafted templates
             </p>
           </div>
@@ -365,8 +365,8 @@ const TemplateLibraryPage: React.FC = () => {
                 <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <feature.icon className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-700">{feature.description}</p>
               </div>
             ))}
           </div>

@@ -308,7 +308,7 @@ export default function SignDocumentPage() {
                     {signedFields.has(field.id) ? (
                       <CheckCircle className="w-5 h-5 text-green-600" />
                     ) : (
-                      <PenTool className="w-5 h-5 text-gray-400" />
+                      <PenTool className="w-5 h-5 text-gray-600" />
                     )}
                     <span className={'font-medium ' + (signedFields.has(field.id) ? 'text-green-700' : 'text-gray-700')}>
                       {field.type === 'signature' ? 'Signature' : field.type === 'initials' ? 'Initials' : 'Date'}
@@ -325,7 +325,7 @@ export default function SignDocumentPage() {
             <button
               onClick={handleSubmit}
               disabled={signedFields.size !== myFields.length || isSubmitting}
-              className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-gray-900 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -379,9 +379,9 @@ export default function SignDocumentPage() {
                 {/* Document placeholder */}
                 <div className="h-full min-h-[842px] flex items-center justify-center p-8">
                   <div className="text-center">
-                    <FileText className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                    <FileText className="w-20 h-20 text-gray-700 mx-auto mb-4" />
                     <p className="text-gray-500 font-medium">{documentData?.documentName}</p>
-                    <p className="text-sm text-gray-400 mt-2">Document preview</p>
+                    <p className="text-sm text-gray-600 mt-2">Document preview</p>
                   </div>
                 </div>
 
@@ -418,7 +418,7 @@ export default function SignDocumentPage() {
                     )}
                     {!signedFields.has(field.id) && (
                       <div className="absolute -top-6 left-0">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-white whitespace-nowrap">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-gray-900 whitespace-nowrap">
                           Sign here
                         </span>
                       </div>

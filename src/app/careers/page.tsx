@@ -252,19 +252,19 @@ const CareersPage: React.FC = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-500/50 mb-6">
-              <Briefcase className="w-4 h-4 text-cyan-400" />
-              <span className="text-cyan-300 text-sm font-medium">We're Hiring!</span>
+              <Briefcase className="w-4 h-4 text-cyan-600" />
+              <span className="text-cyan-700 text-sm font-medium">We're Hiring!</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
               Build the Future of
               <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Document Signing
               </span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
               Join our remote-first team and help millions of people sign documents faster. We're looking for passionate people to grow with us.
             </p>
-            <a href="#jobs" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <a href="#jobs" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
               View Open Positions
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
@@ -273,13 +273,13 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-gray-950">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Our Values
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               The principles that guide how we work
             </p>
           </div>
@@ -288,10 +288,10 @@ const CareersPage: React.FC = () => {
             {values.map((value, index) => (
               <div key={index} className="text-center p-8">
                 <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <value.icon className="w-8 h-8 text-white" />
+                  <value.icon className="w-8 h-8 text-gray-900" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{value.title}</h3>
-                <p className="text-gray-300">{value.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{value.title}</h3>
+                <p className="text-gray-700">{value.description}</p>
               </div>
             ))}
           </div>
@@ -299,25 +299,25 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-gray-900">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Benefits & Perks
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               We take care of our team so they can do their best work
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
-              <div key={index} className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+              <div key={index} className="bg-gray-100/50 backdrop-blur-xl p-6 rounded-xl border border-gray-200/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
                 <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4">
-                  <benefit.icon className="w-6 h-6 text-cyan-400" />
+                  <benefit.icon className="w-6 h-6 text-cyan-600" />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{benefit.title}</h3>
-                <p className="text-gray-300 text-sm">{benefit.description}</p>
+                <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
+                <p className="text-gray-700 text-sm">{benefit.description}</p>
               </div>
             ))}
           </div>
@@ -325,13 +325,13 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* Jobs Section */}
-      <section id="jobs" className="py-20 bg-gray-950">
+      <section id="jobs" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Open Positions
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-700">
               Find your next opportunity
             </p>
           </div>
@@ -344,8 +344,8 @@ const CareersPage: React.FC = () => {
                 onClick={() => setActiveCategory(dept.id)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                   activeCategory === dept.id
-                    ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white'
-                    : 'bg-gray-800/50 text-gray-300 hover:bg-gray-800 border border-gray-700/50'
+                    ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-gray-900'
+                    : 'bg-gray-100/50 text-gray-700 hover:bg-gray-100 border border-gray-200/50'
                 }`}
               >
                 {dept.name} ({dept.count})
@@ -358,7 +358,7 @@ const CareersPage: React.FC = () => {
             {filteredJobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300"
+                className="bg-gray-100/50 backdrop-blur-xl border border-gray-200/50 rounded-xl overflow-hidden hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300"
               >
                 <div
                   className="p-6 cursor-pointer"
@@ -366,8 +366,8 @@ const CareersPage: React.FC = () => {
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-white mb-2">{job.title}</h3>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{job.title}</h3>
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
                         <span className="flex items-center">
                           <Building2 className="w-4 h-4 mr-1" />
                           {job.department.charAt(0).toUpperCase() + job.department.slice(1)}
@@ -389,28 +389,28 @@ const CareersPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <Link
                         href={`/careers/${job.id}/apply`}
-                        className="px-6 py-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+                        className="px-6 py-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-gray-900 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Apply Now
                       </Link>
                       {expandedJob === job.id ? (
-                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                        <ChevronUp className="w-5 h-5 text-gray-600" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                        <ChevronDown className="w-5 h-5 text-gray-600" />
                       )}
                     </div>
                   </div>
                 </div>
 
                 {expandedJob === job.id && (
-                  <div className="px-6 pb-6 border-t border-gray-700/50">
+                  <div className="px-6 pb-6 border-t border-gray-200/50">
                     <div className="pt-6">
-                      <p className="text-gray-300 mb-6">{job.description}</p>
-                      <h4 className="font-semibold text-white mb-3">Requirements</h4>
+                      <p className="text-gray-700 mb-6">{job.description}</p>
+                      <h4 className="font-semibold text-gray-900 mb-3">Requirements</h4>
                       <ul className="space-y-2">
                         {job.requirements.map((req, i) => (
-                          <li key={i} className="flex items-start text-gray-300">
+                          <li key={i} className="flex items-start text-gray-700">
                             <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-2 mr-3 flex-shrink-0" />
                             {req}
                           </li>
@@ -428,10 +428,10 @@ const CareersPage: React.FC = () => {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Don't See Your Role?
           </h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-900/80 mb-8 max-w-2xl mx-auto">
             We're always looking for talented people. Send us your resume and we'll reach out when we have a role that matches your skills.
           </p>
           <Link href="/careers/general" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300">

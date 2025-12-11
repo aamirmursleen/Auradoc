@@ -236,15 +236,15 @@ Your continued use of the Service after the changes take effect constitutes your
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <FileText className="w-8 h-8 text-white" />
+              <FileText className="w-8 h-8 text-gray-900" />
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6">
               Terms of Service
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-4">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-4">
               Please read these terms carefully before using MamaSign. By using our service, you agree to be bound by these terms.
             </p>
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-600">
               <span>Effective: {effectiveDate}</span>
               <span>•</span>
               <span>Last Updated: {lastUpdated}</span>
@@ -254,18 +254,18 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Table of Contents */}
-      <section className="py-12 bg-gray-900/80">
+      <section className="py-12 bg-gray-50/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Table of Contents</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Table of Contents</h2>
           <nav className="grid sm:grid-cols-2 gap-4">
             {sections.map((section, index) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center p-4 bg-gray-900/80 rounded-lg border border-gray-700/50 hover:bg-blue-600/20 transition-colors"
+                className="flex items-center p-4 bg-gray-50/80 rounded-lg border border-gray-200/50 hover:bg-blue-600/20 transition-colors"
               >
                 <span className="text-blue-400 font-medium mr-3">{index + 1}.</span>
-                <span className="text-gray-300">{section.title}</span>
+                <span className="text-gray-700">{section.title}</span>
               </a>
             ))}
           </nav>
@@ -273,23 +273,23 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Terms Content */}
-      <section className="py-12 bg-gray-900/80">
+      <section className="py-12 bg-gray-50/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {sections.map((section, index) => (
             <div key={section.id} id={section.id} className="mb-12 scroll-mt-8">
               <div className="flex items-center mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-                  <section.icon className="w-6 h-6 text-white" />
+                  <section.icon className="w-6 h-6 text-gray-900" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-gray-900">
                   {index + 1}. {section.title}
                 </h2>
               </div>
 
-              <div className="bg-gray-900/80 rounded-xl p-8 shadow-lg border border-gray-700/50">
+              <div className="bg-gray-50/80 rounded-xl p-8 shadow-lg border border-gray-200/50">
                 <div className="prose prose-gray max-w-none">
                   {section.content.split('\n\n').map((paragraph, i) => (
-                    <p key={i} className="text-gray-300 leading-relaxed mb-4 whitespace-pre-line">
+                    <p key={i} className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line">
                       {paragraph}
                     </p>
                   ))}
@@ -301,12 +301,12 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-gray-900/80">
+      <section className="py-16 bg-gray-50/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-center">
             <Mail className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Questions About These Terms?</h2>
-            <p className="text-gray-400 mb-6 max-w-lg mx-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Questions About These Terms?</h2>
+            <p className="text-gray-600 mb-6 max-w-lg mx-auto">
               If you have any questions about these Terms of Service, please contact our legal team.
             </p>
             <Link

@@ -191,7 +191,7 @@ const DocumentsPage: React.FC = () => {
             </div>
             <button
               onClick={handleCreateNew}
-              className="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium flex items-center gap-2 transition-colors shadow-lg shadow-primary-500/25"
+              className="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-lg shadow-primary-500/25"
             >
               <Plus className="w-5 h-5" />
               New Document
@@ -257,7 +257,7 @@ const DocumentsPage: React.FC = () => {
           <div className="p-4 flex flex-wrap items-center gap-4">
             {/* Search */}
             <div className="flex-1 min-w-[200px] relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
               <input
                 type="text"
                 placeholder="Search documents..."
@@ -269,7 +269,7 @@ const DocumentsPage: React.FC = () => {
 
             {/* Status Filter */}
             <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-400" />
+              <Filter className="w-5 h-5 text-gray-600" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as DocumentStatus | 'all')}
@@ -402,7 +402,7 @@ const DocumentsPage: React.FC = () => {
         ) : (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Inbox className="w-8 h-8 text-gray-400" />
+              <Inbox className="w-8 h-8 text-gray-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {searchQuery || statusFilter !== 'all' ? 'No documents found' : 'No documents yet'}
@@ -415,7 +415,7 @@ const DocumentsPage: React.FC = () => {
             {!searchQuery && statusFilter === 'all' && (
               <button
                 onClick={handleCreateNew}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-xl font-medium transition-colors"
               >
                 <Plus className="w-5 h-5" />
                 Create Document
@@ -434,7 +434,7 @@ const DocumentsPage: React.FC = () => {
               <div className="p-3 bg-primary-100 rounded-xl group-hover:bg-primary-200 transition-colors">
                 <FileText className="w-6 h-6 text-primary-600" />
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
+              <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-primary-500 transition-colors" />
             </div>
             <h3 className="font-semibold text-gray-900 mt-4">Sign Document</h3>
             <p className="text-sm text-gray-500 mt-1">Upload and sign a new document</p>
@@ -448,7 +448,7 @@ const DocumentsPage: React.FC = () => {
               <div className="p-3 bg-accent-100 rounded-xl group-hover:bg-accent-200 transition-colors">
                 <Sparkles className="w-6 h-6 text-accent-600" />
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
+              <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-primary-500 transition-colors" />
             </div>
             <h3 className="font-semibold text-gray-900 mt-4">Use Template</h3>
             <p className="text-sm text-gray-500 mt-1">Choose from professional templates</p>
@@ -462,7 +462,7 @@ const DocumentsPage: React.FC = () => {
               <div className="p-3 bg-green-100 rounded-xl group-hover:bg-green-200 transition-colors">
                 <Eye className="w-6 h-6 text-green-600" />
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
+              <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-primary-500 transition-colors" />
             </div>
             <h3 className="font-semibold text-gray-900 mt-4">Track Document</h3>
             <p className="text-sm text-gray-500 mt-1">View audit trail and status</p>

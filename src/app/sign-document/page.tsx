@@ -48,7 +48,7 @@ import { incrementSignCount } from '@/lib/usageLimit'
 const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-full bg-gray-900/80">
+    <div className="flex items-center justify-center h-full bg-gray-50/80">
       <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
     </div>
   )
@@ -557,7 +557,7 @@ const SignDocumentPage: React.FC = () => {
 
             {/* Signer indicator */}
             <div
-              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[10px] font-medium text-white"
+              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[10px] font-medium text-gray-900"
               style={{ backgroundColor: field.signerColor }}
             >
               {fieldSigner?.name || 'Signer'}
@@ -585,7 +585,7 @@ const SignDocumentPage: React.FC = () => {
                 }
               }}
             >
-              <X className="w-3 h-3 text-white" />
+              <X className="w-3 h-3 text-gray-900" />
             </button>
           </div>
         )
@@ -616,21 +616,21 @@ const SignDocumentPage: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-gray-950 flex flex-col"
+      className="min-h-screen bg-white flex flex-col"
       onMouseMove={isDragging ? handleMouseMove : isResizing ? handleResizeMove : undefined}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
       {/* Top Toolbar */}
-      <div className="bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+      <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <FileSignature className="w-6 h-6 text-primary-500" />
             {templateProps.name || 'New Template'}
           </h1>
 
           {document && (
-            <div className="flex items-center gap-1 text-sm text-gray-400">
+            <div className="flex items-center gap-1 text-sm text-gray-600">
               <FileText className="w-4 h-4" />
               <span>{document.name}</span>
             </div>
@@ -640,7 +640,7 @@ const SignDocumentPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowTemplateModal(true)}
-            className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <Settings className="w-4 h-4" />
             <span className="text-sm font-medium">Template Properties</span>
@@ -649,7 +649,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={() => setShowShareModal(true)}
             disabled={!document}
-            className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Share2 className="w-4 h-4" />
             <span className="text-sm font-medium">Share</span>
@@ -658,7 +658,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={() => setIsSaving(true)}
             disabled={!document || isSaving}
-            className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span className="text-sm font-medium">Save</span>
@@ -678,15 +678,15 @@ const SignDocumentPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - Signers & Field Types */}
-        <div className="w-80 bg-gray-900 border-r border-gray-800 flex flex-col overflow-hidden">
+        <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
             {/* Signers List */}
             {signers.map((signer, idx) => (
-              <div key={signer.id} className="border-b border-gray-800">
+              <div key={signer.id} className="border-b border-gray-200">
                 {/* Signer Header */}
                 <div
                   className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                    activeSignerId === signer.id ? 'bg-gray-800' : 'hover:bg-gray-800'
+                    activeSignerId === signer.id ? 'bg-gray-100' : 'hover:bg-gray-100'
                   }`}
                   onClick={() => {
                     setActiveSignerId(signer.id)
@@ -695,14 +695,14 @@ const SignDocumentPage: React.FC = () => {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm"
                       style={{ backgroundColor: signer.color }}
                     >
                       {idx + 1}
                     </div>
                     <div>
-                      <p className="font-semibold text-white">{signer.name}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="font-semibold text-gray-900">{signer.name}</p>
+                      <p className="text-xs text-gray-600">
                         {placedFields.filter(f => f.signerId === signer.id).length} fields
                       </p>
                     </div>
@@ -720,7 +720,7 @@ const SignDocumentPage: React.FC = () => {
                       </button>
                     )}
                     <ChevronDown
-                      className={`w-5 h-5 text-gray-400 transition-transform ${
+                      className={`w-5 h-5 text-gray-600 transition-transform ${
                         expandedSignerId === signer.id ? 'rotate-180' : ''
                       }`}
                     />
@@ -731,14 +731,14 @@ const SignDocumentPage: React.FC = () => {
                 {expandedSignerId === signer.id && (
                   <div className="px-3 pb-4 space-y-3">
                     {/* Email Input */}
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg">
-                      <Mail className="w-4 h-4 text-gray-400" />
+                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg">
+                      <Mail className="w-4 h-4 text-gray-600" />
                       <input
                         type="email"
                         placeholder="Enter email address..."
                         value={signer.email}
                         onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                        className="flex-1 bg-transparent text-sm outline-none text-white placeholder-gray-500"
+                        className="flex-1 bg-transparent text-sm outline-none text-gray-900 placeholder-gray-500"
                       />
                     </div>
 
@@ -761,7 +761,7 @@ const SignDocumentPage: React.FC = () => {
             {/* Add Signer Button */}
             <button
               onClick={addSigner}
-              className="w-full flex items-center justify-center gap-2 p-4 text-cyan-400 hover:bg-cyan-900/30 transition-colors"
+              className="w-full flex items-center justify-center gap-2 p-4 text-cyan-600 hover:bg-cyan-100 transition-colors"
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Add Signer</span>
@@ -770,56 +770,56 @@ const SignDocumentPage: React.FC = () => {
         </div>
 
         {/* Center - Document Viewer */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-950">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           {/* Toolbar */}
           {document && (
-            <div className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center justify-between">
+            <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage <= 1}
-                  className="p-1.5 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronLeft className="w-5 h-5 text-gray-300" />
+                  <ChevronLeft className="w-5 h-5 text-gray-700" />
                 </button>
-                <span className="text-sm text-gray-300 min-w-[80px] text-center">
+                <span className="text-sm text-gray-700 min-w-[80px] text-center">
                   Page {currentPage} / {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
-                  className="p-1.5 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronRight className="w-5 h-5 text-gray-300" />
+                  <ChevronRight className="w-5 h-5 text-gray-700" />
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setZoom(z => Math.max(0.25, z - 0.25))}
-                  className="p-1.5 hover:bg-gray-800 rounded"
+                  className="p-1.5 hover:bg-gray-100 rounded"
                 >
-                  <ZoomOut className="w-5 h-5 text-gray-300" />
+                  <ZoomOut className="w-5 h-5 text-gray-700" />
                 </button>
-                <span className="text-sm text-gray-300 min-w-[50px] text-center">
+                <span className="text-sm text-gray-700 min-w-[50px] text-center">
                   {Math.round(zoom * 100)}%
                 </span>
                 <button
                   onClick={() => setZoom(z => Math.min(3, z + 0.25))}
-                  className="p-1.5 hover:bg-gray-800 rounded"
+                  className="p-1.5 hover:bg-gray-100 rounded"
                 >
-                  <ZoomIn className="w-5 h-5 text-gray-300" />
+                  <ZoomIn className="w-5 h-5 text-gray-700" />
                 </button>
                 <button
                   onClick={() => setZoom(1)}
-                  className="p-1.5 hover:bg-gray-800 rounded"
+                  className="p-1.5 hover:bg-gray-100 rounded"
                   title="Reset Zoom"
                 >
-                  <RotateCcw className="w-5 h-5 text-gray-300" />
+                  <RotateCcw className="w-5 h-5 text-gray-700" />
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span>{placedFields.length} fields</span>
               </div>
             </div>
@@ -832,23 +832,23 @@ const SignDocumentPage: React.FC = () => {
             onDrop={handleDocumentDrop}
           >
             {!document ? (
-              <label className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl border-2 border-dashed border-gray-700 hover:border-cyan-500/50 transition-colors cursor-pointer flex flex-col items-center justify-center p-12">
+              <label className="w-full max-w-2xl bg-gray-50 border border-gray-200 rounded-2xl border-2 border-dashed border-gray-200 hover:border-cyan-500/50 transition-colors cursor-pointer flex flex-col items-center justify-center p-12">
                 <input
                   type="file"
                   accept=".pdf,.png,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className="w-20 h-20 bg-cyan-900/50 rounded-2xl flex items-center justify-center mb-4">
-                  <Upload className="w-10 h-10 text-cyan-400" />
+                <div className="w-20 h-20 bg-cyan-100 rounded-2xl flex items-center justify-center mb-4">
+                  <Upload className="w-10 h-10 text-cyan-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   Upload a PDF Template
                 </h3>
-                <p className="text-gray-400 text-center mb-4">
+                <p className="text-gray-600 text-center mb-4">
                   Drag and drop your document here, or click to browse
                 </p>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-gray-600">
                   <span className="flex items-center gap-1">
                     <FileText className="w-4 h-4" /> PDF
                   </span>
@@ -861,7 +861,7 @@ const SignDocumentPage: React.FC = () => {
             ) : (
               <div
                 ref={documentContainerRef}
-                className="relative bg-gray-900/80 shadow-xl"
+                className="relative bg-gray-50/80 shadow-xl"
                 style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
               >
                 {isPDF ? (
@@ -890,20 +890,20 @@ const SignDocumentPage: React.FC = () => {
 
         {/* Right Sidebar - Field Properties */}
         {showPropertiesPanel && selectedField && (
-          <div className="w-72 bg-gray-900 border-l border-gray-800 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white">Field Properties</h2>
+          <div className="w-72 bg-gray-50 border-l border-gray-200 flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-900">Field Properties</h2>
               <button
                 onClick={() => setShowPropertiesPanel(false)}
-                className="p-1 hover:bg-gray-800 rounded"
+                className="p-1 hover:bg-gray-100 rounded"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-gray-600" />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Field Type Display */}
-              <div className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
                 {(() => {
                   const Icon = getFieldIcon(selectedField.type)
                   return (
@@ -915,8 +915,8 @@ const SignDocumentPage: React.FC = () => {
                         <Icon className="w-5 h-5" style={{ color: selectedField.signerColor }} />
                       </div>
                       <div>
-                        <p className="font-medium text-white capitalize">{selectedField.type}</p>
-                        <p className="text-xs text-gray-400">Field Type</p>
+                        <p className="font-medium text-gray-900 capitalize">{selectedField.type}</p>
+                        <p className="text-xs text-gray-600">Field Type</p>
                       </div>
                     </>
                   )
@@ -925,18 +925,18 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Label */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Label</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Label</label>
                 <input
                   type="text"
                   value={selectedField.label}
                   onChange={(e) => updateFieldProperty('label', e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
               {/* Assigned Signer */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Assigned To</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Assigned To</label>
                 <select
                   value={selectedField.signerId}
                   onChange={(e) => {
@@ -944,7 +944,7 @@ const SignDocumentPage: React.FC = () => {
                     updateFieldProperty('signerId', e.target.value)
                     if (signer) updateFieldProperty('signerColor', signer.color)
                   }}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 >
                   {signers.map((signer) => (
                     <option key={signer.id} value={signer.id}>{signer.name}</option>
@@ -954,7 +954,7 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Mandatory Toggle */}
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-400">Required</label>
+                <label className="text-sm font-medium text-gray-600">Required</label>
                 <button
                   onClick={() => updateFieldProperty('mandatory', !selectedField.mandatory)}
                   className={`relative w-10 h-6 rounded-full transition-colors ${
@@ -969,65 +969,65 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Placeholder */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Placeholder</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Placeholder</label>
                 <input
                   type="text"
                   value={selectedField.placeholder}
                   onChange={(e) => updateFieldProperty('placeholder', e.target.value)}
                   placeholder="Enter placeholder text..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
               {/* Tip */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Tooltip</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Tooltip</label>
                 <input
                   type="text"
                   value={selectedField.tip}
                   onChange={(e) => updateFieldProperty('tip', e.target.value)}
                   placeholder="Help text for signer..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
               {/* Size */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Size</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">Size</label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Width</label>
+                    <label className="block text-xs text-gray-600 mb-1">Width</label>
                     <div className="flex items-center">
                       <button
                         onClick={() => updateFieldProperty('width', Math.max(30, selectedField.width - 10))}
-                        className="p-1 hover:bg-gray-800 rounded"
+                        className="p-1 hover:bg-gray-100 rounded"
                       >
-                        <Minus className="w-4 h-4 text-gray-400" />
+                        <Minus className="w-4 h-4 text-gray-600" />
                       </button>
                       <span className="flex-1 text-center text-sm">{Math.round(selectedField.width)}</span>
                       <button
                         onClick={() => updateFieldProperty('width', selectedField.width + 10)}
-                        className="p-1 hover:bg-gray-800 rounded"
+                        className="p-1 hover:bg-gray-100 rounded"
                       >
-                        <Plus className="w-4 h-4 text-gray-400" />
+                        <Plus className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Height</label>
+                    <label className="block text-xs text-gray-600 mb-1">Height</label>
                     <div className="flex items-center">
                       <button
                         onClick={() => updateFieldProperty('height', Math.max(20, selectedField.height - 10))}
-                        className="p-1 hover:bg-gray-800 rounded"
+                        className="p-1 hover:bg-gray-100 rounded"
                       >
-                        <Minus className="w-4 h-4 text-gray-400" />
+                        <Minus className="w-4 h-4 text-gray-600" />
                       </button>
                       <span className="flex-1 text-center text-sm">{Math.round(selectedField.height)}</span>
                       <button
                         onClick={() => updateFieldProperty('height', selectedField.height + 10)}
-                        className="p-1 hover:bg-gray-800 rounded"
+                        className="p-1 hover:bg-gray-100 rounded"
                       >
-                        <Plus className="w-4 h-4 text-gray-400" />
+                        <Plus className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
                   </div>
@@ -1036,23 +1036,23 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Position */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Position</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">Position</label>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="bg-gray-800 rounded-lg p-2 text-center text-white">
-                    <span className="text-gray-400">X:</span> {Math.round(selectedField.x)}
+                  <div className="bg-gray-100 rounded-lg p-2 text-center text-gray-900">
+                    <span className="text-gray-600">X:</span> {Math.round(selectedField.x)}
                   </div>
-                  <div className="bg-gray-800 rounded-lg p-2 text-center text-white">
-                    <span className="text-gray-400">Y:</span> {Math.round(selectedField.y)}
+                  <div className="bg-gray-100 rounded-lg p-2 text-center text-gray-900">
+                    <span className="text-gray-600">Y:</span> {Math.round(selectedField.y)}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="p-4 border-t border-gray-800 space-y-2">
+            <div className="p-4 border-t border-gray-200 space-y-2">
               <button
                 onClick={duplicateSelectedField}
-                className="w-full flex items-center justify-center gap-2 py-2 text-gray-400 hover:bg-gray-800 rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <Copy className="w-4 h-4" />
                 <span className="text-sm font-medium">Duplicate</span>
@@ -1099,49 +1099,49 @@ const SignDocumentPage: React.FC = () => {
       {/* Template Properties Modal */}
       {showTemplateModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
-            <div className="flex items-center justify-between p-5 border-b border-gray-800">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Settings className="w-5 h-5 text-cyan-400" />
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between p-5 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-cyan-600" />
                 Template Properties
               </h3>
               <button
                 onClick={() => setShowTemplateModal(false)}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-gray-600" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Template Name</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Template Name</label>
                 <input
                   type="text"
                   value={templateProps.name}
                   onChange={(e) => setTemplateProps(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="Enter template name..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
+                <label className="block text-sm font-medium text-gray-600 mb-1">
                   <Tag className="w-4 h-4 inline mr-1" />
                   Tags
                 </label>
                 <input
                   type="text"
                   placeholder="Add tags (comma separated)..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
+                <label className="block text-sm font-medium text-gray-600 mb-1">
                   Signed Document Workspace
                 </label>
-                <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                <select className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
                   <option value="default">Default Workspace</option>
                   <option value="contracts">Contracts</option>
                   <option value="agreements">Agreements</option>
@@ -1149,7 +1149,7 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
+                <label className="block text-sm font-medium text-gray-600 mb-1">
                   <Link2 className="w-4 h-4 inline mr-1" />
                   Redirect Link (after signing)
                 </label>
@@ -1158,28 +1158,28 @@ const SignDocumentPage: React.FC = () => {
                   value={templateProps.redirectUrl}
                   onChange={(e) => setTemplateProps(prev => ({ ...prev, redirectUrl: e.target.value }))}
                   placeholder="https://..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
+                <label className="block text-sm font-medium text-gray-600 mb-1">
                   <Lock className="w-4 h-4 inline mr-1" />
                   Authorized Users
                 </label>
                 <input
                   type="text"
                   placeholder="Enter user emails (comma separated)..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
-                <p className="text-xs text-gray-400 mt-1">Leave empty to allow all users</p>
+                <p className="text-xs text-gray-600 mt-1">Leave empty to allow all users</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-800 bg-gray-900 rounded-b-2xl">
+            <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
               <button
                 onClick={() => setShowTemplateModal(false)}
-                className="px-4 py-2 text-gray-400 font-medium rounded-lg hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
               >
                 Cancel
               </button>
@@ -1197,41 +1197,41 @@ const SignDocumentPage: React.FC = () => {
       {/* Send Modal */}
       {showSendModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
-            <div className="flex items-center justify-between p-5 border-b border-gray-800">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Send className="w-5 h-5 text-cyan-400" />
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between p-5 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Send className="w-5 h-5 text-cyan-600" />
                 Send for Signatures
               </h3>
               <button
                 onClick={() => setShowSendModal(false)}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-gray-600" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-gray-800 rounded-xl p-4">
+              <div className="bg-gray-100 rounded-xl p-4">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-8 h-8 text-cyan-400" />
+                  <FileText className="w-8 h-8 text-cyan-600" />
                   <div>
-                    <p className="font-medium text-white">{templateProps.name || 'Untitled Template'}</p>
-                    <p className="text-sm text-gray-400">{placedFields.length} fields configured</p>
+                    <p className="font-medium text-gray-900">{templateProps.name || 'Untitled Template'}</p>
+                    <p className="text-sm text-gray-600">{placedFields.length} fields configured</p>
                   </div>
                 </div>
               </div>
 
               {/* Signers with their emails */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Signers</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">Signers</label>
                 <div className="space-y-2">
                   {signers.map((signer, idx) => {
                     const signerFields = placedFields.filter(f => f.signerId === signer.id)
                     return (
-                      <div key={signer.id} className="flex items-center gap-2 p-3 bg-gray-800 rounded-lg">
+                      <div key={signer.id} className="flex items-center gap-2 p-3 bg-gray-100 rounded-lg">
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm flex-shrink-0"
                           style={{ backgroundColor: signer.color }}
                         >
                           {idx + 1}
@@ -1242,10 +1242,10 @@ const SignDocumentPage: React.FC = () => {
                             placeholder={`${signer.name} email...`}
                             value={signer.email}
                             onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500"
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500"
                           />
                         </div>
-                        <span className="text-xs text-gray-400">{signerFields.length} fields</span>
+                        <span className="text-xs text-gray-600">{signerFields.length} fields</span>
                       </div>
                     )
                   })}
@@ -1253,32 +1253,32 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Email Subject</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Email Subject</label>
                 <input
                   type="text"
                   value={emailSubject || `Please sign: ${templateProps.name}`}
                   onChange={(e) => setEmailSubject(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Message (optional)</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Message (optional)</label>
                 <textarea
                   rows={3}
                   placeholder="Add a personal message..."
                   value={emailMessage}
                   onChange={(e) => setEmailMessage(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-cyan-500 resize-none"
+                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-cyan-500 resize-none"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-800 bg-gray-900 rounded-b-2xl">
+            <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
               <button
                 onClick={() => setShowSendModal(false)}
                 disabled={isSending}
-                className="px-4 py-2 text-gray-400 font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1307,22 +1307,22 @@ const SignDocumentPage: React.FC = () => {
       {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
-            <div className="flex items-center justify-between p-5 border-b border-gray-800">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-cyan-400" />
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="flex items-center justify-between p-5 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Share2 className="w-5 h-5 text-cyan-600" />
                 Share Template
               </h3>
               <button
                 onClick={() => setShowShareModal(false)}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-gray-600" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-gray-700">
                 Create a public link that anyone can use to sign this document.
               </p>
 
@@ -1331,7 +1331,7 @@ const SignDocumentPage: React.FC = () => {
                   type="text"
                   value="https://auradoc.com/sign/abc123"
                   readOnly
-                  className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300"
+                  className="flex-1 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-700"
                 />
                 <button className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-lg hover:from-cyan-600 hover:to-purple-700 transition-all">
                   <Copy className="w-4 h-4" />
@@ -1345,10 +1345,10 @@ const SignDocumentPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-800 bg-gray-900 rounded-b-2xl">
+            <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
               <button
                 onClick={() => setShowShareModal(false)}
-                className="px-4 py-2 text-gray-400 font-medium rounded-lg hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
               >
                 Close
               </button>

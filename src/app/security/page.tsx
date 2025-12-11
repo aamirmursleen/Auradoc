@@ -150,23 +150,23 @@ const SecurityPage: React.FC = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-8">
-              <Shield className="w-10 h-10 text-white" />
+              <Shield className="w-10 h-10 text-gray-900" />
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
               Security You Can
               <span className="block mt-2 bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 Trust
               </span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
               Your documents contain sensitive information. We protect them with enterprise-grade security at every level, so you can sign with confidence.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/security/whitepaper" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Link href="/security/whitepaper" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                 Download Security Whitepaper
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
-              <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white border-2 border-gray-600 rounded-xl hover:border-gray-500 hover:bg-gray-800 transition-all duration-300">
+              <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 border-2 border-gray-600 rounded-xl hover:border-gray-500 hover:bg-gray-100 transition-all duration-300">
                 Talk to Security Team
               </Link>
             </div>
@@ -175,15 +175,15 @@ const SecurityPage: React.FC = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gray-900 border-t border-gray-800">
+      <section className="py-16 bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
                   {stat.value}
                 </div>
-                <div className="text-gray-400">{stat.label}</div>
+                <div className="text-gray-600">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -191,25 +191,25 @@ const SecurityPage: React.FC = () => {
       </section>
 
       {/* Security Features */}
-      <section className="py-20 bg-gray-900/80">
+      <section className="py-20 bg-gray-50/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Enterprise-Grade Security
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               Multiple layers of protection keep your documents and data safe
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {securityFeatures.map((feature, index) => (
-              <div key={index} className="p-8 bg-gray-900/80 border border-gray-700/50 rounded-2xl hover:shadow-lg transition-all duration-300">
+              <div key={index} className="p-8 bg-gray-50/80 border border-gray-200/50 rounded-2xl hover:shadow-lg transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6">
-                  <feature.icon className="w-7 h-7 text-white" />
+                  <feature.icon className="w-7 h-7 text-gray-900" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-700">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -217,25 +217,25 @@ const SecurityPage: React.FC = () => {
       </section>
 
       {/* Certifications */}
-      <section className="py-20 bg-gray-900/80">
+      <section className="py-20 bg-gray-50/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Certifications & Compliance
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               Third-party verified security and compliance standards
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {certifications.map((cert, index) => (
-              <div key={index} className="p-8 bg-gray-900/80 rounded-2xl border border-gray-700/50 text-center hover:shadow-lg transition-all duration-300">
+              <div key={index} className="p-8 bg-gray-50/80 rounded-2xl border border-gray-200/50 text-center hover:shadow-lg transition-all duration-300">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <cert.icon className="w-8 h-8 text-white" />
+                  <cert.icon className="w-8 h-8 text-gray-900" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{cert.name}</h3>
-                <p className="text-gray-300 text-sm">{cert.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{cert.name}</h3>
+                <p className="text-gray-700 text-sm">{cert.description}</p>
               </div>
             ))}
           </div>
@@ -250,31 +250,31 @@ const SecurityPage: React.FC = () => {
       </section>
 
       {/* Security Practices */}
-      <section className="py-20 bg-gray-900/80">
+      <section className="py-20 bg-gray-50/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Our Security Practices
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               Comprehensive security measures across every layer of our platform
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {securityPractices.map((category, index) => (
-              <div key={index} className="bg-gray-900/80 border border-gray-700/50 rounded-2xl p-8">
+              <div key={index} className="bg-gray-50/80 border border-gray-200/50 rounded-2xl p-8">
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-                    <category.icon className="w-6 h-6 text-white" />
+                    <category.icon className="w-6 h-6 text-gray-900" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">{category.category}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">{category.category}</h3>
                 </div>
                 <ul className="space-y-3">
                   {category.practices.map((practice, i) => (
                     <li key={i} className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-300">{practice}</span>
+                      <span className="text-gray-700">{practice}</span>
                     </li>
                   ))}
                 </ul>
@@ -285,18 +285,18 @@ const SecurityPage: React.FC = () => {
       </section>
 
       {/* Vulnerability Disclosure */}
-      <section className="py-20 bg-gray-900">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <AlertTriangle className="w-12 h-12 text-yellow-400 mb-6" />
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
                 Responsible Disclosure
               </h2>
-              <p className="text-lg text-gray-400 mb-6">
+              <p className="text-lg text-gray-600 mb-6">
                 Security is a collaborative effort. We welcome reports from security researchers who discover vulnerabilities in our platform.
               </p>
-              <p className="text-gray-400 mb-8">
+              <p className="text-gray-600 mb-8">
                 We operate a responsible disclosure program and will work with researchers to fix issues and recognize their contributions.
               </p>
               <Link href="/security/disclosure" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300">
@@ -304,8 +304,8 @@ const SecurityPage: React.FC = () => {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </div>
-            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
-              <h3 className="text-xl font-semibold text-white mb-6">Program Highlights</h3>
+            <div className="bg-gray-100 rounded-2xl p-8 border border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Program Highlights</h3>
               <ul className="space-y-4">
                 {[
                   'Safe harbor for good-faith research',
@@ -314,7 +314,7 @@ const SecurityPage: React.FC = () => {
                   'Direct communication with security team',
                   'Timely response and updates',
                 ].map((item, index) => (
-                  <li key={index} className="flex items-center text-gray-300">
+                  <li key={index} className="flex items-center text-gray-700">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
                     {item}
                   </li>
@@ -328,11 +328,11 @@ const SecurityPage: React.FC = () => {
       {/* Trust Center */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Lock className="w-16 h-16 text-white/80 mx-auto mb-6" />
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <Lock className="w-16 h-16 text-gray-900/80 mx-auto mb-6" />
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Have Security Questions?
           </h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-900/80 mb-8 max-w-2xl mx-auto">
             Our security team is here to help. Contact us to discuss your security requirements or request documentation.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -340,7 +340,7 @@ const SecurityPage: React.FC = () => {
               Contact Security Team
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
-            <Link href="/trust" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300">
+            <Link href="/trust" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300">
               Visit Trust Center
             </Link>
           </div>
