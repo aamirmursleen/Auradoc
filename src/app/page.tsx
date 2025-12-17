@@ -597,8 +597,6 @@ const HomePage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{testimonial.author}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
-                    <p className="text-sm text-cyan-600">{testimonial.company}</p>
                   </div>
                 </div>
               </div>
