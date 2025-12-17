@@ -1,20 +1,19 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, Mail, Gift, CheckCircle } from 'lucide-react'
+import { X, Gift, CheckCircle, Copy } from 'lucide-react'
+
+const DISCOUNT_CODE = 'MAMA90'
 
 export default function EmailCapturePopup() {
   const [isVisible, setIsVisible] = useState(false)
-  const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    // Check if user has already seen the popup or subscribed
+    // Check if user has already seen the popup
     const hasSeenPopup = localStorage.getItem('mamasign_popup_seen')
-    const hasSubscribed = localStorage.getItem('mamasign_subscribed')
 
-    if (hasSeenPopup || hasSubscribed) return
+    if (hasSeenPopup) return
 
     // Show popup after 30 seconds
     const timer = setTimeout(() => {
@@ -23,7 +22,7 @@ export default function EmailCapturePopup() {
 
     // Exit intent detection
     const handleMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0 && !hasSeenPopup && !hasSubscribed) {
+      if (e.clientY <= 0 && !hasSeenPopup) {
         setIsVisible(true)
       }
     }
@@ -41,23 +40,14 @@ export default function EmailCapturePopup() {
     localStorage.setItem('mamasign_popup_seen', 'true')
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) return
-
-    setLoading(true)
-
-    // Simulate API call - In production, connect to email service
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    setSubmitted(true)
-    setLoading(false)
-    localStorage.setItem('mamasign_subscribed', 'true')
-
-    // Auto close after 3 seconds
-    setTimeout(() => {
-      setIsVisible(false)
-    }, 3000)
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(DISCOUNT_CODE)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
   }
 
   if (!isVisible) return null
@@ -85,72 +75,59 @@ export default function EmailCapturePopup() {
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
             <Gift className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold mb-1">Get 85% Off!</h2>
+          <h2 className="text-lg font-bold mb-1">Get 90% Off!</h2>
           <p className="text-purple-100 text-xs">
-            First month discount + free tips
+            Limited time offer - Pro Plan
           </p>
         </div>
 
         {/* Compact Content */}
         <div className="p-4">
-          {!submitted ? (
-            <>
-              <p className="text-gray-600 dark:text-gray-300 text-center text-sm mb-4">
-                Join 10,000+ professionals using MamaSign
-              </p>
+          <p className="text-gray-600 dark:text-gray-300 text-center text-sm mb-4">
+            Use this exclusive discount code at checkout
+          </p>
 
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2.5 text-sm bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
-                >
-                  {loading ? 'Subscribing...' : 'Claim Discount'}
-                </button>
-              </form>
-
-              <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-3">
-                No spam. Unsubscribe anytime.
-              </p>
-
-              {/* Compact Benefits */}
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <ul className="space-y-1.5">
-                  {[
-                    'Exclusive Pro discount',
-                    'Weekly productivity tips',
-                  ].map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                      <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-4">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">You&apos;re In!</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Check your email for your discount code.
-              </p>
+          {/* Discount Code Display */}
+          <div
+            onClick={handleCopyCode}
+            className="relative bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 border-2 border-dashed border-violet-300 dark:border-violet-600 rounded-lg p-4 text-center cursor-pointer hover:border-violet-500 transition-all group"
+          >
+            <p className="text-2xl font-bold text-violet-600 dark:text-violet-400 tracking-wider">
+              {DISCOUNT_CODE}
+            </p>
+            <div className="flex items-center justify-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <Copy className="w-3 h-3" />
+              <span>{copied ? 'Copied!' : 'Click to copy'}</span>
             </div>
-          )}
+            {copied && (
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                Copied!
+              </div>
+            )}
+          </div>
+
+          {/* Benefits */}
+          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <ul className="space-y-1.5">
+              {[
+                '90% off Pro Plan',
+                'Unlimited signatures',
+                'All PDF tools included',
+              ].map((item, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                  <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button
+            onClick={handleClose}
+            className="w-full mt-4 py-2.5 text-sm bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+          >
+            Start Using MamaSign
+          </button>
         </div>
       </div>
     </div>
