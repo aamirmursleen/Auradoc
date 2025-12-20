@@ -14,7 +14,7 @@ import {
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden pt-20 md:pt-24">
+    <section className="relative bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden pt-12 md:pt-16">
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-cyan-400 rounded-full opacity-10 blur-3xl animate-pulse" />
@@ -22,22 +22,10 @@ const HeroSection: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 w-48 md:w-64 h-48 md:h-64 bg-blue-400 rounded-full opacity-5 blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Left Content - Text */}
           <div className="animate-in space-y-5 md:space-y-6 text-center lg:text-left">
-            {/* Badge */}
-            <div className="inline-flex items-center space-x-2 px-3 md:px-4 py-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 rounded-full border border-cyan-200 dark:border-cyan-700 backdrop-blur-xl">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              <span className="text-cyan-700 dark:text-cyan-300 text-xs md:text-sm font-medium">
-                Trusted by 50,000+ businesses worldwide
-              </span>
-              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-cyan-500" />
-            </div>
-
             {/* Main Heading */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 dark:text-white leading-[1.1]">
               Sign Documents
