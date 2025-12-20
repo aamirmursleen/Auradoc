@@ -2,143 +2,222 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   CSS VARIABLES & THEME CONFIGURATION
+======================================== */
 :root {
   /* Light Mode (Default) */
   --foreground-rgb: 17, 24, 39;
   --background-start-rgb: 249, 250, 251;
   --background-end-rgb: 255, 255, 255;
-}
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
+  /* Shimmer colors for light mode */
+  --shimmer-base: #e5e7eb;
+  --shimmer-highlight: #f3f4f6;
+
+  /* Scrollbar colors */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+}
+
+.dark {
+  /* Dark Mode */
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 10, 20;
+  --background-end-rgb: 15, 15, 30;
+
+  /* Shimmer colors for dark mode */
+  --shimmer-base: #1f2937;
+  --shimmer-highlight: #374151;
+
+  /* Scrollbar colors */
+  --scrollbar-track: #1f2937;
+  --scrollbar-thumb: #4b5563;
+  --scrollbar-thumb-hover: #6b7280;
+}
+
+/* ========================================
+   BASE STYLES
+======================================== */
 * {
   scroll-behavior: smooth;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      135deg,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb))
-    );
+    135deg,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Dark Theme Base */
-.dark-theme {
-  background: linear-gradient(135deg, #0a0a14 0%, #0f0f1e 50%, #0a0a14 100%);
+/* ========================================
+   SCROLLBAR STYLES (Light/Dark)
+======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Neon Glow Effects */
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ========================================
+   NEON GLOW EFFECTS
+======================================== */
 .neon-glow-blue {
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-glow-cyan {
   box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-glow-purple {
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-glow-magenta {
   box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Signature Canvas Styles */
+/* ========================================
+   SIGNATURE CANVAS STYLES
+======================================== */
 .signature-canvas-container {
-  @apply relative rounded-xl border-2 border-dashed border-gray-600 bg-gray-900/50 transition-all duration-300;
+  @apply relative rounded-xl border-2 border-dashed transition-all duration-300;
+  @apply border-gray-300 bg-gray-50;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
+
+.dark .signature-canvas-container {
+  @apply border-gray-600 bg-gray-900/50;
+}
 
 .signature-canvas-container:hover {
   @apply border-cyan-400;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .signature-canvas-container.has-signature {
   @apply border-solid border-cyan-500;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Button Styles - Dark Theme */
+/* ========================================
+   BUTTON STYLES
+======================================== */
 .btn-primary {
-  @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 rounded-lg shadow-lg hover:from-blue-500 hover:via-purple-500 hover:to-cyan-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300 transform hover:scale-105;
+  @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-lg shadow-lg hover:from-cyan-400 hover:via-blue-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300 transform hover:scale-105;
   box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .btn-primary:hover {
   box-shadow: 0 6px 30px rgba(6, 182, 212, 0.6);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-gray-200 bg-gray-800/80 border border-gray-600 rounded-lg shadow-sm hover:bg-gray-700/80 hover:border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300;
+  @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-lg shadow-sm transition-all duration-300;
+  @apply text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-cyan-400;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
+
+.dark .btn-secondary {
+  @apply text-gray-200 bg-gray-800/80 border-gray-600 hover:bg-gray-700/80 hover:border-cyan-500/50;
+}
 
 .btn-danger {
   @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg shadow-lg hover:from-red-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300;
   box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Card Styles - Dark Theme */
+/* ========================================
+   CARD STYLES (Light/Dark)
+======================================== */
 .card {
-  @apply bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-700/50 overflow-hidden;
+  @apply backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden;
+  @apply bg-white/80 border border-gray-200/50;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
+
+.dark .card {
+  @apply bg-gray-900/80 border-gray-700/50;
+}
 
 .card-header {
-  @apply px-6 py-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50;
+  @apply px-6 py-4 border-b;
+  @apply border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-white/50;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
+
+.dark .card-header {
+  @apply border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50;
+}
 
 .card-body {
   @apply p-6;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Glass Effect - Dark Theme */
+/* ========================================
+   GLASS EFFECT (Light/Dark)
+======================================== */
 .glass {
-  @apply bg-gray-900/60 backdrop-blur-xl border border-gray-700/50;
+  @apply backdrop-blur-xl;
+  @apply bg-white/60 border border-gray-200/50;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Gradient Text - Neon */
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500;
+.dark .glass {
+  @apply bg-gray-900/60 border-gray-700/50;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
+
+/* ========================================
+   GRADIENT TEXT
+======================================== */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500;
+}
 
 .gradient-text-neon {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Animation Classes */
+/* ========================================
+   FOCUS STATES (Light/Dark)
+======================================== */
+input:focus,
+textarea:focus,
+select:focus {
+  @apply outline-none ring-2 ring-cyan-500 ring-offset-2;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  @apply ring-offset-gray-900;
+}
+
+/* ========================================
+   ANIMATIONS - FADE & SLIDE
+======================================== */
 .animate-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes fadeIn {
   from {
@@ -150,38 +229,50 @@ body {
     transform: translateY(0);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Scrollbar Styles - Dark Theme */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-::-webkit-scrollbar-track {
-  @apply bg-gray-900 rounded-full;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded-full hover:bg-gray-500;
+.scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Focus States - Dark Theme */
-input:focus,
-textarea:focus,
-select:focus {
-  @apply outline-none ring-2 ring-cyan-500 ring-offset-2 ring-offset-gray-900;
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Success Badge Animation */
+/* Stagger Animation Delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* ========================================
+   ANIMATIONS - SUCCESS BADGE
+======================================== */
 .success-badge {
   animation: successPulse 2s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes successPulse {
   0%, 100% {
@@ -191,19 +282,18 @@ select:focus {
     box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* 3D Hero Animations */
+/* ========================================
+   ANIMATIONS - 3D HERO
+======================================== */
 .hero-3d-container {
   perspective: 1000px;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .document-3d {
   animation: float3d 6s ease-in-out infinite;
   transform-style: preserve-3d;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float3d {
   0%, 100% {
@@ -213,23 +303,21 @@ select:focus {
     transform: translateY(-15px) rotateX(-2deg) rotateY(2deg);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Floating animations for mini cards */
+/* ========================================
+   ANIMATIONS - FLOATING ELEMENTS
+======================================== */
 .animate-float-1 {
   animation: float1 4s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .animate-float-2 {
   animation: float2 5s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .animate-float-3 {
   animation: float3 4.5s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float1 {
   0%, 100% {
@@ -239,7 +327,6 @@ select:focus {
     transform: translateY(-10px) rotate(5deg);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float2 {
   0%, 100% {
@@ -249,7 +336,6 @@ select:focus {
     transform: translateY(-12px) rotate(-5deg);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes float3 {
   0%, 100% {
@@ -259,13 +345,10 @@ select:focus {
     transform: translateY(-8px) scale(1.05);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Glow animation */
 .animate-float-glow {
   animation: floatGlow 4s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes floatGlow {
   0%, 100% {
@@ -277,15 +360,20 @@ select:focus {
     transform: scale(1.05);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Shimmer effect for document lines - Dark Theme */
+/* ========================================
+   ANIMATIONS - SHIMMER (Light/Dark)
+======================================== */
 .animate-shimmer {
-  background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base) 25%,
+    var(--shimmer-highlight) 50%,
+    var(--shimmer-base) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes shimmer {
   0% {
@@ -295,13 +383,13 @@ select:focus {
     background-position: -200% 0;
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Slow bounce for signature icon */
+/* ========================================
+   ANIMATIONS - BOUNCE SLOW
+======================================== */
 .animate-bounce-slow {
   animation: bounceSlow 2s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes bounceSlow {
   0%, 100% {
@@ -311,15 +399,17 @@ select:focus {
     transform: translateY(-5px);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Signature text style */
+/* ========================================
+   SIGNATURE TEXT
+======================================== */
 .signature-text {
-  font-family: cursive;
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Stars Background */
+/* ========================================
+   DECORATIVE - STARS BACKGROUND
+======================================== */
 .stars-bg {
   background-image:
     radial-gradient(2px 2px at 20px 30px, rgba(6, 182, 212, 0.3), transparent),
@@ -330,19 +420,18 @@ select:focus {
   background-size: 200px 200px;
   animation: twinkle 5s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes twinkle {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Neon Border Animation */
+/* ========================================
+   DECORATIVE - NEON BORDER
+======================================== */
 .neon-border {
   position: relative;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .neon-border::before {
   content: '';
@@ -355,20 +444,19 @@ select:focus {
   animation: neonBorder 3s linear infinite;
   opacity: 0.7;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes neonBorder {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Pulse Glow */
+/* ========================================
+   DECORATIVE - PULSE GLOW
+======================================== */
 .pulse-glow {
   animation: pulseGlow 2s ease-in-out infinite;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 @keyframes pulseGlow {
   0%, 100% {
@@ -378,78 +466,56 @@ select:focus {
     box-shadow: 0 0 40px rgba(6, 182, 212, 0.8), 0 0 60px rgba(168, 85, 247, 0.4);
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Smooth Transitions */
+/* ========================================
+   TRANSITIONS & HOVER EFFECTS
+======================================== */
 .transition-smooth {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .hover-lift {
   transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
 .hover-lift:hover {
   transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dark .hover-lift:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Fade In Up Animation */
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(6, 182, 212, 0.15);
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Scale In Animation */
-.scale-in {
-  animation: scaleIn 0.4s ease-out forwards;
+/* Link & Button Transitions */
+a, button {
+  transition: all 0.3s ease;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Image Smooth Loading */
+img {
+  transition: opacity 0.3s ease;
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Stagger Animation Delays */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-
-/* Responsive Container Padding */
+/* ========================================
+   RESPONSIVE - MOBILE OPTIMIZATIONS
+======================================== */
 @media (max-width: 640px) {
   .responsive-container {
     padding-left: 1rem;
     padding-right: 1rem;
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Mobile Optimizations */
 @media (max-width: 768px) {
   .hero-3d-container {
     perspective: 500px;
@@ -474,33 +540,10 @@ select:focus {
     animation-duration: 3s;
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
 
-/* Smooth Card Hover */
-.card-hover {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(6, 182, 212, 0.15);
-}
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
-
-/* Link Hover Effect */
-a, button {
-  transition: all 0.3s ease;
-}
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
-
-/* Image Smooth Loading */
-img {
-  transition: opacity 0.3s ease;
-}
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
-
-/* Reduced Motion */
+/* ========================================
+   ACCESSIBILITY - REDUCED MOTION
+======================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -511,4 +554,29 @@ img {
     scroll-behavior: auto !important;
   }
 }
-/* Dark Mode */.dark {  --foreground-rgb: 255, 255, 255;  --background-start-rgb: 10, 10, 20;  --background-end-rgb: 15, 15, 30;}
+
+/* ========================================
+   FLOATING CTA BUTTON (Mobile)
+======================================== */
+.floating-cta {
+  @apply fixed bottom-6 left-4 right-4 z-50 md:hidden;
+  @apply bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600;
+  @apply text-white font-semibold py-4 px-6 rounded-full;
+  @apply shadow-2xl shadow-cyan-500/40;
+  @apply flex items-center justify-center gap-2;
+  @apply transform transition-all duration-300;
+  animation: floatCTA 2s ease-in-out infinite;
+}
+
+@keyframes floatCTA {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.floating-cta:active {
+  transform: scale(0.98);
+}

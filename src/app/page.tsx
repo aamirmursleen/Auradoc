@@ -33,6 +33,7 @@ import {
   Droplets,
 } from 'lucide-react'
 import HeroSection from '@/components/home/HeroSection'
+import FloatingMobileCTA from '@/components/FloatingMobileCTA'
 
 // Realistic Resume Preview Component
 const ResumePreview = ({ type, color }: { type: string; color: string }) => {
@@ -424,18 +425,18 @@ const HomePage: React.FC = () => {
   ]
 
   return (
-    <div className="overflow-hidden bg-white">
+    <div className="overflow-hidden bg-white dark:bg-gray-900">
       {/* Hero Section */}
       <HeroSection />
 
       {/* Trust Badges */}
-      <section className="py-8 bg-gray-900">
+      <section className="py-6 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-y border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {trustBadges.map((badge, index) => (
-              <div key={index} className="flex items-center justify-center gap-2 text-gray-300">
-                <badge.icon className="w-5 h-5 text-cyan-400" />
-                <span className="text-sm font-medium">{badge.label}</span>
+              <div key={index} className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300">
+                <badge.icon className="w-5 h-5 text-cyan-500" />
+                <span className="text-xs sm:text-sm font-medium">{badge.label}</span>
               </div>
             ))}
           </div>
@@ -566,7 +567,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-12 md:py-20 bg-white border-y border-gray-200/50">
+      <section className="py-12 md:py-20 bg-white dark:bg-gray-900 border-y border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 md:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -581,14 +582,14 @@ const HomePage: React.FC = () => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 hover:border-cyan-300 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2"
+                className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2"
               >
                 <div className="flex mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                   ))}
                 </div>
-                <p className="text-gray-700 mb-6 text-base leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
                   "{testimonial.quote}"
                 </p>
                 <div className="flex items-center gap-3">
@@ -596,7 +597,7 @@ const HomePage: React.FC = () => {
                     {testimonial.image}
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{testimonial.author}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{testimonial.author}</p>
                   </div>
                 </div>
               </div>
@@ -614,26 +615,26 @@ const HomePage: React.FC = () => {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="text-center p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/30">
                 <Zap className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Lightning Fast</h3>
-              <p className="text-gray-600">Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Lightning Fast</h3>
+              <p className="text-gray-600 dark:text-gray-400">Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
             </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="text-center p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30">
                 <Lock className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Bank-Level Security</h3>
-              <p className="text-gray-600">256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Bank-Level Security</h3>
+              <p className="text-gray-600 dark:text-gray-400">256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
             </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="text-center p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30">
                 <Award className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Legally Binding</h3>
-              <p className="text-gray-600">Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Legally Binding</h3>
+              <p className="text-gray-600 dark:text-gray-400">Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
             </div>
           </div>
         </div>
@@ -671,6 +672,9 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Floating Mobile CTA */}
+      <FloatingMobileCTA />
     </div>
   )
 }

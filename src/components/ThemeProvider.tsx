@@ -13,20 +13,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light')
+  const [theme, setThemeState] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    // Check for saved preference or system preference
+    // Check for saved preference - default is dark
     const savedTheme = localStorage.getItem('mamasign_theme') as Theme | null
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (savedTheme) {
       setThemeState(savedTheme)
-    } else if (systemPrefersDark) {
-      setThemeState('dark')
     }
+    // If no saved preference, keep default (dark)
   }, [])
 
   useEffect(() => {

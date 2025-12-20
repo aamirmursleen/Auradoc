@@ -30,166 +30,260 @@ import {
   PenTool,
   Send,
   History,
+  FileType,
+  Image,
+  Minimize2,
+  Scissors,
+  Droplets,
+  Receipt,
+  LayoutTemplate,
+  Sparkles,
+  Star,
+  Check,
+  Award,
 } from 'lucide-react'
 
 const FeaturesPage: React.FC = () => {
-  const mainFeatures = [
+  // All Platform Features
+  const platformFeatures = [
     {
+      category: 'E-Signature Tools',
       icon: FileSignature,
-      title: 'Electronic Signatures',
-      description: 'Create legally-binding electronic signatures in seconds. Draw, type, or upload your signature for instant document signing.',
-      details: ['Draw signatures with mouse or touch', 'Type and style your signature', 'Upload signature images', 'Reusable signature library'],
+      color: 'from-purple-500 to-pink-500',
+      shadowColor: 'shadow-purple-500/30',
+      features: [
+        'Sign documents electronically with legally-binding signatures',
+        'Draw signatures using mouse, trackpad, or touchscreen',
+        'Type signatures with beautiful font styles',
+        'Upload your handwritten signature image',
+        'Add initials and stamps to documents',
+        'Multiple signers support with sequential signing',
+        'Real-time signature tracking and notifications',
+        'In-person and remote signing options',
+        'Reusable signature library',
+        'Mobile-friendly signing experience',
+      ],
     },
     {
+      category: 'PDF Conversion Tools',
+      icon: FileType,
+      color: 'from-blue-500 to-cyan-500',
+      shadowColor: 'shadow-blue-500/30',
+      features: [
+        'PDF to Word - Convert PDFs to editable Word documents',
+        'Word to PDF - Transform Word files into professional PDFs',
+        'Image to PDF - Convert JPG, PNG images to PDF format',
+        'PDF Compression - Reduce file size up to 90%',
+        'PDF Merge - Combine multiple PDFs into one',
+        'PDF Split - Extract pages from PDF documents',
+        'Watermark PDF - Add text or image watermarks',
+        'All conversions happen in your browser (privacy-first)',
+        'No file size limits for free tools',
+        'Batch processing for multiple files',
+      ],
+    },
+    {
+      category: 'Business Tools',
+      icon: Receipt,
+      color: 'from-emerald-500 to-green-500',
+      shadowColor: 'shadow-emerald-500/30',
+      features: [
+        'Professional Invoice Generator with custom branding',
+        'Auto-calculate totals, taxes, and discounts',
+        'ATS-friendly Resume Templates',
+        'Multiple resume designs (Modern, Professional, Creative)',
+        'Download invoices and resumes as PDF',
+        'Save templates for future use',
+        'Client management for invoices',
+        'Payment tracking and status updates',
+        'Customizable company logo and colors',
+        'Export in multiple formats',
+      ],
+    },
+    {
+      category: 'Security & Compliance',
       icon: Shield,
-      title: 'Bank-Level Security',
-      description: '256-bit AES encryption protects every document. Your data is secure at rest and in transit with enterprise-grade security.',
-      details: ['256-bit encryption', 'SOC 2 Type II certified', 'GDPR compliant', 'Regular security audits'],
+      color: 'from-orange-500 to-red-500',
+      shadowColor: 'shadow-orange-500/30',
+      features: [
+        '256-bit AES encryption for all documents',
+        'SOC 2 Type II certified infrastructure',
+        'GDPR and HIPAA compliant',
+        'eIDAS and ESIGN Act compliant',
+        'Tamper-evident digital seals',
+        'Complete audit trail with timestamps',
+        'Two-factor authentication (2FA)',
+        'IP address and device tracking',
+        'Secure cloud storage with encryption',
+        'Regular third-party security audits',
+      ],
     },
     {
-      icon: Clock,
-      title: 'Complete Audit Trail',
-      description: 'Track every action on your documents with detailed timestamped logs. Know exactly when documents are viewed, signed, and downloaded.',
-      details: ['Timestamped activity logs', 'IP address tracking', 'Device information', 'Tamper-evident seals'],
+      category: 'Document Verification',
+      icon: Eye,
+      color: 'from-cyan-500 to-blue-500',
+      shadowColor: 'shadow-cyan-500/30',
+      features: [
+        'SHA-256 hash verification for authenticity',
+        'Detect document tampering and modifications',
+        'Register original documents on blockchain',
+        'Instant verification results',
+        'Detailed tampering detection reports',
+        'Certificate of authenticity generation',
+        'Compare document versions',
+        'Verify digital signatures',
+        'QR code verification support',
+        'Bulk document verification',
+      ],
     },
+    {
+      category: 'Collaboration & Workflow',
+      icon: Users,
+      color: 'from-violet-500 to-purple-500',
+      shadowColor: 'shadow-violet-500/30',
+      features: [
+        'Invite unlimited team members',
+        'Role-based access control (Admin, Editor, Viewer)',
+        'Sequential and parallel signing workflows',
+        'Shared document library',
+        'Team templates and branding',
+        'Automated email reminders',
+        'Custom notification preferences',
+        'Comment and annotation tools',
+        'Version history and rollback',
+        'Activity dashboard and analytics',
+      ],
+    },
+  ]
+
+  // Quick Stats
+  const stats = [
+    { value: '10M+', label: 'Documents Signed' },
+    { value: '50K+', label: 'Happy Users' },
+    { value: '99.9%', label: 'Uptime' },
+    { value: '150+', label: 'Countries' },
+  ]
+
+  // Why Choose Us
+  const whyChooseUs = [
     {
       icon: Zap,
-      title: 'Lightning Fast Processing',
-      description: 'Get documents signed in minutes, not days. Our optimized infrastructure ensures instant delivery and processing.',
-      details: ['Instant document delivery', 'Real-time status updates', 'Batch processing support', 'Priority queue for business'],
+      title: 'Lightning Fast',
+      description: 'Sign documents in seconds, not days',
     },
     {
-      icon: Users,
-      title: 'Team Collaboration',
-      description: 'Invite unlimited team members and collaborate seamlessly. Role-based permissions keep your organization secure.',
-      details: ['Unlimited team members', 'Role-based access control', 'Team templates', 'Shared document library'],
+      icon: Lock,
+      title: '100% Secure',
+      description: 'Bank-level encryption protects your data',
     },
     {
       icon: Globe,
-      title: 'Works Everywhere',
-      description: 'Sign from any device - desktop, tablet, or mobile. No app installation required, just open and sign.',
-      details: ['Desktop & mobile support', 'No app required', 'Offline signing capability', 'Cross-browser compatible'],
-    },
-  ]
-
-  const additionalFeatures = [
-    { icon: Smartphone, title: 'Mobile Optimized', description: 'Full functionality on any mobile device with responsive design' },
-    { icon: Mail, title: 'Email Notifications', description: 'Automated reminders and status updates keep everyone informed' },
-    { icon: BarChart3, title: 'Analytics Dashboard', description: 'Track signing patterns and document metrics in real-time' },
-    { icon: Layers, title: 'Template Library', description: 'Save time with reusable document templates for common workflows' },
-    { icon: RefreshCw, title: 'Bulk Operations', description: 'Process hundreds of documents simultaneously with bulk sending' },
-    { icon: Search, title: 'Smart Search', description: 'Find any document instantly with powerful search and filters' },
-    { icon: Download, title: 'Export Options', description: 'Download signed documents in multiple formats including PDF/A' },
-    { icon: Bell, title: 'Custom Reminders', description: 'Set automatic follow-up reminders for pending signatures' },
-    { icon: Workflow, title: 'Workflow Automation', description: 'Create sequential and parallel signing workflows' },
-    { icon: Database, title: 'Secure Storage', description: 'Cloud-based document storage with unlimited retention' },
-    { icon: Cloud, title: 'API Integration', description: 'Connect MamaSign to your existing tools and workflows' },
-    { icon: Key, title: 'SSO Support', description: 'Single sign-on integration with major identity providers' },
-  ]
-
-  const signingFeatures = [
-    {
-      icon: PenTool,
-      title: 'Draw Your Signature',
-      description: 'Use your mouse, trackpad, or touchscreen to draw your unique signature.',
+      title: 'Works Anywhere',
+      description: 'Desktop, tablet, or mobile - no app needed',
     },
     {
-      icon: FileText,
-      title: 'Type Your Signature',
-      description: 'Choose from beautiful signature fonts and customize the style to match your preference.',
-    },
-    {
-      icon: Eye,
-      title: 'In-Person Signing',
-      description: 'Hand your device to signers for in-person document completion.',
-    },
-    {
-      icon: Send,
-      title: 'Remote Signing',
-      description: 'Send documents for signature via email with automatic reminders.',
-    },
-    {
-      icon: Stamp,
-      title: 'Digital Stamps',
-      description: 'Add official stamps, seals, and initials alongside signatures.',
-    },
-    {
-      icon: History,
-      title: 'Version History',
-      description: 'Access complete document history with all previous versions.',
+      icon: Award,
+      title: 'Legally Binding',
+      description: 'Valid in 180+ countries worldwide',
     },
   ]
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden bg-white dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full opacity-10 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full opacity-10 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl animate-pulse" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-500/50 mb-6">
-              <Zap className="w-4 h-4 text-cyan-600" />
-              <span className="text-cyan-700 text-sm font-medium">Powerful E-Signature Features</span>
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 rounded-full border border-cyan-200 dark:border-cyan-700 mb-6">
+              <Sparkles className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+              <span className="text-cyan-700 dark:text-cyan-300 text-sm font-medium">All Features Included Free</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Everything You Need to
-              <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                Sign Smarter
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+              See How
+              <span className="block mt-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                MamaSign Works
               </span>
             </h1>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
-              MamaSign provides all the tools you need to create, send, sign, and manage documents electronically with legally-binding digital signatures.
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+              Discover all the powerful features that make MamaSign the ultimate platform for e-signatures, PDF tools, and business documents.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/sign" className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                Start Signing Free
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link href="/pricing" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-gray-100/50 backdrop-blur-xl border-2 border-gray-200 dark:border-gray-700/50 rounded-xl hover:border-cyan-500/50 hover:bg-gray-100 transition-all duration-300">
-                View Pricing
-              </Link>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-12">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700">
+                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-500 to-purple-500 bg-clip-text text-transparent">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Features Grid */}
-      <section className="py-20 bg-white">
+      {/* Why Choose Us - Quick Overview */}
+      <section className="py-12 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-y border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {whyChooseUs.map((item, index) => (
+              <div key={index} className="flex flex-col items-center text-center p-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-cyan-500/30">
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* All Features - Bullet Points */}
+      <section className="py-16 md:py-24 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Core Features That
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"> Power Your Business</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Complete Feature
+              <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent"> Overview</span>
             </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Enterprise-grade features designed for businesses of all sizes.
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Everything you need to manage documents, get signatures, and run your business efficiently.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mainFeatures.map((feature, index) => (
+            {platformFeatures.map((category, index) => (
               <div
                 key={index}
-                className="group p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-1 bg-gray-100/50 backdrop-blur-xl"
+                className="group bg-gray-50 dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all duration-300 hover:shadow-xl"
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <feature.icon className="w-7 h-7 text-gray-900" />
+                {/* Category Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`w-14 h-14 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center shadow-lg ${category.shadowColor} group-hover:scale-110 transition-transform duration-300`}>
+                    <category.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {category.category}
+                  </h3>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-700 mb-4">
-                  {feature.description}
-                </p>
-                <ul className="space-y-2">
-                  {feature.details.map((detail, i) => (
-                    <li key={i} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <CheckCircle className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
-                      {detail}
+
+                {/* Feature List */}
+                <ul className="space-y-3">
+                  {category.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <Check className="w-5 h-5 text-emerald-500" />
+                      </div>
+                      <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -199,124 +293,110 @@ const FeaturesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Signing Options */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-950">
+      {/* PDF Tools Highlight */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Multiple Ways to
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"> Sign Documents</span>
-            </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Choose the signing method that works best for you and your signers.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {signingFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start p-6 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-700/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
-                <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                  <feature.icon className="w-6 h-6 text-cyan-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
-                  <p className="text-gray-700 text-sm">{feature.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Additional Features Grid */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              And So Much More
-            </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Explore our comprehensive feature set designed to streamline your document workflow.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {additionalFeatures.map((feature, index) => (
-              <div key={index} className="p-6 bg-gray-100/50 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-lg flex items-center justify-center mb-4">
-                  <feature.icon className="w-5 h-5 text-gray-900" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-700 text-sm">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Security Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-                Enterprise-Grade
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"> Security</span>
-              </h2>
-              <p className="text-lg text-gray-700 mb-8">
-                Your documents deserve the highest level of protection. MamaSign uses industry-leading security measures to keep your data safe.
-              </p>
-              <div className="space-y-4">
-                {[
-                  { icon: Lock, text: '256-bit AES encryption for all documents' },
-                  { icon: Shield, text: 'SOC 2 Type II certified infrastructure' },
-                  { icon: Globe, text: 'GDPR, HIPAA, and eIDAS compliant' },
-                  { icon: Eye, text: 'Tamper-evident seals and audit trails' },
-                  { icon: Key, text: 'Two-factor authentication available' },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center p-4 bg-gray-100/50 backdrop-blur-xl rounded-lg border border-gray-200 dark:border-gray-700/50">
-                    <item.icon className="w-6 h-6 text-cyan-600 mr-4" />
-                    <span className="text-gray-700">{item.text}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Zap className="w-4 h-4" />
+              100% Free - No Sign Up Required
             </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center border border-gray-200 dark:border-gray-700/50">
-                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Shield className="w-12 h-12 text-gray-900" />
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Free PDF Tools
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              All tools work directly in your browser. No uploads, no waiting - complete privacy.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { name: 'PDF to Word', icon: FileType, href: '/tools/pdf-to-word', color: 'bg-blue-500' },
+              { name: 'Compress PDF', icon: Minimize2, href: '/tools/pdf-compressor', color: 'bg-green-500' },
+              { name: 'Merge PDF', icon: Layers, href: '/tools/pdf-merge', color: 'bg-purple-500' },
+              { name: 'Split PDF', icon: Scissors, href: '/tools/pdf-split', color: 'bg-red-500' },
+              { name: 'Image to PDF', icon: Image, href: '/tools/image-to-pdf', color: 'bg-indigo-500' },
+              { name: 'Word to PDF', icon: FileText, href: '/tools/word-to-pdf', color: 'bg-cyan-500' },
+              { name: 'Watermark PDF', icon: Droplets, href: '/tools/watermark-pdf', color: 'bg-teal-500' },
+              { name: 'Sign Document', icon: PenTool, href: '/sign-document', color: 'bg-pink-500' },
+            ].map((tool, index) => (
+              <Link
+                key={index}
+                href={tool.href}
+                className="group p-4 md:p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
+              >
+                <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
+                  <tool.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Your Data is Protected</h3>
-                <p className="text-gray-700 mb-6">
-                  We never sell your data. Your documents are encrypted and stored securely with industry-leading protection.
-                </p>
-                <Link href="/security" className="inline-flex items-center text-cyan-600 hover:text-cyan-700 font-medium">
-                  Learn more about our security
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  {tool.name}
+                </h3>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="/tools"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+            >
+              View All Tools
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial */}
+      <section className="py-16 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex justify-center mb-4">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
+            ))}
+          </div>
+          <blockquote className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 italic mb-6">
+            "MamaSign has completely transformed how we handle documents. The e-signature feature is incredibly easy to use, and the PDF tools save us hours every week!"
+          </blockquote>
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+              SJ
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-gray-900 dark:text-white">Sarah Johnson</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Operations Director, TechFlow Solutions</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Ready to Experience These Features?
+      <section className="py-16 md:py-24 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            Ready to Get Started?
           </h2>
-          <p className="text-xl text-gray-900/80 mb-8 max-w-2xl mx-auto">
-            Start signing documents for free today. No credit card required.
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Join 50,000+ businesses using MamaSign. Start signing documents for free - no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
-              Get Started Free
+            <Link
+              href="/sign-document"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-cyan-600 bg-white rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            >
+              Start Signing Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
-            <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-300">
-              Contact Sales
+            <Link
+              href="/sign-up"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white border-2 border-white rounded-xl hover:bg-white/10 transition-all duration-300"
+            >
+              Create Account
             </Link>
           </div>
         </div>

@@ -128,8 +128,21 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       dynamic
     >
-      <html lang="en">
+      <html lang="en" className="dark">
         <head>
+          {/* Prevent flash of light theme - check localStorage before React loads */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  var savedTheme = localStorage.getItem('mamasign_theme');
+                  if (savedTheme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                  }
+                })();
+              `,
+            }}
+          />
           <link rel="icon" href="/favicon.ico" sizes="any" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
           <link rel="manifest" href="/manifest.json" />
