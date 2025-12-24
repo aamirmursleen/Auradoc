@@ -1,110 +1,51 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  Shield,
-  ShieldCheck,
-  ShieldX,
-  Upload,
-  FileText,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  Hash,
-  HardDrive,
-  FileType,
-  BookOpen,
-  Clock,
-  Trash2,
-  Eye,
-  Copy,
-  Check,
-  Loader2,
-  ArrowRight,
-  Info,
-  AlertCircle,
-  X,
-  FileUp,
-  Zap
+  Shield, ShieldCheck, ShieldX, ShieldAlert, Upload, FileText, CheckCircle2, XCircle,
+  AlertTriangle, Clock, Loader2, Info, X, FileUp, Calendar, Settings, Edit3,
+  FileWarning, Layers, PenTool, Lock, Paperclip, Code, History, ChevronDown,
+  ChevronUp, RefreshCw, Home
 } from 'lucide-react'
-import {
-  DocumentVerification
-} from '@/lib/verification'
-
-interface VerificationReport {
-  status: 'VERIFIED' | 'TAMPERED'
-  summary: string
-  differences: Array<{ severity: 'CRITICAL' | 'HIGH' | 'MEDIUM'; description: string }>
-  recommendation: string
-}
-import { formatFileSize, ComparisonResult, generateDocumentHash, HashResult, DifferenceDetail } from '@/lib/hash'
+import { analyzePDF, PDFAnalysisResult, PDFModification } from '@/lib/pdf-analysis'
+import { formatFileSize } from '@/lib/hash'
 
 const VerifyPage: React.FC = () => {
-  // States
-  const [verifications, setVerifications] = useState<DocumentVerification[]>([])
   const [loading, setLoading] = useState(false)
-  const [processing, setProcessing] = useState(false)
   const [dragActive, setDragActive] = useState(false)
-
-  // Upload states
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [filePreview, setFilePreview] = useState<string | null>(null)
-  const [uploadedHash, setUploadedHash] = useState<HashResult | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<PDFAnalysisResult | null>(null)
+  const [expandedModifications, setExpandedModifications] = useState<Set<number>>(new Set())
+  const [showMetadata, setShowMetadata] = useState(false)
+  const [showStructure, setShowStructure] = useState(false)
 
-  // Verification states
-  const [selectedVerification, setSelectedVerification] = useState<DocumentVerification | null>(null)
-  const [verificationResult, setVerificationResult] = useState<{
-    report: VerificationReport
-    comparison: ComparisonResult
-  } | null>(null)
-
-  const [copiedHash, setCopiedHash] = useState<string | null>(null)
-  const [showRegisterModal, setShowRegisterModal] = useState(false)
-  const [showResultModal, setShowResultModal] = useState(false)
-
-  // No automatic loading - verifications will be empty for demo
-  // Users can still upload and verify documents locally
-
-  // Handle drag events
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true)
-    } else if (e.type === 'dragleave') {
-      setDragActive(false)
-    }
+    if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true)
+    else if (e.type === 'dragleave') setDragActive(false)
   }, [])
 
-  // Handle file upload
   const handleFileUpload = async (file: File) => {
+    if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Please upload a PDF file')
+      return
+    }
     setUploadedFile(file)
-    setVerificationResult(null)
-    setSelectedVerification(null)
-
-    // Generate hash
-    setProcessing(true)
+    setLoading(true)
+    setAnalysisResult(null)
     try {
-      const hash = await generateDocumentHash(file)
-      setUploadedHash(hash)
-
-      // Generate preview for images
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (e) => setFilePreview(e.target?.result as string)
-        reader.readAsDataURL(file)
-      } else {
-        setFilePreview(null)
-      }
+      const result = await analyzePDF(file)
+      setAnalysisResult(result)
     } catch (error) {
-      console.error('Error processing file:', error)
+      console.error('Error analyzing PDF:', error)
+      alert('Error analyzing PDF. Please try again.')
     } finally {
-      setProcessing(false)
+      setLoading(false)
     }
   }
 
-  // Handle drop
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActive(false)
@@ -112,665 +53,273 @@ const VerifyPage: React.FC = () => {
     if (file) handleFileUpload(file)
   }
 
-  // Register as original document
-  const handleRegisterDocument = async () => {
-    if (!uploadedFile || !uploadedHash) return
-
-    try {
-      setProcessing(true)
-      // Create a local verification record
-      const newVerification: DocumentVerification = {
-        id: crypto.randomUUID(),
-        user_id: 'local-user',
-        document_name: uploadedFile.name,
-        original_hash: uploadedHash.hash,
-        file_size: uploadedFile.size,
-        file_type: uploadedFile.type,
-        page_count: uploadedHash.metadata.pageCount || null,
-        metadata: uploadedHash.metadata,
-        created_at: new Date().toISOString()
-      }
-      setVerifications(prev => [newVerification, ...prev])
-      setShowRegisterModal(false)
-
-      // Clear upload
-      setUploadedFile(null)
-      setUploadedHash(null)
-      setFilePreview(null)
-    } catch (error) {
-      console.error('Error registering document:', error)
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  // Verify against selected original
-  const handleVerify = async (verificationToUse?: DocumentVerification) => {
-    const targetVerification = verificationToUse || selectedVerification || verifications[0]
-    if (!targetVerification || !uploadedFile || !uploadedHash) return
-
-    try {
-      setProcessing(true)
-      setSelectedVerification(targetVerification)
-
-      // Local verification - compare hashes directly
-      const isMatch = uploadedHash.hash === targetVerification.original_hash
-
-      const comparison: ComparisonResult = {
-        isTampered: !isMatch,
-        confidenceLevel: 'HIGH',
-        hashMatch: isMatch,
-        sizeMatch: uploadedFile.size === targetVerification.file_size,
-        typeMatch: uploadedFile.type === targetVerification.file_type,
-        pageCountMatch: uploadedHash.metadata.pageCount === targetVerification.page_count,
-        differences: isMatch ? [] : [{
-          type: 'HASH' as const,
-          description: 'Document hash does not match the original',
-          originalValue: targetVerification.original_hash.substring(0, 16) + '...',
-          newValue: uploadedHash.hash.substring(0, 16) + '...',
-          severity: 'CRITICAL' as const
-        }],
-        summary: isMatch
-          ? 'Document integrity verified. No modifications detected.'
-          : 'Document has been TAMPERED. The hash does not match the original.'
-      }
-
-      const report: VerificationReport = {
-        status: isMatch ? 'VERIFIED' : 'TAMPERED',
-        summary: isMatch
-          ? 'Document is authentic and matches the original.'
-          : 'Document has been modified or is different from the original.',
-        differences: isMatch ? [] : [{
-          severity: 'CRITICAL' as const,
-          description: 'The document hash does not match the registered original. This document may have been tampered with.'
-        }],
-        recommendation: isMatch
-          ? 'This document is safe to use.'
-          : 'Do not trust this document. Request the original from a trusted source.'
-      }
-
-      setVerificationResult({ report, comparison })
-      setShowResultModal(true)
-    } catch (error) {
-      console.error('Error verifying document:', error)
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  // Delete verification
-  const handleDelete = (id: string) => {
-    setVerifications(prev => prev.filter(v => v.id !== id))
-    if (selectedVerification?.id === id) {
-      setSelectedVerification(null)
-    }
-  }
-
-  // Copy hash
-  const copyHash = (hash: string) => {
-    navigator.clipboard.writeText(hash)
-    setCopiedHash(hash)
-    setTimeout(() => setCopiedHash(null), 2000)
-  }
-
-  // Clear upload
   const clearUpload = () => {
     setUploadedFile(null)
-    setUploadedHash(null)
-    setFilePreview(null)
-    setVerificationResult(null)
-    setSelectedVerification(null)
+    setAnalysisResult(null)
+    setExpandedModifications(new Set())
   }
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    }).format(new Date(dateString))
+  const toggleModification = (index: number) => {
+    const newExpanded = new Set(expandedModifications)
+    if (newExpanded.has(index)) newExpanded.delete(index)
+    else newExpanded.add(index)
+    setExpandedModifications(newExpanded)
+  }
+
+  const getModificationIcon = (type: PDFModification['type']) => {
+    const icons: Record<string, any> = {
+      'METADATA_CHANGE': Calendar, 'INCREMENTAL_UPDATE': Layers, 'EDITING_SOFTWARE': Settings,
+      'ANNOTATION': PenTool, 'FORM_FIELD': Edit3, 'CONTENT_STREAM': Code, 'REDACTION': XCircle,
+      'DIGITAL_SIGNATURE': Lock, 'EMBEDDED_FILE': Paperclip, 'PAGE_MODIFICATION': FileWarning,
+      'XMP_METADATA': History
+    }
+    return icons[type] || AlertTriangle
+  }
+
+  const getSeverityColor = (severity: PDFModification['severity']) => {
+    const colors: Record<string, string> = {
+      'CRITICAL': 'bg-red-100 text-red-700 border-red-300',
+      'HIGH': 'bg-orange-100 text-orange-700 border-orange-300',
+      'MEDIUM': 'bg-yellow-100 text-yellow-700 border-yellow-300',
+      'LOW': 'bg-blue-100 text-blue-700 border-blue-300',
+      'INFO': 'bg-gray-100 text-gray-700 border-gray-300'
+    }
+    return colors[severity] || 'bg-gray-100 text-gray-700 border-gray-300'
+  }
+
+  const getStatusColors = (status: PDFAnalysisResult['overallStatus']) => {
+    const statuses: Record<string, any> = {
+      'DEFINITELY_MODIFIED': { bg: 'bg-gradient-to-br from-red-500 to-red-600', icon: ShieldX, text: 'MODIFIED', subtitle: 'This PDF has been edited' },
+      'LIKELY_MODIFIED': { bg: 'bg-gradient-to-br from-orange-500 to-orange-600', icon: ShieldAlert, text: 'LIKELY MODIFIED', subtitle: 'Signs of editing detected' },
+      'ORIGINAL': { bg: 'bg-gradient-to-br from-green-500 to-green-600', icon: ShieldCheck, text: 'APPEARS ORIGINAL', subtitle: 'No modification signs found' }
+    }
+    return statuses[status]
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-gray-50/80 border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-cyan-100 rounded-xl">
-                <Shield className="w-8 h-8 text-cyan-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Document Verification</h1>
-                <p className="text-gray-600">Detect any tampering or modifications instantly</p>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+                <Home className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </Link>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl shadow-lg shadow-cyan-500/25">
+                  <Shield className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">PDF Edit Detector</h1>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Detect any modifications or tampering</p>
+                </div>
               </div>
             </div>
-
-            {/* TOP RIGHT - Verify Document Button */}
-            {uploadedFile && selectedVerification && !verificationResult && (
-              <button
-                onClick={() => handleVerify()}
-                disabled={processing}
-                className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-bold text-lg hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/25 flex items-center gap-2 disabled:opacity-50"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-5 h-5" />
-                    Verify Document
-                  </>
-                )}
+            {uploadedFile && analysisResult && (
+              <button onClick={clearUpload} className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                <RefreshCw className="w-4 h-4" />Analyze Another
               </button>
             )}
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          {/* LEFT SIDE - Upload & Preview */}
-          <div className="lg:col-span-2 space-y-6">
-
-            {/* Upload Area */}
-            {!uploadedFile ? (
-              <div
-                className={`bg-gray-50 border border-gray-200 rounded-2xl shadow-lg border-2 border-dashed transition-all ${
-                  dragActive
-                    ? 'border-cyan-500 bg-cyan-50'
-                    : 'border-gray-200 hover:border-cyan-500/50'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-              >
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <FileUp className="w-10 h-10 text-cyan-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Upload Your Document
-                  </h2>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    Drop your document here to check if it has been modified or tampered with
-                  </p>
-                  <input
-                    type="file"
-                    className="hidden"
-                    id="file-upload"
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleFileUpload(file)
-                    }}
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-semibold cursor-pointer hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/25"
-                  >
-                    <Upload className="w-5 h-5" />
-                    Select Document
-                  </label>
-                  <p className="text-sm text-gray-600 mt-4">
-                    Supports: PDF, DOC, DOCX, PNG, JPG (Max 25MB)
-                  </p>
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {!uploadedFile && (
+          <div className="space-y-8">
+            <div className={`bg-white dark:bg-gray-900 border-2 border-dashed rounded-3xl shadow-xl transition-all ${dragActive ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20 scale-[1.02]' : 'border-gray-300 dark:border-gray-700 hover:border-cyan-500/50'}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
+              <div className="p-12 text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/30">
+                  <FileUp className="w-12 h-12 text-white" />
                 </div>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Upload Your PDF</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-lg">Drop any PDF here to detect if it has been edited, modified, or tampered with</p>
+                <input type="file" className="hidden" id="file-upload" accept=".pdf,application/pdf" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFileUpload(file) }} />
+                <label htmlFor="file-upload" className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-bold text-lg cursor-pointer hover:from-cyan-600 hover:to-purple-700 transition-all shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/40 hover:scale-105">
+                  <Upload className="w-6 h-6" />Select PDF File
+                </label>
+                <p className="text-sm text-gray-500 mt-6">Works with any PDF from any source</p>
               </div>
-            ) : (
-              /* Document Preview */
-              <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
-                {/* Preview Header */}
-                <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-cyan-100 rounded-lg">
-                      <FileText className="w-6 h-6 text-cyan-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{uploadedFile.name}</p>
-                      <p className="text-sm text-gray-600">
-                        {formatFileSize(uploadedFile.size)}
-                        {uploadedHash?.metadata.pageCount && ` • ${uploadedHash.metadata.pageCount} pages`}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={clearUpload}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* Preview Content */}
-                <div className="p-6">
-                  {processing ? (
-                    <div className="text-center py-12">
-                      <Loader2 className="w-12 h-12 animate-spin text-primary-500 mx-auto mb-4" />
-                      <p className="text-gray-700">Analyzing document...</p>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Image Preview */}
-                      {filePreview && (
-                        <div className="mb-6 flex justify-center">
-                          <img
-                            src={filePreview}
-                            alt="Document preview"
-                            className="max-h-64 rounded-lg shadow-md"
-                          />
-                        </div>
-                      )}
-
-                      {/* PDF Preview Placeholder */}
-                      {uploadedFile.type === 'application/pdf' && (
-                        <div className="mb-6 bg-gray-100 rounded-xl p-8 text-center">
-                          <FileText className="w-16 h-16 text-gray-600 mx-auto mb-2" />
-                          <p className="text-gray-700">PDF Document</p>
-                        </div>
-                      )}
-
-                      {/* Hash Info */}
-                      {uploadedHash && (
-                        <div className="bg-gray-100 rounded-xl p-4">
-                          <p className="text-sm font-medium text-gray-600 mb-2 flex items-center gap-2">
-                            <Hash className="w-4 h-4" />
-                            Document Hash (SHA-256)
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <code className="flex-1 text-xs bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 font-mono text-gray-700 truncate">
-                              {uploadedHash.hash}
-                            </code>
-                            <button
-                              onClick={() => copyHash(uploadedHash.hash)}
-                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                              {copiedHash === uploadedHash.hash ? (
-                                <Check className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <Copy className="w-4 h-4 text-gray-600" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center mb-4"><Settings className="w-6 h-6 text-cyan-600" /></div>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-2">Editing Software Detection</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Detects 50+ PDF editors including iLovePDF, SmallPDF, Adobe Acrobat, and more</p>
               </div>
-            )}
-
-            {/* How It Works */}
-            {!uploadedFile && (
-              <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-sm p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">How It Works</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
-                      1
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">Upload Document</p>
-                      <p className="text-sm text-gray-600">Drop any document you want to verify</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
-                      2
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">Select Original</p>
-                      <p className="text-sm text-gray-600">Choose from your registered originals</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
-                      3
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">Get Results</p>
-                      <p className="text-sm text-gray-600">Instantly know if document is modified</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center mb-4"><History className="w-6 h-6 text-purple-600" /></div>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-2">Modification History</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Tracks all saves, edits, and changes made to the document over time</p>
               </div>
-            )}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-xl flex items-center justify-center mb-4"><PenTool className="w-6 h-6 text-orange-600" /></div>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-2">Annotation Detection</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Finds highlights, stamps, text additions, redactions, and drawings</p>
+              </div>
+            </div>
           </div>
+        )}
 
-          {/* RIGHT SIDE - Verify Panel */}
+        {loading && (
+          <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-12 text-center border border-gray-200 dark:border-gray-800">
+            <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Analyzing PDF...</h2>
+            <p className="text-gray-600 dark:text-gray-400">Scanning for edits, modifications, and tampering signs</p>
+          </div>
+        )}
+
+        {analysisResult && uploadedFile && !loading && (
           <div className="space-y-6">
-
-            {/* Direct Verify Button */}
-            {uploadedFile && !verificationResult && verifications.length > 0 && (
-              <button
-                onClick={() => handleVerify()}
-                disabled={processing}
-                className="w-full py-5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-bold text-xl hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-3 disabled:opacity-50"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-6 h-6" />
-                    VERIFY
-                  </>
-                )}
-              </button>
-            )}
-
-            {/* No registered documents message */}
-            {uploadedFile && !verificationResult && verifications.length === 0 && (
-              <div className="bg-yellow-100 border border-yellow-500/30 rounded-2xl p-4">
-                <div className="flex items-center gap-3 text-yellow-600">
-                  <AlertCircle className="w-5 h-5" />
-                  <p className="text-sm font-medium">No original documents registered yet. Register this document first to verify future copies.</p>
-                </div>
-              </div>
-            )}
-
-            {/* Register New Option */}
-            {uploadedFile && !selectedVerification && !verificationResult && (
-              <div className="bg-gray-50 rounded-2xl shadow-sm p-6 border-2 border-dashed border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-2">New Document?</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  If this is an original document, register it for future verification.
-                </p>
-                <button
-                  onClick={() => setShowRegisterModal(true)}
-                  className="w-full py-3 border-2 border-cyan-500 text-cyan-600 rounded-xl font-medium hover:bg-cyan-100 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Shield className="w-5 h-5" />
-                  Register as Original
-                </button>
-              </div>
-            )}
-
-            {/* Registered Documents List */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
-                <h3 className="font-semibold text-gray-900">
-                  Your Registered Documents ({verifications.length})
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {uploadedFile ? 'Select one to verify against' : 'Original documents for comparison'}
-                </p>
-              </div>
-
-              {verifications.length > 0 ? (
-                <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                  {verifications.map((verification) => (
-                    <div
-                      key={verification.id}
-                      className={`p-4 transition-colors cursor-pointer ${
-                        selectedVerification?.id === verification.id
-                          ? 'bg-cyan-100 border-l-4 border-cyan-500'
-                          : 'hover:bg-gray-100'
-                      }`}
-                      onClick={() => uploadedFile && setSelectedVerification(verification)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
-                          <div className={`p-2 rounded-lg ${
-                            selectedVerification?.id === verification.id
-                              ? 'bg-cyan-100'
-                              : 'bg-gray-100'
-                          }`}>
-                            <FileText className={`w-5 h-5 ${
-                              selectedVerification?.id === verification.id
-                                ? 'text-cyan-600'
-                                : 'text-gray-600'
-                            }`} />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900 text-sm">
-                              {verification.document_name}
-                            </p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {formatFileSize(verification.file_size)}
-                            </p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {formatDate(verification.created_at)}
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleDelete(verification.id)
-                          }}
-                          className="p-1.5 text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {selectedVerification?.id === verification.id && (
-                        <div className="mt-3 flex items-center gap-2 text-cyan-600">
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span className="text-sm font-medium">Selected for comparison</span>
-                        </div>
-                      )}
+            {(() => {
+              const status = getStatusColors(analysisResult.overallStatus)
+              const StatusIcon = status.icon
+              return (
+                <div className={`${status.bg} rounded-3xl p-8 shadow-2xl text-white`}>
+                  <div className="flex items-start justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-5">
+                      <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm"><StatusIcon className="w-12 h-12" /></div>
+                      <div><h2 className="text-3xl font-black mb-1">{status.text}</h2><p className="text-white/80 text-lg">{status.subtitle}</p></div>
                     </div>
-                  ))}
+                    <div className="text-right"><p className="text-white/60 text-sm">Confidence</p><p className="text-2xl font-bold">{analysisResult.confidence}</p></div>
+                  </div>
+                  <div className="mt-6 pt-6 border-t border-white/20">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <FileText className="w-5 h-5 text-white/60" />
+                      <span className="font-medium">{uploadedFile.name}</span>
+                      <span className="text-white/60">•</span>
+                      <span className="text-white/80">{formatFileSize(uploadedFile.size)}</span>
+                      <span className="text-white/60">•</span>
+                      <span className="text-white/80">{analysisResult.structureInfo.pageCount} pages</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-4 bg-white/10 rounded-xl backdrop-blur-sm"><p className="text-white/90">{analysisResult.summary}</p></div>
                 </div>
-              ) : (
-                <div className="p-8 text-center">
-                  <Shield className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">No registered documents yet</p>
-                  <p className="text-gray-600 text-xs mt-1">
-                    Upload a document and register it as original
-                  </p>
-                </div>
-              )}
-            </div>
+              )
+            })()}
 
-            {/* Info Box */}
-            <div className="bg-blue-100 border border-blue-500/30 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-blue-300">
-                    <strong>SHA-256 Hash</strong> is used to detect even the smallest change in a document -
-                    even a single character modification will produce a completely different hash.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Register Modal */}
-      {showRegisterModal && uploadedFile && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl shadow-2xl max-w-md w-full">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-cyan-100 rounded-xl">
-                  <Shield className="w-6 h-6 text-cyan-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Register Original Document</h3>
-                  <p className="text-sm text-gray-600">Save this document's hash for future verification</p>
-                </div>
-              </div>
-
-              <div className="bg-gray-100 rounded-xl p-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-10 h-10 text-gray-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">{uploadedFile.name}</p>
-                    <p className="text-sm text-gray-600">{formatFileSize(uploadedFile.size)}</p>
+            {analysisResult.modifications.length > 0 && (
+              <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="w-6 h-6 text-orange-500" />
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Detected Modifications ({analysisResult.modifications.length})</h3>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">{analysisResult.modifications.filter(m => m.severity === 'CRITICAL').length} Critical</span>
+                      <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-medium rounded-full">{analysisResult.modifications.filter(m => m.severity === 'HIGH').length} High</span>
+                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-medium rounded-full">{analysisResult.modifications.filter(m => m.severity === 'MEDIUM').length} Medium</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegisterModal(false)}
-                  className="flex-1 py-3 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-100 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleRegisterDocument}
-                  disabled={processing}
-                  className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-medium hover:from-cyan-600 hover:to-purple-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {processing ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-5 h-5" />
-                      Register
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VERIFICATION RESULT POPUP MODAL */}
-      {showResultModal && verificationResult && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className={`bg-gray-50 border border-gray-200 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200`}>
-            {/* Status Header */}
-            <div className={`p-6 ${
-              verificationResult.report.status === 'TAMPERED'
-                ? 'bg-gradient-to-br from-red-500 to-red-600'
-                : 'bg-gradient-to-br from-green-500 to-green-600'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-white/20 rounded-full">
-                    {verificationResult.report.status === 'TAMPERED' ? (
-                      <ShieldX className="w-10 h-10 text-gray-900" />
-                    ) : (
-                      <ShieldCheck className="w-10 h-10 text-gray-900" />
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {verificationResult.report.status === 'TAMPERED'
-                        ? 'DOCUMENT TAMPERED!'
-                        : 'DOCUMENT VERIFIED!'}
-                    </h2>
-                    <p className="text-gray-900/80">
-                      {verificationResult.report.status === 'TAMPERED'
-                        ? 'This document has been modified'
-                        : 'This document is authentic'}
-                    </p>
-                  </div>
+                <div className="divide-y divide-gray-200 dark:divide-gray-800">
+                  {analysisResult.modifications.map((mod, idx) => {
+                    const Icon = getModificationIcon(mod.type)
+                    const isExpanded = expandedModifications.has(idx)
+                    return (
+                      <div key={idx} className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer" onClick={() => toggleModification(idx)}>
+                        <div className="flex items-start gap-4">
+                          <div className={`p-3 rounded-xl ${getSeverityColor(mod.severity).replace('text-', 'bg-').replace('-700', '-100')}`}>
+                            <Icon className={`w-5 h-5 ${getSeverityColor(mod.severity).split(' ')[1]}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <div className="flex items-center gap-3 mb-1 flex-wrap">
+                                  <h4 className="font-bold text-gray-900 dark:text-white">{mod.title}</h4>
+                                  <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full border ${getSeverityColor(mod.severity)}`}>{mod.severity}</span>
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-400">{mod.description}</p>
+                              </div>
+                              <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0">
+                                {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                              </button>
+                            </div>
+                            {isExpanded && mod.details && (
+                              <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                                <pre className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono">{mod.details}</pre>
+                                {mod.timestamp && <div className="mt-3 flex items-center gap-2 text-sm text-gray-500"><Clock className="w-4 h-4" />{mod.timestamp}</div>}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-                <button
-                  onClick={() => setShowResultModal(false)}
-                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
-                >
-                  <X className="w-6 h-6 text-gray-900" />
+              </div>
+            )}
+
+            {analysisResult.modifications.length === 0 && (
+              <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 p-8 text-center">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle2 className="w-8 h-8 text-green-600" /></div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Modification Signs Detected</h3>
+                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">This PDF appears to be in its original state. No editing software signatures, incremental updates, or other modification indicators were found.</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <button onClick={() => setShowMetadata(!showMetadata)} className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex items-center gap-3"><Info className="w-5 h-5 text-cyan-500" /><span className="font-bold text-gray-900 dark:text-white">Document Metadata</span></div>
+                  {showMetadata ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
                 </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              {/* Summary */}
-              <div className={`p-4 rounded-xl mb-4 ${
-                verificationResult.report.status === 'TAMPERED'
-                  ? 'bg-red-100 border border-red-500/30'
-                  : 'bg-green-100 border border-green-500/30'
-              }`}>
-                <p className={`text-sm ${
-                  verificationResult.report.status === 'TAMPERED'
-                    ? 'text-red-700'
-                    : 'text-green-700'
-                }`}>
-                  {verificationResult.report.summary}
-                </p>
-              </div>
-
-              {/* Differences (if tampered) */}
-              {verificationResult.report.differences.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-red-600" />
-                    Detected Issues
-                  </h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {verificationResult.report.differences.map((diff, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 bg-gray-100 rounded-lg p-3 border border-gray-200"
-                      >
-                        <span className={`text-xs font-bold px-2 py-1 rounded ${
-                          diff.severity === 'CRITICAL'
-                            ? 'bg-red-100 text-red-600'
-                            : diff.severity === 'HIGH'
-                            ? 'bg-orange-100 text-orange-600'
-                            : 'bg-yellow-100 text-yellow-600'
-                        }`}>
-                          {diff.severity}
-                        </span>
-                        <p className="text-sm text-gray-600 flex-1">{diff.description}</p>
+                {showMetadata && (
+                  <div className="p-4 pt-0 space-y-3">
+                    {Object.entries(analysisResult.metadata).map(([key, value]) => value && (
+                      <div key={key} className="flex justify-between items-start gap-4 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                        <span className="text-sm text-gray-500 dark:text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                        <span className="text-sm text-gray-900 dark:text-white text-right font-mono max-w-[60%] break-all">{value}</span>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Recommendation */}
-              <div className={`p-4 rounded-xl ${
-                verificationResult.report.status === 'TAMPERED'
-                  ? 'bg-red-100 border border-red-500/30'
-                  : 'bg-green-100 border border-green-500/30'
-              }`}>
-                <h4 className={`font-semibold mb-1 ${
-                  verificationResult.report.status === 'TAMPERED'
-                    ? 'text-red-700'
-                    : 'text-green-700'
-                }`}>
-                  Recommendation
-                </h4>
-                <p className={`text-sm ${
-                  verificationResult.report.status === 'TAMPERED'
-                    ? 'text-red-600'
-                    : 'text-green-600'
-                }`}>
-                  {verificationResult.report.recommendation}
-                </p>
+                )}
               </div>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <button onClick={() => setShowStructure(!showStructure)} className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex items-center gap-3"><Layers className="w-5 h-5 text-purple-500" /><span className="font-bold text-gray-900 dark:text-white">PDF Structure</span></div>
+                  {showStructure ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                </button>
+                {showStructure && (
+                  <div className="p-4 pt-0 grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">PDF Version</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.pdfVersion || 'Unknown'}</p></div>
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">Pages</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.pageCount}</p></div>
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">Saves</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.incrementalUpdateCount}</p></div>
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">Encrypted</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.isEncrypted ? 'Yes' : 'No'}</p></div>
+                  </div>
+                )}
+              </div>
+            </div>
 
-              {/* Close Button */}
-              <button
-                onClick={() => {
-                  setShowResultModal(false)
-                  clearUpload()
-                }}
-                className={`w-full mt-4 py-3 rounded-xl font-semibold transition-colors ${
-                  verificationResult.report.status === 'TAMPERED'
-                    ? 'bg-red-500 hover:bg-red-600 text-gray-900'
-                    : 'bg-green-500 hover:bg-green-600 text-gray-900'
-                }`}
-              >
-                Close & Verify Another
+            {(analysisResult.editingHistory.software.length > 0 || analysisResult.editingHistory.editDates.length > 0) && (
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
+                <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><History className="w-5 h-5 text-purple-500" />Editing History</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {analysisResult.editingHistory.software.length > 0 && (
+                    <div><p className="text-sm text-gray-500 mb-2">Software Used</p>
+                      <div className="flex flex-wrap gap-2">{analysisResult.editingHistory.software.map((sw, idx) => <span key={idx} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm">{sw}</span>)}</div>
+                    </div>
+                  )}
+                  {analysisResult.editingHistory.editDates.length > 0 && (
+                    <div><p className="text-sm text-gray-500 mb-2">Edit Dates</p>
+                      <div className="space-y-1">{analysisResult.editingHistory.editDates.slice(0, 5).map((date, idx) => <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Clock className="w-4 h-4 text-gray-400" />{date}</div>)}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="text-center pt-4">
+              <button onClick={clearUpload} className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-bold hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/25 hover:shadow-xl">
+                <RefreshCw className="w-5 h-5" />Analyze Another PDF
               </button>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
+      </div>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
   Menu,
@@ -140,7 +140,11 @@ const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
+
+  // Only show navbar on home page
+  const isHomePage = pathname === '/'
 
   // Handle scroll for enhanced glassmorphism effect
   useEffect(() => {
@@ -161,6 +165,11 @@ const Header: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Don't render header on non-home pages
+  if (!isHomePage) {
+    return null
+  }
 
   const handleNavClick = (href: string) => {
     router.push(href)

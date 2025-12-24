@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   FileText,
@@ -34,6 +34,50 @@ import {
 } from 'lucide-react'
 import HeroSection from '@/components/home/HeroSection'
 import FloatingMobileCTA from '@/components/FloatingMobileCTA'
+
+// Scroll Reveal Component
+const ScrollReveal = ({
+  children,
+  className = '',
+  animation = 'scroll-reveal',
+  delay = 0,
+}: {
+  children: React.ReactNode
+  className?: string
+  animation?: 'scroll-reveal' | 'scroll-reveal-left' | 'scroll-reveal-right' | 'scroll-reveal-scale'
+  delay?: number
+}) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isRevealed, setIsRevealed] = useState(false)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsRevealed(true)
+          observer.unobserve(element)
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className={`${animation} ${isRevealed ? 'revealed' : ''} ${className}`}
+      style={{ transitionDelay: delay ? `${delay}s` : undefined }}
+    >
+      {children}
+    </div>
+  )
+}
 
 // Realistic Resume Preview Component
 const ResumePreview = ({ type, color }: { type: string; color: string }) => {
@@ -448,12 +492,14 @@ const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center p-4 md:p-6 rounded-xl hover:bg-gray-100/30 transition-all duration-300">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-2">
-                  {stat.value}
+              <ScrollReveal key={index} animation="scroll-reveal-scale" delay={index * 0.1}>
+                <div className="text-center p-4 md:p-6 rounded-xl hover:bg-gray-100/30 transition-all duration-300">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm md:text-base text-gray-600 dark:text-gray-300">{stat.label}</div>
                 </div>
-                <div className="text-sm md:text-base text-gray-600 dark:text-gray-300">{stat.label}</div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -462,7 +508,7 @@ const HomePage: React.FC = () => {
       {/* Free PDF Tools Section */}
       <section className="py-12 md:py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <ScrollReveal className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 text-cyan-700 dark:text-cyan-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Zap className="w-4 h-4" />
               100% Free - No Sign Up Required
@@ -473,23 +519,24 @@ const HomePage: React.FC = () => {
             <p className="text-lg text-gray-600 dark:text-gray-300 dark:text-gray-300 max-w-2xl mx-auto">
               Powerful PDF tools that work directly in your browser. No uploads to servers, your files stay private.
             </p>
-          </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {pdfTools.map((tool, index) => (
-              <Link
-                key={index}
-                href={tool.href}
-                className="group p-4 md:p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-100 transition-all duration-300"
-              >
-                <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <tool.icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-cyan-600 transition-colors">
-                  {tool.name}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{tool.desc}</p>
-              </Link>
+              <ScrollReveal key={index} delay={index * 0.05}>
+                <Link
+                  href={tool.href}
+                  className="group block p-4 md:p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-100 transition-all duration-300"
+                >
+                  <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <tool.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-cyan-600 transition-colors">
+                    {tool.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{tool.desc}</p>
+                </Link>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -498,7 +545,7 @@ const HomePage: React.FC = () => {
       {/* Features Showcase Section */}
       <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 md:mb-20">
+          <ScrollReveal className="text-center mb-12 md:mb-20">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Everything You Need in
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"> One Platform</span>
@@ -506,7 +553,7 @@ const HomePage: React.FC = () => {
             <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 dark:text-gray-300 max-w-3xl mx-auto px-4">
               Powerful tools designed to streamline your document workflow, from resume building to e-signatures to invoicing.
             </p>
-          </div>
+          </ScrollReveal>
 
           <div className="space-y-16 md:space-y-24 lg:space-y-32">
             {features.map((feature, index) => {
@@ -516,7 +563,10 @@ const HomePage: React.FC = () => {
               return (
                 <div key={index} className="relative">
                   <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center ${!isEven ? 'lg:grid-flow-col-dense' : ''}`}>
-                    <div className={`${!isEven ? 'lg:col-start-2' : ''} order-2 lg:order-none`}>
+                    <ScrollReveal
+                      animation={isEven ? 'scroll-reveal-left' : 'scroll-reveal-right'}
+                      className={`${!isEven ? 'lg:col-start-2' : ''} order-2 lg:order-none`}
+                    >
                       <div className="mb-6 text-center lg:text-left">
                         <div className={`inline-block bg-gradient-to-r ${feature.gradient} text-gray-900 px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg`}>
                           {feature.subtitle}
@@ -549,13 +599,17 @@ const HomePage: React.FC = () => {
                           <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                         </Link>
                       </div>
-                    </div>
+                    </ScrollReveal>
 
-                    <div className={`${!isEven ? 'lg:col-start-1 lg:row-start-1' : ''} order-1 lg:order-none`}>
+                    <ScrollReveal
+                      animation={isEven ? 'scroll-reveal-right' : 'scroll-reveal-left'}
+                      delay={0.2}
+                      className={`${!isEven ? 'lg:col-start-1 lg:row-start-1' : ''} order-1 lg:order-none`}
+                    >
                       <div className="relative max-w-md mx-auto lg:max-w-none">
                         <MockupComponent />
                       </div>
-                    </div>
+                    </ScrollReveal>
                   </div>
 
                   <div className={`absolute top-1/2 -translate-y-1/2 -z-10 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-r ${feature.bgGradient} rounded-full blur-3xl opacity-30 ${isEven ? '-left-32 md:-left-48' : '-right-32 md:-right-48'} hidden sm:block`}></div>
@@ -569,38 +623,37 @@ const HomePage: React.FC = () => {
       {/* Testimonials Section */}
       <section className="py-12 md:py-20 bg-white dark:bg-gray-900 border-y border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 md:mb-16">
+          <ScrollReveal className="text-center mb-10 md:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Trusted by 50,000+ Businesses Worldwide
             </h2>
             <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
               See what our customers have to say about MamaSign.
             </p>
-          </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2"
-              >
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
-                  "{testimonial.quote}"
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white font-bold">
-                    {testimonial.image}
+              <ScrollReveal key={index} delay={index * 0.1}>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2 h-full">
+                  <div className="flex mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    ))}
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">{testimonial.author}</p>
+                  <p className="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
+                    "{testimonial.quote}"
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {testimonial.image}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white">{testimonial.author}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>

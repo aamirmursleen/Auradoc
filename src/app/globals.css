@@ -542,6 +542,94 @@ img {
 }
 
 /* ========================================
+   SCROLL REVEAL ANIMATIONS
+======================================== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Staggered delays for scroll reveal */
+.scroll-delay-1 { transition-delay: 0.1s; }
+.scroll-delay-2 { transition-delay: 0.2s; }
+.scroll-delay-3 { transition-delay: 0.3s; }
+.scroll-delay-4 { transition-delay: 0.4s; }
+.scroll-delay-5 { transition-delay: 0.5s; }
+
+/* ========================================
+   HERO WORKFLOW ANIMATIONS
+======================================== */
+.animate-fade-in-arrow {
+  animation: fadeInArrow 0.6s ease-out forwards;
+}
+
+@keyframes fadeInArrow {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
    ACCESSIBILITY - REDUCED MOTION
 ======================================== */
 @media (prefers-reduced-motion: reduce) {
