@@ -7,6 +7,8 @@ import Footer from '@/components/layout/Footer'
 import EmailCapturePopup from '@/components/EmailCapturePopup'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import AnnouncementBar from '@/components/AnnouncementBar'
+import FloatingLifetimeDeal from '@/components/FloatingLifetimeDeal'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -159,6 +161,7 @@ export default function RootLayout({
         <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300`}>
           <ThemeProvider>
             <div className="flex flex-col min-h-screen">
+              <AnnouncementBar />
               <Header />
               <main className="flex-grow">
                 {children}
@@ -166,6 +169,7 @@ export default function RootLayout({
               <Footer />
             </div>
             <EmailCapturePopup />
+            <FloatingLifetimeDeal />
             <GoogleAnalytics />
           </ThemeProvider>
         </body>
