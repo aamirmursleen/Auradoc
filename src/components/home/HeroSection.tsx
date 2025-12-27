@@ -7,139 +7,139 @@ import { Shield, CheckCircle, PenLine, Type, User, Check, Clock } from 'lucide-r
 const HeroSection: React.FC = () => {
   return (
     <section className="relative bg-gradient-to-br from-gray-50 via-white to-cyan-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left Content */}
-          <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1]">
-              Secure Digital<br />Signatures.<br />
+      {/* Mobile-optimized padding for header offset */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-20 pb-12 sm:pb-16 lg:pb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
+          {/* Left Content - Mobile first */}
+          <div className="space-y-6 sm:space-y-8 text-center lg:text-left order-2 lg:order-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1]">
+              Secure Digital<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>Signatures.<br />
               <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Fast, Easy, Legal.</span>
             </h1>
-            <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0 px-2 sm:px-0">
               Stop printing and scanning. Sign contracts online in minutes, kahin bhi.
             </p>
-            <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 pt-2">
-              <Link href="/sign-document" className="px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-xl shadow-lg shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/30 hover:-translate-y-0.5">
+            {/* Mobile-optimized CTA buttons with 44px touch targets */}
+            <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 sm:gap-4 pt-2 px-4 sm:px-0">
+              <Link href="/sign-document" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-xl shadow-lg shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/30 active:scale-[0.98] text-center flex items-center justify-center">
                 Start Free Trial
               </Link>
-              <Link href="/demo" className="px-8 py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md">
+              <Link href="/demo" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md active:scale-[0.98] text-center flex items-center justify-center">
                 Watch Demo
               </Link>
             </div>
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 pt-4">
-              <div className="flex items-center gap-2.5">
-                <Shield className="w-5 h-5 text-cyan-500" />
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Bank-Level Security</span>
+            {/* Trust badges - responsive layout */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-8 pt-2 sm:pt-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-500" />
+                <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Bank-Level Security</span>
               </div>
-              <div className="flex items-center gap-2.5">
-                <CheckCircle className="w-5 h-5 text-cyan-500" />
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">ESIGN Compliant</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-500" />
+                <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">ESIGN Compliant</span>
               </div>
             </div>
           </div>
 
-          {/* Right - Laptop with E-Sign Feature */}
-          <div className="relative flex items-center justify-center order-1 lg:order-2" style={{ perspective: '1000px' }}>
-            <div style={{ transform: 'rotateY(-8deg) rotateX(2deg)', transformStyle: 'preserve-3d' }}>
+          {/* Right - Laptop with E-Sign Feature - Hidden on very small screens, simplified on mobile */}
+          <div className="relative flex items-center justify-center order-1 lg:order-2 px-4 sm:px-0" style={{ perspective: '1000px' }}>
+            {/* Mobile: Simple card view, Desktop: Full laptop mockup */}
+            <div className="w-full max-w-[320px] sm:max-w-none" style={{ transform: 'rotateY(-8deg) rotateX(2deg)', transformStyle: 'preserve-3d' }}>
               {/* Laptop Frame */}
-              <div className="rounded-t-2xl p-[3px]" style={{ background: 'linear-gradient(145deg, #e8e8e8 0%, #d4d4d4 50%, #c0c0c0 100%)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)' }}>
-                <div className="bg-[#0a0a0a] rounded-t-xl p-3 relative">
+              <div className="rounded-t-xl sm:rounded-t-2xl p-[2px] sm:p-[3px]" style={{ background: 'linear-gradient(145deg, #e8e8e8 0%, #d4d4d4 50%, #c0c0c0 100%)', boxShadow: '0 15px 30px -8px rgba(0,0,0,0.25)' }}>
+                <div className="bg-[#0a0a0a] rounded-t-lg sm:rounded-t-xl p-2 sm:p-3 relative">
                   {/* Camera */}
-                  <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#1a1a1a]">
-                    <div className="w-1 h-1 rounded-full bg-[#333] mx-auto mt-0.5"></div>
+                  <div className="absolute top-[4px] sm:top-[6px] left-1/2 -translate-x-1/2 w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#1a1a1a]">
+                    <div className="w-0.5 sm:w-1 h-0.5 sm:h-1 rounded-full bg-[#333] mx-auto mt-0.5"></div>
                   </div>
-                  {/* Screen Content */}
-                  <div className="bg-white rounded-lg overflow-hidden" style={{ minWidth: '420px', minHeight: '280px' }}>
+                  {/* Screen Content - Responsive */}
+                  <div className="bg-white rounded-md sm:rounded-lg overflow-hidden w-full">
                     {/* Browser Bar */}
-                    <div className="bg-[#f6f6f6] px-4 py-2.5 flex items-center border-b border-gray-200">
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                        <div className="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                        <div className="w-3 h-3 rounded-full bg-[#28c840]"></div>
+                    <div className="bg-[#f6f6f6] px-2 sm:px-4 py-1.5 sm:py-2.5 flex items-center border-b border-gray-200">
+                      <div className="flex gap-1 sm:gap-2">
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#ff5f57]"></div>
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#febc2e]"></div>
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#28c840]"></div>
                       </div>
-                      <div className="flex-1 flex justify-center px-4">
-                        <div className="bg-white rounded-md px-4 py-1 text-xs text-gray-500 border border-gray-200">mamasign</div>
+                      <div className="flex-1 flex justify-center px-2 sm:px-4">
+                        <div className="bg-white rounded-md px-2 sm:px-4 py-0.5 sm:py-1 text-[10px] sm:text-xs text-gray-500 border border-gray-200">mamasign</div>
                       </div>
-                      <div className="w-16"></div>
+                      <div className="w-8 sm:w-16"></div>
                     </div>
 
-                    {/* App Content - E-Sign Interface */}
-                    <div className="flex h-[240px]">
-                      {/* Left Sidebar - Field Types */}
-                      <div className="w-20 bg-gray-50 border-r border-gray-100 p-2 space-y-2">
-                        <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-2">Fields</p>
-                        <div className="bg-purple-100 border border-purple-200 rounded-lg p-2 cursor-pointer hover:bg-purple-50 transition-colors">
-                          <PenLine className="w-4 h-4 text-purple-600 mx-auto" />
-                          <p className="text-[8px] text-purple-600 text-center mt-1 font-medium">Sign</p>
+                    {/* App Content - E-Sign Interface - Responsive */}
+                    <div className="flex h-[160px] sm:h-[200px] md:h-[240px]">
+                      {/* Left Sidebar - Hidden on smallest screens */}
+                      <div className="hidden sm:block w-16 md:w-20 bg-gray-50 border-r border-gray-100 p-1.5 md:p-2 space-y-1.5 md:space-y-2">
+                        <p className="text-[7px] md:text-[9px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-1.5 md:mb-2">Fields</p>
+                        <div className="bg-purple-100 border border-purple-200 rounded-md md:rounded-lg p-1.5 md:p-2 cursor-pointer">
+                          <PenLine className="w-3 h-3 md:w-4 md:h-4 text-purple-600 mx-auto" />
+                          <p className="text-[6px] md:text-[8px] text-purple-600 text-center mt-0.5 md:mt-1 font-medium">Sign</p>
                         </div>
-                        <div className="bg-white border border-gray-200 rounded-lg p-2">
-                          <Type className="w-4 h-4 text-gray-500 mx-auto" />
-                          <p className="text-[8px] text-gray-500 text-center mt-1">Initial</p>
-                        </div>
-                        <div className="bg-white border border-gray-200 rounded-lg p-2">
-                          <User className="w-4 h-4 text-gray-500 mx-auto" />
-                          <p className="text-[8px] text-gray-500 text-center mt-1">Name</p>
+                        <div className="bg-white border border-gray-200 rounded-md md:rounded-lg p-1.5 md:p-2">
+                          <Type className="w-3 h-3 md:w-4 md:h-4 text-gray-500 mx-auto" />
+                          <p className="text-[6px] md:text-[8px] text-gray-500 text-center mt-0.5 md:mt-1">Initial</p>
                         </div>
                       </div>
 
-                      {/* Center - Document */}
-                      <div className="flex-1 bg-gray-100 p-3">
-                        <div className="bg-white rounded-lg shadow-sm h-full p-3 relative">
+                      {/* Center - Document - Always visible */}
+                      <div className="flex-1 bg-gray-100 p-2 sm:p-3">
+                        <div className="bg-white rounded-md sm:rounded-lg shadow-sm h-full p-2 sm:p-3 relative">
                           {/* PDF Badge */}
-                          <div className="absolute top-2 left-2 bg-red-500 text-white text-[8px] font-bold px-2 py-0.5 rounded">PDF</div>
+                          <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-[6px] sm:text-[8px] font-bold px-1.5 sm:px-2 py-0.5 rounded">PDF</div>
 
                           {/* Document Lines */}
-                          <div className="space-y-2 mt-6 mb-4">
-                            <div className="h-1.5 bg-gray-200 rounded-full w-[70%]"></div>
-                            <div className="h-1.5 bg-gray-200 rounded-full w-[90%]"></div>
-                            <div className="h-1.5 bg-gray-200 rounded-full w-[60%]"></div>
-                            <div className="h-1.5 bg-gray-100 rounded-full w-[80%]"></div>
+                          <div className="space-y-1.5 sm:space-y-2 mt-4 sm:mt-6 mb-3 sm:mb-4">
+                            <div className="h-1 sm:h-1.5 bg-gray-200 rounded-full w-[70%]"></div>
+                            <div className="h-1 sm:h-1.5 bg-gray-200 rounded-full w-[90%]"></div>
+                            <div className="h-1 sm:h-1.5 bg-gray-200 rounded-full w-[60%]"></div>
                           </div>
 
                           {/* Signature Field */}
-                          <div className="border-2 border-dashed border-purple-400 rounded-lg p-3 bg-purple-50/50 mt-4">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[8px] font-semibold text-purple-500 uppercase tracking-wider">Signature</span>
-                              <span className="text-[7px] text-purple-400 bg-purple-100 px-1.5 py-0.5 rounded">Required</span>
+                          <div className="border-2 border-dashed border-purple-400 rounded-md sm:rounded-lg p-2 sm:p-3 bg-purple-50/50 mt-2 sm:mt-4">
+                            <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+                              <span className="text-[6px] sm:text-[8px] font-semibold text-purple-500 uppercase tracking-wider">Signature</span>
+                              <span className="text-[5px] sm:text-[7px] text-purple-400 bg-purple-100 px-1 sm:px-1.5 py-0.5 rounded">Required</span>
                             </div>
-                            <p className="text-lg text-purple-600 italic font-serif">John Smith</p>
+                            <p className="text-sm sm:text-lg text-purple-600 italic font-serif">John Smith</p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Right Sidebar - Signers */}
-                      <div className="w-28 bg-gray-50 border-l border-gray-100 p-2">
-                        <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Signers</p>
+                      {/* Right Sidebar - Hidden on smallest screens */}
+                      <div className="hidden sm:block w-20 md:w-28 bg-gray-50 border-l border-gray-100 p-1.5 md:p-2">
+                        <p className="text-[7px] md:text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 md:mb-2">Signers</p>
 
                         {/* Signer 1 - Signed */}
-                        <div className="bg-white rounded-lg p-2 mb-2 border border-green-200">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
-                              <span className="text-[8px] text-white font-medium">JS</span>
+                        <div className="bg-white rounded-md md:rounded-lg p-1.5 md:p-2 mb-1.5 md:mb-2 border border-green-200">
+                          <div className="flex items-center gap-1">
+                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-purple-500 flex items-center justify-center">
+                              <span className="text-[6px] md:text-[8px] text-white font-medium">JS</span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[9px] font-medium text-gray-700 truncate">John Smith</p>
+                              <p className="text-[7px] md:text-[9px] font-medium text-gray-700 truncate">John</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 mt-1.5">
-                            <Check className="w-3 h-3 text-green-500" />
-                            <span className="text-[8px] text-green-600 font-medium">Signed</span>
+                          <div className="flex items-center gap-0.5 md:gap-1 mt-1">
+                            <Check className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-500" />
+                            <span className="text-[6px] md:text-[8px] text-green-600 font-medium">Signed</span>
                           </div>
                         </div>
 
                         {/* Signer 2 - Pending */}
-                        <div className="bg-white rounded-lg p-2 border border-gray-200">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                              <span className="text-[8px] text-white font-medium">AS</span>
+                        <div className="bg-white rounded-md md:rounded-lg p-1.5 md:p-2 border border-gray-200">
+                          <div className="flex items-center gap-1">
+                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                              <span className="text-[6px] md:text-[8px] text-white font-medium">AS</span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[9px] font-medium text-gray-700 truncate">Alex Scott</p>
+                              <p className="text-[7px] md:text-[9px] font-medium text-gray-700 truncate">Alex</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 mt-1.5">
-                            <Clock className="w-3 h-3 text-amber-500" />
-                            <span className="text-[8px] text-amber-600 font-medium">Pending</span>
+                          <div className="flex items-center gap-0.5 md:gap-1 mt-1">
+                            <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 text-amber-500" />
+                            <span className="text-[6px] md:text-[8px] text-amber-600 font-medium">Pending</span>
                           </div>
                         </div>
                       </div>
@@ -149,13 +149,13 @@ const HeroSection: React.FC = () => {
               </div>
 
               {/* Laptop Base */}
-              <div className="relative h-3 mx-1" style={{ background: 'linear-gradient(180deg, #d8d8d8 0%, #b8b8b8 100%)', borderRadius: '0 0 4px 4px' }}>
-                <div className="absolute left-1/2 -translate-x-1/2 top-0 w-24 h-1" style={{ background: '#a8a8a8', borderRadius: '0 0 4px 4px' }}></div>
+              <div className="relative h-2 sm:h-3 mx-0.5 sm:mx-1" style={{ background: 'linear-gradient(180deg, #d8d8d8 0%, #b8b8b8 100%)', borderRadius: '0 0 4px 4px' }}>
+                <div className="absolute left-1/2 -translate-x-1/2 top-0 w-16 sm:w-24 h-0.5 sm:h-1" style={{ background: '#a8a8a8', borderRadius: '0 0 4px 4px' }}></div>
               </div>
-              <div className="relative h-1.5 mx-4" style={{ background: 'linear-gradient(180deg, #b0b0b0 0%, #909090 100%)', borderRadius: '0 0 8px 8px' }}></div>
+              <div className="relative h-1 sm:h-1.5 mx-2 sm:mx-4" style={{ background: 'linear-gradient(180deg, #b0b0b0 0%, #909090 100%)', borderRadius: '0 0 8px 8px' }}></div>
 
               {/* Shadow */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[90%] h-8" style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, transparent 70%)', filter: 'blur(8px)' }}></div>
+              <div className="absolute -bottom-4 sm:-bottom-8 left-1/2 -translate-x-1/2 w-[90%] h-4 sm:h-8" style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, transparent 70%)', filter: 'blur(6px)' }}></div>
             </div>
           </div>
         </div>

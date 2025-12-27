@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
@@ -11,6 +11,19 @@ import AnnouncementBar from '@/components/AnnouncementBar'
 import FloatingLifetimeDeal from '@/components/FloatingLifetimeDeal'
 
 const inter = Inter({ subsets: ['latin'] })
+
+// Mobile-responsive viewport configuration
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#06b6d4' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://mamasign.com'),
@@ -148,7 +161,8 @@ export default function RootLayout({
           <link rel="icon" href="/favicon.ico" sizes="any" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
           <link rel="manifest" href="/manifest.json" />
-          <meta name="theme-color" content="#06b6d4" />
+          {/* Mobile format detection */}
+          <meta name="format-detection" content="telephone=no" />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

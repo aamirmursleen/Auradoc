@@ -166,6 +166,18 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMenuOpen])
+
   // Don't render header on non-home pages
   if (!isHomePage) {
     return null
@@ -420,10 +432,12 @@ const Header: React.FC = () => {
             </SignedOut>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - 44px minimum touch target */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2.5 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300"
+            className="md:hidden p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-95"
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
           >
             <div className="relative w-6 h-6">
               <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`} />
@@ -441,21 +455,21 @@ const Header: React.FC = () => {
           ${isMenuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}
         `}
       >
-        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl shadow-xl p-4">
+        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl shadow-xl p-4 safe-area-inset">
           <div className="flex flex-col space-y-1">
-            {/* Home */}
+            {/* Home - 44px touch target */}
             <button
               onClick={() => handleNavClick('/')}
-              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
             >
               Home
             </button>
 
-            {/* Products Accordion */}
+            {/* Products Accordion - 44px touch target */}
             <div>
               <button
                 onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-                className="w-full flex items-center justify-between text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+                className="w-full flex items-center justify-between text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
               >
                 Products
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
@@ -471,9 +485,9 @@ const Header: React.FC = () => {
                       key={product.name}
                       href={product.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300"
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-[0.98]"
                     >
-                      <product.icon className={`w-4 h-4 ${product.color}`} />
+                      <product.icon className={`w-5 h-5 ${product.color}`} />
                       <span className="text-gray-700 dark:text-gray-300 text-sm">{product.name}</span>
                     </Link>
                   ))}
@@ -484,9 +498,9 @@ const Header: React.FC = () => {
                       key={product.name}
                       href={product.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300"
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-[0.98]"
                     >
-                      <product.icon className={`w-4 h-4 ${product.color}`} />
+                      <product.icon className={`w-5 h-5 ${product.color}`} />
                       <span className="text-gray-700 dark:text-gray-300 text-sm">{product.name}</span>
                     </Link>
                   ))}
@@ -497,9 +511,9 @@ const Header: React.FC = () => {
                       key={product.name}
                       href={product.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300"
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-[0.98]"
                     >
-                      <product.icon className={`w-4 h-4 ${product.color}`} />
+                      <product.icon className={`w-5 h-5 ${product.color}`} />
                       <span className="text-gray-700 dark:text-gray-300 text-sm">{product.name}</span>
                     </Link>
                   ))}
@@ -507,28 +521,28 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* Pricing */}
+            {/* Pricing - 44px touch target */}
             <button
               onClick={() => handleNavClick('/pricing')}
-              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
             >
               Pricing
             </button>
 
-            {/* Blog */}
+            {/* Blog - 44px touch target */}
             <button
               onClick={() => handleNavClick('/blog')}
-              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
             >
               Blog
             </button>
 
             <hr className="border-gray-200/50 dark:border-gray-700/50 my-2" />
 
-            {/* Theme Toggle Mobile */}
+            {/* Theme Toggle Mobile - 44px touch target */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-3 text-gray-600 dark:text-gray-300 font-medium py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+              className="flex items-center gap-3 text-gray-600 dark:text-gray-300 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
             >
               {theme === "light" ? (
                 <>
@@ -544,7 +558,7 @@ const Header: React.FC = () => {
             </button>
 
             <SignedIn>
-              <div className="py-3 px-4">
+              <div className="min-h-[44px] py-3 px-4 flex items-center">
                 <UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
@@ -552,15 +566,15 @@ const Header: React.FC = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+                className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
               >
                 Log in
               </button>
               <button
                 onClick={() => handleNavClick('/sign-up')}
-                className="mx-4 mt-2 px-6 py-3 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-medium rounded-full text-center hover:shadow-lg transition-all duration-300"
+                className="mx-4 mt-2 px-6 min-h-[48px] py-3.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-semibold rounded-full text-center hover:shadow-lg transition-all duration-300 active:scale-[0.98]"
               >
-                Sign Up
+                Sign Up Free
               </button>
             </SignedOut>
           </div>
