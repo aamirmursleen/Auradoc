@@ -28,56 +28,56 @@ const FloatingLifetimeDeal: React.FC = () => {
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingRight: 'env(safe-area-inset-right)' }}>
       <div className="animate-slide-up">
-        {/* Dismiss button */}
+        {/* Dismiss button - smaller on mobile */}
         <button
           onClick={handleDismiss}
-          className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center shadow-lg z-10 transition-colors"
+          className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center shadow-lg z-10 transition-colors active:scale-95"
           aria-label="Dismiss"
         >
-          <X className="w-3 h-3 text-gray-400" />
+          <X className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gray-400" />
         </button>
 
-        {/* Main CTA */}
+        {/* Main CTA - Compact on mobile, full on desktop */}
         <Link href="/pricing" className="block group">
-          <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02]">
+          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02]">
             {/* Dark gradient background */}
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900" />
 
             {/* Fire glow effect at top */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 animate-gradient-x" />
+            <div className="absolute top-0 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 animate-gradient-x" />
 
             {/* Animated border glow */}
-            <div className="absolute inset-0 rounded-2xl border border-orange-500/30 group-hover:border-orange-500/50 transition-colors" />
+            <div className="absolute inset-0 rounded-xl sm:rounded-2xl border border-orange-500/30 group-hover:border-orange-500/50 transition-colors" />
 
-            {/* Content */}
-            <div className="relative px-5 py-4 flex items-center gap-4">
+            {/* Content - Compact on mobile */}
+            <div className="relative px-3 py-2.5 sm:px-5 sm:py-4 flex items-center gap-2 sm:gap-4">
               {/* Left - Fire emoji */}
               <div className="relative">
-                <span className="text-3xl animate-bounce-slow">🔥</span>
+                <span className="text-xl sm:text-3xl animate-bounce-slow">🔥</span>
               </div>
 
-              {/* Center - Deal info */}
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-bold text-base">Lifetime Deal</span>
-                  <span className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse">
+              {/* Center - Deal info - Simplified on mobile */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                  <span className="text-white font-bold text-xs sm:text-base whitespace-nowrap">Lifetime Deal</span>
+                  <span className="hidden sm:inline-block px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse">
                     Ending Soon
                   </span>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-bold text-2xl">$27</span>
-                  <span className="text-gray-400 text-sm">once, forever</span>
-                  <span className="text-gray-500 text-sm line-through">$270</span>
+                <div className="flex items-baseline gap-1.5 sm:gap-2">
+                  <span className="text-white font-bold text-lg sm:text-2xl">$27</span>
+                  <span className="text-gray-400 text-[10px] sm:text-sm hidden xs:inline">once</span>
+                  <span className="text-gray-500 text-[10px] sm:text-sm line-through">$270</span>
                 </div>
               </div>
 
-              {/* Right - Price & Arrow */}
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-700">
-                <span className="text-white font-bold text-xl">$27</span>
-                <div className="w-10 h-10 bg-gradient-to-br from-lime-400 to-green-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-green-500/30">
-                  <ArrowRight className="w-5 h-5 text-gray-900" />
+              {/* Right - Arrow only on mobile, full on desktop */}
+              <div className="flex items-center gap-2 sm:gap-3 sm:pl-4 sm:border-l sm:border-gray-700">
+                <span className="hidden sm:block text-white font-bold text-xl">$27</span>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 bg-gradient-to-br from-lime-400 to-green-500 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-green-500/30">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-900" />
                 </div>
               </div>
             </div>
