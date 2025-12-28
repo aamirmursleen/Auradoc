@@ -566,15 +566,9 @@ const Header: React.FC = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
-              >
-                Log in
-              </button>
-              <button
-                onClick={() => handleNavClick('/sign-up')}
                 className="mx-4 mt-2 px-6 min-h-[48px] py-3.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-semibold rounded-full text-center hover:shadow-lg transition-all duration-300 active:scale-[0.98]"
               >
-                Sign Up Free
+                Get Started
               </button>
             </SignedOut>
           </div>
