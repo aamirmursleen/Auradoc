@@ -386,14 +386,6 @@ const Header: React.FC = () => {
                 <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
 
-              {/* Blog Link */}
-              <button
-                onClick={() => handleNavClick('/blog')}
-                className="relative px-4 py-2 text-gray-600 dark:text-gray-300 font-medium transition-all duration-300 rounded-full hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-white/80 dark:hover:bg-gray-700/80 group"
-              >
-                <span className="relative z-10">Blog</span>
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </button>
             </div>
           </div>
 
@@ -543,14 +535,6 @@ const Header: React.FC = () => {
               className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
             >
               Pricing
-            </button>
-
-            {/* Blog - 44px touch target */}
-            <button
-              onClick={() => handleNavClick('/blog')}
-              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
-            >
-              Blog
             </button>
 
             <hr className="border-gray-200/50 dark:border-gray-700/50 my-2" />
