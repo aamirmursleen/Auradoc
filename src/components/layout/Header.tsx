@@ -432,19 +432,35 @@ const Header: React.FC = () => {
             </SignedOut>
           </div>
 
-          {/* Mobile Menu Button - 44px minimum touch target */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-95"
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMenuOpen}
-          >
-            <div className="relative w-6 h-6">
-              <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`} />
-              <span className={`absolute left-0 top-3 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ease-out ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`} />
-              <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 -rotate-45' : 'top-5'}`} />
-            </div>
-          </button>
+          {/* Mobile Right Section - Login + Menu */}
+          <div className="flex md:hidden items-center gap-2">
+            {/* Mobile Login Button - Always visible */}
+            <SignedOut>
+              <button
+                onClick={() => handleNavClick('/sign-in')}
+                className="px-4 py-2 min-h-[40px] bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-full shadow-md shadow-cyan-500/20 active:scale-95 transition-all"
+              >
+                Login
+              </button>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+
+            {/* Mobile Menu Button - 44px minimum touch target */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-95"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
+            >
+              <div className="relative w-6 h-6">
+                <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`} />
+                <span className={`absolute left-0 top-3 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ease-out ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`} />
+                <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 -rotate-45' : 'top-5'}`} />
+              </div>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -557,20 +573,6 @@ const Header: React.FC = () => {
               )}
             </button>
 
-            <SignedIn>
-              <div className="min-h-[44px] py-3 px-4 flex items-center">
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            </SignedIn>
-
-            <SignedOut>
-              <button
-                onClick={() => handleNavClick('/sign-in')}
-                className="mx-4 mt-2 px-6 min-h-[48px] py-3.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-semibold rounded-full text-center hover:shadow-lg transition-all duration-300 active:scale-[0.98]"
-              >
-                Get Started
-              </button>
-            </SignedOut>
           </div>
         </div>
       </div>
