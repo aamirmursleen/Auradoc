@@ -44,6 +44,19 @@ import {
 import { useUser } from '@clerk/nextjs'
 import { incrementSignCount } from '@/lib/usageLimit'
 
+// UUID generator with fallback for browsers that don't support crypto.randomUUID
+const generateUUID = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return generateUUID()
+  }
+  // Fallback for older browsers
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
 // Dynamically import PDF viewer
 const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
   ssr: false,
@@ -135,7 +148,7 @@ const SignDocumentPage: React.FC = () => {
 
   // Signers state
   const [signers, setSigners] = useState<Signer[]>([
-    { id: crypto.randomUUID(), name: 'Signer 1', email: '', color: SIGNER_COLORS[0], order: 1 }
+    { id: generateUUID(), name: 'Signer 1', email: '', color: SIGNER_COLORS[0], order: 1 }
   ])
   const [activeSignerId, setActiveSignerId] = useState<string>('')
   const [expandedSignerId, setExpandedSignerId] = useState<string | null>(null)
@@ -204,7 +217,7 @@ const SignDocumentPage: React.FC = () => {
   const addSigner = () => {
     const newOrder = signers.length + 1
     const newSigner: Signer = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: `Signer ${newOrder}`,
       email: '',
       color: SIGNER_COLORS[(newOrder - 1) % SIGNER_COLORS.length],
@@ -283,7 +296,7 @@ const SignDocumentPage: React.FC = () => {
     if (!fieldType) return
 
     const newField: PlacedField = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       type: draggedFieldType,
       x: Math.max(0, x - 75),
       y: Math.max(0, y - 20),
@@ -405,7 +418,7 @@ const SignDocumentPage: React.FC = () => {
 
     const newField: PlacedField = {
       ...selectedField,
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       x: selectedField.x + 20,
       y: selectedField.y + 20
     }
