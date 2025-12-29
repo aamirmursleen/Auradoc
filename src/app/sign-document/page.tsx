@@ -47,7 +47,7 @@ import { incrementSignCount } from '@/lib/usageLimit'
 // UUID generator with fallback for browsers that don't support crypto.randomUUID
 const generateUUID = (): string => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return generateUUID()
+    return crypto.randomUUID()
   }
   // Fallback for older browsers
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
