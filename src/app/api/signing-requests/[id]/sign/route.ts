@@ -27,7 +27,6 @@ export async function POST(
 
     if (fetchError || !signingRequest) {
       // For demo, just return success
-      console.log('Database not available, returning mock success')
       return NextResponse.json({
         success: true,
         message: 'Signature recorded successfully',

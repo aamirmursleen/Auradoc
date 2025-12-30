@@ -26,7 +26,6 @@ export async function GET(
 
     if (error || !signingRequest) {
       // For demo purposes, return mock data if database not set up
-      console.log('Database error or not found, returning mock data')
       return NextResponse.json({
         success: true,
         data: {

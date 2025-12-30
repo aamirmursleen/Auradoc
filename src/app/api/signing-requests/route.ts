@@ -63,7 +63,6 @@ export async function POST(req: NextRequest) {
       console.error('Database error:', insertError)
       // If table doesn't exist, create a mock response for testing
       if (insertError.code === '42P01') {
-        console.log('Table does not exist, proceeding with email send only')
       } else {
         return NextResponse.json(
           { success: false, message: 'Failed to create signing request' },

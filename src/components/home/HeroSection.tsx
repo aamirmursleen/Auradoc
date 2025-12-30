@@ -25,8 +25,8 @@ const HeroSection: React.FC = () => {
               <Link href="/sign-document" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-xl shadow-lg shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/30 active:scale-[0.98] text-center flex items-center justify-center">
                 Start Free Trial
               </Link>
-              <Link href="/demo" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md active:scale-[0.98] text-center flex items-center justify-center">
-                Watch Demo
+              <Link href="/features" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md active:scale-[0.98] text-center flex items-center justify-center">
+                See Features
               </Link>
             </div>
             {/* Trust badges - responsive layout */}

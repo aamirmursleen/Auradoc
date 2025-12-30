@@ -159,7 +159,6 @@ export async function POST(request: NextRequest) {
     // 3. Send confirmation email to the signer
     // 4. Store document in secure cloud storage (AWS S3, etc.)
 
-    console.log(`Document signed: ${documentId} by ${signerName}`)
 
     return NextResponse.json({
       success: true,
