@@ -7,7 +7,7 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Email sender configuration - Using Resend's test domain for now
-const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
+const FROM_EMAIL = process.env.NODE_ENV === 'production' ? 'MamaSign <noreply@mamasign.com>' : 'MamaSign <onboarding@resend.dev>'
 const COMPANY_NAME = 'MamaSign'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 

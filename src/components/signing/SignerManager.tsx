@@ -9,6 +9,7 @@ import {
   Check,
   X,
   GripVertical,
+  UserCheck,
 } from 'lucide-react'
 import { Signer, SIGNER_COLORS } from '@/types/signing'
 
@@ -16,7 +17,9 @@ interface SignerManagerProps {
   signers: Signer[]
   selectedSignerId: string | null
   onSelectSigner: (signerId: string | null) => void
-  onAddSigner: (name: string, email: string) => void
+  onAddSigner: (name: string, email: string, isSelf?: boolean) => void
+  currentUserName?: string
+  currentUserEmail?: string
   onUpdateSigner: (signerId: string, updates: Partial<Signer>) => void
   onRemoveSigner: (signerId: string) => void
 }

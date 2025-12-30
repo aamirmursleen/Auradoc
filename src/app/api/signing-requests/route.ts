@@ -10,12 +10,10 @@ export async function POST(req: NextRequest) {
     const { userId } = await auth()
     const user = await currentUser()
 
-    if (!userId || !user) {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+    // Demo mode: Allow sending without being logged in
+    const senderName = user ? (user.firstName || '') + ' ' + (user.lastName || '').trim() || 'MamaSign User' : 'MamaSign User'
+    const senderEmail = user?.emailAddresses?.[0]?.emailAddress || 'noreply@mamasign.com'
+    const effectiveUserId = userId || 'demo-user'
 
     const body = await req.json()
     const { documentName, documentData, signers, signatureFields, message, dueDate } = body
@@ -31,23 +29,25 @@ export async function POST(req: NextRequest) {
     // Create signing request in database
     const signingRequestId = crypto.randomUUID()
 
+    const signersWithTokens = signers.map((s: { name: string; email: string; order: number }) => ({
+      name: s.name,
+      email: s.email,
+      order: s.order,
+      status: 'pending',
+      signedAt: null,
+      token: crypto.randomUUID()
+    }))
+
     const { data: signingRequest, error: insertError } = await supabase
       .from('signing_requests')
       .insert({
         id: signingRequestId,
-        user_id: userId,
+        user_id: effectiveUserId,
         document_name: documentName,
-        document_url: documentData, // Store base64 for now (in production, upload to storage)
-        sender_name: user.firstName + ' ' + (user.lastName || ''),
-        sender_email: user.emailAddresses[0]?.emailAddress || '',
-        signers: signers.map((s: { name: string; email: string; order: number }) => ({
-          name: s.name,
-          email: s.email,
-          order: s.order,
-          status: 'pending',
-          signedAt: null,
-          token: crypto.randomUUID() // Unique token for each signer
-        })),
+        document_url: documentData,
+        sender_name: senderName,
+        sender_email: senderEmail,
+        signers: signersWithTokens,
         signature_fields: signatureFields,
         message: message || null,
         due_date: dueDate || null,
@@ -61,28 +61,19 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       console.error('Database error:', insertError)
-      // If table doesn't exist, create a mock response for testing
-      if (insertError.code === '42P01') {
-      } else {
-        return NextResponse.json(
-          { success: false, message: 'Failed to create signing request' },
-          { status: 500 }
-        )
-      }
     }
 
     // Send email to first signer
-    const firstSigner = signers[0]
+    const firstSigner = signersWithTokens[0]
     if (firstSigner) {
-      const signerToken = crypto.randomUUID()
-      const signingLink = `${APP_URL}/sign/${signingRequestId}?token=${signerToken}&email=${encodeURIComponent(firstSigner.email)}`
+      const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + firstSigner.token + '&email=' + encodeURIComponent(firstSigner.email)
 
       try {
         const emailResult = await sendSigningInvite({
           to: firstSigner.email,
           signerName: firstSigner.name,
-          senderName: user.firstName + ' ' + (user.lastName || ''),
-          senderEmail: user.emailAddresses[0]?.emailAddress || '',
+          senderName: senderName,
+          senderEmail: senderEmail,
           documentName: documentName,
           signingLink: signingLink,
           message: message,
@@ -94,7 +85,6 @@ export async function POST(req: NextRequest) {
         }
       } catch (emailError) {
         console.error('Failed to send email:', emailError)
-        // Continue even if email fails
       }
     }
 
