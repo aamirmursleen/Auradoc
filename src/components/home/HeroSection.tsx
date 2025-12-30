@@ -13,12 +13,12 @@ const HeroSection: React.FC = () => {
           {/* Left Content - Mobile first */}
           <div className="space-y-6 sm:space-y-8 text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1]">
-              Secure Digital<br className="hidden sm:block" />
-              <span className="sm:hidden"> </span>Signatures.<br />
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Fast, Easy, Legal.</span>
+              Sign Documents<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>in Seconds.<br />
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Close Deals Faster.</span>
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0 px-2 sm:px-0">
-              Stop printing and scanning. Sign contracts online in minutes, kahin bhi.
+              Ditch the printer. Sign contracts, agreements & forms online from any device. Legally binding, beautifully simple.
             </p>
             {/* Mobile-optimized CTA buttons with 44px touch targets */}
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 sm:gap-4 pt-2 px-4 sm:px-0">
@@ -26,7 +26,7 @@ const HeroSection: React.FC = () => {
                 Start Free Trial
               </Link>
               <Link href="/features" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md active:scale-[0.98] text-center flex items-center justify-center">
-                See Features
+                Watch Demo
               </Link>
             </div>
             {/* Trust badges - responsive layout */}
