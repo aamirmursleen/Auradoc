@@ -195,13 +195,13 @@ const Header: React.FC = () => {
       <nav
         className={`
           max-w-6xl mx-auto
-          bg-white/70 dark:bg-gray-900/70
+          bg-[#1e1e1e]/90
           backdrop-blur-xl
-          border border-white/20 dark:border-gray-700/50
+          border border-[#2a2a2a]
           rounded-full
-          shadow-lg shadow-gray-200/50 dark:shadow-black/20
+          shadow-lg shadow-black/30
           transition-all duration-500 ease-out
-          ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 shadow-xl' : ''}
+          ${scrolled ? 'bg-[#1e1e1e]/95 shadow-xl' : ''}
         `}
       >
         <div className="flex justify-between items-center h-16 px-6 lg:px-8">
@@ -211,21 +211,21 @@ const Header: React.FC = () => {
             className="flex items-center group cursor-pointer flex-shrink-0"
           >
             <span className="text-xl md:text-2xl font-black italic tracking-tight transition-transform duration-300 group-hover:scale-105">
-              <span className="text-cyan-400">MAMA</span>
-              <span className="text-purple-400">SIGN</span>
+              <span className="text-[#c4ff0e]">MAMA</span>
+              <span className="text-white">SIGN</span>
             </span>
           </button>
 
           {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center justify-center flex-1 mx-8">
-            <div className="flex items-center space-x-1 bg-gray-100/50 dark:bg-gray-800/50 rounded-full px-2 py-1">
+            <div className="flex items-center space-x-1 bg-[#2a2a2a]/50 rounded-full px-2 py-1">
               {/* Home Link */}
               <button
                 onClick={() => handleNavClick('/')}
-                className="relative px-4 py-2 text-gray-600 dark:text-gray-300 font-medium transition-all duration-300 rounded-full hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-white/80 dark:hover:bg-gray-700/80 group"
+                className="relative px-4 py-2 text-gray-300 font-medium transition-all duration-300 rounded-full hover:text-[#c4ff0e] hover:bg-[#2a2a2a] group"
               >
                 <span className="relative z-10">Home</span>
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="absolute inset-0 rounded-full bg-[#c4ff0e]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
 
               {/* Products Dropdown */}
@@ -235,26 +235,26 @@ const Header: React.FC = () => {
                   onMouseEnter={() => setIsProductsOpen(true)}
                   className={`relative flex items-center gap-1 px-4 py-2 font-medium transition-all duration-300 rounded-full group ${
                     isProductsOpen
-                      ? 'text-cyan-600 dark:text-cyan-400 bg-white/80 dark:bg-gray-700/80'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-white/80 dark:hover:bg-gray-700/80'
+                      ? 'text-[#c4ff0e] bg-[#2a2a2a]'
+                      : 'text-gray-300 hover:text-[#c4ff0e] hover:bg-[#2a2a2a]'
                   }`}
                 >
                   <span className="relative z-10">Products</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isProductsOpen ? 'rotate-180' : ''}`} />
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="absolute inset-0 rounded-full bg-[#c4ff0e]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
 
                 {/* Dropdown Menu */}
                 {isProductsOpen && (
                   <div
-                    className="fixed inset-x-0 top-24 mx-4 sm:mx-6 lg:mx-8 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-2xl border border-white/20 dark:border-gray-700/50 rounded-3xl animate-in fade-in slide-in-from-top-2 duration-300 z-50 overflow-hidden"
+                    className="fixed inset-x-0 top-24 mx-4 sm:mx-6 lg:mx-8 bg-[#1e1e1e]/95 backdrop-blur-xl shadow-2xl border border-[#2a2a2a] rounded-3xl animate-in fade-in slide-in-from-top-2 duration-300 z-50 overflow-hidden"
                     onMouseLeave={() => setIsProductsOpen(false)}
                   >
                     <div className="max-w-6xl mx-auto px-6 py-8">
                       <div className="grid grid-cols-4 gap-8">
                         {/* E-Signature Column */}
                         <div>
-                          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 pb-2 border-b-2 border-cyan-500/50">
+                          <h3 className="text-sm font-bold text-white mb-4 pb-2 border-b-2 border-[#c4ff0e]/50">
                             E-Signature
                           </h3>
                           <div className="space-y-2">
@@ -263,16 +263,16 @@ const Header: React.FC = () => {
                                 key={product.name}
                                 href={product.href}
                                 onClick={() => setIsProductsOpen(false)}
-                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 group hover:scale-[1.02]"
+                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 group hover:scale-[1.02]"
                               >
-                                <div className={`p-2 rounded-lg ${product.bgColor} transition-transform duration-300 group-hover:scale-110`}>
-                                  <product.icon className={`w-4 h-4 ${product.color}`} />
+                                <div className="p-2 rounded-lg bg-[#2a2a2a] transition-transform duration-300 group-hover:scale-110">
+                                  <product.icon className="w-4 h-4 text-[#c4ff0e]" />
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+                                  <p className="font-semibold text-sm text-white group-hover:text-[#c4ff0e] transition-colors duration-300">
                                     {product.name}
                                   </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.description}</p>
+                                  <p className="text-xs text-gray-400 mt-0.5">{product.description}</p>
                                 </div>
                               </Link>
                             ))}
@@ -281,7 +281,7 @@ const Header: React.FC = () => {
 
                         {/* PDF Tools Column 1 */}
                         <div>
-                          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 pb-2 border-b-2 border-purple-500/50">
+                          <h3 className="text-sm font-bold text-white mb-4 pb-2 border-b-2 border-[#c4ff0e]/50">
                             PDF Tools
                           </h3>
                           <div className="space-y-2">
@@ -290,16 +290,16 @@ const Header: React.FC = () => {
                                 key={product.name}
                                 href={product.href}
                                 onClick={() => setIsProductsOpen(false)}
-                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 group hover:scale-[1.02]"
+                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 group hover:scale-[1.02]"
                               >
-                                <div className={`p-2 rounded-lg ${product.bgColor} transition-transform duration-300 group-hover:scale-110`}>
-                                  <product.icon className={`w-4 h-4 ${product.color}`} />
+                                <div className="p-2 rounded-lg bg-[#2a2a2a] transition-transform duration-300 group-hover:scale-110">
+                                  <product.icon className="w-4 h-4 text-[#c4ff0e]" />
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+                                  <p className="font-semibold text-sm text-white group-hover:text-[#c4ff0e] transition-colors duration-300">
                                     {product.name}
                                   </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.description}</p>
+                                  <p className="text-xs text-gray-400 mt-0.5">{product.description}</p>
                                 </div>
                               </Link>
                             ))}
@@ -308,7 +308,7 @@ const Header: React.FC = () => {
 
                         {/* PDF Tools Column 2 */}
                         <div>
-                          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 pb-2 border-b-2 border-purple-500/50">
+                          <h3 className="text-sm font-bold text-white mb-4 pb-2 border-b-2 border-[#c4ff0e]/50">
                             More PDF Tools
                           </h3>
                           <div className="space-y-2">
@@ -317,16 +317,16 @@ const Header: React.FC = () => {
                                 key={product.name}
                                 href={product.href}
                                 onClick={() => setIsProductsOpen(false)}
-                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 group hover:scale-[1.02]"
+                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 group hover:scale-[1.02]"
                               >
-                                <div className={`p-2 rounded-lg ${product.bgColor} transition-transform duration-300 group-hover:scale-110`}>
-                                  <product.icon className={`w-4 h-4 ${product.color}`} />
+                                <div className="p-2 rounded-lg bg-[#2a2a2a] transition-transform duration-300 group-hover:scale-110">
+                                  <product.icon className="w-4 h-4 text-[#c4ff0e]" />
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+                                  <p className="font-semibold text-sm text-white group-hover:text-[#c4ff0e] transition-colors duration-300">
                                     {product.name}
                                   </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.description}</p>
+                                  <p className="text-xs text-gray-400 mt-0.5">{product.description}</p>
                                 </div>
                               </Link>
                             ))}
@@ -335,7 +335,7 @@ const Header: React.FC = () => {
 
                         {/* Business Column */}
                         <div>
-                          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 pb-2 border-b-2 border-emerald-500/50">
+                          <h3 className="text-sm font-bold text-white mb-4 pb-2 border-b-2 border-[#c4ff0e]/50">
                             Business Tools
                           </h3>
                           <div className="space-y-2">
@@ -344,27 +344,27 @@ const Header: React.FC = () => {
                                 key={product.name}
                                 href={product.href}
                                 onClick={() => setIsProductsOpen(false)}
-                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 group hover:scale-[1.02]"
+                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 group hover:scale-[1.02]"
                               >
-                                <div className={`p-2 rounded-lg ${product.bgColor} transition-transform duration-300 group-hover:scale-110`}>
-                                  <product.icon className={`w-4 h-4 ${product.color}`} />
+                                <div className="p-2 rounded-lg bg-[#2a2a2a] transition-transform duration-300 group-hover:scale-110">
+                                  <product.icon className="w-4 h-4 text-[#c4ff0e]" />
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+                                  <p className="font-semibold text-sm text-white group-hover:text-[#c4ff0e] transition-colors duration-300">
                                     {product.name}
                                   </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.description}</p>
+                                  <p className="text-xs text-gray-400 mt-0.5">{product.description}</p>
                                 </div>
                               </Link>
                             ))}
                           </div>
 
                           {/* Explore All Link */}
-                          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                          <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
                             <Link
                               href="/tools"
                               onClick={() => setIsProductsOpen(false)}
-                              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white text-sm font-medium rounded-full hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+                              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#c4ff0e] text-black text-sm font-medium rounded-full hover:shadow-lg hover:shadow-[#c4ff0e]/30 transition-all duration-300 hover:scale-105"
                             >
                               Explore All
                               <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
@@ -380,10 +380,10 @@ const Header: React.FC = () => {
               {/* Pricing Link */}
               <button
                 onClick={() => handleNavClick('/pricing')}
-                className="relative px-4 py-2 text-gray-600 dark:text-gray-300 font-medium transition-all duration-300 rounded-full hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-white/80 dark:hover:bg-gray-700/80 group"
+                className="relative px-4 py-2 text-gray-300 font-medium transition-all duration-300 rounded-full hover:text-[#c4ff0e] hover:bg-[#2a2a2a] group"
               >
                 <span className="relative z-10">Pricing</span>
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="absolute inset-0 rounded-full bg-[#c4ff0e]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
 
             </div>
@@ -394,13 +394,13 @@ const Header: React.FC = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:scale-110"
+              className="p-2.5 rounded-full hover:bg-[#2a2a2a] transition-all duration-300 hover:scale-110"
               title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
             >
               {theme === "light" ? (
-                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                <Moon className="w-5 h-5 text-gray-300" />
               ) : (
-                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                <Sun className="w-5 h-5 text-gray-300" />
               )}
             </button>
 
@@ -411,13 +411,13 @@ const Header: React.FC = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium transition-all duration-300 px-4 py-2 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80"
+                className="text-gray-300 hover:text-[#c4ff0e] font-medium transition-all duration-300 px-4 py-2 rounded-full hover:bg-[#2a2a2a]"
               >
                 Log in
               </button>
               <button
                 onClick={() => handleNavClick('/sign-up')}
-                className="px-5 py-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-medium rounded-full hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105 hover:from-cyan-400 hover:via-blue-500 hover:to-purple-500"
+                className="px-5 py-2.5 bg-[#c4ff0e] text-black font-medium rounded-full hover:shadow-lg hover:shadow-[#c4ff0e]/30 transition-all duration-300 hover:scale-105 hover:bg-[#b8f206]"
               >
                 Sign Up
               </button>
@@ -430,7 +430,7 @@ const Header: React.FC = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className="px-4 py-2 min-h-[40px] bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-full shadow-md shadow-cyan-500/20 active:scale-95 transition-all"
+                className="px-4 py-2 min-h-[40px] bg-[#c4ff0e] text-black text-sm font-semibold rounded-full shadow-md shadow-[#c4ff0e]/20 active:scale-95 transition-all"
               >
                 Login
               </button>
@@ -442,14 +442,14 @@ const Header: React.FC = () => {
             {/* Mobile Menu Button - 44px minimum touch target */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-95"
+              className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-[#2a2a2a] transition-all duration-300 active:scale-95"
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isMenuOpen}
             >
               <div className="relative w-6 h-6">
-                <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`} />
-                <span className={`absolute left-0 top-3 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ease-out ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`} />
-                <span className={`absolute left-0 block w-6 h-0.5 bg-gray-600 dark:bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 -rotate-45' : 'top-5'}`} />
+                <span className={`absolute left-0 block w-6 h-0.5 bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`} />
+                <span className={`absolute left-0 top-3 block w-6 h-0.5 bg-gray-300 transition-all duration-300 ease-out ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`} />
+                <span className={`absolute left-0 block w-6 h-0.5 bg-gray-300 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 -rotate-45' : 'top-5'}`} />
               </div>
             </button>
           </div>
@@ -463,12 +463,12 @@ const Header: React.FC = () => {
           ${isMenuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}
         `}
       >
-        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl shadow-xl p-4 safe-area-inset">
+        <div className="bg-[#1e1e1e]/95 backdrop-blur-xl border border-[#2a2a2a] rounded-3xl shadow-xl p-4 safe-area-inset">
           <div className="flex flex-col space-y-1">
             {/* Home - 44px touch target */}
             <button
               onClick={() => handleNavClick('/')}
-              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
+              className="text-gray-300 hover:text-[#c4ff0e] font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-[#2a2a2a] active:scale-[0.98]"
             >
               Home
             </button>
@@ -477,7 +477,7 @@ const Header: React.FC = () => {
             <div>
               <button
                 onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-                className="w-full flex items-center justify-between text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
+                className="w-full flex items-center justify-between text-gray-300 hover:text-[#c4ff0e] font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-[#2a2a2a] active:scale-[0.98]"
               >
                 Products
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
@@ -486,43 +486,43 @@ const Header: React.FC = () => {
               <div
                 className={`overflow-hidden transition-all duration-500 ease-out ${isMobileProductsOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}
               >
-                <div className="ml-4 mt-2 space-y-1 border-l-2 border-cyan-500/30 pl-4 max-h-[50vh] overflow-y-auto">
-                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider py-2">E-Signature</p>
+                <div className="ml-4 mt-2 space-y-1 border-l-2 border-[#c4ff0e]/30 pl-4 max-h-[50vh] overflow-y-auto">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider py-2">E-Signature</p>
                   {products.signing.map((product) => (
                     <Link
                       key={product.name}
                       href={product.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-[0.98]"
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 active:scale-[0.98]"
                     >
-                      <product.icon className={`w-5 h-5 ${product.color}`} />
-                      <span className="text-gray-700 dark:text-gray-300 text-sm">{product.name}</span>
+                      <product.icon className="w-5 h-5 text-[#c4ff0e]" />
+                      <span className="text-gray-300 text-sm">{product.name}</span>
                     </Link>
                   ))}
 
-                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider py-2 mt-3">PDF Tools</p>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider py-2 mt-3">PDF Tools</p>
                   {products.documents.map((product) => (
                     <Link
                       key={product.name}
                       href={product.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-[0.98]"
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 active:scale-[0.98]"
                     >
-                      <product.icon className={`w-5 h-5 ${product.color}`} />
-                      <span className="text-gray-700 dark:text-gray-300 text-sm">{product.name}</span>
+                      <product.icon className="w-5 h-5 text-[#c4ff0e]" />
+                      <span className="text-gray-300 text-sm">{product.name}</span>
                     </Link>
                   ))}
 
-                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider py-2 mt-3">Business</p>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider py-2 mt-3">Business</p>
                   {products.business.map((product) => (
                     <Link
                       key={product.name}
                       href={product.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-all duration-300 active:scale-[0.98]"
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300 active:scale-[0.98]"
                     >
-                      <product.icon className={`w-5 h-5 ${product.color}`} />
-                      <span className="text-gray-700 dark:text-gray-300 text-sm">{product.name}</span>
+                      <product.icon className="w-5 h-5 text-[#c4ff0e]" />
+                      <span className="text-gray-300 text-sm">{product.name}</span>
                     </Link>
                   ))}
                 </div>
@@ -532,17 +532,17 @@ const Header: React.FC = () => {
             {/* Pricing - 44px touch target */}
             <button
               onClick={() => handleNavClick('/pricing')}
-              className="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
+              className="text-gray-300 hover:text-[#c4ff0e] font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-[#2a2a2a] active:scale-[0.98]"
             >
               Pricing
             </button>
 
-            <hr className="border-gray-200/50 dark:border-gray-700/50 my-2" />
+            <hr className="border-[#2a2a2a] my-2" />
 
             {/* Theme Toggle Mobile - 44px touch target */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-3 text-gray-600 dark:text-gray-300 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-gray-50/80 dark:hover:bg-gray-800/80 active:scale-[0.98]"
+              className="flex items-center gap-3 text-gray-300 font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-[#2a2a2a] active:scale-[0.98]"
             >
               {theme === "light" ? (
                 <>

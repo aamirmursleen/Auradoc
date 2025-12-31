@@ -78,13 +78,13 @@ const VerifyPage: React.FC = () => {
 
   const getSeverityColor = (severity: PDFModification['severity']) => {
     const colors: Record<string, string> = {
-      'CRITICAL': 'bg-red-100 text-red-700 border-red-300',
-      'HIGH': 'bg-orange-100 text-orange-700 border-orange-300',
-      'MEDIUM': 'bg-yellow-100 text-yellow-700 border-yellow-300',
-      'LOW': 'bg-blue-100 text-blue-700 border-blue-300',
-      'INFO': 'bg-gray-100 text-gray-700 border-gray-300'
+      'CRITICAL': 'bg-red-900/30 text-red-400 border-red-800',
+      'HIGH': 'bg-orange-900/30 text-orange-400 border-orange-800',
+      'MEDIUM': 'bg-yellow-900/30 text-yellow-400 border-yellow-800',
+      'LOW': 'bg-blue-900/30 text-blue-400 border-blue-800',
+      'INFO': 'bg-[#2a2a2a] text-gray-300 border-[#3a3a3a]'
     }
-    return colors[severity] || 'bg-gray-100 text-gray-700 border-gray-300'
+    return colors[severity] || 'bg-[#2a2a2a] text-gray-300 border-[#3a3a3a]'
   }
 
   const getStatusColors = (status: PDFAnalysisResult['overallStatus']) => {
@@ -97,26 +97,26 @@ const VerifyPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e1e] to-[#1F1F1F]">
+      <header className="bg-[#1F1F1F]/80 backdrop-blur-xl border-b border-[#2a2a2a] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
-                <Home className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <Link href="/" className="p-2 hover:bg-[#2a2a2a] rounded-xl transition-colors">
+                <Home className="w-5 h-5 text-gray-400" />
               </Link>
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl shadow-lg shadow-cyan-500/25">
-                  <Shield className="w-7 h-7 text-white" />
+                <div className="p-3 bg-[#c4ff0e] rounded-xl shadow-lg shadow-[#c4ff0e]/25">
+                  <Shield className="w-7 h-7 text-black" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">PDF Edit Detector</h1>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Detect any modifications or tampering</p>
+                  <h1 className="text-xl font-bold text-white">PDF Edit Detector</h1>
+                  <p className="text-sm text-gray-400">Detect any modifications or tampering</p>
                 </div>
               </div>
             </div>
             {uploadedFile && analysisResult && (
-              <button onClick={clearUpload} className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              <button onClick={clearUpload} className="flex items-center gap-2 px-4 py-2 bg-[#2a2a2a] text-gray-300 rounded-xl hover:bg-[#252525] transition-colors">
                 <RefreshCw className="w-4 h-4" />Analyze Another
               </button>
             )}
@@ -127,47 +127,47 @@ const VerifyPage: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {!uploadedFile && (
           <div className="space-y-8">
-            <div className={`bg-white dark:bg-gray-900 border-2 border-dashed rounded-3xl shadow-xl transition-all ${dragActive ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20 scale-[1.02]' : 'border-gray-300 dark:border-gray-700 hover:border-cyan-500/50'}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
+            <div className={`bg-[#1F1F1F] border-2 border-dashed rounded-3xl shadow-xl transition-all ${dragActive ? 'border-[#c4ff0e] bg-[#c4ff0e]/10 scale-[1.02]' : 'border-[#2a2a2a] hover:border-[#c4ff0e]/50'}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
               <div className="p-12 text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/30">
-                  <FileUp className="w-12 h-12 text-white" />
+                <div className="w-24 h-24 bg-[#c4ff0e] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#c4ff0e]/30">
+                  <FileUp className="w-12 h-12 text-black" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Upload Your PDF</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-lg">Drop any PDF here to detect if it has been edited, modified, or tampered with</p>
+                <h2 className="text-3xl font-bold text-white mb-3">Upload Your PDF</h2>
+                <p className="text-gray-400 mb-8 max-w-md mx-auto text-lg">Drop any PDF here to detect if it has been edited, modified, or tampered with</p>
                 <input type="file" className="hidden" id="file-upload" accept=".pdf,application/pdf" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFileUpload(file) }} />
-                <label htmlFor="file-upload" className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-bold text-lg cursor-pointer hover:from-cyan-600 hover:to-purple-700 transition-all shadow-xl shadow-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/40 hover:scale-105">
+                <label htmlFor="file-upload" className="inline-flex items-center gap-3 px-10 py-5 bg-[#c4ff0e] text-black rounded-2xl font-bold text-lg cursor-pointer hover:bg-[#b8f000] transition-all shadow-xl shadow-[#c4ff0e]/30 hover:shadow-2xl hover:shadow-[#c4ff0e]/40 hover:scale-105">
                   <Upload className="w-6 h-6" />Select PDF File
                 </label>
-                <p className="text-sm text-gray-500 mt-6">Works with any PDF from any source</p>
+                <p className="text-sm text-gray-400 mt-6">Works with any PDF from any source</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
-                <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center mb-4"><Settings className="w-6 h-6 text-cyan-600" /></div>
-                <h3 className="font-bold text-gray-900 dark:text-white mb-2">Editing Software Detection</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Detects 50+ PDF editors including iLovePDF, SmallPDF, Adobe Acrobat, and more</p>
+              <div className="bg-[#1F1F1F] rounded-2xl p-6 shadow-lg border border-[#2a2a2a]">
+                <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center mb-4"><Settings className="w-6 h-6 text-[#c4ff0e]" /></div>
+                <h3 className="font-bold text-white mb-2">Editing Software Detection</h3>
+                <p className="text-sm text-gray-400">Detects 50+ PDF editors including iLovePDF, SmallPDF, Adobe Acrobat, and more</p>
               </div>
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center mb-4"><History className="w-6 h-6 text-purple-600" /></div>
-                <h3 className="font-bold text-gray-900 dark:text-white mb-2">Modification History</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Tracks all saves, edits, and changes made to the document over time</p>
+              <div className="bg-[#1F1F1F] rounded-2xl p-6 shadow-lg border border-[#2a2a2a]">
+                <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center mb-4"><History className="w-6 h-6 text-[#c4ff0e]" /></div>
+                <h3 className="font-bold text-white mb-2">Modification History</h3>
+                <p className="text-sm text-gray-400">Tracks all saves, edits, and changes made to the document over time</p>
               </div>
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-xl flex items-center justify-center mb-4"><PenTool className="w-6 h-6 text-orange-600" /></div>
-                <h3 className="font-bold text-gray-900 dark:text-white mb-2">Annotation Detection</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Finds highlights, stamps, text additions, redactions, and drawings</p>
+              <div className="bg-[#1F1F1F] rounded-2xl p-6 shadow-lg border border-[#2a2a2a]">
+                <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center mb-4"><PenTool className="w-6 h-6 text-[#c4ff0e]" /></div>
+                <h3 className="font-bold text-white mb-2">Annotation Detection</h3>
+                <p className="text-sm text-gray-400">Finds highlights, stamps, text additions, redactions, and drawings</p>
               </div>
             </div>
           </div>
         )}
 
         {loading && (
-          <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-12 text-center border border-gray-200 dark:border-gray-800">
-            <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
+          <div className="bg-[#1F1F1F] rounded-3xl shadow-xl p-12 text-center border border-[#2a2a2a]">
+            <div className="w-20 h-20 bg-[#c4ff0e] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+              <Loader2 className="w-10 h-10 text-black animate-spin" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Analyzing PDF...</h2>
-            <p className="text-gray-600 dark:text-gray-400">Scanning for edits, modifications, and tampering signs</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Analyzing PDF...</h2>
+            <p className="text-gray-400">Scanning for edits, modifications, and tampering signs</p>
           </div>
         )}
 
@@ -201,26 +201,26 @@ const VerifyPage: React.FC = () => {
             })()}
 
             {analysisResult.modifications.length > 0 && (
-              <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+              <div className="bg-[#1F1F1F] rounded-3xl shadow-xl border border-[#2a2a2a] overflow-hidden">
+                <div className="p-6 bg-[#252525] border-b border-[#2a2a2a]">
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-3">
-                      <AlertTriangle className="w-6 h-6 text-orange-500" />
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Detected Modifications ({analysisResult.modifications.length})</h3>
+                      <AlertTriangle className="w-6 h-6 text-[#c4ff0e]" />
+                      <h3 className="text-xl font-bold text-white">Detected Modifications ({analysisResult.modifications.length})</h3>
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">{analysisResult.modifications.filter(m => m.severity === 'CRITICAL').length} Critical</span>
-                      <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-medium rounded-full">{analysisResult.modifications.filter(m => m.severity === 'HIGH').length} High</span>
-                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-medium rounded-full">{analysisResult.modifications.filter(m => m.severity === 'MEDIUM').length} Medium</span>
+                      <span className="px-3 py-1 bg-red-900/30 text-red-400 text-sm font-medium rounded-full border border-red-800">{analysisResult.modifications.filter(m => m.severity === 'CRITICAL').length} Critical</span>
+                      <span className="px-3 py-1 bg-orange-900/30 text-orange-400 text-sm font-medium rounded-full border border-orange-800">{analysisResult.modifications.filter(m => m.severity === 'HIGH').length} High</span>
+                      <span className="px-3 py-1 bg-yellow-900/30 text-yellow-400 text-sm font-medium rounded-full border border-yellow-800">{analysisResult.modifications.filter(m => m.severity === 'MEDIUM').length} Medium</span>
                     </div>
                   </div>
                 </div>
-                <div className="divide-y divide-gray-200 dark:divide-gray-800">
+                <div className="divide-y divide-[#2a2a2a]">
                   {analysisResult.modifications.map((mod, idx) => {
                     const Icon = getModificationIcon(mod.type)
                     const isExpanded = expandedModifications.has(idx)
                     return (
-                      <div key={idx} className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer" onClick={() => toggleModification(idx)}>
+                      <div key={idx} className="p-5 hover:bg-[#252525] transition-colors cursor-pointer" onClick={() => toggleModification(idx)}>
                         <div className="flex items-start gap-4">
                           <div className={`p-3 rounded-xl ${getSeverityColor(mod.severity).replace('text-', 'bg-').replace('-700', '-100')}`}>
                             <Icon className={`w-5 h-5 ${getSeverityColor(mod.severity).split(' ')[1]}`} />
@@ -229,19 +229,19 @@ const VerifyPage: React.FC = () => {
                             <div className="flex items-start justify-between gap-4">
                               <div>
                                 <div className="flex items-center gap-3 mb-1 flex-wrap">
-                                  <h4 className="font-bold text-gray-900 dark:text-white">{mod.title}</h4>
+                                  <h4 className="font-bold text-white">{mod.title}</h4>
                                   <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full border ${getSeverityColor(mod.severity)}`}>{mod.severity}</span>
                                 </div>
-                                <p className="text-gray-600 dark:text-gray-400">{mod.description}</p>
+                                <p className="text-gray-400">{mod.description}</p>
                               </div>
-                              <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0">
-                                {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                              <button className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors flex-shrink-0">
+                                {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
                               </button>
                             </div>
                             {isExpanded && mod.details && (
-                              <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                                <pre className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono">{mod.details}</pre>
-                                {mod.timestamp && <div className="mt-3 flex items-center gap-2 text-sm text-gray-500"><Clock className="w-4 h-4" />{mod.timestamp}</div>}
+                              <div className="mt-4 p-4 bg-[#2a2a2a] rounded-xl">
+                                <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono">{mod.details}</pre>
+                                {mod.timestamp && <div className="mt-3 flex items-center gap-2 text-sm text-gray-400"><Clock className="w-4 h-4" />{mod.timestamp}</div>}
                               </div>
                             )}
                           </div>
@@ -254,58 +254,58 @@ const VerifyPage: React.FC = () => {
             )}
 
             {analysisResult.modifications.length === 0 && (
-              <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle2 className="w-8 h-8 text-green-600" /></div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Modification Signs Detected</h3>
-                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">This PDF appears to be in its original state. No editing software signatures, incremental updates, or other modification indicators were found.</p>
+              <div className="bg-[#1F1F1F] rounded-3xl shadow-xl border border-[#2a2a2a] p-8 text-center">
+                <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-800"><CheckCircle2 className="w-8 h-8 text-green-400" /></div>
+                <h3 className="text-xl font-bold text-white mb-2">No Modification Signs Detected</h3>
+                <p className="text-gray-400 max-w-md mx-auto">This PDF appears to be in its original state. No editing software signatures, incremental updates, or other modification indicators were found.</p>
               </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <button onClick={() => setShowMetadata(!showMetadata)} className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                  <div className="flex items-center gap-3"><Info className="w-5 h-5 text-cyan-500" /><span className="font-bold text-gray-900 dark:text-white">Document Metadata</span></div>
-                  {showMetadata ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+              <div className="bg-[#1F1F1F] rounded-2xl shadow-lg border border-[#2a2a2a] overflow-hidden">
+                <button onClick={() => setShowMetadata(!showMetadata)} className="w-full p-4 flex items-center justify-between hover:bg-[#252525] transition-colors">
+                  <div className="flex items-center gap-3"><Info className="w-5 h-5 text-[#c4ff0e]" /><span className="font-bold text-white">Document Metadata</span></div>
+                  {showMetadata ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
                 </button>
                 {showMetadata && (
                   <div className="p-4 pt-0 space-y-3">
                     {Object.entries(analysisResult.metadata).map(([key, value]) => value && (
-                      <div key={key} className="flex justify-between items-start gap-4 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                        <span className="text-sm text-gray-500 dark:text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                        <span className="text-sm text-gray-900 dark:text-white text-right font-mono max-w-[60%] break-all">{value}</span>
+                      <div key={key} className="flex justify-between items-start gap-4 py-2 border-b border-[#2a2a2a] last:border-0">
+                        <span className="text-sm text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                        <span className="text-sm text-white text-right font-mono max-w-[60%] break-all">{value}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <button onClick={() => setShowStructure(!showStructure)} className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                  <div className="flex items-center gap-3"><Layers className="w-5 h-5 text-purple-500" /><span className="font-bold text-gray-900 dark:text-white">PDF Structure</span></div>
-                  {showStructure ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+              <div className="bg-[#1F1F1F] rounded-2xl shadow-lg border border-[#2a2a2a] overflow-hidden">
+                <button onClick={() => setShowStructure(!showStructure)} className="w-full p-4 flex items-center justify-between hover:bg-[#252525] transition-colors">
+                  <div className="flex items-center gap-3"><Layers className="w-5 h-5 text-[#c4ff0e]" /><span className="font-bold text-white">PDF Structure</span></div>
+                  {showStructure ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
                 </button>
                 {showStructure && (
                   <div className="p-4 pt-0 grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">PDF Version</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.pdfVersion || 'Unknown'}</p></div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">Pages</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.pageCount}</p></div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">Saves</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.incrementalUpdateCount}</p></div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"><p className="text-xs text-gray-500">Encrypted</p><p className="font-bold text-gray-900 dark:text-white">{analysisResult.structureInfo.isEncrypted ? 'Yes' : 'No'}</p></div>
+                    <div className="p-3 bg-[#2a2a2a] rounded-lg"><p className="text-xs text-gray-400">PDF Version</p><p className="font-bold text-white">{analysisResult.structureInfo.pdfVersion || 'Unknown'}</p></div>
+                    <div className="p-3 bg-[#2a2a2a] rounded-lg"><p className="text-xs text-gray-400">Pages</p><p className="font-bold text-white">{analysisResult.structureInfo.pageCount}</p></div>
+                    <div className="p-3 bg-[#2a2a2a] rounded-lg"><p className="text-xs text-gray-400">Saves</p><p className="font-bold text-white">{analysisResult.structureInfo.incrementalUpdateCount}</p></div>
+                    <div className="p-3 bg-[#2a2a2a] rounded-lg"><p className="text-xs text-gray-400">Encrypted</p><p className="font-bold text-white">{analysisResult.structureInfo.isEncrypted ? 'Yes' : 'No'}</p></div>
                   </div>
                 )}
               </div>
             </div>
 
             {(analysisResult.editingHistory.software.length > 0 || analysisResult.editingHistory.editDates.length > 0) && (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><History className="w-5 h-5 text-purple-500" />Editing History</h3>
+              <div className="bg-[#1F1F1F] rounded-2xl shadow-lg border border-[#2a2a2a] p-6">
+                <h3 className="font-bold text-white mb-4 flex items-center gap-2"><History className="w-5 h-5 text-[#c4ff0e]" />Editing History</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {analysisResult.editingHistory.software.length > 0 && (
-                    <div><p className="text-sm text-gray-500 mb-2">Software Used</p>
-                      <div className="flex flex-wrap gap-2">{analysisResult.editingHistory.software.map((sw, idx) => <span key={idx} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm">{sw}</span>)}</div>
+                    <div><p className="text-sm text-gray-400 mb-2">Software Used</p>
+                      <div className="flex flex-wrap gap-2">{analysisResult.editingHistory.software.map((sw, idx) => <span key={idx} className="px-3 py-1.5 bg-[#2a2a2a] text-gray-300 rounded-lg text-sm">{sw}</span>)}</div>
                     </div>
                   )}
                   {analysisResult.editingHistory.editDates.length > 0 && (
-                    <div><p className="text-sm text-gray-500 mb-2">Edit Dates</p>
-                      <div className="space-y-1">{analysisResult.editingHistory.editDates.slice(0, 5).map((date, idx) => <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Clock className="w-4 h-4 text-gray-400" />{date}</div>)}</div>
+                    <div><p className="text-sm text-gray-400 mb-2">Edit Dates</p>
+                      <div className="space-y-1">{analysisResult.editingHistory.editDates.slice(0, 5).map((date, idx) => <div key={idx} className="flex items-center gap-2 text-sm text-gray-300"><Clock className="w-4 h-4 text-gray-400" />{date}</div>)}</div>
                     </div>
                   )}
                 </div>
@@ -313,7 +313,7 @@ const VerifyPage: React.FC = () => {
             )}
 
             <div className="text-center pt-4">
-              <button onClick={clearUpload} className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-bold hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg shadow-cyan-500/25 hover:shadow-xl">
+              <button onClick={clearUpload} className="inline-flex items-center gap-3 px-8 py-4 bg-[#c4ff0e] text-black rounded-2xl font-bold hover:bg-[#b8f000] transition-all shadow-lg shadow-[#c4ff0e]/25 hover:shadow-xl">
                 <RefreshCw className="w-5 h-5" />Analyze Another PDF
               </button>
             </div>

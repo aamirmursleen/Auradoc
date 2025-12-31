@@ -207,18 +207,18 @@ export default function PDFToWordPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-[#1e1e1e]">
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
             <FileType className="w-4 h-4" />
             PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             PDF to Word Converter
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Convert PDF files to editable Word documents (.docx).
             Extract text and download as Word format.
           </p>
@@ -227,8 +227,8 @@ export default function PDFToWordPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-12 transition-all ${
               dragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-blue-400 bg-white'
+                ? 'border-[#c4ff0e] bg-[#252525]'
+                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -237,13 +237,13 @@ export default function PDFToWordPage() {
           >
             {!file ? (
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   Drop your PDF here
                 </h3>
-                <p className="text-gray-500 mb-4">or click to browse</p>
+                <p className="text-gray-400 mb-4">or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -253,7 +253,7 @@ export default function PDFToWordPage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF File
@@ -262,11 +262,11 @@ export default function PDFToWordPage() {
               </div>
             ) : (
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
-                <p className="font-medium text-gray-900 mb-1">{file.name}</p>
-                <p className="text-sm text-gray-500 mb-6">
+                <p className="font-medium text-white mb-1">{file.name}</p>
+                <p className="text-sm text-gray-400 mb-6">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
 
@@ -274,13 +274,13 @@ export default function PDFToWordPage() {
                   <div>
                     {converting && (
                       <div className="mb-4">
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div className="w-full bg-[#2a2a2a] rounded-full h-2 mb-2">
                           <div
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-[#c4ff0e] h-2 rounded-full transition-all duration-300"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-400">
                           {progress < 80 ? 'Extracting text...' : progress < 95 ? 'Creating Word document...' : 'Finalizing...'}
                         </p>
                       </div>
@@ -288,7 +288,7 @@ export default function PDFToWordPage() {
                     <button
                       onClick={handleConvert}
                       disabled={converting}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-all disabled:opacity-50"
                     >
                       {converting ? (
                         <>
@@ -305,15 +305,15 @@ export default function PDFToWordPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-center gap-2 text-green-600">
+                    <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">Conversion Complete!</span>
                     </div>
 
                     {/* Preview Box */}
-                    <div className="bg-gray-50 rounded-xl p-4 text-left border border-gray-200 max-h-48 overflow-y-auto">
+                    <div className="bg-[#252525] rounded-xl p-4 text-left border border-[#2a2a2a] max-h-48 overflow-y-auto">
                       <p className="text-xs text-gray-400 mb-2">Preview (first 500 characters):</p>
-                      <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+                      <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans">
                         {extractedText.substring(0, 500)}{extractedText.length > 500 ? '...' : ''}
                       </pre>
                     </div>
@@ -321,7 +321,7 @@ export default function PDFToWordPage() {
                     {/* Download Button */}
                     <button
                       onClick={downloadWord}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
                     >
                       <Download className="w-5 h-5" />
                       Download Word Document (.docx)
@@ -331,7 +331,7 @@ export default function PDFToWordPage() {
 
                 <button
                   onClick={clearFile}
-                  className="block mx-auto mt-4 text-sm text-gray-500 hover:text-gray-700"
+                  className="block mx-auto mt-4 text-sm text-gray-400 hover:text-gray-300"
                 >
                   Upload different file
                 </button>
@@ -340,8 +340,8 @@ export default function PDFToWordPage() {
           </div>
 
           {/* Note */}
-          <div className="max-w-2xl mx-auto mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <p className="text-sm text-blue-800">
+          <div className="max-w-2xl mx-auto mt-6 p-4 bg-[#252525] rounded-xl border border-[#2a2a2a]">
+            <p className="text-sm text-gray-300">
               <strong>Note:</strong> This tool extracts text from PDFs. For scanned PDFs (images),
               the text extraction may be limited. Best results with text-based PDFs.
             </p>
@@ -350,19 +350,19 @@ export default function PDFToWordPage() {
       </section>
 
       {/* Features */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-[#1F1F1F]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             Why Use Our Converter?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-gray-50">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
+                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.desc}</p>
+                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-400 text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -370,40 +370,40 @@ export default function PDFToWordPage() {
       </section>
 
       {/* Other Tools */}
-      <section className="py-16 px-4 bg-gray-50">
+      <section className="py-16 px-4 bg-[#1e1e1e]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             Other Tools You Might Need
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href="/tools/image-to-pdf" className="block p-6 bg-white rounded-2xl hover:shadow-lg transition-all group border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-indigo-600">Image to PDF</h3>
-              <p className="text-gray-600 text-sm">Convert images to PDF documents</p>
+            <Link href="/tools/image-to-pdf" className="block p-6 bg-[#252525] rounded-2xl hover:shadow-lg transition-all group border border-[#2a2a2a]">
+              <h3 className="font-semibold text-white mb-2 group-hover:text-[#c4ff0e]">Image to PDF</h3>
+              <p className="text-gray-400 text-sm">Convert images to PDF documents</p>
             </Link>
-            <Link href="/tools/pdf-compressor" className="block p-6 bg-white rounded-2xl hover:shadow-lg transition-all group border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-green-600">PDF Optimizer</h3>
-              <p className="text-gray-600 text-sm">Reduce PDF file size</p>
+            <Link href="/tools/pdf-compressor" className="block p-6 bg-[#252525] rounded-2xl hover:shadow-lg transition-all group border border-[#2a2a2a]">
+              <h3 className="font-semibold text-white mb-2 group-hover:text-[#c4ff0e]">PDF Optimizer</h3>
+              <p className="text-gray-400 text-sm">Reduce PDF file size</p>
             </Link>
-            <Link href="/verify" className="block p-6 bg-white rounded-2xl hover:shadow-lg transition-all group border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600">Verify PDF</h3>
-              <p className="text-gray-600 text-sm">Check document authenticity</p>
+            <Link href="/verify" className="block p-6 bg-[#252525] rounded-2xl hover:shadow-lg transition-all group border border-[#2a2a2a]">
+              <h3 className="font-semibold text-white mb-2 group-hover:text-[#c4ff0e]">Verify PDF</h3>
+              <p className="text-gray-400 text-sm">Check document authenticity</p>
             </Link>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <section className="py-16 px-4 bg-[#252525]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Need More PDF Tools?
           </h2>
-          <p className="text-blue-100 mb-8">
+          <p className="text-gray-300 mb-8">
             Check out our complete suite of document tools
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-all"
           >
             Explore All Tools
             <ArrowRight className="w-5 h-5" />

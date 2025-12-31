@@ -156,17 +156,17 @@ export default function WordToPDFPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-[#1e1e1e]">
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
             <FileType className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Word to PDF
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Convert your Word documents (.docx) to PDF format instantly.
             Preserve formatting and create professional PDFs.
           </p>
@@ -174,8 +174,8 @@ export default function WordToPDFPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 transition-all ${
               dragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-blue-400 bg-white'
+                ? 'border-[#c4ff0e] bg-[#252525]'
+                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -184,13 +184,13 @@ export default function WordToPDFPage() {
           >
             {!file ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   Drop your Word document here
                 </h3>
-                <p className="text-gray-500 mb-4">or click to browse</p>
+                <p className="text-gray-400 mb-4">or click to browse</p>
                 <input
                   type="file"
                   accept=".docx,.doc"
@@ -200,7 +200,7 @@ export default function WordToPDFPage() {
                 />
                 <label
                   htmlFor="word-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
                 >
                   <Upload className="w-5 h-5" />
                   Select Word File
@@ -209,17 +209,17 @@ export default function WordToPDFPage() {
               </div>
             ) : !converted ? (
               <div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 mb-6">
-                  <div className="w-10 h-10 bg-blue-100 rounded flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3 p-3 bg-[#252525] rounded-lg border border-[#2a2a2a] mb-6">
+                  <div className="w-10 h-10 bg-[#2a2a2a] rounded flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-[#c4ff0e]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                    <p className="text-xs text-gray-500">{formatSize(file.size)}</p>
+                    <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                    <p className="text-xs text-gray-400">{formatSize(file.size)}</p>
                   </div>
                   <button
                     onClick={clearAll}
-                    className="p-1 hover:bg-red-100 rounded text-gray-400 hover:text-red-500"
+                    className="p-1 hover:bg-red-900/20 rounded text-gray-400 hover:text-red-400"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -227,13 +227,13 @@ export default function WordToPDFPage() {
 
                 {converting && (
                   <div className="mb-6">
-                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <div className="flex justify-between text-sm text-gray-400 mb-2">
                       <span>Converting...</span>
                       <span>{progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-[#2a2a2a] rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-[#c4ff0e] h-2 rounded-full transition-all duration-300"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -243,7 +243,7 @@ export default function WordToPDFPage() {
                 <div className="flex justify-center gap-3">
                   <button
                     onClick={clearAll}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-400 hover:bg-[#2a2a2a] rounded-lg transition-colors"
                     disabled={converting}
                   >
                     Cancel
@@ -251,7 +251,7 @@ export default function WordToPDFPage() {
                   <button
                     onClick={handleConvert}
                     disabled={converting}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
                   >
                     {converting ? (
                       <>
@@ -269,28 +269,28 @@ export default function WordToPDFPage() {
               </div>
             ) : (
               <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-2 text-green-600">
+                <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-medium">Converted Successfully!</span>
                 </div>
 
                 {preview && (
-                  <div className="bg-gray-50 rounded-lg p-4 text-left">
-                    <p className="text-xs text-gray-500 mb-2">Preview:</p>
-                    <p className="text-sm text-gray-700 line-clamp-4">{preview}</p>
+                  <div className="bg-[#252525] rounded-lg p-4 text-left">
+                    <p className="text-xs text-gray-400 mb-2">Preview:</p>
+                    <p className="text-sm text-gray-300 line-clamp-4">{preview}</p>
                   </div>
                 )}
 
                 <button
                   onClick={downloadPDF}
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
                 >
                   <Download className="w-5 h-5" />
                   Download PDF
                 </button>
                 <button
                   onClick={clearAll}
-                  className="block mx-auto text-sm text-gray-500 hover:text-gray-700"
+                  className="block mx-auto text-sm text-gray-400 hover:text-gray-300"
                 >
                   Convert another document
                 </button>
@@ -300,9 +300,9 @@ export default function WordToPDFPage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-[#1F1F1F]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             Why Convert Word to PDF?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -311,29 +311,29 @@ export default function WordToPDFPage() {
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device' },
               { icon: Clock, title: 'No Limits', desc: 'Convert as many documents as you need' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-gray-50">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
+                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.desc}</p>
+                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-400 text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <section className="py-16 px-4 bg-[#252525]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Need to Convert PDF to Word?
           </h2>
-          <p className="text-blue-100 mb-8">
+          <p className="text-gray-300 mb-8">
             Extract text from PDFs and convert them to editable Word documents
           </p>
           <Link
             href="/tools/pdf-to-word"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1F1F1F] text-[#c4ff0e] font-medium rounded-lg hover:shadow-lg transition-all"
           >
             PDF to Word
             <ArrowRight className="w-5 h-5" />

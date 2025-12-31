@@ -6,38 +6,38 @@ import { Shield, CheckCircle, PenLine, Type, User, Check, Clock } from 'lucide-r
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative bg-gradient-to-br from-gray-50 via-white to-cyan-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+    <section className="relative bg-[#1F1F1F] overflow-hidden">
       {/* Mobile-optimized padding for header offset */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-20 pb-12 sm:pb-16 lg:pb-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
           {/* Left Content - Mobile first */}
           <div className="space-y-6 sm:space-y-8 text-center lg:text-left order-2 lg:order-1">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1]">
               Sign Documents<br className="hidden sm:block" />
               <span className="sm:hidden"> </span>in Seconds.<br />
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Close Deals Faster.</span>
+              <span className="text-[#c4ff0e]">Close Deals Faster.</span>
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0 px-2 sm:px-0">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-lg mx-auto lg:mx-0 px-2 sm:px-0">
               Ditch the printer. Sign contracts, agreements & forms online from any device. Legally binding, beautifully simple.
             </p>
             {/* Mobile-optimized CTA buttons with 44px touch targets */}
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 sm:gap-4 pt-2 px-4 sm:px-0">
-              <Link href="/sign-document" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-xl shadow-lg shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/30 active:scale-[0.98] text-center flex items-center justify-center">
+              <Link href="/sign-document" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-black bg-[#c4ff0e] hover:bg-[#b8f206] rounded-xl shadow-lg shadow-[#c4ff0e]/25 transition-all duration-200 hover:shadow-xl hover:shadow-[#c4ff0e]/30 active:scale-[0.98] text-center flex items-center justify-center">
                 Start Free Trial
               </Link>
-              <Link href="/features" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md active:scale-[0.98] text-center flex items-center justify-center">
+              <Link href="/features" className="w-full sm:w-auto min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 text-base font-semibold text-gray-200 bg-[#2a2a2a] border border-[#3a3a3a] rounded-xl hover:border-[#4a4a4a] transition-all duration-200 hover:shadow-md active:scale-[0.98] text-center flex items-center justify-center">
                 Watch Demo
               </Link>
             </div>
             {/* Trust badges - responsive layout */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-8 pt-2 sm:pt-4">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-500" />
-                <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Bank-Level Security</span>
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#c4ff0e]" />
+                <span className="text-xs sm:text-sm font-medium text-gray-400">Bank-Level Security</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-500" />
-                <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">ESIGN Compliant</span>
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-[#c4ff0e]" />
+                <span className="text-xs sm:text-sm font-medium text-gray-400">ESIGN Compliant</span>
               </div>
             </div>
           </div>
@@ -73,9 +73,9 @@ const HeroSection: React.FC = () => {
                       {/* Left Sidebar - Hidden on smallest screens */}
                       <div className="hidden sm:block w-16 md:w-20 bg-gray-50 border-r border-gray-100 p-1.5 md:p-2 space-y-1.5 md:space-y-2">
                         <p className="text-[7px] md:text-[9px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-1.5 md:mb-2">Fields</p>
-                        <div className="bg-purple-100 border border-purple-200 rounded-md md:rounded-lg p-1.5 md:p-2 cursor-pointer">
-                          <PenLine className="w-3 h-3 md:w-4 md:h-4 text-purple-600 mx-auto" />
-                          <p className="text-[6px] md:text-[8px] text-purple-600 text-center mt-0.5 md:mt-1 font-medium">Sign</p>
+                        <div className="bg-[#c4ff0e]/20 border border-[#c4ff0e]/50 rounded-md md:rounded-lg p-1.5 md:p-2 cursor-pointer">
+                          <PenLine className="w-3 h-3 md:w-4 md:h-4 text-[#c4ff0e] mx-auto" />
+                          <p className="text-[6px] md:text-[8px] text-[#c4ff0e] text-center mt-0.5 md:mt-1 font-medium">Sign</p>
                         </div>
                         <div className="bg-white border border-gray-200 rounded-md md:rounded-lg p-1.5 md:p-2">
                           <Type className="w-3 h-3 md:w-4 md:h-4 text-gray-500 mx-auto" />
@@ -97,12 +97,12 @@ const HeroSection: React.FC = () => {
                           </div>
 
                           {/* Signature Field */}
-                          <div className="border-2 border-dashed border-purple-400 rounded-md sm:rounded-lg p-2 sm:p-3 bg-purple-50/50 mt-2 sm:mt-4">
+                          <div className="border-2 border-dashed border-[#c4ff0e] rounded-md sm:rounded-lg p-2 sm:p-3 bg-[#c4ff0e]/10 mt-2 sm:mt-4">
                             <div className="flex items-center justify-between mb-0.5 sm:mb-1">
-                              <span className="text-[6px] sm:text-[8px] font-semibold text-purple-500 uppercase tracking-wider">Signature</span>
-                              <span className="text-[5px] sm:text-[7px] text-purple-400 bg-purple-100 px-1 sm:px-1.5 py-0.5 rounded">Required</span>
+                              <span className="text-[6px] sm:text-[8px] font-semibold text-[#c4ff0e] uppercase tracking-wider">Signature</span>
+                              <span className="text-[5px] sm:text-[7px] text-[#a8dd0c] bg-[#c4ff0e]/20 px-1 sm:px-1.5 py-0.5 rounded">Required</span>
                             </div>
-                            <p className="text-sm sm:text-lg text-purple-600 italic font-serif">John Smith</p>
+                            <p className="text-sm sm:text-lg text-[#c4ff0e] italic font-serif">John Smith</p>
                           </div>
                         </div>
                       </div>
@@ -112,25 +112,25 @@ const HeroSection: React.FC = () => {
                         <p className="text-[7px] md:text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 md:mb-2">Signers</p>
 
                         {/* Signer 1 - Signed */}
-                        <div className="bg-white rounded-md md:rounded-lg p-1.5 md:p-2 mb-1.5 md:mb-2 border border-green-200">
+                        <div className="bg-white rounded-md md:rounded-lg p-1.5 md:p-2 mb-1.5 md:mb-2 border border-[#c4ff0e]/50">
                           <div className="flex items-center gap-1">
-                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-purple-500 flex items-center justify-center">
-                              <span className="text-[6px] md:text-[8px] text-white font-medium">JS</span>
+                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-[#c4ff0e] flex items-center justify-center">
+                              <span className="text-[6px] md:text-[8px] text-black font-medium">JS</span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-[7px] md:text-[9px] font-medium text-gray-700 truncate">John</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-0.5 md:gap-1 mt-1">
-                            <Check className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-500" />
-                            <span className="text-[6px] md:text-[8px] text-green-600 font-medium">Signed</span>
+                            <Check className="w-2.5 h-2.5 md:w-3 md:h-3 text-[#c4ff0e]" />
+                            <span className="text-[6px] md:text-[8px] text-[#c4ff0e] font-medium">Signed</span>
                           </div>
                         </div>
 
                         {/* Signer 2 - Pending */}
                         <div className="bg-white rounded-md md:rounded-lg p-1.5 md:p-2 border border-gray-200">
                           <div className="flex items-center gap-1">
-                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-gray-400 flex items-center justify-center">
                               <span className="text-[6px] md:text-[8px] text-white font-medium">AS</span>
                             </div>
                             <div className="flex-1 min-w-0">

@@ -29,6 +29,8 @@ const SignerManager: React.FC<SignerManagerProps> = ({
   selectedSignerId,
   onSelectSigner,
   onAddSigner,
+  currentUserName,
+  currentUserEmail,
   onUpdateSigner,
   onRemoveSigner,
 }) => {
@@ -47,6 +49,17 @@ const SignerManager: React.FC<SignerManagerProps> = ({
       setShowAddForm(false)
     }
   }
+
+  const handleAddSelf = () => {
+    if (currentUserName && currentUserEmail) {
+      onAddSigner(currentUserName, currentUserEmail, true)
+    }
+  }
+
+  // Check if current user is already a signer
+  const isCurrentUserSigner = currentUserEmail && signers.some(
+    s => s.email.toLowerCase() === currentUserEmail.toLowerCase()
+  )
 
   const startEditing = (signer: Signer) => {
     setEditingId(signer.id)
@@ -127,9 +140,16 @@ const SignerManager: React.FC<SignerManagerProps> = ({
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-gray-900 truncate">
-                      {signer.name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm text-gray-900 truncate">
+                        {signer.name}
+                      </p>
+                      {signer.is_self && (
+                        <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 text-xs font-medium rounded">
+                          You
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 truncate">
                       {signer.email}
                     </p>
@@ -209,20 +229,37 @@ const SignerManager: React.FC<SignerManagerProps> = ({
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50 transition-all"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="font-medium">Add Signer</span>
-        </button>
+        <div className="space-y-2">
+          {/* Sign Myself Button */}
+          {currentUserName && currentUserEmail && !isCurrentUserSigner && (
+            <button
+              onClick={handleAddSelf}
+              className="w-full flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <UserCheck className="w-5 h-5" />
+              <span className="font-medium">Sign Myself</span>
+            </button>
+          )}
+
+          {/* Add Other Signer Button */}
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50 transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-medium">Add Other Signer</span>
+          </button>
+        </div>
       )}
 
       {/* Instructions */}
       {signers.length === 0 && !showAddForm && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
-            Add signers to specify who needs to sign this document. Each signer will receive an email invitation.
+            {currentUserName && currentUserEmail
+              ? 'Click "Sign Myself" to sign this document yourself, or add other signers who will receive an email invitation.'
+              : 'Add signers to specify who needs to sign this document. Each signer will receive an email invitation.'
+            }
           </p>
         </div>
       )}

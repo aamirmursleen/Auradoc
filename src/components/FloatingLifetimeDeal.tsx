@@ -93,8 +93,8 @@ const FloatingLifetimeDeal: React.FC = () => {
 
               <div className="flex items-center gap-2 sm:gap-3 sm:pl-4 sm:border-l sm:border-gray-700">
                 <span className="hidden sm:block text-white font-bold text-xl">$27</span>
-                <div className="w-8 h-8 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 bg-gradient-to-br from-lime-400 to-green-500 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-green-500/30">
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-900" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 bg-[#c4ff0e] rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-[#c4ff0e]/30">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
                 </div>
               </div>
             </div>

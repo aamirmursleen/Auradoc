@@ -29,10 +29,11 @@ export async function POST(req: NextRequest) {
     // Create signing request in database
     const signingRequestId = crypto.randomUUID()
 
-    const signersWithTokens = signers.map((s: { name: string; email: string; order: number }) => ({
+    const signersWithTokens = signers.map((s: { name: string; email: string; order: number; is_self?: boolean }) => ({
       name: s.name,
       email: s.email,
       order: s.order,
+      is_self: s.is_self || false,
       status: 'pending',
       signedAt: null,
       token: crypto.randomUUID()
@@ -63,15 +64,18 @@ export async function POST(req: NextRequest) {
       console.error('Database error:', insertError)
     }
 
-    // Send email to first signer
-    const firstSigner = signersWithTokens[0]
-    if (firstSigner) {
-      const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + firstSigner.token + '&email=' + encodeURIComponent(firstSigner.email)
+    // Find self-signer and first non-self signer
+    const selfSigner = signersWithTokens.find((s: { is_self?: boolean }) => s.is_self)
+    const firstNonSelfSigner = signersWithTokens.find((s: { is_self?: boolean }) => !s.is_self)
+
+    // Send email to first non-self signer if exists
+    if (firstNonSelfSigner) {
+      const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + firstNonSelfSigner.token + '&email=' + encodeURIComponent(firstNonSelfSigner.email)
 
       try {
         const emailResult = await sendSigningInvite({
-          to: firstSigner.email,
-          signerName: firstSigner.name,
+          to: firstNonSelfSigner.email,
+          signerName: firstNonSelfSigner.name,
           senderName: senderName,
           senderEmail: senderEmail,
           documentName: documentName,
@@ -88,11 +92,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Generate self-signing link if user added themselves as signer
+    const selfSigningLink = selfSigner
+      ? APP_URL + '/sign/' + signingRequestId + '?token=' + selfSigner.token + '&email=' + encodeURIComponent(selfSigner.email)
+      : null
+
     return NextResponse.json({
       success: true,
       message: 'Document sent for signing',
       documentId: signingRequestId,
-      signerCount: signers.length
+      signerCount: signers.length,
+      selfSigningLink
     })
 
   } catch (error) {

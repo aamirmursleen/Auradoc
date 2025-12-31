@@ -99,24 +99,24 @@ const PricingPage: React.FC = () => {
   const discountPercent = 90
 
   return (
-    <div className="overflow-hidden bg-white dark:bg-gray-900">
+    <div className="overflow-hidden bg-[#1F1F1F]">
       {/* Hero Section */}
       <section className="relative pt-24 pb-8 md:pt-32 md:pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+          <div className="bg-[#c4ff0e] rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-black/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full blur-3xl" />
 
             <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-                <Gift className="w-5 h-5 text-yellow-300" />
-                <span className="text-white font-semibold">Limited Time Offer</span>
+              <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                <Gift className="w-5 h-5 text-black" />
+                <span className="text-black font-semibold">Limited Time Offer</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-4">
                 Lifetime Deal
               </h1>
-              <p className="text-lg text-white/90 max-w-xl mx-auto">
+              <p className="text-lg text-black/90 max-w-xl mx-auto">
                 Pay once, use forever. Get unlimited access to all MamaSign features with a single payment.
               </p>
             </div>
@@ -129,57 +129,57 @@ const PricingPage: React.FC = () => {
         <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative">
             {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-3xl blur-xl opacity-30" />
+            <div className="absolute inset-0 bg-[#c4ff0e] rounded-3xl blur-xl opacity-30" />
 
             {/* Card */}
-            <div className="relative bg-white dark:bg-gray-800 rounded-3xl p-8 md:p-10 border-2 border-cyan-500 shadow-2xl">
+            <div className="relative bg-[#252525] rounded-3xl p-8 md:p-10 border-2 border-[#c4ff0e] shadow-2xl">
               {/* Badge */}
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-sm font-bold rounded-full shadow-lg flex items-center gap-2">
+                <span className="px-6 py-2 bg-[#c4ff0e] text-black text-sm font-bold rounded-full shadow-lg flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   SAVE {discountPercent}%
                 </span>
               </div>
 
               <div className="text-center mb-8 pt-4">
-                <p className="text-cyan-600 dark:text-cyan-400 font-semibold uppercase tracking-wider mb-4">
+                <p className="text-[#c4ff0e] font-semibold uppercase tracking-wider mb-4">
                   Lifetime Access
                 </p>
 
                 {/* Price */}
                 <div className="flex items-center justify-center gap-3 mb-2">
                   <span className="text-2xl text-gray-400 line-through">${originalPrice}</span>
-                  <span className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white">
+                  <span className="text-6xl md:text-7xl font-bold text-white">
                     ${discountedPrice}
                   </span>
                 </div>
-                <p className="text-gray-500 dark:text-gray-400">One-time payment • Forever yours</p>
+                <p className="text-gray-400">One-time payment • Forever yours</p>
               </div>
 
               {/* Features preview */}
               <div className="space-y-3 mb-8">
                 {featureList.slice(0, 8).map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
+                    <div className="flex-shrink-0 w-5 h-5 bg-[#c4ff0e] rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3 text-black" />
                     </div>
-                    <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                    <span className="text-gray-300">{feature}</span>
                   </div>
                 ))}
-                <p className="text-cyan-600 dark:text-cyan-400 font-medium pl-8">+ {featureList.length - 8} more features...</p>
+                <p className="text-[#c4ff0e] font-medium pl-8">+ {featureList.length - 8} more features...</p>
               </div>
 
               {/* CTA Button */}
               <Link
                 href="/sign-up"
-                className="block w-full py-4 px-6 text-center text-lg font-bold text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+                className="block w-full py-4 px-6 text-center text-lg font-bold text-black bg-[#c4ff0e] rounded-xl shadow-lg hover:shadow-xl hover:shadow-[#c4ff0e]/30 transition-all duration-300 hover:scale-105"
               >
                 Get Lifetime Access
                 <ArrowRight className="w-5 h-5 inline-block ml-2" />
               </Link>
 
               {/* Guarantee */}
-              <div className="flex items-center justify-center gap-2 mt-6 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center justify-center gap-2 mt-6 text-sm text-gray-400">
                 <Shield className="w-4 h-4 text-green-500" />
                 <span>30-day money-back guarantee</span>
               </div>
@@ -192,20 +192,20 @@ const PricingPage: React.FC = () => {
       <section className="py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <Lock className="w-5 h-5 text-cyan-500" />
+            <div className="flex items-center gap-2 text-gray-400">
+              <Lock className="w-5 h-5 text-[#c4ff0e]" />
               <span className="font-medium">Secure Payment</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <Zap className="w-5 h-5 text-cyan-500" />
+            <div className="flex items-center gap-2 text-gray-400">
+              <Zap className="w-5 h-5 text-[#c4ff0e]" />
               <span className="font-medium">Instant Access</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <Shield className="w-5 h-5 text-cyan-500" />
+            <div className="flex items-center gap-2 text-gray-400">
+              <Shield className="w-5 h-5 text-[#c4ff0e]" />
               <span className="font-medium">30-Day Guarantee</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <Globe className="w-5 h-5 text-cyan-500" />
+            <div className="flex items-center gap-2 text-gray-400">
+              <Globe className="w-5 h-5 text-[#c4ff0e]" />
               <span className="font-medium">Lifetime Updates</span>
             </div>
           </div>
@@ -213,13 +213,13 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* All Features Grid */}
-      <section className="py-16 md:py-24 bg-gray-50 dark:bg-gray-800">
+      <section className="py-16 md:py-24 bg-[#1e1e1e]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Everything Included
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-lg text-gray-300">
               One payment, all features, forever
             </p>
           </div>
@@ -228,25 +228,25 @@ const PricingPage: React.FC = () => {
             {allFeatures.map((feature, index) => (
               <div
                 key={index}
-                className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:border-cyan-400 dark:hover:border-cyan-500 hover:shadow-lg transition-all duration-300"
+                className="bg-[#252525] rounded-2xl p-6 border border-[#2a2a2a] hover:border-[#c4ff0e] hover:shadow-lg transition-all duration-300"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-cyan-500/30">
-                  <feature.icon className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-[#c4ff0e]/30">
+                  <feature.icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.name}</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">{feature.description}</p>
+                <h3 className="font-semibold text-white mb-2">{feature.name}</h3>
+                <p className="text-gray-400 text-sm">{feature.description}</p>
               </div>
             ))}
           </div>
 
           {/* Full feature list */}
-          <div className="mt-12 bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">Complete Feature List</h3>
+          <div className="mt-12 bg-[#252525] rounded-2xl p-8 border border-[#2a2a2a]">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">Complete Feature List</h3>
             <div className="grid md:grid-cols-3 gap-4">
               {featureList.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-cyan-500 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">{feature}</span>
+                  <Check className="w-5 h-5 text-[#c4ff0e] flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">{feature}</span>
                 </div>
               ))}
             </div>
@@ -255,38 +255,38 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* Comparison Section */}
-      <section className="py-16 md:py-24 bg-white dark:bg-gray-900">
+      <section className="py-16 md:py-24 bg-[#1F1F1F]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Why Lifetime Deal?
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-lg text-gray-300">
               See how much you save compared to monthly subscriptions
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Monthly Plan */}
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 opacity-75">
+            <div className="bg-[#1e1e1e] rounded-2xl p-6 border border-[#2a2a2a] opacity-75">
               <div className="text-center mb-6">
-                <p className="text-gray-500 dark:text-gray-400 font-medium mb-2">Monthly Subscription</p>
+                <p className="text-gray-400 font-medium mb-2">Monthly Subscription</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold text-gray-900 dark:text-white">$19</span>
-                  <span className="text-gray-500">/month</span>
+                  <span className="text-4xl font-bold text-white">$19</span>
+                  <span className="text-gray-400">/month</span>
                 </div>
                 <p className="text-red-500 text-sm mt-2">= $228/year, $1,140 in 5 years</p>
               </div>
               <ul className="space-y-3">
-                <li className="flex items-center gap-3 text-gray-500">
+                <li className="flex items-center gap-3 text-gray-400">
                   <X className="w-5 h-5 text-red-400" />
                   <span>Pay forever</span>
                 </li>
-                <li className="flex items-center gap-3 text-gray-500">
+                <li className="flex items-center gap-3 text-gray-400">
                   <X className="w-5 h-5 text-red-400" />
                   <span>Price increases over time</span>
                 </li>
-                <li className="flex items-center gap-3 text-gray-500">
+                <li className="flex items-center gap-3 text-gray-400">
                   <X className="w-5 h-5 text-red-400" />
                   <span>Lose access if you cancel</span>
                 </li>
@@ -294,28 +294,28 @@ const PricingPage: React.FC = () => {
             </div>
 
             {/* Lifetime Deal */}
-            <div className="bg-gradient-to-br from-cyan-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl p-6 border-2 border-cyan-500 relative">
+            <div className="bg-[#252525] rounded-2xl p-6 border-2 border-[#c4ff0e] relative">
               <div className="absolute -top-3 -right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                 BEST VALUE
               </div>
               <div className="text-center mb-6">
-                <p className="text-cyan-600 dark:text-cyan-400 font-medium mb-2">Lifetime Deal</p>
+                <p className="text-[#c4ff0e] font-medium mb-2">Lifetime Deal</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold text-gray-900 dark:text-white">${discountedPrice}</span>
-                  <span className="text-gray-500">one-time</span>
+                  <span className="text-4xl font-bold text-white">${discountedPrice}</span>
+                  <span className="text-gray-400">one-time</span>
                 </div>
                 <p className="text-green-500 text-sm mt-2">Save $1,113+ over 5 years!</p>
               </div>
               <ul className="space-y-3">
-                <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                <li className="flex items-center gap-3 text-gray-300">
                   <Check className="w-5 h-5 text-green-500" />
                   <span>Pay once, own forever</span>
                 </li>
-                <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                <li className="flex items-center gap-3 text-gray-300">
                   <Check className="w-5 h-5 text-green-500" />
                   <span>Price locked in forever</span>
                 </li>
-                <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                <li className="flex items-center gap-3 text-gray-300">
                   <Check className="w-5 h-5 text-green-500" />
                   <span>Lifetime access guaranteed</span>
                 </li>
@@ -326,18 +326,18 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* Trusted By Section */}
-      <section className="py-12 bg-gray-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+      <section className="py-12 bg-[#1e1e1e] border-y border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
+          <h3 className="text-2xl md:text-3xl font-bold text-center text-white mb-8">
             Trusted by 50,000+ Users
           </h3>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
             {trustedBrands.map((brand, index) => (
               <div
                 key={index}
-                className="flex items-center justify-center w-24 h-16 md:w-32 md:h-20 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600"
+                className="flex items-center justify-center w-24 h-16 md:w-32 md:h-20 bg-[#252525] rounded-xl shadow-sm border border-[#3a3a3a]"
               >
-                <span className="text-gray-400 dark:text-gray-500 font-semibold text-sm">{brand}</span>
+                <span className="text-gray-400 font-semibold text-sm">{brand}</span>
               </div>
             ))}
           </div>
@@ -347,29 +347,29 @@ const PricingPage: React.FC = () => {
       {/* Why Choose Us Section */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-3xl p-8 md:p-12 relative overflow-hidden">
+          <div className="bg-[#c4ff0e] rounded-3xl p-8 md:p-12 relative overflow-hidden">
             <div className="absolute right-0 bottom-0 w-64 h-64 opacity-20">
-              <Sparkles className="w-full h-full text-yellow-600" />
+              <Sparkles className="w-full h-full text-black" />
             </div>
             <div className="relative z-10 max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
                 Why choose MamaSign?
               </h2>
-              <p className="text-gray-800 text-lg leading-relaxed mb-6">
+              <p className="text-black text-lg leading-relaxed mb-6">
                 We're building the most comprehensive document platform for businesses. Get e-signatures, PDF tools, invoices, and more - all in one place.
               </p>
               <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
-                  <Shield className="w-5 h-5 text-gray-800" />
-                  <span className="text-gray-800 font-medium">256-bit Encryption</span>
+                <div className="flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full">
+                  <Shield className="w-5 h-5 text-black" />
+                  <span className="text-black font-medium">256-bit Encryption</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
-                  <Clock className="w-5 h-5 text-gray-800" />
-                  <span className="text-gray-800 font-medium">24/7 Support</span>
+                <div className="flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full">
+                  <Clock className="w-5 h-5 text-black" />
+                  <span className="text-black font-medium">24/7 Support</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
-                  <Award className="w-5 h-5 text-gray-800" />
-                  <span className="text-gray-800 font-medium">SOC 2 Certified</span>
+                <div className="flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full">
+                  <Award className="w-5 h-5 text-black" />
+                  <span className="text-black font-medium">SOC 2 Certified</span>
                 </div>
               </div>
             </div>
@@ -378,10 +378,10 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 md:py-24 bg-white dark:bg-gray-900">
+      <section className="py-16 md:py-24 bg-[#1F1F1F]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               FAQ
             </h2>
           </div>
@@ -390,22 +390,22 @@ const PricingPage: React.FC = () => {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800"
+                className="border border-[#2a2a2a] rounded-xl overflow-hidden bg-[#252525]"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-[#2a2a2a] transition-colors"
                 >
-                  <span className="font-medium text-gray-900 dark:text-white pr-4">{faq.question}</span>
+                  <span className="font-medium text-white pr-4">{faq.question}</span>
                   {openFaq === index ? (
-                    <X className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                    <X className="w-5 h-5 text-gray-400 flex-shrink-0" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                    <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
                   )}
                 </button>
                 {openFaq === index && (
-                  <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-700">
-                    <p className="text-gray-600 dark:text-gray-300 pt-4">{faq.answer}</p>
+                  <div className="px-5 pb-5 border-t border-[#3a3a3a]">
+                    <p className="text-gray-300 pt-4">{faq.answer}</p>
                   </div>
                 )}
               </div>
@@ -415,31 +415,31 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600">
+      <section className="py-16 bg-[#c4ff0e]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-            <Clock className="w-5 h-5 text-yellow-300" />
-            <span className="text-white font-semibold">Limited Time Offer</span>
+          <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+            <Clock className="w-5 h-5 text-black" />
+            <span className="text-black font-semibold">Limited Time Offer</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-4">
             Get Lifetime Access Today
           </h2>
-          <p className="text-xl text-white/90 mb-4">
+          <p className="text-xl text-black/90 mb-4">
             <span className="line-through opacity-75">${originalPrice}</span>
             <span className="text-3xl font-bold mx-2">${discountedPrice}</span>
-            <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-sm font-bold">SAVE {discountPercent}%</span>
+            <span className="bg-black text-[#c4ff0e] px-2 py-1 rounded text-sm font-bold">SAVE {discountPercent}%</span>
           </p>
-          <p className="text-white/80 mb-8">
+          <p className="text-black/80 mb-8">
             One-time payment. All features. Forever yours.
           </p>
           <Link
             href="/sign-up"
-            className="inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-cyan-600 bg-white rounded-xl shadow-2xl hover:shadow-white/30 transition-all duration-300 transform hover:scale-105"
+            className="inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-[#c4ff0e] bg-black rounded-xl shadow-2xl hover:shadow-black/30 transition-all duration-300 transform hover:scale-105"
           >
             Get Lifetime Deal
             <ArrowRight className="w-6 h-6 ml-2" />
           </Link>
-          <p className="text-white/70 text-sm mt-4">
+          <p className="text-black/70 text-sm mt-4">
             30-day money-back guarantee • Secure payment • Instant access
           </p>
         </div>

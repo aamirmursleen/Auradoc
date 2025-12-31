@@ -19,8 +19,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#06b6d4' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+    { media: '(prefers-color-scheme: light)', color: '#c4ff0e' },
+    { media: '(prefers-color-scheme: dark)', color: '#1F1F1F' },
   ],
   viewportFit: 'cover',
 }
@@ -172,7 +172,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
           />
         </head>
-        <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300`}>
+        <body className={`${inter.className} antialiased bg-[#1F1F1F] text-white`}>
           <ThemeProvider>
             <div className="flex flex-col min-h-screen">
               <AnnouncementBar />

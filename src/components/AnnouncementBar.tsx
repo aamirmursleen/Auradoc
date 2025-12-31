@@ -29,26 +29,26 @@ const AnnouncementBar: React.FC = () => {
   if (isDismissed || !mounted) return null
 
   return (
-    <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white relative z-[101]">
+    <div className="bg-[#1e1e1e] text-white relative z-[101] border-b border-[#c4ff0e]/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center py-2.5 sm:py-3 gap-3 sm:gap-6 flex-wrap">
           {/* Fire emoji + Text */}
           <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
             <span className="text-lg">🔥</span>
-            <span className="hidden sm:inline">{DISCOUNT_PERCENT}% OFF Yearly Plan</span>
-            <span className="sm:hidden">{DISCOUNT_PERCENT}% OFF</span>
+            <span className="hidden sm:inline text-[#c4ff0e]">{DISCOUNT_PERCENT}% OFF Yearly Plan</span>
+            <span className="sm:hidden text-[#c4ff0e]">{DISCOUNT_PERCENT}% OFF</span>
           </div>
 
           {/* Limited Time Badge */}
-          <div className="flex items-center gap-1.5 sm:gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-            <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="text-xs sm:text-sm font-bold">Limited Time — Ending Soon!</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-[#c4ff0e]/20 backdrop-blur-sm rounded-full px-3 py-1">
+            <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4ff0e]" />
+            <span className="text-xs sm:text-sm font-bold text-[#c4ff0e]">Limited Time — Ending Soon!</span>
           </div>
 
           {/* CTA Button */}
           <Link
             href="#pricing"
-            className="bg-white text-red-600 font-bold text-xs sm:text-sm px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl"
+            className="bg-[#c4ff0e] text-black font-bold text-xs sm:text-sm px-4 py-1.5 rounded-full hover:bg-[#b8f206] transition-colors shadow-lg hover:shadow-xl"
           >
             Get Deal
           </Link>
@@ -56,7 +56,7 @@ const AnnouncementBar: React.FC = () => {
           {/* Close Button */}
           <button
             onClick={handleDismiss}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-[#c4ff0e]/20 rounded-full transition-colors"
             aria-label="Dismiss announcement"
           >
             <X className="w-4 h-4" />

@@ -5,17 +5,25 @@ import SignatureCanvasLib from 'react-signature-canvas'
 import { Download, Check, RotateCcw, Palette, Upload, PenTool, Image, Camera, X, Loader2 } from 'lucide-react'
 
 interface SignatureCanvasProps {
-  onSignatureChange: (signature: string | null) => void
+  onSignatureChange?: (signature: string | null) => void
+  onSave?: (signature: string) => void
+  onClear?: () => void
+  initialSignature?: string
   width?: number
   height?: number
+  compact?: boolean
 }
 
 type SignatureMode = 'draw' | 'upload' | 'camera'
 
 const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   onSignatureChange,
+  onSave,
+  onClear,
+  initialSignature,
   width = 600,
   height = 200,
+  compact = false,
 }) => {
   const signatureRef = useRef<SignatureCanvasLib>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -23,15 +31,18 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const [isEmpty, setIsEmpty] = useState(true)
+  const [isEmpty, setIsEmpty] = useState(!initialSignature)
   const [penColor, setPenColor] = useState('#1e293b')
   const [canvasWidth, setCanvasWidth] = useState(width)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [mode, setMode] = useState<SignatureMode>('draw')
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [uploadedImage, setUploadedImage] = useState<string | null>(initialSignature || null)
   const [isCameraActive, setIsCameraActive] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+
+  // Computed height based on compact mode
+  const canvasHeight = compact ? 120 : height
 
   const colors = [
     { name: 'Black', value: '#1e293b' },
@@ -69,7 +80,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     }
     setUploadedImage(null)
     setIsEmpty(true)
-    onSignatureChange(null)
+    if (onSignatureChange) onSignatureChange(null)
+    if (onClear) onClear()
     stopCamera()
   }
 
@@ -79,7 +91,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       setIsEmpty(isCanvasEmpty)
       if (!isCanvasEmpty) {
         const signatureData = signatureRef.current.toDataURL('image/png')
-        onSignatureChange(signatureData)
+        if (onSignatureChange) onSignatureChange(signatureData)
+        if (onSave) onSave(signatureData)
       }
     }
   }
@@ -176,7 +189,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       const processedImage = canvas.toDataURL('image/png')
       setUploadedImage(processedImage)
       setIsEmpty(false)
-      onSignatureChange(processedImage)
+      if (onSignatureChange) onSignatureChange(processedImage)
+      if (onSave) onSave(processedImage)
       setIsProcessing(false)
     }
 
@@ -263,9 +277,9 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className={compact ? "space-y-2" : "space-y-4"}>
       {/* Mode Selector */}
-      <div className="flex items-center justify-center gap-1 p-1 bg-gray-100 rounded-xl">
+      <div className={`flex items-center justify-center gap-1 p-1 bg-gray-100 rounded-xl ${compact ? 'text-xs' : ''}`}>
         <button
           onClick={() => handleModeChange('draw')}
           className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
@@ -302,6 +316,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       </div>
 
       {/* Toolbar */}
+      {!compact && (
       <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl">
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium text-gray-600">
@@ -371,6 +386,49 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
           </button>
         </div>
       </div>
+      )}
+
+      {/* Compact mode toolbar */}
+      {compact && (
+        <div className="flex items-center justify-end gap-2">
+          {mode === 'draw' && (
+            <div className="relative">
+              <button
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                title="Change pen color"
+              >
+                <Palette className="w-4 h-4 text-gray-600" />
+              </button>
+              {showColorPicker && (
+                <div className="absolute top-full right-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                  <div className="flex space-x-2">
+                    {colors.map((color) => (
+                      <button
+                        key={color.value}
+                        onClick={() => handleColorChange(color.value)}
+                        className={`w-6 h-6 rounded-full border-2 ${
+                          penColor === color.value ? 'border-primary-500' : 'border-gray-200'
+                        }`}
+                        style={{ backgroundColor: color.value }}
+                        title={color.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {mode === 'upload' && (
+            <button onClick={triggerFileInput} className="p-1.5 rounded hover:bg-gray-200">
+              <Image className="w-4 h-4 text-gray-600" />
+            </button>
+          )}
+          <button onClick={handleClear} disabled={isEmpty && !isCameraActive} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-50">
+            <RotateCcw className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+      )}
 
       {/* Hidden File Input */}
       <input
@@ -403,9 +461,9 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             penColor={penColor}
             canvasProps={{
               width: canvasWidth,
-              height: height,
+              height: canvasHeight,
               className: 'signature-canvas rounded-xl cursor-crosshair',
-              style: { width: '100%', height: `${height}px` },
+              style: { width: '100%', height: `${canvasHeight}px` },
             }}
             onEnd={handleEnd}
             minWidth={1}
@@ -428,10 +486,10 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
         <div
           ref={containerRef}
           className={`signature-canvas-container ${!isEmpty ? 'has-signature' : ''}`}
-          style={{ minHeight: `${height}px` }}
+          style={{ minHeight: `${canvasHeight}px` }}
         >
           {uploadedImage ? (
-            <div className="relative w-full h-full flex items-center justify-center p-4" style={{ minHeight: `${height}px` }}>
+            <div className="relative w-full h-full flex items-center justify-center p-4" style={{ minHeight: `${canvasHeight}px` }}>
               <div className="bg-gray-100 p-4 rounded-lg" style={{ backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAIElEQVQoU2NkYGD4z0AEYGRgYGBkIA5gwGpKpAYNlQIA3dgFATntO/MAAAAASUVORK5CYII=")' }}>
                 <img
                   src={uploadedImage}
@@ -448,7 +506,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             <div
               onClick={triggerFileInput}
               className="w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-              style={{ height: `${height}px` }}
+              style={{ height: `${canvasHeight}px` }}
             >
               <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
                 <Upload className="w-8 h-8 text-gray-400" />
@@ -465,10 +523,10 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
         <div
           ref={containerRef}
           className={`signature-canvas-container ${!isEmpty ? 'has-signature' : ''}`}
-          style={{ minHeight: `${height}px` }}
+          style={{ minHeight: `${canvasHeight}px` }}
         >
           {cameraError ? (
-            <div className="w-full flex flex-col items-center justify-center p-4" style={{ height: `${height}px` }}>
+            <div className="w-full flex flex-col items-center justify-center p-4" style={{ height: `${canvasHeight}px` }}>
               <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
                 <X className="w-8 h-8 text-red-400" />
               </div>
@@ -481,7 +539,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
               </button>
             </div>
           ) : uploadedImage ? (
-            <div className="relative w-full h-full flex items-center justify-center p-4" style={{ minHeight: `${height}px` }}>
+            <div className="relative w-full h-full flex items-center justify-center p-4" style={{ minHeight: `${canvasHeight}px` }}>
               <div className="bg-gray-100 p-4 rounded-lg" style={{ backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAIElEQVQoU2NkYGD4z0AEYGRgYGBkIA5gwGpKpAYNlQIA3dgFATntO/MAAAAASUVORK5CYII=")' }}>
                 <img
                   src={uploadedImage}
@@ -495,13 +553,13 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
               </div>
             </div>
           ) : isCameraActive ? (
-            <div className="relative w-full" style={{ minHeight: `${height}px` }}>
+            <div className="relative w-full" style={{ minHeight: `${canvasHeight}px` }}>
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 className="w-full rounded-xl"
-                style={{ maxHeight: `${height + 100}px` }}
+                style={{ maxHeight: `${canvasHeight + 100}px` }}
               />
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
                 <button
@@ -526,7 +584,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             <div
               onClick={startCamera}
               className="w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-              style={{ height: `${height}px` }}
+              style={{ height: `${canvasHeight}px` }}
             >
               <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
                 <Camera className="w-8 h-8 text-gray-400" />
@@ -540,13 +598,15 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       )}
 
       {/* Help Text */}
-      <p className="text-xs text-gray-500 text-center">
-        {mode === 'draw'
-          ? 'Use your mouse or touchscreen to draw your signature.'
-          : mode === 'upload'
-          ? 'Upload a photo of your signature. Background will be removed automatically.'
-          : 'Take a photo of your signature on paper. Background will be removed automatically.'}
-      </p>
+      {!compact && (
+        <p className="text-xs text-gray-500 text-center">
+          {mode === 'draw'
+            ? 'Use your mouse or touchscreen to draw your signature.'
+            : mode === 'upload'
+            ? 'Upload a photo of your signature. Background will be removed automatically.'
+            : 'Take a photo of your signature on paper. Background will be removed automatically.'}
+        </p>
+      )}
     </div>
   )
 }

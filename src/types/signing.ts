@@ -25,6 +25,7 @@ export interface Signer {
   order: number
   status: 'pending' | 'sent' | 'opened' | 'signed' | 'declined'
   color?: string
+  is_self?: boolean
   signed_at?: string
   created_at?: string
   updated_at?: string

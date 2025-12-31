@@ -73,37 +73,37 @@ const statusConfig: Record<DocumentStatus, {
   created: {
     label: 'Created',
     icon: FileText,
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-50/80',
-    borderColor: 'border-gray-300'
+    color: 'text-gray-300',
+    bgColor: 'bg-[#2a2a2a]',
+    borderColor: 'border-[#3a3a3a]'
   },
   delivered: {
     label: 'Delivered',
     icon: Send,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
-    borderColor: 'border-blue-300'
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-950/50',
+    borderColor: 'border-blue-800'
   },
   opened: {
     label: 'Opened',
     icon: Eye,
-    color: 'text-amber-600',
-    bgColor: 'bg-amber-100',
-    borderColor: 'border-amber-300'
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-950/50',
+    borderColor: 'border-amber-800'
   },
   signed: {
     label: 'Signed',
     icon: CheckCircle2,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100',
-    borderColor: 'border-green-300'
+    color: 'text-green-400',
+    bgColor: 'bg-green-950/50',
+    borderColor: 'border-green-800'
   },
   completed: {
     label: 'Completed',
     icon: Shield,
-    color: 'text-primary-600',
-    bgColor: 'bg-primary-100',
-    borderColor: 'border-primary-300'
+    color: 'text-[#c4ff0e]',
+    bgColor: 'bg-[#c4ff0e]/10',
+    borderColor: 'border-[#c4ff0e]/30'
   }
 }
 
@@ -349,8 +349,8 @@ const TrackDocumentPageInner: React.FC = () => {
 
   if (!documentData) {
     return (
-      <div className="min-h-screen bg-gray-50/80 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
+      <div className="min-h-screen bg-[#1e1e1e] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c4ff0e]" />
       </div>
     )
   }
@@ -359,34 +359,34 @@ const TrackDocumentPageInner: React.FC = () => {
   const currentStatusIndex = statusOrder.indexOf(documentData.currentStatus)
 
   return (
-    <div className="min-h-screen bg-gray-50/80">
+    <div className="min-h-screen bg-[#1e1e1e]">
       {/* Header */}
-      <header className="bg-gray-50/80 border-b border-gray-200/50 sticky top-0 z-40">
+      <header className="bg-[#252525] border-b border-[#2a2a2a] sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="p-2 hover:bg-gray-50/80 rounded-lg transition-colors"
+                className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-700" />
+                <ArrowLeft className="w-5 h-5 text-gray-300" />
               </Link>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">Track Document</h1>
-                <p className="text-sm text-gray-600">{documentData.name}</p>
+                <h1 className="text-lg font-semibold text-white">Track Document</h1>
+                <p className="text-sm text-gray-300">{documentData.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-50/80 rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-gray-300 hover:bg-[#2a2a2a] rounded-lg transition-colors flex items-center gap-2"
               >
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied!' : 'Copy Link'}
               </button>
               <button
                 onClick={handleResetDemo}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-50/80 rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-gray-300 hover:bg-[#2a2a2a] rounded-lg transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reset Demo
@@ -401,15 +401,15 @@ const TrackDocumentPageInner: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Status Progress Bar */}
-            <div className="bg-gray-50/80 rounded-2xl shadow-sm border border-gray-200/50 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Document Status</h2>
+            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+              <h2 className="text-lg font-semibold text-white mb-6">Document Status</h2>
 
               {/* Progress Steps */}
               <div className="relative">
                 {/* Progress Line */}
-                <div className="absolute top-6 left-6 right-6 h-1 bg-gray-200 rounded-full">
+                <div className="absolute top-6 left-6 right-6 h-1 bg-[#2a2a2a] rounded-full">
                   <div
-                    className="h-full bg-gradient-to-r from-primary-500 to-green-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-[#c4ff0e] to-green-500 rounded-full transition-all duration-500"
                     style={{ width: `${(currentStatusIndex / (statusOrder.length - 1)) * 100}%` }}
                   />
                 </div>
@@ -431,16 +431,16 @@ const TrackDocumentPageInner: React.FC = () => {
                               ? isCurrent
                                 ? `${config.bgColor} ${config.borderColor} border-2 ring-4 ring-${config.color.split('-')[1]}-100`
                                 : 'bg-green-500 border-green-500'
-                              : 'bg-gray-50/80 border-gray-200/50 border-2'
+                              : 'bg-[#2a2a2a] border-[#2a2a2a] border-2'
                             }
                           `}
                         >
                           <Icon
-                            className={`w-5 h-5 ${isCompleted ? (isCurrent ? config.color : 'text-gray-900') : 'text-gray-600'}`}
+                            className={`w-5 h-5 ${isCompleted ? (isCurrent ? config.color : 'text-white') : 'text-gray-500'}`}
                           />
                         </div>
                         <span
-                          className={`mt-2 text-sm font-medium ${isCompleted ? config.color : 'text-gray-600'}`}
+                          className={`mt-2 text-sm font-medium ${isCompleted ? config.color : 'text-gray-500'}`}
                         >
                           {config.label}
                         </span>
@@ -456,7 +456,7 @@ const TrackDocumentPageInner: React.FC = () => {
                   <button
                     onClick={handleSendDocument}
                     disabled={isSimulating}
-                    className="px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-gray-900 rounded-xl font-medium flex items-center gap-2 transition-colors"
+                    className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:bg-[#c4ff0e]/50 text-black rounded-xl font-medium flex items-center gap-2 transition-colors"
                   >
                     {isSimulating ? (
                       <>
@@ -476,7 +476,7 @@ const TrackDocumentPageInner: React.FC = () => {
                   <button
                     onClick={handleOpenDocument}
                     disabled={isSimulating}
-                    className="px-6 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-gray-900 rounded-xl font-medium flex items-center gap-2 transition-colors"
+                    className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:bg-[#c4ff0e]/50 text-black rounded-xl font-medium flex items-center gap-2 transition-colors"
                   >
                     {isSimulating ? (
                       <>
@@ -496,7 +496,7 @@ const TrackDocumentPageInner: React.FC = () => {
                   <button
                     onClick={handleSignDocument}
                     disabled={isSimulating}
-                    className="px-6 py-3 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-gray-900 rounded-xl font-medium flex items-center gap-2 transition-colors"
+                    className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:bg-[#c4ff0e]/50 text-black rounded-xl font-medium flex items-center gap-2 transition-colors"
                   >
                     {isSimulating ? (
                       <>
@@ -513,7 +513,7 @@ const TrackDocumentPageInner: React.FC = () => {
                 )}
 
                 {documentData.currentStatus === 'completed' && (
-                  <div className="flex items-center gap-3 px-6 py-3 bg-green-50 text-green-700 rounded-xl">
+                  <div className="flex items-center gap-3 px-6 py-3 bg-[#c4ff0e]/10 text-[#c4ff0e] rounded-xl border border-[#c4ff0e]/30">
                     <Shield className="w-5 h-5" />
                     <span className="font-medium">Document Complete - All parties have signed</span>
                   </div>
@@ -522,9 +522,9 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Audit Trail Timeline */}
-            <div className="bg-gray-50/80 rounded-2xl shadow-sm border border-gray-200/50 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-primary-500" />
+            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+              <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-[#c4ff0e]" />
                 Audit Trail
               </h2>
 
@@ -537,7 +537,7 @@ const TrackDocumentPageInner: React.FC = () => {
                     <div key={event.id} className="relative pl-8 pb-6">
                       {/* Timeline line */}
                       {index !== documentData.events.length - 1 && (
-                        <div className="absolute left-[15px] top-10 bottom-0 w-0.5 bg-gray-200" />
+                        <div className="absolute left-[15px] top-10 bottom-0 w-0.5 bg-[#3a3a3a]" />
                       )}
 
                       {/* Timeline dot */}
@@ -551,14 +551,14 @@ const TrackDocumentPageInner: React.FC = () => {
                       <div className="ml-4">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-medium text-gray-900">{config.label}</h3>
-                            <p className="text-sm text-gray-700 mt-0.5">{event.description}</p>
+                            <h3 className="font-medium text-white">{config.label}</h3>
+                            <p className="text-sm text-gray-300 mt-0.5">{event.description}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-white">
                               {formatRelativeTime(event.timestamp)}
                             </p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-300">
                               {formatDate(event.timestamp)}
                             </p>
                           </div>
@@ -566,16 +566,16 @@ const TrackDocumentPageInner: React.FC = () => {
 
                         {/* Additional details */}
                         {(event.ipAddress || event.device) && (
-                          <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-600">
+                          <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
                             {event.ipAddress && (
                               <span className="flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full" />
                                 IP: {event.ipAddress}
                               </span>
                             )}
                             {event.device && (
                               <span className="flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full" />
                                 {event.device}
                               </span>
                             )}
@@ -592,55 +592,55 @@ const TrackDocumentPageInner: React.FC = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Document Info */}
-            <div className="bg-gray-50/80 rounded-2xl shadow-sm border border-gray-200/50 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Document Details</h2>
+            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+              <h2 className="text-lg font-semibold text-white mb-4">Document Details</h2>
 
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <FileText className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600">Document Name</p>
-                    <p className="font-medium text-gray-900">{documentData.name}</p>
+                    <p className="text-sm text-gray-400">Document Name</p>
+                    <p className="font-medium text-white">{documentData.name}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600">Created</p>
-                    <p className="font-medium text-gray-900">{formatDate(documentData.createdAt)}</p>
+                    <p className="text-sm text-gray-400">Created</p>
+                    <p className="font-medium text-white">{formatDate(documentData.createdAt)}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <User className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <User className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600">From</p>
-                    <p className="font-medium text-gray-900">{documentData.sender.name}</p>
-                    <p className="text-sm text-gray-600">{documentData.sender.email}</p>
+                    <p className="text-sm text-gray-400">From</p>
+                    <p className="font-medium text-white">{documentData.sender.name}</p>
+                    <p className="text-sm text-gray-400">{documentData.sender.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <User className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <User className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600">To</p>
-                    <p className="font-medium text-gray-900">{documentData.recipient.name}</p>
-                    <p className="text-sm text-gray-600">{documentData.recipient.email}</p>
+                    <p className="text-sm text-gray-400">To</p>
+                    <p className="font-medium text-white">{documentData.recipient.name}</p>
+                    <p className="text-sm text-gray-400">{documentData.recipient.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <Shield className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600">Document ID</p>
-                    <p className="font-mono text-sm text-gray-900">{documentData.id}</p>
+                    <p className="text-sm text-gray-400">Document ID</p>
+                    <p className="font-mono text-sm text-white">{documentData.id}</p>
                   </div>
                 </div>
               </div>
 
               {documentData.currentStatus === 'completed' && (
-                <button className="w-full mt-6 px-4 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
+                <button className="w-full mt-6 px-4 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
                   <Download className="w-5 h-5" />
                   Download Signed Document
                 </button>
@@ -648,9 +648,9 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Email Notifications */}
-            <div className="bg-gray-50/80 rounded-2xl shadow-sm border border-gray-200/50 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-primary-500" />
+            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Mail className="w-5 h-5 text-[#c4ff0e]" />
                 Email Notifications
               </h2>
 
@@ -659,46 +659,46 @@ const TrackDocumentPageInner: React.FC = () => {
                   {documentData.emailNotifications.slice().reverse().map((notification) => (
                     <div
                       key={notification.id}
-                      className="p-3 bg-gray-50/80 rounded-lg border border-gray-200/50"
+                      className="p-3 bg-[#2a2a2a] rounded-lg border border-[#3a3a3a]"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
-                          <Bell className="w-4 h-4 text-primary-500" />
-                          <span className="font-medium text-sm text-gray-900">
+                          <Bell className="w-4 h-4 text-[#c4ff0e]" />
+                          <span className="font-medium text-sm text-white">
                             {notification.type}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-400">
                           {formatRelativeTime(notification.sentAt)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 mt-1">
+                      <p className="text-sm text-gray-400 mt-1">
                         Sent to: {notification.recipient}
                       </p>
                       <div className="flex items-center gap-1 mt-2">
-                        <Check className="w-3 h-3 text-green-500" />
-                        <span className="text-xs text-green-600">Delivered</span>
+                        <Check className="w-3 h-3 text-green-400" />
+                        <span className="text-xs text-green-400">Delivered</span>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <Mail className="w-10 h-10 text-gray-700 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">No notifications sent yet</p>
+                  <Mail className="w-10 h-10 text-gray-500 mx-auto mb-2" />
+                  <p className="text-sm text-gray-400">No notifications sent yet</p>
                 </div>
               )}
             </div>
 
             {/* Help Box */}
-            <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-6 border border-primary-100">
+            <div className="bg-[#252525] rounded-2xl p-6 border border-[#2a2a2a]">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-gray-50/80 rounded-lg shadow-sm">
-                  <Sparkles className="w-5 h-5 text-primary-500" />
+                <div className="p-2 bg-[#2a2a2a] rounded-lg shadow-sm">
+                  <Sparkles className="w-5 h-5 text-[#c4ff0e]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Demo Mode</h3>
-                  <p className="text-sm text-gray-700 mt-1">
+                  <h3 className="font-semibold text-white">Demo Mode</h3>
+                  <p className="text-sm text-gray-300 mt-1">
                     This is a simulation of the audit trail feature. Click the action buttons to simulate document workflow.
                   </p>
                 </div>
@@ -710,50 +710,50 @@ const TrackDocumentPageInner: React.FC = () => {
 
       {/* Email Simulation Modal */}
       {showEmailSimulation && emailContent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-50/80 rounded-2xl shadow-2xl max-w-lg w-full animate-in">
-            <div className="p-4 border-b border-gray-200/50 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#252525] rounded-2xl shadow-2xl max-w-lg w-full animate-in border border-[#2a2a2a]">
+            <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Mail className="w-5 h-5 text-green-600" />
+                <div className="p-2 bg-green-950/50 rounded-lg">
+                  <Mail className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Email Sent</h3>
-                  <p className="text-sm text-gray-600">Notification delivered</p>
+                  <h3 className="font-semibold text-white">Email Sent</h3>
+                  <p className="text-sm text-gray-400">Notification delivered</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowEmailSimulation(false)}
-                className="p-2 hover:bg-gray-50/80 rounded-lg transition-colors"
+                className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-600" />
+                <X className="w-5 h-5 text-gray-300" />
               </button>
             </div>
 
             <div className="p-6">
-              <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-                <div className="mb-3 pb-3 border-b border-gray-200/50">
-                  <p className="text-sm text-gray-600">Subject:</p>
-                  <p className="font-medium text-gray-900">{emailContent.subject}</p>
+              <div className="bg-[#2a2a2a] rounded-xl p-4 border border-[#3a3a3a]">
+                <div className="mb-3 pb-3 border-b border-[#3a3a3a]">
+                  <p className="text-sm text-gray-400">Subject:</p>
+                  <p className="font-medium text-white">{emailContent.subject}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Body:</p>
-                  <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans">
+                  <p className="text-sm text-gray-400 mb-2">Body:</p>
+                  <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans">
                     {emailContent.body}
                   </pre>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
+              <div className="mt-4 flex items-center gap-2 text-sm text-green-400">
                 <Check className="w-4 h-4" />
                 <span>Email notification simulated successfully</span>
               </div>
             </div>
 
-            <div className="p-4 border-t border-gray-200/50 flex justify-end">
+            <div className="p-4 border-t border-[#2a2a2a] flex justify-end">
               <button
                 onClick={() => setShowEmailSimulation(false)}
-                className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-lg font-medium transition-colors"
               >
                 Close
               </button>
@@ -768,8 +768,8 @@ const TrackDocumentPageInner: React.FC = () => {
 const TrackDocumentPage: React.FC = () => {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50/80 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
+      <div className="min-h-screen bg-[#1e1e1e] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c4ff0e]" />
       </div>
     }>
       <TrackDocumentPageInner />

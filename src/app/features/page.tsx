@@ -189,38 +189,38 @@ const FeaturesPage: React.FC = () => {
   ]
 
   return (
-    <div className="overflow-hidden bg-white dark:bg-gray-900">
+    <div className="overflow-hidden bg-[#1F1F1F]">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-[#1e1e1e] via-[#1F1F1F] to-[#252525]">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full opacity-10 blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl animate-pulse" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl animate-pulse" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 rounded-full border border-cyan-200 dark:border-cyan-700 mb-6">
-              <Sparkles className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-              <span className="text-cyan-700 dark:text-cyan-300 text-sm font-medium">All Features Included Free</span>
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-[#2a2a2a] rounded-full border border-[#3a3a3a] mb-6">
+              <Sparkles className="w-4 h-4 text-[#c4ff0e]" />
+              <span className="text-[#c4ff0e] text-sm font-medium">All Features Included Free</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
               See How
-              <span className="block mt-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-[#c4ff0e] via-[#c4ff0e] to-[#c4ff0e] bg-clip-text text-transparent">
                 MamaSign Works
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
               Discover all the powerful features that make MamaSign the ultimate platform for e-signatures, PDF tools, and business documents.
             </p>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-12">
               {stats.map((stat, index) => (
-                <div key={index} className="text-center p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700">
-                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-500 to-purple-500 bg-clip-text text-transparent">
+                <div key={index} className="text-center p-4 bg-[#2a2a2a]/50 backdrop-blur-sm rounded-2xl border border-[#3a3a3a]">
+                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#c4ff0e] to-[#c4ff0e] bg-clip-text text-transparent">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">{stat.label}</div>
+                  <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -229,16 +229,16 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* Why Choose Us - Quick Overview */}
-      <section className="py-12 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-y border-gray-200 dark:border-gray-700">
+      <section className="py-12 bg-gradient-to-r from-[#2a2a2a] via-[#1e1e1e] to-[#2a2a2a] border-y border-[#3a3a3a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {whyChooseUs.map((item, index) => (
               <div key={index} className="flex flex-col items-center text-center p-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-cyan-500/30">
-                  <item.icon className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-[#c4ff0e]/30">
+                  <item.icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                <h3 className="font-semibold text-white mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-400">{item.description}</p>
               </div>
             ))}
           </div>
@@ -246,14 +246,14 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* All Features - Bullet Points */}
-      <section className="py-16 md:py-24 bg-white dark:bg-gray-900">
+      <section className="py-16 md:py-24 bg-[#1F1F1F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Complete Feature
-              <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent"> Overview</span>
+              <span className="bg-gradient-to-r from-[#c4ff0e] via-[#c4ff0e] to-[#c4ff0e] bg-clip-text text-transparent"> Overview</span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               Everything you need to manage documents, get signatures, and run your business efficiently.
             </p>
           </div>
@@ -262,14 +262,14 @@ const FeaturesPage: React.FC = () => {
             {platformFeatures.map((category, index) => (
               <div
                 key={index}
-                className="group bg-gray-50 dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all duration-300 hover:shadow-xl"
+                className="group bg-[#2a2a2a] rounded-3xl p-6 md:p-8 border border-[#3a3a3a] hover:border-[#c4ff0e] transition-all duration-300 hover:shadow-xl"
               >
                 {/* Category Header */}
                 <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-14 h-14 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center shadow-lg ${category.shadowColor} group-hover:scale-110 transition-transform duration-300`}>
-                    <category.icon className="w-7 h-7 text-white" />
+                  <div className={`w-14 h-14 bg-[#c4ff0e] rounded-2xl flex items-center justify-center shadow-lg shadow-[#c4ff0e]/30 group-hover:scale-110 transition-transform duration-300`}>
+                    <category.icon className="w-7 h-7 text-black" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h3 className="text-xl font-bold text-white">
                     {category.category}
                   </h3>
                 </div>
@@ -279,9 +279,9 @@ const FeaturesPage: React.FC = () => {
                   {category.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-1">
-                        <Check className="w-5 h-5 text-emerald-500" />
+                        <Check className="w-5 h-5 text-[#c4ff0e]" />
                       </div>
-                      <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                      <span className="text-gray-300 text-sm leading-relaxed">
                         {feature}
                       </span>
                     </li>
@@ -294,41 +294,41 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* PDF Tools Highlight */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
+      <section className="py-16 md:py-24 bg-gradient-to-br from-[#1e1e1e] to-[#252525]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Zap className="w-4 h-4" />
               100% Free - No Sign Up Required
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Free PDF Tools
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               All tools work directly in your browser. No uploads, no waiting - complete privacy.
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { name: 'PDF to Word', icon: FileType, href: '/tools/pdf-to-word', color: 'bg-blue-500' },
-              { name: 'Compress PDF', icon: Minimize2, href: '/tools/pdf-compressor', color: 'bg-green-500' },
-              { name: 'Merge PDF', icon: Layers, href: '/tools/pdf-merge', color: 'bg-purple-500' },
-              { name: 'Split PDF', icon: Scissors, href: '/tools/pdf-split', color: 'bg-red-500' },
-              { name: 'Image to PDF', icon: Image, href: '/tools/image-to-pdf', color: 'bg-indigo-500' },
-              { name: 'Word to PDF', icon: FileText, href: '/tools/word-to-pdf', color: 'bg-cyan-500' },
-              { name: 'Watermark PDF', icon: Droplets, href: '/tools/watermark-pdf', color: 'bg-teal-500' },
-              { name: 'Sign Document', icon: PenTool, href: '/sign-document', color: 'bg-pink-500' },
+              { name: 'PDF to Word', icon: FileType, href: '/tools/pdf-to-word', color: 'bg-[#c4ff0e]' },
+              { name: 'Compress PDF', icon: Minimize2, href: '/tools/pdf-compressor', color: 'bg-[#c4ff0e]' },
+              { name: 'Merge PDF', icon: Layers, href: '/tools/pdf-merge', color: 'bg-[#c4ff0e]' },
+              { name: 'Split PDF', icon: Scissors, href: '/tools/pdf-split', color: 'bg-[#c4ff0e]' },
+              { name: 'Image to PDF', icon: Image, href: '/tools/image-to-pdf', color: 'bg-[#c4ff0e]' },
+              { name: 'Word to PDF', icon: FileText, href: '/tools/word-to-pdf', color: 'bg-[#c4ff0e]' },
+              { name: 'Watermark PDF', icon: Droplets, href: '/tools/watermark-pdf', color: 'bg-[#c4ff0e]' },
+              { name: 'Sign Document', icon: PenTool, href: '/sign-document', color: 'bg-[#c4ff0e]' },
             ].map((tool, index) => (
               <Link
                 key={index}
                 href={tool.href}
-                className="group p-4 md:p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
+                className="group p-4 md:p-6 bg-[#2a2a2a] rounded-2xl border border-[#3a3a3a] hover:border-[#c4ff0e] hover:shadow-xl hover:shadow-[#c4ff0e]/10 transition-all duration-300"
               >
                 <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                  <tool.icon className="w-6 h-6 text-white" />
+                  <tool.icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                <h3 className="font-semibold text-white group-hover:text-[#c4ff0e] transition-colors">
                   {tool.name}
                 </h3>
               </Link>
@@ -338,7 +338,7 @@ const FeaturesPage: React.FC = () => {
           <div className="text-center mt-10">
             <Link
               href="/tools"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-full hover:shadow-lg hover:shadow-[#c4ff0e]/30 transition-all duration-300 hover:scale-105"
             >
               View All Tools
               <ArrowRight className="w-5 h-5" />
@@ -348,53 +348,53 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* Testimonial */}
-      <section className="py-16 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-700">
+      <section className="py-16 bg-[#1F1F1F] border-y border-[#3a3a3a]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-4">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
             ))}
           </div>
-          <blockquote className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 italic mb-6">
+          <blockquote className="text-xl md:text-2xl text-gray-300 italic mb-6">
             "MamaSign has completely transformed how we handle documents. The e-signature feature is incredibly easy to use, and the PDF tools save us hours every week!"
           </blockquote>
           <div className="flex items-center justify-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div className="w-12 h-12 bg-[#c4ff0e] rounded-full flex items-center justify-center text-black font-bold">
               SJ
             </div>
             <div className="text-left">
-              <p className="font-semibold text-gray-900 dark:text-white">Sarah Johnson</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Operations Director, TechFlow Solutions</p>
+              <p className="font-semibold text-white">Sarah Johnson</p>
+              <p className="text-sm text-gray-400">Operations Director, TechFlow Solutions</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-[#c4ff0e] relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute top-10 left-10 w-72 h-72 bg-black/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-black/10 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-4">
             Ready to Get Started?
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-black/90 mb-8 max-w-2xl mx-auto">
             Join 50,000+ businesses using MamaSign. Start signing documents for free - no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/sign-document"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-cyan-600 bg-white rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-[#c4ff0e] bg-black rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
               Start Signing Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
             <Link
               href="/sign-up"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white border-2 border-white rounded-xl hover:bg-white/10 transition-all duration-300"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-black border-2 border-black rounded-xl hover:bg-black/10 transition-all duration-300"
             >
               Create Account
             </Link>

@@ -110,18 +110,18 @@ export default function PDFCompressorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-[#1e1e1e]">
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Minimize2 className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             PDF Optimizer
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Optimize your PDF files by removing metadata and unused objects.
             Processing happens entirely in your browser.
           </p>
@@ -130,8 +130,8 @@ export default function PDFCompressorPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-12 transition-all ${
               dragActive
-                ? 'border-green-500 bg-green-50'
-                : 'border-gray-300 hover:border-green-400 bg-white'
+                ? 'border-[#c4ff0e] bg-[#252525]'
+                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -140,13 +140,13 @@ export default function PDFCompressorPage() {
           >
             {!file ? (
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   Drop your PDF here
                 </h3>
-                <p className="text-gray-500 mb-4">or click to browse</p>
+                <p className="text-gray-400 mb-4">or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -156,7 +156,7 @@ export default function PDFCompressorPage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-lg cursor-pointer hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF File
@@ -165,11 +165,11 @@ export default function PDFCompressorPage() {
               </div>
             ) : (
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
-                <p className="font-medium text-gray-900 mb-1">{file.name}</p>
-                <p className="text-sm text-gray-500 mb-6">
+                <p className="font-medium text-white mb-1">{file.name}</p>
+                <p className="text-sm text-gray-400 mb-6">
                   Original size: {formatSize(file.size)}
                 </p>
 
@@ -177,7 +177,7 @@ export default function PDFCompressorPage() {
                   <button
                     onClick={handleCompress}
                     disabled={compressing}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
                   >
                     {compressing ? (
                       <>
@@ -193,26 +193,26 @@ export default function PDFCompressorPage() {
                   </button>
                 ) : result && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-center gap-2 text-green-600">
+                    <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">Optimization Complete!</span>
                     </div>
 
                     {/* Results */}
-                    <div className="bg-green-50 rounded-xl p-4 max-w-sm mx-auto border border-green-200">
+                    <div className="bg-[#252525] rounded-xl p-4 max-w-sm mx-auto border border-[#2a2a2a]">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-600">Original:</span>
+                        <span className="text-gray-400">Original:</span>
                         <span className="font-medium">{formatSize(result.original)}</span>
                       </div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-600">Optimized:</span>
-                        <span className="font-medium text-green-600">{formatSize(result.compressed)}</span>
+                        <span className="text-gray-400">Optimized:</span>
+                        <span className="font-medium text-[#c4ff0e]">{formatSize(result.compressed)}</span>
                       </div>
-                      <div className="flex justify-between text-sm pt-2 border-t border-green-200">
-                        <span className="text-gray-600">
+                      <div className="flex justify-between text-sm pt-2 border-t border-[#2a2a2a]">
+                        <span className="text-gray-400">
                           {result.compressed < result.original ? 'Saved:' : 'Change:'}
                         </span>
-                        <span className={`font-bold ${result.compressed < result.original ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className={`font-bold ${result.compressed < result.original ? 'text-[#c4ff0e]' : 'text-gray-400'}`}>
                           {result.compressed < result.original
                             ? `${Math.round((1 - result.compressed / result.original) * 100)}%`
                             : 'Already optimized'}
@@ -222,7 +222,7 @@ export default function PDFCompressorPage() {
 
                     <button
                       onClick={downloadCompressed}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
                     >
                       <Download className="w-5 h-5" />
                       Download Optimized PDF
@@ -232,7 +232,7 @@ export default function PDFCompressorPage() {
 
                 <button
                   onClick={clearFile}
-                  className="block mx-auto mt-4 text-sm text-gray-500 hover:text-gray-700"
+                  className="block mx-auto mt-4 text-sm text-gray-400 hover:text-gray-300"
                 >
                   Upload different file
                 </button>
@@ -241,9 +241,9 @@ export default function PDFCompressorPage() {
           </div>
 
           {/* Info Note */}
-          <div className="max-w-2xl mx-auto mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="max-w-2xl mx-auto mt-6 p-4 bg-[#252525] rounded-xl border border-[#2a2a2a]">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-[#c4ff0e] flex-shrink-0 mt-0.5" />
               <div className="text-left text-sm text-blue-800">
                 <p className="font-medium mb-1">How it works</p>
                 <p>This tool removes metadata and optimizes the PDF structure. For PDFs with large images, consider using dedicated image compression tools for better results.</p>
@@ -254,9 +254,9 @@ export default function PDFCompressorPage() {
       </section>
 
       {/* Features */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-[#1F1F1F]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             Why Use Our PDF Optimizer?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -265,12 +265,12 @@ export default function PDFCompressorPage() {
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device - processed locally' },
               { icon: Clock, title: 'No Limits', desc: 'Optimize as many PDFs as you want, completely free' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-gray-50">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-green-600" />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
+                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.desc}</p>
+                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-400 text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -278,17 +278,17 @@ export default function PDFCompressorPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-green-600 to-emerald-600">
+      <section className="py-16 px-4 bg-[#252525]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Need to Sign Documents?
           </h2>
-          <p className="text-green-100 mb-8">
+          <p className="text-gray-300 mb-8">
             Try our free e-signature tool for legally binding signatures
           </p>
           <Link
             href="/sign-document"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 font-medium rounded-lg hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1F1F1F] text-[#c4ff0e] font-medium rounded-lg hover:shadow-lg transition-all"
           >
             Sign Documents Free
             <ArrowRight className="w-5 h-5" />

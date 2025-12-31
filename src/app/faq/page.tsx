@@ -154,12 +154,12 @@ const faqData: FAQCategory[] = [
 
 function FAQAccordion({ faq, isOpen, onClick }: { faq: FAQItem; isOpen: boolean; onClick: () => void }) {
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+    <div className="border-b border-[#3a3a3a] last:border-b-0">
       <button
         onClick={onClick}
-        className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-[#1e1e1e] transition-colors"
       >
-        <span className="font-medium text-gray-900 dark:text-white pr-8">{faq.question}</span>
+        <span className="font-medium text-white pr-8">{faq.question}</span>
         <ChevronDown
           className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-300 ${
             isOpen ? 'rotate-180' : ''
@@ -171,7 +171,7 @@ function FAQAccordion({ faq, isOpen, onClick }: { faq: FAQItem; isOpen: boolean;
           isOpen ? 'max-h-96 pb-5' : 'max-h-0'
         }`}
       >
-        <p className="px-6 text-gray-600 dark:text-gray-400 leading-relaxed">{faq.answer}</p>
+        <p className="px-6 text-gray-300 leading-relaxed">{faq.answer}</p>
       </div>
     </div>
   )
@@ -207,17 +207,17 @@ export default function FAQPage() {
   const currentCategory = filteredCategories.find(cat => cat.name === activeCategory) || filteredCategories[0]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-[#1F1F1F]">
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-cyan-600 via-blue-600 to-purple-600">
+      <section className="py-20 px-4 bg-[#c4ff0e]">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <HelpCircle className="w-10 h-10 text-white" />
+          <div className="w-20 h-20 bg-black/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <HelpCircle className="w-10 h-10 text-black" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-black mb-6">
             Frequently Asked Questions
           </h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto mb-8">
+          <p className="text-xl text-black/90 max-w-2xl mx-auto mb-8">
             Find answers to common questions about MamaSign, e-signatures, and PDF tools.
           </p>
 
@@ -229,7 +229,7 @@ export default function FAQPage() {
               placeholder="Search for answers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-xl border-0 shadow-lg focus:ring-2 focus:ring-white/50 outline-none"
+              className="w-full pl-12 pr-4 py-4 rounded-xl border-0 shadow-lg focus:ring-2 focus:ring-black/20 outline-none"
             />
           </div>
         </div>
@@ -241,18 +241,18 @@ export default function FAQPage() {
           {searchQuery ? (
             // Search Results View
             <div>
-              <p className="text-gray-600 dark:text-gray-400 mb-8">
+              <p className="text-gray-300 mb-8">
                 Found {filteredCategories.reduce((acc, cat) => acc + cat.faqs.length, 0)} results for &quot;{searchQuery}&quot;
               </p>
               {filteredCategories.length > 0 ? (
                 <div className="space-y-8">
                   {filteredCategories.map((category) => (
                     <div key={category.name}>
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                        <category.icon className="w-5 h-5 text-cyan-600" />
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <category.icon className="w-5 h-5 text-[#c4ff0e]" />
                         {category.name}
                       </h3>
-                      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                      <div className="bg-[#252525] rounded-xl border border-[#2a2a2a] overflow-hidden">
                         {category.faqs.map((faq) => (
                           <FAQAccordion
                             key={faq.question}
@@ -267,10 +267,10 @@ export default function FAQPage() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 dark:text-gray-400 mb-4">No results found. Try a different search term.</p>
+                  <p className="text-gray-300 mb-4">No results found. Try a different search term.</p>
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="text-cyan-600 font-medium hover:text-cyan-700"
+                    className="text-[#c4ff0e] font-medium hover:text-[#b3e60d]"
                   >
                     Clear search
                   </button>
@@ -282,8 +282,8 @@ export default function FAQPage() {
             <div className="grid lg:grid-cols-4 gap-8">
               {/* Category Sidebar */}
               <div className="lg:col-span-1">
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sticky top-24">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Categories</h3>
+                <div className="bg-[#252525] rounded-xl border border-[#2a2a2a] p-4 sticky top-24">
+                  <h3 className="font-semibold text-white mb-4">Categories</h3>
                   <nav className="space-y-1">
                     {faqData.map((category) => (
                       <button
@@ -291,8 +291,8 @@ export default function FAQPage() {
                         onClick={() => setActiveCategory(category.name)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
                           activeCategory === category.name
-                            ? 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 font-medium'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            ? 'bg-[#c4ff0e]/20 text-[#c4ff0e] font-medium'
+                            : 'text-gray-300 hover:bg-[#1e1e1e]'
                         }`}
                       >
                         <category.icon className="w-5 h-5" />
@@ -308,16 +308,16 @@ export default function FAQPage() {
                 {currentCategory && (
                   <div>
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center">
-                        <currentCategory.icon className="w-6 h-6 text-cyan-600" />
+                      <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center">
+                        <currentCategory.icon className="w-6 h-6 text-[#c4ff0e]" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{currentCategory.name}</h2>
-                        <p className="text-gray-500 dark:text-gray-400">{currentCategory.faqs.length} questions</p>
+                        <h2 className="text-2xl font-bold text-white">{currentCategory.name}</h2>
+                        <p className="text-gray-300">{currentCategory.faqs.length} questions</p>
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="bg-[#252525] rounded-xl border border-[#2a2a2a] overflow-hidden">
                       {currentCategory.faqs.map((faq) => (
                         <FAQAccordion
                           key={faq.question}
@@ -336,29 +336,29 @@ export default function FAQPage() {
       </section>
 
       {/* Still Need Help? */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900/50">
+      <section className="py-20 px-4 bg-[#1e1e1e]">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl p-8 md:p-12 text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <MessageCircle className="w-8 h-8 text-white" />
+          <div className="bg-[#c4ff0e] rounded-2xl p-8 md:p-12 text-center">
+            <div className="w-16 h-16 bg-black/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <MessageCircle className="w-8 h-8 text-black" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-black mb-4">
               Still have questions?
             </h2>
-            <p className="text-white/90 mb-8 max-w-lg mx-auto">
+            <p className="text-black/90 mb-8 max-w-lg mx-auto">
               Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-cyan-600 font-semibold rounded-xl hover:shadow-xl transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-black text-[#c4ff0e] font-semibold rounded-xl hover:shadow-xl transition-all"
               >
                 <Mail className="w-5 h-5" />
                 Contact Support
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/20 transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-black/10 backdrop-blur-sm text-black font-semibold rounded-xl hover:bg-black/20 transition-all"
               >
                 View Pricing
                 <ArrowRight className="w-5 h-5" />

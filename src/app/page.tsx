@@ -469,17 +469,17 @@ const HomePage: React.FC = () => {
   ]
 
   return (
-    <div className="overflow-hidden bg-white dark:bg-gray-900">
+    <div className="overflow-hidden bg-[#1F1F1F]">
       {/* Hero Section */}
       <HeroSection />
 
       {/* Trust Badges */}
-      <section className="py-6 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-y border-gray-200 dark:border-gray-700">
+      <section className="py-6 bg-[#1e1e1e] border-y border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {trustBadges.map((badge, index) => (
-              <div key={index} className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300">
-                <badge.icon className="w-5 h-5 text-cyan-500" />
+              <div key={index} className="flex items-center justify-center gap-2 text-gray-300">
+                <badge.icon className="w-5 h-5 text-[#c4ff0e]" />
                 <span className="text-xs sm:text-sm font-medium">{badge.label}</span>
               </div>
             ))}
@@ -488,16 +488,16 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 md:py-16 bg-gray-50/50 dark:bg-gray-800/50 border-y border-gray-200/50 dark:border-gray-700/50">
+      <section className="py-12 md:py-16 bg-[#252525] border-y border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
               <ScrollReveal key={index} animation="scroll-reveal-scale" delay={index * 0.1}>
-                <div className="text-center p-4 md:p-6 rounded-xl hover:bg-gray-100/30 transition-all duration-300">
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                <div className="text-center p-4 md:p-6 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#c4ff0e] mb-2">
                     {stat.value}
                   </div>
-                  <div className="text-sm md:text-base text-gray-600 dark:text-gray-300">{stat.label}</div>
+                  <div className="text-sm md:text-base text-gray-300">{stat.label}</div>
                 </div>
               </ScrollReveal>
             ))}
@@ -506,17 +506,17 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Free PDF Tools Section */}
-      <section className="py-12 md:py-16 bg-white dark:bg-gray-900">
+      <section className="py-12 md:py-16 bg-[#1F1F1F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-purple-100 dark:from-cyan-900/50 dark:to-purple-900/50 text-cyan-700 dark:text-cyan-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-[#c4ff0e]/10 text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-4 border border-[#c4ff0e]/30">
               <Zap className="w-4 h-4" />
               100% Free - No Sign Up Required
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Free PDF Tools
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               Powerful PDF tools that work directly in your browser. No uploads to servers, your files stay private.
             </p>
           </ScrollReveal>
@@ -526,15 +526,15 @@ const HomePage: React.FC = () => {
               <ScrollReveal key={index} delay={index * 0.05}>
                 <Link
                   href={tool.href}
-                  className="group block p-4 md:p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-100 transition-all duration-300"
+                  className="group block p-4 md:p-6 bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] hover:border-[#c4ff0e]/50 hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-all duration-300"
                 >
-                  <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <tool.icon className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <tool.icon className="w-6 h-6 text-black" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-cyan-600 transition-colors">
+                  <h3 className="font-semibold text-white mb-1 group-hover:text-[#c4ff0e] transition-colors">
                     {tool.name}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{tool.desc}</p>
+                  <p className="text-sm text-gray-400">{tool.desc}</p>
                 </Link>
               </ScrollReveal>
             ))}
@@ -543,14 +543,14 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Features Showcase Section */}
-      <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-800">
+      <section className="py-12 md:py-20 bg-[#252525]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-12 md:mb-20">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
               Everything You Need in
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"> One Platform</span>
+              <span className="text-[#c4ff0e]"> One Platform</span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 dark:text-gray-300 max-w-3xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto px-4">
               Powerful tools designed to streamline your document workflow, from resume building to e-signatures to invoicing.
             </p>
           </ScrollReveal>
@@ -568,13 +568,13 @@ const HomePage: React.FC = () => {
                       className={`${!isEven ? 'lg:col-start-2' : ''} order-2 lg:order-none`}
                     >
                       <div className="mb-6 text-center lg:text-left">
-                        <div className={`inline-block bg-gradient-to-r ${feature.gradient} text-gray-900 px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg`}>
+                        <div className="inline-block bg-[#c4ff0e] text-black px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
                           {feature.subtitle}
                         </div>
-                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
                           {feature.title}
                         </h3>
-                        <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 dark:text-gray-300 mb-6 md:mb-8">
+                        <p className="text-base md:text-lg text-gray-300 mb-6 md:mb-8">
                           {feature.description}
                         </p>
                       </div>
@@ -582,10 +582,10 @@ const HomePage: React.FC = () => {
                       <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
                         {feature.benefits.map((benefit, benefitIndex) => (
                           <li key={benefitIndex} className="flex items-start">
-                            <div className={`flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-gradient-to-r ${feature.gradient} flex items-center justify-center mt-0.5 shadow-lg`}>
-                              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-gray-900" />
+                            <div className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#c4ff0e] flex items-center justify-center mt-0.5 shadow-lg">
+                              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-black" />
                             </div>
-                            <span className="ml-3 text-gray-700 text-sm md:text-base lg:text-lg">{benefit}</span>
+                            <span className="ml-3 text-gray-300 text-sm md:text-base lg:text-lg">{benefit}</span>
                           </li>
                         ))}
                       </ul>
@@ -593,7 +593,7 @@ const HomePage: React.FC = () => {
                       <div className="text-center lg:text-left">
                         <Link
                           href={feature.href}
-                          className={`inline-flex items-center justify-center px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-medium text-gray-900 bg-gradient-to-r ${feature.gradient} rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1`}
+                          className="inline-flex items-center justify-center px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-medium text-black bg-[#c4ff0e] rounded-lg hover:shadow-lg hover:shadow-[#c4ff0e]/30 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
                         >
                           Try {feature.title}
                           <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
@@ -621,13 +621,13 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-12 md:py-20 bg-white dark:bg-gray-900 border-y border-gray-200/50 dark:border-gray-700/50">
+      <section className="py-12 md:py-20 bg-[#1F1F1F] border-y border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-10 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
               Trusted by 50,000+ Businesses Worldwide
             </h2>
-            <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
+            <p className="text-base md:text-xl text-gray-300 max-w-2xl mx-auto px-4">
               See what our customers have to say about MamaSign.
             </p>
           </ScrollReveal>
@@ -635,21 +635,21 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {testimonials.map((testimonial, index) => (
               <ScrollReveal key={index} delay={index * 0.1}>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 ease-out transform hover:-translate-y-2 h-full">
+                <div className="bg-[#1e1e1e] rounded-2xl p-6 md:p-8 border border-[#2a2a2a] hover:border-[#c4ff0e]/50 hover:shadow-xl hover:shadow-[#c4ff0e]/10 transition-all duration-500 ease-out transform hover:-translate-y-2 h-full">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                      <Star key={i} className="w-5 h-5 text-[#c4ff0e] fill-current" />
                     ))}
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
+                  <p className="text-gray-300 mb-6 text-base leading-relaxed">
                     "{testimonial.quote}"
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 rounded-full bg-[#c4ff0e] flex items-center justify-center text-black font-bold">
                       {testimonial.image}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">{testimonial.author}</p>
+                      <p className="font-semibold text-white">{testimonial.author}</p>
                     </div>
                   </div>
                 </div>
@@ -660,65 +660,65 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-800">
+      <section className="py-12 md:py-20 bg-[#252525]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
               Why Choose MamaSign?
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
-              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/30">
-                <Zap className="w-8 h-8 text-white" />
+            <div className="text-center p-6 bg-[#1e1e1e] rounded-2xl border border-[#2a2a2a] hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-shadow">
+              <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#c4ff0e]/30">
+                <Zap className="w-8 h-8 text-black" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Lightning Fast</h3>
-              <p className="text-gray-600 dark:text-gray-400">Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
+              <h3 className="text-xl font-bold text-white mb-2">Lightning Fast</h3>
+              <p className="text-gray-400">Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
             </div>
-            <div className="text-center p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30">
-                <Lock className="w-8 h-8 text-white" />
+            <div className="text-center p-6 bg-[#1e1e1e] rounded-2xl border border-[#2a2a2a] hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-shadow">
+              <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#c4ff0e]/30">
+                <Lock className="w-8 h-8 text-black" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Bank-Level Security</h3>
-              <p className="text-gray-600 dark:text-gray-400">256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
+              <h3 className="text-xl font-bold text-white mb-2">Bank-Level Security</h3>
+              <p className="text-gray-400">256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
             </div>
-            <div className="text-center p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30">
-                <Award className="w-8 h-8 text-white" />
+            <div className="text-center p-6 bg-[#1e1e1e] rounded-2xl border border-[#2a2a2a] hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-shadow">
+              <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#c4ff0e]/30">
+                <Award className="w-8 h-8 text-black" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Legally Binding</h3>
-              <p className="text-gray-600 dark:text-gray-400">Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
+              <h3 className="text-xl font-bold text-white mb-2">Legally Binding</h3>
+              <p className="text-gray-400">Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 md:py-20 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 relative overflow-hidden">
+      <section className="py-12 md:py-20 bg-[#1e1e1e] relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-48 md:w-72 h-48 md:h-72 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-64 md:w-96 h-64 md:h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-10 w-48 md:w-72 h-48 md:h-72 bg-[#c4ff0e]/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-64 md:w-96 h-64 md:h-96 bg-[#c4ff0e]/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Transform Your Document Workflow?
           </h2>
-          <p className="text-base md:text-xl text-white/90 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
+          <p className="text-base md:text-xl text-gray-300 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
             Join 50,000+ businesses who trust MamaSign for their document needs.
             Get started for free today - no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
             <Link
               href="/sign-document"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-cyan-600 bg-white rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-black bg-[#c4ff0e] rounded-lg shadow-lg hover:bg-[#b8f206] transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
             >
               Start Signing Free
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
             </Link>
             <Link
               href="/templates"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white border-2 border-white rounded-lg hover:bg-white/10 transition-all duration-500 ease-out"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white border-2 border-[#2a2a2a] rounded-lg hover:bg-[#2a2a2a] transition-all duration-500 ease-out"
             >
               Build Your Resume
             </Link>

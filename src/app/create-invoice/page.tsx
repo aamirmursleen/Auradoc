@@ -286,11 +286,11 @@ const CreateInvoicePage: React.FC = () => {
   const selectedTemplateData = invoiceTemplates.find(t => t.id === invoiceData.selectedTemplate)
 
   return (
-    <div className="min-h-screen bg-gray-50/80">
+    <div className="min-h-screen bg-[#1e1e1e]">
       <div className="flex">
         {/* Left Side - Template Selection */}
-        <div className="w-80 bg-gray-50/80 border-r border-gray-200/50 min-h-screen p-6 overflow-y-auto">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Template</h2>
+        <div className="w-80 bg-[#1e1e1e] border-r border-[#2a2a2a] min-h-screen p-6 overflow-y-auto">
+          <h2 className="text-lg font-semibold text-white mb-4">Choose Template</h2>
 
           <div className="space-y-4">
             {invoiceTemplates.map((template) => (
@@ -299,8 +299,8 @@ const CreateInvoicePage: React.FC = () => {
                 onClick={() => handleInputChange('selectedTemplate', template.id)}
                 className={`w-full text-left rounded-xl overflow-hidden border-2 transition-all ${
                   invoiceData.selectedTemplate === template.id
-                    ? 'border-blue-500 ring-2 ring-blue-100'
-                    : 'border-gray-200/50 hover:border-gray-300'
+                    ? 'border-[#c4ff0e] ring-2 ring-[#c4ff0e]/20'
+                    : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
                 }`}
               >
                 {/* Template Preview */}
@@ -309,12 +309,12 @@ const CreateInvoicePage: React.FC = () => {
                   style={{ backgroundColor: template.colors.accent }}
                 >
                   {/* Mini Invoice Preview */}
-                  <div className="absolute inset-2 bg-gray-50/80 rounded-lg shadow-sm overflow-hidden">
+                  <div className="absolute inset-2 bg-[#1F1F1F] rounded-lg shadow-sm overflow-hidden">
                     <div
                       className="h-8"
                       style={{ backgroundColor: template.colors.primary }}
                     >
-                      <span className="text-gray-900 text-xs font-bold px-2 py-1">INVOICE</span>
+                      <span className="text-white text-xs font-bold px-2 py-1">INVOICE</span>
                     </div>
                     <div className="p-2">
                       <div className="flex justify-between mb-2">
@@ -326,7 +326,7 @@ const CreateInvoicePage: React.FC = () => {
                       </div>
                       <div className="space-y-1">
                         <div
-                          className="h-4 rounded text-[8px] text-gray-900 font-medium flex items-center px-1"
+                          className="h-4 rounded text-[8px] text-white font-medium flex items-center px-1"
                           style={{ backgroundColor: template.colors.primary }}
                         >
                           Description
@@ -339,16 +339,16 @@ const CreateInvoicePage: React.FC = () => {
 
                   {/* Selected Checkmark */}
                   {invoiceData.selectedTemplate === template.id && (
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-gray-900" />
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-[#c4ff0e] rounded-full flex items-center justify-center">
+                      <Check className="w-4 h-4 text-black" />
                     </div>
                   )}
                 </div>
 
                 {/* Template Info */}
-                <div className="p-3 bg-gray-50/80">
-                  <h3 className="font-medium text-gray-900 text-sm">{template.name}</h3>
-                  <p className="text-xs text-gray-600 mt-0.5">{template.description}</p>
+                <div className="p-3 bg-[#1F1F1F]">
+                  <h3 className="font-medium text-white text-sm">{template.name}</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">{template.description}</p>
                 </div>
               </button>
             ))}
@@ -359,16 +359,16 @@ const CreateInvoicePage: React.FC = () => {
         <div className="flex-1 p-8">
           <div className="max-w-3xl mx-auto">
             {/* Logo Upload Section */}
-            <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 p-4 mb-6">
+            <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4 mb-6">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">Invoice Branding</h3>
-                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">Optional</span>
+                <h3 className="text-sm font-semibold text-white">Invoice Branding</h3>
+                <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium">Optional</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Business Logo */}
                 <div>
-                  <label className="block text-xs text-gray-600 mb-2">Your Logo</label>
+                  <label className="block text-xs text-gray-400 mb-2">Your Logo</label>
                   <input
                     type="file"
                     ref={logoInputRef}
@@ -377,7 +377,7 @@ const CreateInvoicePage: React.FC = () => {
                     className="hidden"
                   />
                   {invoiceData.businessLogo ? (
-                    <div className="relative group h-20 border border-gray-200/50 rounded-lg flex items-center justify-center bg-gray-50/80 p-2">
+                    <div className="relative group h-20 border border-[#2a2a2a] rounded-lg flex items-center justify-center bg-[#1F1F1F] p-2">
                       <img
                         src={invoiceData.businessLogo}
                         alt="Logo"
@@ -385,7 +385,7 @@ const CreateInvoicePage: React.FC = () => {
                       />
                       <button
                         onClick={() => handleInputChange('businessLogo', null)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-gray-900 rounded-full text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                       >
                         ×
                       </button>
@@ -393,7 +393,7 @@ const CreateInvoicePage: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => logoInputRef.current?.click()}
-                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-gray-600 hover:text-blue-600"
+                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#3a3a3a] rounded-lg hover:border-[#c4ff0e] hover:bg-[#2a2a2a] transition-all text-gray-400 hover:text-[#c4ff0e]"
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span className="text-xs font-medium">Add your logo</span>
@@ -403,7 +403,7 @@ const CreateInvoicePage: React.FC = () => {
 
                 {/* Background/Watermark Logo */}
                 <div>
-                  <label className="block text-xs text-gray-600 mb-2">Background Logo (Watermark)</label>
+                  <label className="block text-xs text-gray-400 mb-2">Background Logo (Watermark)</label>
                   <input
                     type="file"
                     ref={bgLogoInputRef}
@@ -412,7 +412,7 @@ const CreateInvoicePage: React.FC = () => {
                     className="hidden"
                   />
                   {invoiceData.backgroundLogo ? (
-                    <div className="relative group h-20 border border-gray-200/50 rounded-lg flex items-center justify-center bg-gray-50/80 p-2">
+                    <div className="relative group h-20 border border-[#2a2a2a] rounded-lg flex items-center justify-center bg-[#1F1F1F] p-2">
                       <img
                         src={invoiceData.backgroundLogo}
                         alt="Background Logo"
@@ -420,7 +420,7 @@ const CreateInvoicePage: React.FC = () => {
                       />
                       <button
                         onClick={() => handleInputChange('backgroundLogo', null)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-gray-900 rounded-full text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                       >
                         ×
                       </button>
@@ -428,7 +428,7 @@ const CreateInvoicePage: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => bgLogoInputRef.current?.click()}
-                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all text-gray-600 hover:text-purple-600"
+                      className="w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#3a3a3a] rounded-lg hover:border-[#c4ff0e] hover:bg-[#2a2a2a] transition-all text-gray-400 hover:text-[#c4ff0e]"
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span className="text-xs font-medium">Add background logo</span>
@@ -452,36 +452,36 @@ const CreateInvoicePage: React.FC = () => {
             {/* Form Sections */}
             <div className="space-y-6">
               {/* FROM Section */}
-              <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 overflow-hidden">
+              <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] overflow-hidden">
                 <button
                   onClick={() => setExpandedSection(expandedSection === 'from' ? null : 'from')}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-[#252525] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <Building2 className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 rounded-lg bg-[#c4ff0e]/20 flex items-center justify-center">
+                      <Building2 className="w-4 h-4 text-[#c4ff0e]" />
                     </div>
                     <div className="text-left">
-                      <p className="text-xs text-gray-600 uppercase tracking-wider">FROM</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">FROM</p>
+                      <p className="text-sm font-medium text-white">
                         {invoiceData.businessName || 'Add your business details'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">1.</span>
-                    <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${expandedSection === 'from' ? 'rotate-180' : ''}`} />
+                    <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium">1.</span>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'from' ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
                 {expandedSection === 'from' && (
-                  <div className="p-4 pt-0 border-t border-gray-200/50 space-y-4">
+                  <div className="p-4 pt-0 border-t border-[#2a2a2a] space-y-4">
                     <input
                       type="text"
                       value={invoiceData.businessName}
                       onChange={(e) => handleInputChange('businessName', e.target.value)}
                       placeholder="Business Name"
-                      className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <input
@@ -489,14 +489,14 @@ const CreateInvoicePage: React.FC = () => {
                         value={invoiceData.businessEmail}
                         onChange={(e) => handleInputChange('businessEmail', e.target.value)}
                         placeholder="Email"
-                        className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                       />
                       <input
                         type="tel"
                         value={invoiceData.businessPhone}
                         onChange={(e) => handleInputChange('businessPhone', e.target.value)}
                         placeholder="Phone"
-                        className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                       />
                     </div>
                     <textarea
@@ -504,43 +504,43 @@ const CreateInvoicePage: React.FC = () => {
                       onChange={(e) => handleInputChange('businessAddress', e.target.value)}
                       placeholder="Address"
                       rows={2}
-                      className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none text-white placeholder-gray-400"
                     />
                   </div>
                 )}
               </div>
 
               {/* BILL TO Section */}
-              <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 overflow-hidden">
+              <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] overflow-hidden">
                 <button
                   onClick={() => setExpandedSection(expandedSection === 'billto' ? null : 'billto')}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-[#252525] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                      <User className="w-4 h-4 text-green-600" />
+                    <div className="w-8 h-8 rounded-lg bg-[#c4ff0e]/20 flex items-center justify-center">
+                      <User className="w-4 h-4 text-[#c4ff0e]" />
                     </div>
                     <div className="text-left">
-                      <p className="text-xs text-gray-600 uppercase tracking-wider">BILL TO</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">BILL TO</p>
+                      <p className="text-sm font-medium text-white">
                         {invoiceData.clientName || 'Add customer details'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">2.</span>
-                    <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${expandedSection === 'billto' ? 'rotate-180' : ''}`} />
+                    <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium">2.</span>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'billto' ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
                 {expandedSection === 'billto' && (
-                  <div className="p-4 pt-0 border-t border-gray-200/50 space-y-4">
+                  <div className="p-4 pt-0 border-t border-[#2a2a2a] space-y-4">
                     <input
                       type="text"
                       value={invoiceData.clientName}
                       onChange={(e) => handleInputChange('clientName', e.target.value)}
                       placeholder="Client Name"
-                      className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <input
@@ -548,14 +548,14 @@ const CreateInvoicePage: React.FC = () => {
                         value={invoiceData.clientEmail}
                         onChange={(e) => handleInputChange('clientEmail', e.target.value)}
                         placeholder="Email"
-                        className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                       />
                       <input
                         type="tel"
                         value={invoiceData.clientPhone}
                         onChange={(e) => handleInputChange('clientPhone', e.target.value)}
                         placeholder="Phone"
-                        className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                       />
                     </div>
                     <textarea
@@ -563,46 +563,46 @@ const CreateInvoicePage: React.FC = () => {
                       onChange={(e) => handleInputChange('clientAddress', e.target.value)}
                       placeholder="Address"
                       rows={2}
-                      className="w-full px-4 py-2.5 border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-2.5 bg-[#252525] border border-[#2a2a2a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none text-white placeholder-gray-400"
                     />
                   </div>
                 )}
               </div>
 
               {/* Invoice Details */}
-              <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 p-4">
+              <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">3.</span>
-                  <span className="text-sm font-medium text-gray-600">Invoice Details</span>
+                  <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium">3.</span>
+                  <span className="text-sm font-medium text-gray-400">Invoice Details</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Invoice number *</label>
+                    <label className="block text-xs text-gray-400 mb-1">Invoice number *</label>
                     <input
                       type="text"
                       value={invoiceData.invoiceNumber}
                       onChange={(e) => handleInputChange('invoiceNumber', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Issue date *</label>
+                    <label className="block text-xs text-gray-400 mb-1">Issue date *</label>
                     <div className="relative">
                       <input
                         type="date"
                         value={invoiceData.issueDate}
                         onChange={(e) => handleInputChange('issueDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Due date *</label>
+                    <label className="block text-xs text-gray-400 mb-1">Due date *</label>
                     <select
                       value={invoiceData.dueDate}
                       onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-gray-50/80"
+                      className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent appearance-none text-white"
                     >
                       <option value="7 days">7 days</option>
                       <option value="14 days">14 days</option>
@@ -612,44 +612,44 @@ const CreateInvoicePage: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Delivery date</label>
+                    <label className="block text-xs text-gray-400 mb-1">Delivery date</label>
                     <div className="relative">
                       <input
                         type="date"
                         value={invoiceData.deliveryDate}
                         onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Currency Selector */}
-                <div className="mt-4 pt-4 border-t border-gray-200/50">
-                  <label className="block text-xs text-gray-600 mb-2">Currency</label>
+                <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                  <label className="block text-xs text-gray-400 mb-2">Currency</label>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-                      className="w-full md:w-64 px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/80 text-left flex items-center justify-between"
+                      className="w-full md:w-64 px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-left flex items-center justify-between"
                     >
                       <span className="flex items-center gap-2">
-                        <span className="font-medium">{selectedCurrency.symbol}</span>
-                        <span>{selectedCurrency.code}</span>
-                        <span className="text-gray-600">- {selectedCurrency.name}</span>
+                        <span className="font-medium text-white">{selectedCurrency.symbol}</span>
+                        <span className="text-white">{selectedCurrency.code}</span>
+                        <span className="text-gray-400">- {selectedCurrency.name}</span>
                       </span>
-                      <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
                     </button>
 
                     {showCurrencyDropdown && (
-                      <div className="absolute z-20 mt-1 w-full md:w-80 bg-gray-50/80 border border-gray-200/50 rounded-lg shadow-lg">
-                        <div className="p-2 border-b border-gray-200/50">
+                      <div className="absolute z-20 mt-1 w-full md:w-80 bg-[#1F1F1F] border border-[#2a2a2a] rounded-lg shadow-lg">
+                        <div className="p-2 border-b border-[#2a2a2a]">
                           <input
                             type="text"
                             value={currencySearch}
                             onChange={(e) => setCurrencySearch(e.target.value)}
                             placeholder="Search currency..."
-                            className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                             autoFocus
                           />
                         </div>
@@ -663,15 +663,15 @@ const CreateInvoicePage: React.FC = () => {
                                 setShowCurrencyDropdown(false)
                                 setCurrencySearch('')
                               }}
-                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50/80 flex items-center gap-3 ${
-                                invoiceData.currency === currency.code ? 'bg-blue-50 text-blue-600' : ''
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-[#2a2a2a] flex items-center gap-3 ${
+                                invoiceData.currency === currency.code ? 'bg-[#c4ff0e]/20 text-[#c4ff0e]' : 'text-white'
                               }`}
                             >
                               <span className="w-8 font-medium">{currency.symbol}</span>
                               <span className="font-medium">{currency.code}</span>
-                              <span className="text-gray-600">{currency.name}</span>
+                              <span className="text-gray-400">{currency.name}</span>
                               {invoiceData.currency === currency.code && (
-                                <Check className="w-4 h-4 ml-auto text-blue-600" />
+                                <Check className="w-4 h-4 ml-auto text-[#c4ff0e]" />
                               )}
                             </button>
                           ))}
@@ -683,7 +683,7 @@ const CreateInvoicePage: React.FC = () => {
 
                 <button
                   onClick={() => setShowMoreOptions(!showMoreOptions)}
-                  className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                  className="mt-4 text-sm text-[#c4ff0e] hover:text-[#c4ff0e]/80 font-medium flex items-center gap-1"
                 >
                   <MoreHorizontal className="w-4 h-4" />
                   MORE OPTIONS
@@ -691,15 +691,15 @@ const CreateInvoicePage: React.FC = () => {
               </div>
 
               {/* Items Section */}
-              <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 p-4">
+              <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">4.</span>
-                  <span className="text-sm font-medium text-gray-600">I invoice you:</span>
-                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full font-medium ml-auto">5.</span>
+                  <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium">4.</span>
+                  <span className="text-sm font-medium text-gray-400">I invoice you:</span>
+                  <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium ml-auto">5.</span>
                 </div>
 
                 {/* Items Header */}
-                <div className="grid grid-cols-12 gap-2 mb-2 text-xs text-gray-600 font-medium">
+                <div className="grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 font-medium">
                   <div className="col-span-4">Item</div>
                   <div className="col-span-1 text-center">Quantity</div>
                   <div className="col-span-2 text-center">Unit</div>
@@ -720,7 +720,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.name}
                             onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                             placeholder="Enter a name here"
-                            className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                           />
                         </div>
                         <div className="col-span-1">
@@ -729,7 +729,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.quantity}
                             onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
                             min="0"
-                            className="w-full px-2 py-2 border border-gray-200/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm text-center focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white"
                           />
                         </div>
                         <div className="col-span-2">
@@ -738,7 +738,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.unit}
                             onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
                             placeholder="pcs"
-                            className="w-full px-2 py-2 border border-gray-200/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm text-center focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                           />
                         </div>
                         <div className="col-span-2">
@@ -749,7 +749,7 @@ const CreateInvoicePage: React.FC = () => {
                             min="0"
                             step="0.01"
                             placeholder="0.00"
-                            className="w-full px-2 py-2 border border-gray-200/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm text-center focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
                           />
                         </div>
                         <div className="col-span-1">
@@ -759,16 +759,16 @@ const CreateInvoicePage: React.FC = () => {
                             onChange={(e) => handleItemChange(index, 'tax', parseFloat(e.target.value) || 0)}
                             min="0"
                             max="100"
-                            className="w-full px-2 py-2 border border-gray-200/50 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm text-center focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white"
                           />
                         </div>
-                        <div className="col-span-1 text-right text-sm font-medium text-gray-900">
+                        <div className="col-span-1 text-right text-sm font-medium text-white">
                           {(item.quantity * item.price).toFixed(2)}
                         </div>
                         <div className="col-span-1 text-center">
                           <button
                             onClick={() => removeItem(index)}
-                            className="p-1.5 text-gray-600 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors"
                             disabled={invoiceData.items.length === 1}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -781,7 +781,7 @@ const CreateInvoicePage: React.FC = () => {
                           onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                           placeholder="Enter a description here"
                           rows={1}
-                          className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                          className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm text-gray-300 focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none placeholder-gray-400"
                         />
                       </div>
                     </div>
@@ -791,7 +791,7 @@ const CreateInvoicePage: React.FC = () => {
                 {/* Add Item Button */}
                 <button
                   onClick={addItem}
-                  className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  className="mt-4 flex items-center gap-2 text-[#c4ff0e] hover:text-[#c4ff0e]/80 font-medium text-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Add item
@@ -800,43 +800,42 @@ const CreateInvoicePage: React.FC = () => {
 
               {/* Notes & Bank Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 p-4">
+                <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full font-medium">9.</span>
-                    <label className="text-sm font-medium text-gray-600">Add a note</label>
+                    <span className="text-xs px-2 py-1 bg-[#c4ff0e] text-black rounded-full font-medium">9.</span>
+                    <label className="text-sm font-medium text-gray-400">Add a note</label>
                   </div>
                   <textarea
                     value={invoiceData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     placeholder="Notes for the client..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none text-white placeholder-gray-400"
                   />
                 </div>
 
-                <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 p-4">
-                  <label className="text-sm font-medium text-gray-600 block mb-3">Add bank details</label>
+                <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4">
+                  <label className="text-sm font-medium text-gray-400 block mb-3">Add bank details</label>
                   <textarea
                     value={invoiceData.bankDetails}
                     onChange={(e) => handleInputChange('bankDetails', e.target.value)}
                     placeholder="Bank name, Account number, etc..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200/50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none text-white placeholder-gray-400"
                   />
                 </div>
               </div>
 
               {/* Totals */}
-              <div className="bg-gray-50/80 rounded-xl border border-gray-200/50 p-4">
+              <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4">
                 <div className="flex justify-end">
                   <div className="w-64 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-700">SUBTOTAL</span>
-                      <span className="font-medium">{formatCurrency(subtotal)}</span>
+                      <span className="text-gray-300">SUBTOTAL</span>
+                      <span className="font-medium text-white">{formatCurrency(subtotal)}</span>
                     </div>
                     <div
-                      className="flex justify-between text-sm font-semibold py-2 px-3 rounded-lg"
-                      style={{ backgroundColor: selectedTemplateData?.colors.primary, color: 'white' }}
+                      className="flex justify-between text-sm font-semibold py-2 px-3 rounded-lg bg-[#c4ff0e] text-black"
                     >
                       <span>TOTAL</span>
                       <span>{formatCurrency(grandTotal)}</span>
@@ -850,21 +849,20 @@ const CreateInvoicePage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setShowPreview(true)}
-                    className="py-4 bg-gray-50/80 text-gray-600 font-semibold rounded-xl transition-all hover:bg-gray-200 flex items-center justify-center gap-2"
+                    className="py-4 bg-[#252525] text-gray-400 font-semibold rounded-xl transition-all hover:bg-[#2a2a2a] flex items-center justify-center gap-2 border border-[#2a2a2a]"
                   >
                     <Eye className="w-5 h-5" />
                     Preview Invoice
                   </button>
                   <button
                     onClick={handleDownloadPDF}
-                    className="py-4 text-gray-900 font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
-                    style={{ backgroundColor: selectedTemplateData?.colors.primary }}
+                    className="py-4 bg-[#c4ff0e] text-black font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     <Download className="w-5 h-5" />
                     Generate PDF
                   </button>
                 </div>
-                <button className="w-full py-3 text-gray-700 font-medium hover:text-gray-900 transition-colors flex items-center justify-center gap-2">
+                <button className="w-full py-3 text-gray-300 font-medium hover:text-white transition-colors flex items-center justify-center gap-2">
                   <Send className="w-4 h-4" />
                   Send document by email
                 </button>
@@ -877,33 +875,32 @@ const CreateInvoicePage: React.FC = () => {
       {/* Preview Modal */}
       {showPreview && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowPreview(false)
           }}
         >
-          <div className="bg-gray-50/80 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200/50 bg-gray-50/80">
+            <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a] bg-[#1F1F1F]">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="px-4 py-2 bg-gray-50/80 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium"
+                  className="px-4 py-2 bg-[#252525] text-gray-400 rounded-lg hover:bg-[#2a2a2a] transition-colors flex items-center gap-2 text-sm font-medium"
                 >
                   <ChevronDown className="w-4 h-4 rotate-90" />
                   Back to Edit
                 </button>
-                <h2 className="text-lg font-semibold text-gray-900">Invoice Preview</h2>
+                <h2 className="text-lg font-semibold text-white">Invoice Preview</h2>
               </div>
               <div className="flex items-center gap-2">
-                <button className="px-4 py-2 bg-gray-50/80 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium">
+                <button className="px-4 py-2 bg-[#252525] text-gray-400 rounded-lg hover:bg-[#2a2a2a] transition-colors flex items-center gap-2 text-sm font-medium">
                   <Printer className="w-4 h-4" />
                   Print
                 </button>
                 <button
                   onClick={handleDownloadPDF}
-                  className="px-4 py-2 text-gray-900 rounded-lg transition-all hover:shadow-lg flex items-center gap-2 text-sm font-medium"
-                  style={{ backgroundColor: selectedTemplateData?.colors.primary }}
+                  className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg transition-all hover:shadow-lg flex items-center gap-2 text-sm font-medium"
                 >
                   <Download className="w-4 h-4" />
                   Download PDF
@@ -911,7 +908,7 @@ const CreateInvoicePage: React.FC = () => {
                 {/* Close Button */}
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="ml-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-gray-900 rounded-lg flex items-center justify-center transition-colors"
+                  className="ml-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-colors"
                   title="Close"
                 >
                   <X className="w-5 h-5" />
@@ -920,8 +917,8 @@ const CreateInvoicePage: React.FC = () => {
             </div>
 
             {/* Invoice Preview Content */}
-            <div className="flex-1 overflow-auto p-6 bg-gray-50/80">
-              <div className="bg-gray-50/80 shadow-lg mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
+            <div className="flex-1 overflow-auto p-6 bg-[#1e1e1e]">
+              <div className="bg-white shadow-lg mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                 {/* Background Logo / Watermark */}
                 {invoiceData.backgroundLogo && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -936,7 +933,7 @@ const CreateInvoicePage: React.FC = () => {
                 {/* Close Button on Invoice Paper Corner */}
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="absolute -top-3 -right-3 w-12 h-12 bg-red-500 hover:bg-red-600 text-gray-900 rounded-full flex items-center justify-center shadow-xl transition-colors border-4 border-white z-10"
+                  className="absolute -top-3 -right-3 w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-xl transition-colors border-4 border-white z-10"
                   title="Close Preview"
                 >
                   <X className="w-6 h-6" />

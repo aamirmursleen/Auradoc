@@ -151,17 +151,17 @@ export default function WatermarkPDFPage() {
   const presetTexts = ['CONFIDENTIAL', 'DRAFT', 'SAMPLE', 'COPY', 'DO NOT COPY', 'PRIVATE']
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-50 to-white">
+    <div className="min-h-screen bg-[#1e1e1e]">
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-cyan-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Droplets className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Watermark PDF
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Add custom text watermarks to your PDF documents.
             Protect your content with professional watermarks.
           </p>
@@ -169,8 +169,8 @@ export default function WatermarkPDFPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 transition-all ${
               dragActive
-                ? 'border-cyan-500 bg-cyan-50'
-                : 'border-gray-300 hover:border-cyan-400 bg-white'
+                ? 'border-[#c4ff0e] bg-[#252525]'
+                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -179,13 +179,13 @@ export default function WatermarkPDFPage() {
           >
             {!file ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-cyan-600" />
+                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   Drop your PDF here
                 </h3>
-                <p className="text-gray-500 mb-4">or click to browse</p>
+                <p className="text-gray-400 mb-4">or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -195,7 +195,7 @@ export default function WatermarkPDFPage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 text-white font-medium rounded-lg cursor-pointer hover:bg-cyan-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF File
@@ -203,17 +203,17 @@ export default function WatermarkPDFPage() {
               </div>
             ) : !processed ? (
               <div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 mb-6">
-                  <div className="w-10 h-10 bg-cyan-100 rounded flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-cyan-600" />
+                <div className="flex items-center gap-3 p-3 bg-[#252525] rounded-lg border border-[#2a2a2a] mb-6">
+                  <div className="w-10 h-10 bg-[#2a2a2a] rounded flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-[#c4ff0e]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                    <p className="text-xs text-gray-500">{formatSize(file.size)}</p>
+                    <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                    <p className="text-xs text-gray-400">{formatSize(file.size)}</p>
                   </div>
                   <button
                     onClick={clearAll}
-                    className="p-1 hover:bg-red-100 rounded text-gray-400 hover:text-red-500"
+                    className="p-1 hover:bg-red-900/20 rounded text-gray-400 hover:text-red-400"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -223,14 +223,14 @@ export default function WatermarkPDFPage() {
                 <div className="space-y-4 mb-6 text-left">
                   {/* Watermark Text */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Watermark Text
                     </label>
                     <input
                       type="text"
                       value={watermarkText}
                       onChange={(e) => setWatermarkText(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                      className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
                       placeholder="Enter watermark text"
                     />
                     <div className="flex flex-wrap gap-2 mt-2">
@@ -240,8 +240,8 @@ export default function WatermarkPDFPage() {
                           onClick={() => setWatermarkText(text)}
                           className={`px-3 py-1 text-xs rounded-full border transition-colors ${
                             watermarkText === text
-                              ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
-                              : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                              ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
+                              : 'border-[#2a2a2a] hover:border-[#3a3a3a] text-gray-400'
                           }`}
                         >
                           {text}
@@ -252,7 +252,7 @@ export default function WatermarkPDFPage() {
 
                   {/* Position */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Position
                     </label>
                     <div className="flex gap-4">
@@ -260,8 +260,8 @@ export default function WatermarkPDFPage() {
                         onClick={() => setPosition('center')}
                         className={`flex-1 px-4 py-2 rounded-lg border-2 transition-all ${
                           position === 'center'
-                            ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
+                            : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
                         }`}
                       >
                         Centered
@@ -270,8 +270,8 @@ export default function WatermarkPDFPage() {
                         onClick={() => setPosition('tile')}
                         className={`flex-1 px-4 py-2 rounded-lg border-2 transition-all ${
                           position === 'tile'
-                            ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
+                            : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
                         }`}
                       >
                         Tiled
@@ -282,7 +282,7 @@ export default function WatermarkPDFPage() {
                   <div className="grid grid-cols-2 gap-4">
                     {/* Font Size */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
                         Font Size: {fontSize}px
                       </label>
                       <input
@@ -291,13 +291,13 @@ export default function WatermarkPDFPage() {
                         max="120"
                         value={fontSize}
                         onChange={(e) => setFontSize(parseInt(e.target.value))}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                        className="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-cyan-600"
                       />
                     </div>
 
                     {/* Opacity */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
                         Opacity: {Math.round(opacity * 100)}%
                       </label>
                       <input
@@ -306,7 +306,7 @@ export default function WatermarkPDFPage() {
                         max="100"
                         value={opacity * 100}
                         onChange={(e) => setOpacity(parseInt(e.target.value) / 100)}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                        className="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-cyan-600"
                       />
                     </div>
                   </div>
@@ -314,7 +314,7 @@ export default function WatermarkPDFPage() {
                   <div className="grid grid-cols-2 gap-4">
                     {/* Rotation */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
                         Rotation: {rotation}°
                       </label>
                       <input
@@ -323,13 +323,13 @@ export default function WatermarkPDFPage() {
                         max="90"
                         value={rotation}
                         onChange={(e) => setRotation(parseInt(e.target.value))}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                        className="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-cyan-600"
                       />
                     </div>
 
                     {/* Color */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
                         Color
                       </label>
                       <div className="flex gap-2">
@@ -337,14 +337,14 @@ export default function WatermarkPDFPage() {
                           type="color"
                           value={color}
                           onChange={(e) => setColor(e.target.value)}
-                          className="w-10 h-10 rounded cursor-pointer border border-gray-200"
+                          className="w-10 h-10 rounded cursor-pointer border border-[#2a2a2a]"
                         />
                         <div className="flex gap-1">
                           {['#ff0000', '#0000ff', '#808080', '#000000'].map(c => (
                             <button
                               key={c}
                               onClick={() => setColor(c)}
-                              className={`w-8 h-8 rounded border-2 ${color === c ? 'border-cyan-500' : 'border-gray-200'}`}
+                              className={`w-8 h-8 rounded border-2 ${color === c ? 'border-[#c4ff0e]' : 'border-[#2a2a2a]'}`}
                               style={{ backgroundColor: c }}
                             />
                           ))}
@@ -354,8 +354,8 @@ export default function WatermarkPDFPage() {
                   </div>
 
                   {/* Preview */}
-                  <div className="bg-gray-100 rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-500 mb-2">Preview</p>
+                  <div className="bg-[#2a2a2a] rounded-lg p-4 text-center">
+                    <p className="text-xs text-gray-400 mb-2">Preview</p>
                     <div
                       className="inline-block font-bold"
                       style={{
@@ -373,7 +373,7 @@ export default function WatermarkPDFPage() {
                 <div className="flex justify-center gap-3">
                   <button
                     onClick={clearAll}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-400 hover:bg-[#2a2a2a] rounded-lg transition-colors"
                     disabled={processing}
                   >
                     Cancel
@@ -381,7 +381,7 @@ export default function WatermarkPDFPage() {
                   <button
                     onClick={handleWatermark}
                     disabled={processing || !watermarkText.trim()}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
                   >
                     {processing ? (
                       <>
@@ -399,21 +399,21 @@ export default function WatermarkPDFPage() {
               </div>
             ) : (
               <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-2 text-green-600">
+                <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-medium">Watermark Added Successfully!</span>
                 </div>
 
                 <button
                   onClick={downloadPDF}
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
                 >
                   <Download className="w-5 h-5" />
                   Download Watermarked PDF
                 </button>
                 <button
                   onClick={clearAll}
-                  className="block mx-auto text-sm text-gray-500 hover:text-gray-700"
+                  className="block mx-auto text-sm text-gray-400 hover:text-gray-300"
                 >
                   Watermark another PDF
                 </button>
@@ -423,9 +423,9 @@ export default function WatermarkPDFPage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-[#1F1F1F]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             Why Use PDF Watermarks?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -434,29 +434,29 @@ export default function WatermarkPDFPage() {
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device' },
               { icon: Clock, title: 'No Limits', desc: 'Watermark any PDF regardless of size' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-gray-50">
-                <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-cyan-600" />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
+                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.desc}</p>
+                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-400 text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-gradient-to-r from-cyan-600 to-teal-600">
+      <section className="py-16 px-4 bg-[#252525]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Need More PDF Tools?
           </h2>
-          <p className="text-cyan-100 mb-8">
+          <p className="text-gray-300 mb-8">
             Explore our complete suite of free PDF tools
           </p>
           <Link
             href="/tools"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-cyan-600 font-medium rounded-lg hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1F1F1F] text-[#c4ff0e] font-medium rounded-lg hover:shadow-lg transition-all"
           >
             View All Tools
             <ArrowRight className="w-5 h-5" />

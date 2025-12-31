@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import * as pdfjsLib from 'pdfjs-dist'
 import {
   FileText,
   Check,
@@ -13,14 +14,20 @@ import {
   Clock,
   CheckCircle,
   X,
-  Download,
-  Eye,
-  Lock
+  Lock,
+  ZoomIn,
+  ZoomOut,
+  Maximize2
 } from 'lucide-react'
+
+// Set up PDF.js worker
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+}
 
 const SignatureCanvas = dynamic(() => import('@/components/signature/SignatureCanvas'), {
   ssr: false,
-  loading: () => <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+  loading: () => <div className="h-40 bg-[#252525] rounded-xl animate-pulse" />
 })
 
 interface SignerInfo {
@@ -39,6 +46,7 @@ interface SignatureFieldInfo {
   height: number
   type: string
   label: string
+  pageNumber?: number
 }
 
 interface DocumentData {
@@ -67,6 +75,14 @@ export default function SignDocumentPage() {
   const [currentSigner, setCurrentSigner] = useState<SignerInfo | null>(null)
   const [myFields, setMyFields] = useState<SignatureFieldInfo[]>([])
 
+  // PDF state
+  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
+  const [totalPages, setTotalPages] = useState(0)
+  const [scale, setScale] = useState(1.0)
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
+  const [pageHeights, setPageHeights] = useState<number[]>([])
+
   // Signing state
   const [showSignaturePad, setShowSignaturePad] = useState(false)
   const [signature, setSignature] = useState<string | null>(null)
@@ -75,50 +91,85 @@ export default function SignDocumentPage() {
   const [isComplete, setIsComplete] = useState(false)
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null)
 
+  const pagesContainerRef = useRef<HTMLDivElement>(null)
+  const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([])
   const documentContainerRef = useRef<HTMLDivElement>(null)
 
-  // Fetch document data
   useEffect(() => {
     const fetchDocument = async () => {
       try {
         setLoading(true)
         const response = await fetch(`/api/signing-requests/${documentId}?email=${signerEmail}&token=${token}`)
         const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to load document')
-        }
-
+        if (!response.ok) throw new Error(data.message || 'Failed to load document')
         setDocumentData(data.data)
-
-        // Find current signer
-        const signer = data.data.signers.find(
-          (s: SignerInfo) => s.email.toLowerCase() === signerEmail?.toLowerCase()
-        )
+        const signer = data.data.signers.find((s: SignerInfo) => s.email.toLowerCase() === signerEmail?.toLowerCase())
         setCurrentSigner(signer || null)
-
-        // Get fields for this signer
-        const fields = data.data.signatureFields.filter(
-          (f: SignatureFieldInfo) => f.signerOrder === signer?.order
-        )
+        const fields = data.data.signatureFields.filter((f: SignatureFieldInfo) => f.signerOrder === signer?.order)
         setMyFields(fields)
-
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
         setLoading(false)
       }
     }
-
-    if (documentId && signerEmail) {
-      fetchDocument()
-    } else {
-      setError('Invalid signing link')
-      setLoading(false)
-    }
+    if (documentId && signerEmail) fetchDocument()
+    else { setError('Invalid signing link'); setLoading(false) }
   }, [documentId, signerEmail, token])
 
-  // Handle signature creation
+  useEffect(() => {
+    const loadPdf = async () => {
+      if (!documentData?.documentUrl) return
+      try {
+        setPdfLoading(true)
+        setPdfError(null)
+        const loadingTask = pdfjsLib.getDocument(documentData.documentUrl)
+        const pdf = await loadingTask.promise
+        setPdfDoc(pdf)
+        setTotalPages(pdf.numPages)
+        canvasRefs.current = new Array(pdf.numPages).fill(null)
+      } catch (err) {
+        console.error('Error loading PDF:', err)
+        setPdfError('Failed to load PDF document')
+      } finally {
+        setPdfLoading(false)
+      }
+    }
+    loadPdf()
+  }, [documentData?.documentUrl])
+
+  const renderAllPages = useCallback(async () => {
+    if (!pdfDoc) return
+    const heights: number[] = []
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const canvas = canvasRefs.current[i - 1]
+      if (!canvas) continue
+      try {
+        const page = await pdfDoc.getPage(i)
+        const viewport = page.getViewport({ scale })
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+        heights.push(viewport.height)
+        const context = canvas.getContext('2d')
+        if (context) await page.render({ canvasContext: context, viewport }).promise
+      } catch (err) { console.error('Error rendering page', i, err) }
+    }
+    setPageHeights(heights)
+  }, [pdfDoc, scale])
+
+  useEffect(() => {
+    if (pdfDoc && canvasRefs.current.length === pdfDoc.numPages) {
+      const timer = setTimeout(() => renderAllPages(), 100)
+      return () => clearTimeout(timer)
+    }
+  }, [pdfDoc, renderAllPages, totalPages])
+
+  useEffect(() => { if (pdfDoc) renderAllPages() }, [scale, pdfDoc, renderAllPages])
+
+  const zoomIn = () => setScale(prev => Math.min(prev + 0.25, 3))
+  const zoomOut = () => setScale(prev => Math.max(prev - 0.25, 0.5))
+  const fitToWidth = () => setScale(1.0)
+
   const handleSignatureCreated = (sig: string | null) => {
     if (sig && activeFieldId) {
       setSignature(sig)
@@ -128,132 +179,57 @@ export default function SignDocumentPage() {
     }
   }
 
-  // Click on a field to sign it
   const handleFieldClick = (fieldId: string) => {
-    if (signedFields.has(fieldId)) return // Already signed
+    if (signedFields.has(fieldId)) return
     setActiveFieldId(fieldId)
     setShowSignaturePad(true)
   }
 
-  // Submit all signatures
   const handleSubmit = async () => {
-    if (!signature || signedFields.size !== myFields.length) {
-      setError('Please sign all required fields')
-      return
-    }
-
+    if (!signature || signedFields.size !== myFields.length) { setError('Please sign all required fields'); return }
     setIsSubmitting(true)
     setError(null)
-
     try {
       const response = await fetch(`/api/signing-requests/${documentId}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signerEmail,
-          token,
-          signature,
-          signedFields: Array.from(signedFields)
-        })
+        body: JSON.stringify({ signerEmail, token, signature, signedFields: Array.from(signedFields) })
       })
-
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit signature')
-      }
-
+      if (!response.ok) throw new Error(data.message || 'Failed to submit signature')
       setIsComplete(true)
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setIsSubmitting(false)
-    }
+    } catch (err) { setError(err instanceof Error ? err.message : 'An error occurred') }
+    finally { setIsSubmitting(false) }
   }
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary-500 mx-auto mb-4" />
-          <p className="text-gray-600">Loading document...</p>
-        </div>
-      </div>
-    )
+  const getFieldPosition = (field: SignatureFieldInfo) => {
+    const pageNum = field.pageNumber || 1
+    let topOffset = 0
+    for (let i = 0; i < pageNum - 1; i++) topOffset += (pageHeights[i] || 842) + 16
+    return { left: field.x * scale, top: topOffset + (field.y * scale), width: field.width * scale, height: field.height * scale }
   }
 
-  // Error state
-  if (error && !documentData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-        <div className="card max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-          </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Unable to Load Document</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <p className="text-sm text-gray-500">
-            This link may have expired or is invalid. Please contact the sender.
-          </p>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center"><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading document...</p></div></div>)
 
-  // Completion state
-  if (isComplete) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-        <div className="card max-w-md w-full p-8 text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Signed!</h1>
-          <p className="text-gray-600 mb-6">
-            Thank you for signing. {documentData?.senderName} has been notified.
-          </p>
+  if (error && !documentData) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center p-4"><div className="card max-w-md w-full p-8 text-center"><div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><AlertCircle className="w-8 h-8 text-red-600" /></div><h1 className="text-xl font-bold text-white mb-2">Unable to Load Document</h1><p className="text-gray-300 mb-4">{error}</p><p className="text-sm text-gray-400">This link may have expired or is invalid. Please contact the sender.</p></div></div>)
 
-          <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left">
-            <p className="text-sm text-gray-500 mb-1">Document</p>
-            <p className="font-medium text-gray-900">{documentData?.documentName}</p>
-            <p className="text-sm text-gray-500 mt-3 mb-1">Signed at</p>
-            <p className="font-medium text-gray-900">{new Date().toLocaleString()}</p>
-          </div>
+  if (isComplete) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center p-4"><div className="card max-w-md w-full p-8 text-center"><div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-10 h-10 text-green-600" /></div><h1 className="text-2xl font-bold text-white mb-2">Document Signed!</h1><p className="text-gray-300 mb-6">Thank you for signing. {documentData?.senderName} has been notified.</p><div className="bg-[#252525] rounded-xl p-4 mb-6 text-left"><p className="text-sm text-gray-400 mb-1">Document</p><p className="font-medium text-white">{documentData?.documentName}</p><p className="text-sm text-gray-400 mt-3 mb-1">Signed at</p><p className="font-medium text-white">{new Date().toLocaleString()}</p></div><div className="flex items-center justify-center gap-4 text-sm text-gray-400"><div className="flex items-center gap-1"><Shield className="w-4 h-4 text-green-600" /><span>Legally Binding</span></div><div className="flex items-center gap-1"><Lock className="w-4 h-4 text-green-600" /><span>Secured</span></div></div></div></div>)
 
-          <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-            <div className="flex items-center gap-1">
-              <Shield className="w-4 h-4 text-green-600" />
-              <span>Legally Binding</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Lock className="w-4 h-4 text-green-600" />
-              <span>Secured</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Main signing view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e]">
+      <header className="bg-[#1F1F1F] border-b border-[#2a2a2a] sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-                <FileText className="w-5 h-5 text-primary-600" />
+              <div className="w-10 h-10 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center">
+                <FileText className="w-5 h-5 text-[#c4ff0e]" />
               </div>
               <div>
-                <h1 className="font-semibold text-gray-900">{documentData?.documentName}</h1>
-                <p className="text-sm text-gray-500">From {documentData?.senderName}</p>
+                <h1 className="font-semibold text-white">{documentData?.documentName}</h1>
+                <p className="text-sm text-gray-400">From {documentData?.senderName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
               <Lock className="w-4 h-4" />
               <span>Secure Signing</span>
             </div>
@@ -263,192 +239,96 @@ export default function SignDocumentPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Signer Info */}
             <div className="card p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Signing as</h3>
+              <h3 className="font-semibold text-white mb-4">Signing as</h3>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-700 font-bold text-lg">
-                    {currentSigner?.name.charAt(0).toUpperCase()}
-                  </span>
+                <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-full flex items-center justify-center">
+                  <span className="text-[#c4ff0e] font-bold text-lg">{currentSigner?.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{currentSigner?.name}</p>
-                  <p className="text-sm text-gray-500">{currentSigner?.email}</p>
+                  <p className="font-medium text-white">{currentSigner?.name}</p>
+                  <p className="text-sm text-gray-400">{currentSigner?.email}</p>
                 </div>
               </div>
             </div>
 
-            {/* Message from sender */}
             {documentData?.message && (
-              <div className="card p-6 bg-yellow-50 border-yellow-200">
-                <h3 className="font-semibold text-gray-900 mb-2">Message from sender</h3>
-                <p className="text-gray-700 text-sm italic">"{documentData.message}"</p>
+              <div className="card p-6 bg-yellow-50 border-yellow-500/30">
+                <h3 className="font-semibold text-white mb-2">Message from sender</h3>
+                <p className="text-gray-300 text-sm italic">&quot;{documentData.message}&quot;</p>
               </div>
             )}
 
-            {/* Fields to sign */}
             <div className="card p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">
-                Required Signatures ({signedFields.size}/{myFields.length})
-              </h3>
+              <h3 className="font-semibold text-white mb-4">Required Signatures ({signedFields.size}/{myFields.length})</h3>
               <div className="space-y-2">
                 {myFields.map((field) => (
-                  <div
-                    key={field.id}
-                    className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' +
-                      (signedFields.has(field.id)
-                        ? 'bg-green-50 border-green-400'
-                        : 'bg-gray-50 border-gray-200 hover:border-primary-300')
-                    }
-                    onClick={() => handleFieldClick(field.id)}
-                  >
-                    {signedFields.has(field.id) ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <PenTool className="w-5 h-5 text-gray-600" />
-                    )}
-                    <span className={'font-medium ' + (signedFields.has(field.id) ? 'text-green-700' : 'text-gray-700')}>
-                      {field.type === 'signature' ? 'Signature' : field.type === 'initials' ? 'Initials' : 'Date'}
-                    </span>
-                    {signedFields.has(field.id) && (
-                      <span className="ml-auto text-xs text-green-600">Signed</span>
-                    )}
+                  <div key={field.id} className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' + (signedFields.has(field.id) ? 'bg-green-50 border-green-400' : 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]')} onClick={() => handleFieldClick(field.id)}>
+                    {signedFields.has(field.id) ? <CheckCircle className="w-5 h-5 text-green-600" /> : <PenTool className="w-5 h-5 text-gray-300" />}
+                    <span className={'font-medium ' + (signedFields.has(field.id) ? 'text-green-400' : 'text-gray-300')}>{field.type === 'signature' ? 'Signature' : field.type === 'initials' ? 'Initials' : 'Date'}</span>
+                    {signedFields.has(field.id) && <span className="ml-auto text-xs text-green-600">Signed</span>}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmit}
-              disabled={signedFields.size !== myFields.length || isSubmitting}
-              className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-gray-900 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Check className="w-6 h-6" />
-                  Complete Signing
-                </>
-              )}
+            <button onClick={handleSubmit} disabled={signedFields.size !== myFields.length || isSubmitting} className="w-full py-4 bg-gradient-to-r from-[#c4ff0e] to-[#c4ff0e] text-white rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:from-[#b3e60d] hover:to-[#b3e60d] shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSubmitting ? (<><Loader2 className="w-6 h-6 animate-spin" />Submitting...</>) : (<><Check className="w-6 h-6" />Complete Signing</>)}
             </button>
 
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                {error}
-              </div>
-            )}
+            {error && <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
 
-            {/* Trust badges */}
-            <div className="card p-4 bg-gray-50">
-              <div className="flex items-center justify-around text-xs text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Shield className="w-4 h-4 text-green-600" />
-                  <span>Encrypted</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4 text-green-600" />
-                  <span>Timestamped</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Legal</span>
-                </div>
+            <div className="card p-4 bg-[#252525]">
+              <div className="flex items-center justify-around text-xs text-gray-400">
+                <div className="flex items-center gap-1"><Shield className="w-4 h-4 text-green-600" /><span>Encrypted</span></div>
+                <div className="flex items-center gap-1"><Clock className="w-4 h-4 text-green-600" /><span>Timestamped</span></div>
+                <div className="flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-600" /><span>Legal</span></div>
               </div>
             </div>
           </div>
 
-          {/* Document Preview */}
           <div className="lg:col-span-2">
-            <div
-              ref={documentContainerRef}
-              className="card p-4 bg-gray-200 min-h-[700px] relative overflow-auto"
-            >
-              <div
-                className="bg-white rounded-lg shadow-lg mx-auto relative"
-                style={{ width: '595px', minHeight: '842px' }}
-              >
-                {/* Document placeholder */}
-                <div className="h-full min-h-[842px] flex items-center justify-center p-8">
-                  <div className="text-center">
-                    <FileText className="w-20 h-20 text-gray-700 mx-auto mb-4" />
-                    <p className="text-gray-500 font-medium">{documentData?.documentName}</p>
-                    <p className="text-sm text-gray-600 mt-2">Document preview</p>
-                  </div>
-                </div>
-
-                {/* Signature Fields */}
-                {myFields.map((field) => (
-                  <div
-                    key={field.id}
-                    onClick={() => handleFieldClick(field.id)}
-                    className={'absolute border-2 rounded-lg cursor-pointer transition-all ' +
-                      (signedFields.has(field.id)
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-dashed border-primary-400 bg-primary-50 hover:bg-primary-100 animate-pulse')
-                    }
-                    style={{
-                      left: field.x,
-                      top: field.y,
-                      width: field.width,
-                      height: field.height,
-                    }}
-                  >
-                    {signedFields.has(field.id) && signature ? (
-                      <img
-                        src={signature}
-                        alt="Your signature"
-                        className="w-full h-full object-contain p-1"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-primary-600 font-medium text-sm flex items-center gap-1">
-                          <PenTool className="w-4 h-4" />
-                          Click to sign
-                        </span>
-                      </div>
-                    )}
-                    {!signedFields.has(field.id) && (
-                      <div className="absolute -top-6 left-0">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-gray-900 whitespace-nowrap">
-                          Sign here
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            <div className="card p-3 mb-4 flex items-center justify-between sticky top-20 z-40 bg-[#1F1F1F]">
+              <div className="flex items-center gap-2"><span className="text-sm font-medium text-gray-300">{totalPages} {totalPages === 1 ? 'page' : 'pages'}</span></div>
+              <div className="flex items-center gap-2">
+                <button onClick={zoomOut} disabled={scale <= 0.5} className="p-2 hover:bg-[#252525] rounded-lg disabled:opacity-50" title="Zoom out"><ZoomOut className="w-5 h-5" /></button>
+                <span className="text-sm font-medium text-gray-300 min-w-[60px] text-center">{Math.round(scale * 100)}%</span>
+                <button onClick={zoomIn} disabled={scale >= 3} className="p-2 hover:bg-[#252525] rounded-lg disabled:opacity-50" title="Zoom in"><ZoomIn className="w-5 h-5" /></button>
+                <button onClick={fitToWidth} className="p-2 hover:bg-[#252525] rounded-lg" title="Reset zoom"><Maximize2 className="w-5 h-5" /></button>
               </div>
+            </div>
+
+            <div ref={documentContainerRef} className="card p-4 bg-[#2a2a2a] max-h-[80vh] overflow-auto">
+              {pdfLoading ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading PDF...</p></div></div>)
+              : pdfError ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><p className="text-gray-300">{pdfError}</p></div></div>)
+              : (
+                <div ref={pagesContainerRef} className="flex flex-col items-center gap-4 relative">
+                  {Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-[#1F1F1F] rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))}
+                  {myFields.map((field) => {
+                    const pos = getFieldPosition(field)
+                    const leftCalc = 'calc(50% - ' + ((595 * scale) / 2) + 'px + ' + pos.left + 'px)'
+                    return (
+                      <div key={field.id} onClick={() => handleFieldClick(field.id)} className={'absolute border-2 rounded-lg cursor-pointer transition-all z-10 ' + (signedFields.has(field.id) ? 'border-green-500 bg-green-50/90' : 'border-dashed border-[#c4ff0e] bg-[#c4ff0e]/20 hover:bg-[#c4ff0e]/20 animate-pulse')} style={{ left: leftCalc, top: pos.top, width: pos.width, height: pos.height }}>
+                        {signedFields.has(field.id) && signature ? (<img src={signature} alt="Your signature" className="w-full h-full object-contain p-1" />) : (<div className="w-full h-full flex items-center justify-center"><span className="text-[#c4ff0e] font-medium text-sm flex items-center gap-1"><PenTool className="w-4 h-4" />Click to sign</span></div>)}
+                        {!signedFields.has(field.id) && (<div className="absolute -top-6 left-0"><span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-white whitespace-nowrap animate-bounce">Sign here</span></div>)}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Signature Pad Modal */}
       {showSignaturePad && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Create Your Signature
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowSignaturePad(false)
-                    setActiveFieldId(null)
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
+                <h3 className="text-xl font-semibold text-white">Create Your Signature</h3>
+                <button onClick={() => { setShowSignaturePad(false); setActiveFieldId(null) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
               </div>
               <SignatureCanvas onSignatureChange={handleSignatureCreated} />
             </div>
