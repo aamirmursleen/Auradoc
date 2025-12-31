@@ -52,7 +52,7 @@ const DocumentEditorInner: React.FC = () => {
   const [pageWidth, setPageWidth] = useState(612)
   const [pdfRendered, setPdfRendered] = useState(false)
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const pagesContainerRef = useRef<HTMLDivElement>(null)
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([])
 
