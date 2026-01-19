@@ -25,27 +25,11 @@ export async function GET(
       .single()
 
     if (error || !signingRequest) {
-      // For demo purposes, return mock data if database not set up
-      return NextResponse.json({
-        success: true,
-        data: {
-          id: documentId,
-          documentName: 'Sample Agreement',
-          documentUrl: null,
-          senderName: 'Demo Sender',
-          senderEmail: 'sender@demo.com',
-          message: 'Please review and sign this document.',
-          dueDate: null,
-          signers: [
-            { name: 'Signer', email: email, order: 1, status: 'pending' }
-          ],
-          signatureFields: [
-            { id: '1', signerOrder: 1, x: 100, y: 600, width: 200, height: 60, type: 'signature', label: 'Sign 1' }
-          ],
-          currentSignerIndex: 0,
-          status: 'pending'
-        }
-      })
+      console.error('Database error fetching signing request:', error)
+      return NextResponse.json(
+        { success: false, message: 'Document not found or has expired. Please contact the sender for a new link.' },
+        { status: 404 }
+      )
     }
 
     // Verify the signer exists in the document

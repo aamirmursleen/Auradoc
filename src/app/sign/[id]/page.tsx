@@ -119,18 +119,37 @@ export default function SignDocumentPage() {
 
   useEffect(() => {
     const loadPdf = async () => {
-      if (!documentData?.documentUrl) return
+      if (!documentData?.documentUrl) {
+        setPdfError('No document data available')
+        return
+      }
       try {
         setPdfLoading(true)
         setPdfError(null)
-        const loadingTask = pdfjsLib.getDocument(documentData.documentUrl)
+
+        // Handle different document URL formats
+        let pdfSource: string | { data: Uint8Array } = documentData.documentUrl
+
+        // If it's a base64 string without data URL prefix, convert it
+        if (documentData.documentUrl.startsWith('data:application/pdf;base64,')) {
+          // Already a data URL, use as-is
+          pdfSource = documentData.documentUrl
+        } else if (documentData.documentUrl.startsWith('data:')) {
+          // Other data URL format
+          pdfSource = documentData.documentUrl
+        } else if (!documentData.documentUrl.startsWith('http') && !documentData.documentUrl.startsWith('/')) {
+          // Likely raw base64 - convert to data URL
+          pdfSource = `data:application/pdf;base64,${documentData.documentUrl}`
+        }
+
+        const loadingTask = pdfjsLib.getDocument(pdfSource)
         const pdf = await loadingTask.promise
         setPdfDoc(pdf)
         setTotalPages(pdf.numPages)
         canvasRefs.current = new Array(pdf.numPages).fill(null)
       } catch (err) {
         console.error('Error loading PDF:', err)
-        setPdfError('Failed to load PDF document')
+        setPdfError('Failed to load PDF document. Please contact the sender.')
       } finally {
         setPdfLoading(false)
       }
