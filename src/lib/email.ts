@@ -30,7 +30,7 @@ export interface DocumentEmailData {
   dueDate?: string
 }
 
-// Odoo-style email template
+// MamaSign Dark Theme Email Template - Matches website theme
 function getOdooStyleTemplate(params: {
   recipientName: string
   senderName: string
@@ -48,48 +48,115 @@ function getOdooStyleTemplate(params: {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
+          <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #714B67 0%, #875A7B 100%); padding: 30px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">MamaSign</h1>
-              <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Secure Document Signing</p>
+            <td style="background-color: #0a0a0a; padding: 35px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
+              <h1 style="margin: 0; color: #c4ff0e; font-size: 32px; font-weight: 700; letter-spacing: -1px;">MamaSign</h1>
+              <p style="margin: 8px 0 0 0; color: #9CA3AF; font-size: 14px;">Secure Document Signing</p>
             </td>
           </tr>
+          <!-- Body -->
           <tr>
             <td style="padding: 40px;">
-              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${recipientName}</strong>,</p>
-              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;"><strong>${senderName}</strong> has sent you a document to sign. Please review and sign the document at your earliest convenience.</p>
-              ${message ? `<div style="background-color: #FFF8E7; border-left: 4px solid #F0AD4E; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 0 6px 6px 0;"><p style="margin: 0; font-size: 14px; color: #8A6D3B; font-style: italic;">"${message}"</p></div>` : ''}
-              <div style="background-color: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
-                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #333333;">${documentName}</p>
-                <p style="margin: 0; font-size: 13px; color: #888888;">From: ${senderName}</p>
-                ${expiresAt ? `<p style="margin: 5px 0 0 0; font-size: 12px; color: #DC3545;">Expires: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #ffffff;">Hello <strong style="color: #c4ff0e;">${recipientName}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #9CA3AF; line-height: 1.7;"><strong style="color: #ffffff;">${senderName}</strong> has sent you a document to sign. Please review and sign the document at your earliest convenience.</p>
+              ${message ? `<div style="background-color: #2a2a2a; border-left: 4px solid #c4ff0e; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0; font-size: 14px; color: #9CA3AF; font-style: italic;">"${message}"</p></div>` : ''}
+              <!-- Document Card -->
+              <div style="background-color: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 12px; padding: 20px; margin: 0 0 30px 0;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td width="50" valign="top">
+                      <div style="width: 44px; height: 44px; background-color: #c4ff0e; border-radius: 10px; text-align: center; line-height: 44px;">
+                        <span style="font-size: 20px;">📄</span>
+                      </div>
+                    </td>
+                    <td style="padding-left: 15px;">
+                      <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #ffffff;">${documentName}</p>
+                      <p style="margin: 0; font-size: 13px; color: #9CA3AF;">From: ${senderName}</p>
+                      ${expiresAt ? `<p style="margin: 5px 0 0 0; font-size: 12px; color: #ef4444;">Expires: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
+                    </td>
+                  </tr>
+                </table>
               </div>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${signingLink}" style="display: inline-block; background: linear-gradient(135deg, #714B67 0%, #875A7B 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(113, 75, 103, 0.3);">Sign Document</a>
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${signingLink}" style="display: inline-block; background-color: #c4ff0e; color: #000000; text-decoration: none; padding: 16px 50px; border-radius: 8px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px;">Sign Document</a>
               </div>
-              <div style="background-color: #E8F5E9; border-radius: 6px; padding: 15px; margin: 25px 0 0 0;">
-                <p style="margin: 0; font-size: 13px; color: #2E7D32; text-align: center;">This document is encrypted and securely stored. Your signature will be legally binding.</p>
+              <!-- Security Note -->
+              <div style="background-color: rgba(196, 255, 14, 0.1); border: 1px solid rgba(196, 255, 14, 0.2); border-radius: 8px; padding: 15px; margin: 25px 0 0 0;">
+                <p style="margin: 0; font-size: 13px; color: #c4ff0e; text-align: center;">🔒 This document is encrypted and securely stored. Your signature will be legally binding.</p>
               </div>
             </td>
           </tr>
+          <!-- Footer -->
           <tr>
-            <td style="background-color: #F8F9FA; padding: 25px 40px; border-top: 1px solid #E9ECEF; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #714B67;">${COMPANY_NAME}</p>
-              <p style="margin: 0; font-size: 12px; color: #999999;">Secure document signing made simple</p>
+            <td style="background-color: #0a0a0a; padding: 25px 40px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #c4ff0e;">${COMPANY_NAME}</p>
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">Secure document signing made simple</p>
             </td>
           </tr>
         </table>
+        <!-- Bottom Text -->
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #6b7280; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
 </body>
 </html>
 `
+}
+
+/**
+ * Generate plain text version of signing invite email
+ */
+function getPlainTextInvite(params: {
+  recipientName: string
+  senderName: string
+  documentName: string
+  signingLink: string
+  message?: string
+  expiresAt?: string
+}): string {
+  const { recipientName, senderName, documentName, signingLink, message, expiresAt } = params
+
+  let text = `Hello ${recipientName},
+
+${senderName} has sent you a document to sign. Please review and sign the document at your earliest convenience.
+
+`
+  if (message) {
+    text += `Message from ${senderName}:
+"${message}"
+
+`
+  }
+
+  text += `Document: ${documentName}
+From: ${senderName}
+`
+
+  if (expiresAt) {
+    text += `Expires: ${new Date(expiresAt).toLocaleDateString()}
+`
+  }
+
+  text += `
+To sign this document, click the link below:
+${signingLink}
+
+This document is encrypted and securely stored. Your signature will be legally binding.
+
+---
+${COMPANY_NAME}
+Secure document signing made simple
+`
+
+  return text
 }
 
 /**
@@ -116,12 +183,26 @@ export async function sendSigningInvite(params: {
     expiresAt
   })
 
+  const text = getPlainTextInvite({
+    recipientName: signerName,
+    senderName,
+    documentName,
+    signingLink,
+    message,
+    expiresAt
+  })
+
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to,
+      replyTo: senderEmail,
       subject: `${senderName} sent you "${documentName}" to sign`,
       html,
+      text,
+      headers: {
+        'X-Entity-Ref-ID': `signing-invite-${Date.now()}`,
+      },
     })
 
     return { success: true, id: result.data?.id }
@@ -149,12 +230,26 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
     expiresAt: data.dueDate
   })
 
+  const text = getPlainTextInvite({
+    recipientName: signer.name,
+    senderName: data.senderName,
+    documentName: data.documentName,
+    signingLink: signUrl,
+    message: data.message,
+    expiresAt: data.dueDate
+  })
+
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: signer.email,
+      replyTo: data.senderEmail,
       subject: `${data.senderName} sent you "${data.documentName}" to sign`,
       html,
+      text,
+      headers: {
+        'X-Entity-Ref-ID': `signing-request-${data.documentId}-${signerIndex}`,
+      },
     })
 
     return { success: true, data: result }
@@ -186,55 +281,56 @@ export async function sendSignatureCompletedNotification(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
           <tr>
-            <td style="background: linear-gradient(135deg, ${isComplete ? '#28A745' : '#17A2B8'} 0%, ${isComplete ? '#20C997' : '#20C997'} 100%); padding: 30px 40px; text-align: center;">
+            <td style="background-color: #0a0a0a; padding: 35px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
               <div style="font-size: 50px; margin-bottom: 10px;">${isComplete ? '🎉' : '✅'}</div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">${isComplete ? 'All Signatures Complete!' : 'New Signature Received'}</h1>
+              <h1 style="margin: 0; color: #c4ff0e; font-size: 24px; font-weight: 700;">${isComplete ? 'All Signatures Complete!' : 'New Signature Received'}</h1>
             </td>
           </tr>
           <tr>
             <td style="padding: 40px;">
-              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${data.senderName}</strong>,</p>
-              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">${isComplete ? `Great news! All signers have completed signing "<strong>${data.documentName}</strong>". The document is now fully executed and ready for download.` : `<strong>${signer.name}</strong> has signed "<strong>${data.documentName}</strong>".`}</p>
-              <div style="background-color: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 8px; padding: 20px; margin: 0 0 25px 0;">
-                <h3 style="margin: 0 0 15px 0; font-size: 14px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">Signature Details</h3>
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #ffffff;">Hello <strong style="color: #c4ff0e;">${data.senderName}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #9CA3AF; line-height: 1.7;">${isComplete ? `Great news! All signers have completed signing "<strong style="color: #ffffff;">${data.documentName}</strong>". The document is now fully executed and ready for download.` : `<strong style="color: #ffffff;">${signer.name}</strong> has signed "<strong style="color: #ffffff;">${data.documentName}</strong>".`}</p>
+              <div style="background-color: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 12px; padding: 20px; margin: 0 0 25px 0;">
+                <h3 style="margin: 0 0 15px 0; font-size: 14px; color: #c4ff0e; text-transform: uppercase; letter-spacing: 1px;">Signature Details</h3>
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF;"><span style="font-size: 13px; color: #888888;">Document:</span></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF; text-align: right;"><span style="font-size: 14px; color: #333333; font-weight: 500;">${data.documentName}</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #3a3a3a;"><span style="font-size: 13px; color: #9CA3AF;">Document:</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #3a3a3a; text-align: right;"><span style="font-size: 14px; color: #ffffff; font-weight: 500;">${data.documentName}</span></td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF;"><span style="font-size: 13px; color: #888888;">Signed by:</span></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF; text-align: right;"><span style="font-size: 14px; color: #333333; font-weight: 500;">${signer.name}</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #3a3a3a;"><span style="font-size: 13px; color: #9CA3AF;">Signed by:</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #3a3a3a; text-align: right;"><span style="font-size: 14px; color: #ffffff; font-weight: 500;">${signer.name}</span></td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF;"><span style="font-size: 13px; color: #888888;">Email:</span></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #E9ECEF; text-align: right;"><span style="font-size: 14px; color: #333333;">${signer.email}</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #3a3a3a;"><span style="font-size: 13px; color: #9CA3AF;">Email:</span></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #3a3a3a; text-align: right;"><span style="font-size: 14px; color: #ffffff;">${signer.email}</span></td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0;"><span style="font-size: 13px; color: #888888;">Signed at:</span></td>
-                    <td style="padding: 8px 0; text-align: right;"><span style="font-size: 14px; color: #333333;">${new Date().toLocaleString()}</span></td>
+                    <td style="padding: 8px 0;"><span style="font-size: 13px; color: #9CA3AF;">Signed at:</span></td>
+                    <td style="padding: 8px 0; text-align: right;"><span style="font-size: 14px; color: #ffffff;">${new Date().toLocaleString()}</span></td>
                   </tr>
                 </table>
               </div>
-              ${total > 1 ? `<div style="margin: 0 0 25px 0;"><p style="font-size: 13px; color: #666666; margin-bottom: 8px;">Signing Progress: <strong>${signedCount}/${total} Complete</strong></p><div style="background-color: #E9ECEF; border-radius: 10px; height: 10px; overflow: hidden;"><div style="background: linear-gradient(135deg, ${isComplete ? '#28A745' : '#714B67'} 0%, ${isComplete ? '#20C997' : '#875A7B'} 100%); width: ${Math.round((signedCount / total) * 100)}%; height: 100%; border-radius: 10px;"></div></div></div>` : ''}
+              ${total > 1 ? `<div style="margin: 0 0 25px 0;"><p style="font-size: 13px; color: #9CA3AF; margin-bottom: 8px;">Signing Progress: <strong style="color: #c4ff0e;">${signedCount}/${total} Complete</strong></p><div style="background-color: #2a2a2a; border-radius: 10px; height: 10px; overflow: hidden;"><div style="background-color: #c4ff0e; width: ${Math.round((signedCount / total) * 100)}%; height: 100%; border-radius: 10px;"></div></div></div>` : ''}
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${downloadLink}" style="display: inline-block; background: linear-gradient(135deg, ${isComplete ? '#28A745' : '#714B67'} 0%, ${isComplete ? '#20C997' : '#875A7B'} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600;">${isComplete ? 'Download Signed Document' : 'View Document Status'}</a>
+                <a href="${downloadLink}" style="display: inline-block; background-color: #c4ff0e; color: #000000; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700;">${isComplete ? 'Download Signed Document' : 'View Document Status'}</a>
               </div>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #F8F9FA; padding: 25px 40px; border-top: 1px solid #E9ECEF; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #714B67;">${COMPANY_NAME}</p>
-              <p style="margin: 0; font-size: 12px; color: #999999;">Secure document signing made simple</p>
+            <td style="background-color: #0a0a0a; padding: 25px 40px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #c4ff0e;">${COMPANY_NAME}</p>
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">Secure document signing made simple</p>
             </td>
           </tr>
         </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #6b7280; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -277,37 +373,38 @@ export async function sendSignerConfirmation(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
           <tr>
-            <td style="background: linear-gradient(135deg, #28A745 0%, #20C997 100%); padding: 30px 40px; text-align: center;">
+            <td style="background-color: #0a0a0a; padding: 35px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
               <div style="font-size: 50px; margin-bottom: 10px;">✅</div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Signature Confirmed!</h1>
+              <h1 style="margin: 0; color: #c4ff0e; font-size: 24px; font-weight: 700;">Signature Confirmed!</h1>
             </td>
           </tr>
           <tr>
             <td style="padding: 40px;">
-              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${signer.name}</strong>,</p>
-              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">Your signature on "<strong>${data.documentName}</strong>" has been successfully recorded. ${isComplete ? 'All parties have now signed, and the document is complete. You can download your copy below.' : 'We will notify you when all parties have signed and the document is complete.'}</p>
-              <div style="background-color: #E8F5E9; border: 1px solid #C8E6C9; border-radius: 8px; padding: 20px; margin: 0 0 25px 0;">
-                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #2E7D32;">${data.documentName}</p>
-                <p style="margin: 0; font-size: 13px; color: #4CAF50;">Signed on ${new Date().toLocaleString()}</p>
-                <p style="margin: 5px 0 0 0; font-size: 12px; color: #666666;">Requested by: ${data.senderName}</p>
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #ffffff;">Hello <strong style="color: #c4ff0e;">${signer.name}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #9CA3AF; line-height: 1.7;">Your signature on "<strong style="color: #ffffff;">${data.documentName}</strong>" has been successfully recorded. ${isComplete ? 'All parties have now signed, and the document is complete. You can download your copy below.' : 'We will notify you when all parties have signed and the document is complete.'}</p>
+              <div style="background-color: rgba(196, 255, 14, 0.1); border: 1px solid rgba(196, 255, 14, 0.2); border-radius: 12px; padding: 20px; margin: 0 0 25px 0;">
+                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #c4ff0e;">${data.documentName}</p>
+                <p style="margin: 0; font-size: 13px; color: #9CA3AF;">Signed on ${new Date().toLocaleString()}</p>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: #6b7280;">Requested by: ${data.senderName}</p>
               </div>
-              ${isComplete ? `<div style="text-align: center; margin: 30px 0;"><a href="${downloadLink}" style="display: inline-block; background: linear-gradient(135deg, #28A745 0%, #20C997 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600;">Download Your Copy</a></div>` : '<div style="text-align: center; padding: 20px; background-color: #FFF8E7; border-radius: 6px;"><p style="margin: 0; font-size: 14px; color: #8A6D3B;">Waiting for other signatures...</p></div>'}
-              <p style="margin: 25px 0 0 0; font-size: 13px; color: #999999; text-align: center;">Please keep this email for your records.</p>
+              ${isComplete ? `<div style="text-align: center; margin: 30px 0;"><a href="${downloadLink}" style="display: inline-block; background-color: #c4ff0e; color: #000000; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700;">Download Your Copy</a></div>` : '<div style="text-align: center; padding: 20px; background-color: #2a2a2a; border-radius: 8px;"><p style="margin: 0; font-size: 14px; color: #9CA3AF;">⏳ Waiting for other signatures...</p></div>'}
+              <p style="margin: 25px 0 0 0; font-size: 13px; color: #6b7280; text-align: center;">Please keep this email for your records.</p>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #F8F9FA; padding: 25px 40px; border-top: 1px solid #E9ECEF; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #714B67;">${COMPANY_NAME}</p>
-              <p style="margin: 0; font-size: 12px; color: #999999;">Secure document signing made simple</p>
+            <td style="background-color: #0a0a0a; padding: 25px 40px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #c4ff0e;">${COMPANY_NAME}</p>
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">Secure document signing made simple</p>
             </td>
           </tr>
         </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #6b7280; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -344,33 +441,34 @@ export async function sendDocumentOpenedNotification(data: DocumentEmailData, si
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
           <tr>
-            <td style="background: linear-gradient(135deg, #17A2B8 0%, #20C997 100%); padding: 30px 40px; text-align: center;">
+            <td style="background-color: #0a0a0a; padding: 35px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
               <div style="font-size: 40px; margin-bottom: 10px;">👀</div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">Document Viewed</h1>
+              <h1 style="margin: 0; color: #c4ff0e; font-size: 22px; font-weight: 700;">Document Viewed</h1>
             </td>
           </tr>
           <tr>
             <td style="padding: 35px 40px;">
-              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${data.senderName}</strong>,</p>
-              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.6;"><strong>${signer.name}</strong> just opened your document "<strong>${data.documentName}</strong>". They may be reviewing it now.</p>
-              <div style="background-color: #F8F9FA; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <p style="margin: 0; font-size: 13px; color: #666666;">Viewer: <strong>${signer.email}</strong><br>Opened at: <strong>${new Date().toLocaleString()}</strong></p>
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #ffffff;">Hi <strong style="color: #c4ff0e;">${data.senderName}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #9CA3AF; line-height: 1.7;"><strong style="color: #ffffff;">${signer.name}</strong> just opened your document "<strong style="color: #ffffff;">${data.documentName}</strong>". They may be reviewing it now.</p>
+              <div style="background-color: #2a2a2a; border-radius: 12px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 13px; color: #9CA3AF;">Viewer: <strong style="color: #ffffff;">${signer.email}</strong><br>Opened at: <strong style="color: #ffffff;">${new Date().toLocaleString()}</strong></p>
               </div>
-              <p style="margin: 20px 0 0 0; font-size: 14px; color: #888888;">You'll receive another notification when they complete their signature.</p>
+              <p style="margin: 20px 0 0 0; font-size: 14px; color: #6b7280;">You'll receive another notification when they complete their signature.</p>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #F8F9FA; padding: 20px 40px; text-align: center; border-top: 1px solid #E9ECEF;">
-              <p style="margin: 0; font-size: 12px; color: #999999;">Powered by <strong style="color: #714B67;">${COMPANY_NAME}</strong></p>
+            <td style="background-color: #0a0a0a; padding: 20px 40px; text-align: center; border-top: 1px solid #2a2a2a;">
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">Powered by <strong style="color: #c4ff0e;">${COMPANY_NAME}</strong></p>
             </td>
           </tr>
         </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #6b7280; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -432,38 +530,39 @@ export async function sendSigningReminder(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid ${isUrgent ? '#ef4444' : '#2a2a2a'};">
           <tr>
-            <td style="background: linear-gradient(135deg, ${isUrgent ? '#DC3545' : '#FFC107'} 0%, ${isUrgent ? '#C82333' : '#E0A800'} 100%); padding: 30px 40px; text-align: center;">
+            <td style="background-color: #0a0a0a; padding: 35px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
               <div style="font-size: 40px; margin-bottom: 10px;">${isUrgent ? '⚠️' : '⏰'}</div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">${isUrgent ? 'Urgent: Signature Required' : 'Reminder: Signature Needed'}</h1>
+              <h1 style="margin: 0; color: ${isUrgent ? '#ef4444' : '#c4ff0e'}; font-size: 22px; font-weight: 700;">${isUrgent ? 'Urgent: Signature Required' : 'Reminder: Signature Needed'}</h1>
             </td>
           </tr>
           <tr>
             <td style="padding: 35px 40px;">
-              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${signer.name}</strong>,</p>
-              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.6;">${isUrgent ? `This is an urgent reminder that "<strong>${data.documentName}</strong>" requires your immediate attention.` : `Just a friendly reminder that "<strong>${data.documentName}</strong>" is still waiting for your signature.`}</p>
-              <div style="background-color: #F8F9FA; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600; color: #333333;">${data.documentName}</p>
-                <p style="margin: 0; font-size: 13px; color: #666666;">From: ${data.senderName}</p>
-                ${data.dueDate ? `<p style="margin: 8px 0 0 0; font-size: 13px; color: ${isUrgent ? '#DC3545' : '#666666'};">Due: ${new Date(data.dueDate).toLocaleDateString()}</p>` : ''}
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #ffffff;">Hi <strong style="color: #c4ff0e;">${signer.name}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #9CA3AF; line-height: 1.7;">${isUrgent ? `This is an urgent reminder that "<strong style="color: #ffffff;">${data.documentName}</strong>" requires your immediate attention.` : `Just a friendly reminder that "<strong style="color: #ffffff;">${data.documentName}</strong>" is still waiting for your signature.`}</p>
+              <div style="background-color: #2a2a2a; border-radius: 12px; padding: 20px; margin: 20px 0; ${isUrgent ? 'border: 1px solid #ef4444;' : ''}">
+                <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600; color: #ffffff;">${data.documentName}</p>
+                <p style="margin: 0; font-size: 13px; color: #9CA3AF;">From: ${data.senderName}</p>
+                ${data.dueDate ? `<p style="margin: 8px 0 0 0; font-size: 13px; color: ${isUrgent ? '#ef4444' : '#9CA3AF'};">Due: ${new Date(data.dueDate).toLocaleDateString()}</p>` : ''}
               </div>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${signUrl}" style="display: inline-block; background: linear-gradient(135deg, ${isUrgent ? '#DC3545' : '#714B67'} 0%, ${isUrgent ? '#C82333' : '#875A7B'} 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600;">Sign Now</a>
+                <a href="${signUrl}" style="display: inline-block; background-color: ${isUrgent ? '#ef4444' : '#c4ff0e'}; color: ${isUrgent ? '#ffffff' : '#000000'}; text-decoration: none; padding: 16px 50px; border-radius: 8px; font-size: 16px; font-weight: 700;">Sign Now</a>
               </div>
-              <p style="margin: 20px 0 0 0; font-size: 13px; color: #999999; text-align: center;">If you have questions, please contact ${data.senderEmail}</p>
+              <p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; text-align: center;">If you have questions, please contact ${data.senderEmail}</p>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #F8F9FA; padding: 20px 40px; text-align: center; border-top: 1px solid #E9ECEF;">
-              <p style="margin: 0; font-size: 12px; color: #999999;">Powered by <strong style="color: #714B67;">${COMPANY_NAME}</strong></p>
+            <td style="background-color: #0a0a0a; padding: 20px 40px; text-align: center; border-top: 1px solid #2a2a2a;">
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">Powered by <strong style="color: #c4ff0e;">${COMPANY_NAME}</strong></p>
             </td>
           </tr>
         </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #6b7280; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -471,12 +570,35 @@ export async function sendSigningReminder(
 </html>
 `
 
+  const text = `Hello ${signer.name},
+
+${isUrgent ? `This is an urgent reminder that "${data.documentName}" requires your immediate attention.` : `Just a friendly reminder that "${data.documentName}" is still waiting for your signature.`}
+
+Document: ${data.documentName}
+From: ${data.senderName}
+${data.dueDate ? `Due: ${new Date(data.dueDate).toLocaleDateString()}` : ''}
+
+To sign this document, click the link below:
+${signUrl}
+
+If you have questions, please contact ${data.senderEmail}
+
+---
+${COMPANY_NAME}
+Secure document signing made simple
+`
+
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: signer.email,
+      replyTo: data.senderEmail,
       subject: isUrgent ? `Urgent: Your signature is needed on "${data.documentName}"` : `Reminder: "${data.documentName}" awaits your signature`,
       html,
+      text,
+      headers: {
+        'X-Entity-Ref-ID': `signing-reminder-${data.documentId}-${signerIndex}-${reminderNumber}`,
+      },
     })
 
     return { success: true, data: result }
@@ -504,37 +626,38 @@ export async function sendDocumentDeclined(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid #ef4444;">
           <tr>
-            <td style="background: linear-gradient(135deg, #DC3545 0%, #C82333 100%); padding: 30px 40px; text-align: center;">
+            <td style="background-color: #0a0a0a; padding: 35px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
               <div style="font-size: 40px; margin-bottom: 10px;">❌</div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">Document Declined</h1>
+              <h1 style="margin: 0; color: #ef4444; font-size: 22px; font-weight: 700;">Document Declined</h1>
             </td>
           </tr>
           <tr>
             <td style="padding: 35px 40px;">
-              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${data.senderName}</strong>,</p>
-              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.6;">Unfortunately, <strong>${signer.name}</strong> has declined to sign "<strong>${data.documentName}</strong>".</p>
-              ${reason ? `<div style="background-color: #FEE2E2; border-left: 4px solid #DC3545; padding: 15px 20px; margin: 20px 0; border-radius: 0 6px 6px 0;"><p style="margin: 0; font-size: 14px; color: #991B1B;"><strong>Reason:</strong> "${reason}"</p></div>` : ''}
-              <div style="background-color: #F8F9FA; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <p style="margin: 0; font-size: 13px; color: #666666;">Document: <strong>${data.documentName}</strong><br>Declined by: <strong>${signer.name}</strong> (${signer.email})<br>Declined at: <strong>${new Date().toLocaleString()}</strong></p>
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #ffffff;">Hi <strong style="color: #c4ff0e;">${data.senderName}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #9CA3AF; line-height: 1.7;">Unfortunately, <strong style="color: #ffffff;">${signer.name}</strong> has declined to sign "<strong style="color: #ffffff;">${data.documentName}</strong>".</p>
+              ${reason ? `<div style="background-color: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px 20px; margin: 20px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0; font-size: 14px; color: #ef4444;"><strong>Reason:</strong> "${reason}"</p></div>` : ''}
+              <div style="background-color: #2a2a2a; border-radius: 12px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 13px; color: #9CA3AF;">Document: <strong style="color: #ffffff;">${data.documentName}</strong><br>Declined by: <strong style="color: #ffffff;">${signer.name}</strong> (${signer.email})<br>Declined at: <strong style="color: #ffffff;">${new Date().toLocaleString()}</strong></p>
               </div>
-              <p style="margin: 20px 0; font-size: 14px; color: #666666;">You may want to reach out to ${signer.name} to discuss their concerns, or create a new document with revisions.</p>
+              <p style="margin: 20px 0; font-size: 14px; color: #9CA3AF;">You may want to reach out to ${signer.name} to discuss their concerns, or create a new document with revisions.</p>
               <div style="text-align: center; margin: 25px 0;">
-                <a href="${APP_URL}/documents" style="display: inline-block; background: #6C757D; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 6px; font-size: 15px; font-weight: 600;">View Documents</a>
+                <a href="${APP_URL}/documents" style="display: inline-block; background-color: #c4ff0e; color: #000000; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 15px; font-weight: 700;">View Documents</a>
               </div>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #F8F9FA; padding: 20px 40px; text-align: center; border-top: 1px solid #E9ECEF;">
-              <p style="margin: 0; font-size: 12px; color: #999999;">Powered by <strong style="color: #714B67;">${COMPANY_NAME}</strong></p>
+            <td style="background-color: #0a0a0a; padding: 20px 40px; text-align: center; border-top: 1px solid #2a2a2a;">
+              <p style="margin: 0; font-size: 12px; color: #6b7280;">Powered by <strong style="color: #c4ff0e;">${COMPANY_NAME}</strong></p>
             </td>
           </tr>
         </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #6b7280; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
