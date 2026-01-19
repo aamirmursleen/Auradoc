@@ -283,11 +283,10 @@ const SignDocumentPage: React.FC = () => {
     if (signers.length <= 1) return
 
     const filteredSigners = signers.filter(s => s.id !== signerId)
-    // Re-order signers
+    // Re-order signers (keep original names)
     const reorderedSigners = filteredSigners.map((s, idx) => ({
       ...s,
-      order: idx + 1,
-      name: `Signer ${idx + 1}`
+      order: idx + 1
     }))
     setSigners(reorderedSigners)
 
@@ -1042,6 +1041,17 @@ const SignDocumentPage: React.FC = () => {
                 {/* Expanded Signer Content */}
                 {expandedSignerId === signer.id && (
                   <div className="px-3 pb-4 space-y-3">
+                    {/* Name Input */}
+                    <div className="flex items-center gap-2 px-3 py-2 bg-[#2a2a2a] border border-[#2a2a2a] rounded-lg">
+                      <User className="w-4 h-4 text-gray-600" />
+                      <input
+                        type="text"
+                        placeholder="Enter signer name..."
+                        value={signer.name}
+                        onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
+                        className="flex-1 bg-transparent text-sm outline-none text-white placeholder-gray-500"
+                      />
+                    </div>
                     {/* Email Input */}
                     <div className="flex items-center gap-2 px-3 py-2 bg-[#2a2a2a] border border-[#2a2a2a] rounded-lg">
                       <Mail className="w-4 h-4 text-gray-600" />
@@ -1818,30 +1828,41 @@ const SignDocumentPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Signers with their emails */}
+              {/* Signers with their names and emails */}
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-2">Signers</label>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {signers.map((signer, idx) => {
                     const signerFields = placedFields.filter(f => f.signerId === signer.id)
                     return (
-                      <div key={signer.id} className="flex items-center gap-2 p-3 bg-[#2a2a2a] rounded-lg">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                          style={{ backgroundColor: signer.color }}
-                        >
-                          {idx + 1}
+                      <div key={signer.id} className="p-3 bg-[#2a2a2a] rounded-lg space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                            style={{ backgroundColor: signer.color }}
+                          >
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              placeholder="Signer name..."
+                              value={signer.name}
+                              onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
+                              className="w-full px-3 py-2 bg-[#3a3a3a] border border-[#3a3a3a] rounded-lg text-sm text-white focus:ring-2 focus:ring-[#c4ff0e]/50"
+                            />
+                          </div>
+                          <span className="text-xs text-gray-600">{signerFields.length} fields</span>
                         </div>
-                        <div className="flex-1">
+                        <div className="pl-10">
                           <input
                             type="email"
-                            placeholder={`${signer.name} email...`}
+                            placeholder="Email address..."
                             value={signer.email}
                             onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
                             className="w-full px-3 py-2 bg-[#3a3a3a] border border-[#3a3a3a] rounded-lg text-sm text-white focus:ring-2 focus:ring-[#c4ff0e]/50"
                           />
                         </div>
-                        <span className="text-xs text-gray-600">{signerFields.length} fields</span>
                       </div>
                     )
                   })}
