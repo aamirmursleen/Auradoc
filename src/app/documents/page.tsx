@@ -107,26 +107,35 @@ const DocumentsPage: React.FC = () => {
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
 
   // Load documents and signing requests from Supabase
-  useEffect(() => {
-    const loadDocuments = async () => {
-      if (!isLoaded || !user) return
+  const loadDocuments = async (showLoader = true) => {
+    if (!isLoaded || !user) return
 
-      try {
-        setLoading(true)
-        const [docs, requests] = await Promise.all([
-          getUserDocuments(user.id),
-          getUserSigningRequests(user.id)
-        ])
-        setDocuments(docs)
-        setSigningRequests(requests)
-      } catch (error) {
-        console.error('Error loading documents:', error)
-      } finally {
-        setLoading(false)
-      }
+    try {
+      if (showLoader) setLoading(true)
+      const [docs, requests] = await Promise.all([
+        getUserDocuments(user.id),
+        getUserSigningRequests(user.id)
+      ])
+      setDocuments(docs)
+      setSigningRequests(requests)
+    } catch (error) {
+      console.error('Error loading documents:', error)
+    } finally {
+      if (showLoader) setLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadDocuments()
+  }, [user, isLoaded])
+
+  // Auto-refresh every 5 seconds for real-time updates
+  useEffect(() => {
+    if (!user) return
+    const interval = setInterval(() => {
+      loadDocuments(false) // Don't show loader on auto-refresh
+    }, 5000)
+    return () => clearInterval(interval)
   }, [user, isLoaded])
 
   // Filter documents
@@ -498,15 +507,35 @@ const DocumentsPage: React.FC = () => {
                       onClick={() => setExpandedDoc(isExpanded ? null : req.id)}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 flex-1">
                           <div className="p-3 bg-[#252525] rounded-xl">
                             <FileText className="w-6 h-6 text-[#c4ff0e]" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <h3 className="font-semibold text-white">{req.document_name}</h3>
                             <p className="text-sm text-gray-400">
                               Sent by {req.sender_name} • {formatRelativeTime(req.created_at)}
                             </p>
+                            {/* Signers preview */}
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                              {req.signers.map((signer, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${
+                                    signer.status === 'signed'
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : 'bg-gray-600/30 text-gray-400'
+                                  }`}
+                                >
+                                  {signer.status === 'signed' ? (
+                                    <CheckCircle2 className="w-3 h-3" />
+                                  ) : (
+                                    <Clock className="w-3 h-3" />
+                                  )}
+                                  {signer.name}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
 

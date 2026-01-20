@@ -22,7 +22,8 @@ import {
   Scissors,
   Droplets,
   Sun,
-  Moon
+  Moon,
+  LayoutDashboard
 } from 'lucide-react'
 import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { useTheme } from '@/components/ThemeProvider'
@@ -386,6 +387,18 @@ const Header: React.FC = () => {
                 <span className="absolute inset-0 rounded-full bg-[#c4ff0e]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
 
+              {/* Dashboard Link - Only for signed in users */}
+              <SignedIn>
+                <button
+                  onClick={() => handleNavClick('/documents')}
+                  className="relative flex items-center gap-2 px-4 py-2 text-gray-300 font-medium transition-all duration-300 rounded-full hover:text-[#c4ff0e] hover:bg-[#2a2a2a] group"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="relative z-10">Dashboard</span>
+                  <span className="absolute inset-0 rounded-full bg-[#c4ff0e]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+              </SignedIn>
+
             </div>
           </div>
 
@@ -536,6 +549,17 @@ const Header: React.FC = () => {
             >
               Pricing
             </button>
+
+            {/* Dashboard - Only for signed in users */}
+            <SignedIn>
+              <button
+                onClick={() => handleNavClick('/documents')}
+                className="flex items-center gap-3 text-gray-300 hover:text-[#c4ff0e] font-medium min-h-[44px] py-3 px-4 transition-all duration-300 text-left rounded-xl hover:bg-[#2a2a2a] active:scale-[0.98]"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                Dashboard
+              </button>
+            </SignedIn>
 
             <hr className="border-[#2a2a2a] my-2" />
 
