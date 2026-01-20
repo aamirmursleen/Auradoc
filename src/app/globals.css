@@ -8,11 +8,21 @@
 canvas {
   image-rendering: auto;
   -webkit-font-smoothing: antialiased;
+  transform: scaleX(1) !important;
+  -webkit-transform: scaleX(1) !important;
 }
 
 /* Force correct text rendering direction */
 .textLayer {
   direction: ltr !important;
+  unicode-bidi: bidi-override !important;
+}
+
+/* PDF canvas specific fixes */
+.react-pdf__Page__canvas,
+.pdf-canvas {
+  transform: none !important;
+  -webkit-transform: none !important;
 }
 
 /* ========================================

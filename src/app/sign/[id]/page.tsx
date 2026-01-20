@@ -151,6 +151,8 @@ export default function SignDocumentPage() {
           cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
           cMapPacked: true,
           standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
+          useSystemFonts: true,
+          disableFontFace: false,
         })
         const pdf = await loadingTask.promise
         setPdfDoc(pdf)
