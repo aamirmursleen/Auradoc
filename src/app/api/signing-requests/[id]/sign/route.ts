@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdminAdmin } from '@/lib/supabaseAdmin'
 import { sendSignatureCompletedNotification, sendSigningRequest } from '@/lib/email'
 
 export async function POST(
@@ -19,7 +19,7 @@ export async function POST(
     }
 
     // Fetch the signing request
-    const { data: signingRequest, error: fetchError } = await supabase
+    const { data: signingRequest, error: fetchError } = await supabaseAdmin
       .from('signing_requests')
       .select('*')
       .eq('id', documentId)
@@ -60,7 +60,7 @@ export async function POST(
     signers[signerIndex].signedAt = new Date().toISOString()
 
     // Store signature record
-    await supabase
+    await supabaseAdmin
       .from('signature_records')
       .insert({
         signing_request_id: documentId,
@@ -75,7 +75,7 @@ export async function POST(
     const nextSignerIndex = signers.findIndex((s: { status: string }) => s.status === 'pending')
 
     // Update the signing request
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('signing_requests')
       .update({
         signers,
@@ -117,7 +117,7 @@ export async function POST(
       const signedCount = signers.filter((s: { status: string }) => s.status === 'signed').length
       const totalSigners = signers.length
 
-      await supabase
+      await supabaseAdmin
         .from('notifications')
         .insert({
           user_id: signingRequest.user_id,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   req: NextRequest,
@@ -18,7 +18,7 @@ export async function GET(
     }
 
     // Fetch the signing request
-    const { data: signingRequest, error } = await supabase
+    const { data: signingRequest, error } = await supabaseAdmin
       .from('signing_requests')
       .select('*')
       .eq('id', documentId)
