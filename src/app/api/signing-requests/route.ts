@@ -69,8 +69,13 @@ export async function POST(req: NextRequest) {
     const selfSigner = signersWithTokens.find((s: { is_self?: boolean }) => s.is_self)
     const nonSelfSigners = signersWithTokens.filter((s: { is_self?: boolean }) => !s.is_self)
 
-    // Send email to ALL non-self signers at once (parallel signing)
-    for (const signer of nonSelfSigners) {
+    // Helper function for delay (prevents spam filter triggers)
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+    // Send email to ALL non-self signers (parallel signing)
+    // Add delay between emails to prevent spam filters
+    for (let i = 0; i < nonSelfSigners.length; i++) {
+      const signer = nonSelfSigners[i]
       const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + signer.token + '&email=' + encodeURIComponent(signer.email)
 
       try {
@@ -87,6 +92,11 @@ export async function POST(req: NextRequest) {
 
         if (!emailResult.success) {
           console.error('Email send failed for', signer.email, ':', emailResult.error)
+        }
+
+        // Add 2 second delay between emails to prevent spam filters
+        if (i < nonSelfSigners.length - 1) {
+          await delay(2000)
         }
       } catch (emailError) {
         console.error('Failed to send email to', signer.email, ':', emailError)

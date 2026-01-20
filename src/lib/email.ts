@@ -193,6 +193,9 @@ export async function sendSigningInvite(params: {
   })
 
   try {
+    // Generate unique message ID to prevent spam filters from grouping emails
+    const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(7)}`
+
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to,
@@ -201,7 +204,10 @@ export async function sendSigningInvite(params: {
       html,
       text,
       headers: {
-        'X-Entity-Ref-ID': `signing-invite-${Date.now()}`,
+        'X-Entity-Ref-ID': uniqueId,
+        'X-Mailer': 'MamaSign',
+        'X-Priority': '1',
+        'Importance': 'high',
       },
       // Disable click tracking to prevent URL wrapping issues
       // @ts-ignore - tracking option may not be in types but works in API
