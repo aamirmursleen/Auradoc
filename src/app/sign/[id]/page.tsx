@@ -17,7 +17,9 @@ import {
   Lock,
   ZoomIn,
   ZoomOut,
-  Maximize2
+  Maximize2,
+  Trash2,
+  RotateCcw
 } from 'lucide-react'
 
 // Set up PDF.js worker
@@ -47,6 +49,7 @@ interface SignatureFieldInfo {
   type: string
   label: string
   pageNumber?: number
+  page?: number // Support both field names
 }
 
 interface DocumentData {
@@ -82,6 +85,7 @@ export default function SignDocumentPage() {
   const [pdfLoading, setPdfLoading] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
   const [pageHeights, setPageHeights] = useState<number[]>([])
+  const [pageWidths, setPageWidths] = useState<number[]>([])
 
   // Signing state
   const [showSignaturePad, setShowSignaturePad] = useState(false)
@@ -160,6 +164,7 @@ export default function SignDocumentPage() {
   const renderAllPages = useCallback(async () => {
     if (!pdfDoc) return
     const heights: number[] = []
+    const widths: number[] = []
     for (let i = 1; i <= pdfDoc.numPages; i++) {
       const canvas = canvasRefs.current[i - 1]
       if (!canvas) continue
@@ -169,11 +174,13 @@ export default function SignDocumentPage() {
         canvas.height = viewport.height
         canvas.width = viewport.width
         heights.push(viewport.height)
+        widths.push(viewport.width)
         const context = canvas.getContext('2d')
         if (context) await page.render({ canvasContext: context, viewport }).promise
       } catch (err) { console.error('Error rendering page', i, err) }
     }
     setPageHeights(heights)
+    setPageWidths(widths)
   }, [pdfDoc, scale])
 
   useEffect(() => {
@@ -204,6 +211,15 @@ export default function SignDocumentPage() {
     setShowSignaturePad(true)
   }
 
+  const removeSignature = (fieldId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSignedFields(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(fieldId)
+      return newSet
+    })
+  }
+
   const handleSubmit = async () => {
     if (!signature || signedFields.size !== myFields.length) { setError('Please sign all required fields'); return }
     setIsSubmitting(true)
@@ -222,10 +238,20 @@ export default function SignDocumentPage() {
   }
 
   const getFieldPosition = (field: SignatureFieldInfo) => {
-    const pageNum = field.pageNumber || 1
+    // Support both 'page' and 'pageNumber' field names
+    const pageNum = field.page || field.pageNumber || 1
     let topOffset = 0
     for (let i = 0; i < pageNum - 1; i++) topOffset += (pageHeights[i] || 842) + 16
-    return { left: field.x * scale, top: topOffset + (field.y * scale), width: field.width * scale, height: field.height * scale }
+
+    // Fields are stored in original PDF coordinate space (when zoom=1 in sign-document)
+    // Scale them according to current viewing scale
+    return {
+      left: field.x * scale,
+      top: topOffset + (field.y * scale),
+      width: field.width * scale,
+      height: field.height * scale,
+      pageNum
+    }
   }
 
   if (loading) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center"><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading document...</p></div></div>)
@@ -285,8 +311,16 @@ export default function SignDocumentPage() {
                 {myFields.map((field) => (
                   <div key={field.id} className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' + (signedFields.has(field.id) ? 'bg-green-50 border-green-400' : 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]')} onClick={() => handleFieldClick(field.id)}>
                     {signedFields.has(field.id) ? <CheckCircle className="w-5 h-5 text-green-600" /> : <PenTool className="w-5 h-5 text-gray-300" />}
-                    <span className={'font-medium ' + (signedFields.has(field.id) ? 'text-green-400' : 'text-gray-300')}>{field.type === 'signature' ? 'Signature' : field.type === 'initials' ? 'Initials' : 'Date'}</span>
-                    {signedFields.has(field.id) && <span className="ml-auto text-xs text-green-600">Signed</span>}
+                    <span className={'font-medium flex-1 ' + (signedFields.has(field.id) ? 'text-green-400' : 'text-gray-300')}>{field.type === 'signature' ? 'Signature' : field.type === 'initials' ? 'Initials' : 'Date'}</span>
+                    {signedFields.has(field.id) ? (
+                      <button
+                        onClick={(e) => removeSignature(field.id, e)}
+                        className="p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 transition-colors"
+                        title="Re-sign"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </button>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -326,10 +360,29 @@ export default function SignDocumentPage() {
                   {Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-[#1F1F1F] rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))}
                   {myFields.map((field) => {
                     const pos = getFieldPosition(field)
-                    const leftCalc = 'calc(50% - ' + ((595 * scale) / 2) + 'px + ' + pos.left + 'px)'
+                    // Use actual page width instead of hardcoded 595
+                    const pageIndex = (pos.pageNum || 1) - 1
+                    const actualPageWidth = pageWidths[pageIndex] || 595 * scale
+                    const leftCalc = 'calc(50% - ' + (actualPageWidth / 2) + 'px + ' + pos.left + 'px)'
                     return (
-                      <div key={field.id} onClick={() => handleFieldClick(field.id)} className={'absolute border-2 rounded-lg cursor-pointer transition-all z-10 ' + (signedFields.has(field.id) ? 'border-green-500 bg-green-50/90' : 'border-dashed border-[#c4ff0e] bg-[#c4ff0e]/20 hover:bg-[#c4ff0e]/20 animate-pulse')} style={{ left: leftCalc, top: pos.top, width: pos.width, height: pos.height }}>
-                        {signedFields.has(field.id) && signature ? (<img src={signature} alt="Your signature" className="w-full h-full object-contain p-1" />) : (<div className="w-full h-full flex items-center justify-center"><span className="text-[#c4ff0e] font-medium text-sm flex items-center gap-1"><PenTool className="w-4 h-4" />Click to sign</span></div>)}
+                      <div key={field.id} onClick={() => handleFieldClick(field.id)} className={'absolute border-2 rounded-lg cursor-pointer transition-all z-10 group ' + (signedFields.has(field.id) ? 'border-green-500 bg-green-50/90' : 'border-dashed border-[#c4ff0e] bg-[#c4ff0e]/20 hover:bg-[#c4ff0e]/20 animate-pulse')} style={{ left: leftCalc, top: pos.top, width: pos.width, height: pos.height }}>
+                        {signedFields.has(field.id) && signature ? (
+                          <>
+                            <img src={signature} alt="Your signature" className="w-full h-full object-contain p-1" />
+                            {/* Delete/Re-sign button */}
+                            <button
+                              onClick={(e) => removeSignature(field.id, e)}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-20"
+                              title="Remove signature"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                            </button>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-[#c4ff0e] font-medium text-sm flex items-center gap-1"><PenTool className="w-4 h-4" />Click to sign</span>
+                          </div>
+                        )}
                         {!signedFields.has(field.id) && (<div className="absolute -top-6 left-0"><span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-white whitespace-nowrap animate-bounce">Sign here</span></div>)}
                       </div>
                     )

@@ -202,6 +202,7 @@ const SignDocumentPage: React.FC = () => {
   const [sendSuccess, setSendSuccess] = useState(false)
   const [emailSubject, setEmailSubject] = useState('')
   const [emailMessage, setEmailMessage] = useState('')
+  const [senderName, setSenderName] = useState('')
 
   // Template properties
   const [templateProps, setTemplateProps] = useState<TemplateProperties>({
@@ -516,10 +517,10 @@ const SignDocumentPage: React.FC = () => {
       const firstPage = await pdf.getPage(1)
       const baseViewport = firstPage.getViewport({ scale: 1 })
 
-      // The PDF viewer displays pages at scale 1.5 internally
-      const viewerScale = 1.5
-      const viewerWidth = baseViewport.width * viewerScale
-      const viewerHeight = baseViewport.height * viewerScale
+      // Field coordinates are stored relative to the displayed page size (original * zoom)
+      // Use current zoom value (default 1) instead of hardcoded 1.5
+      const viewerWidth = baseViewport.width * zoom
+      const viewerHeight = baseViewport.height * zoom
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum)
@@ -600,7 +601,7 @@ const SignDocumentPage: React.FC = () => {
     } finally {
       setIsGeneratingPreview(false)
     }
-  }, [document, placedFields])
+  }, [document, placedFields, zoom])
 
   // Download signed document
   const handleDownload = useCallback(async () => {
@@ -618,9 +619,9 @@ const SignDocumentPage: React.FC = () => {
       // Get base dimensions for scaling
       const firstPage = await pdf.getPage(1)
       const baseViewport = firstPage.getViewport({ scale: 1 })
-      const viewerScale = 1.5
-      const viewerWidth = baseViewport.width * viewerScale
-      const viewerHeight = baseViewport.height * viewerScale
+      // Field coordinates are stored relative to displayed page size (original * zoom)
+      const viewerWidth = baseViewport.width * zoom
+      const viewerHeight = baseViewport.height * zoom
 
       // If only one page, download as image
       if (pdf.numPages === 1) {
@@ -696,7 +697,7 @@ const SignDocumentPage: React.FC = () => {
     } finally {
       setIsDownloading(false)
     }
-  }, [document, placedFields, templateProps.name, generatePreview])
+  }, [document, placedFields, templateProps.name, generatePreview, zoom])
 
   // Send document for signing
   const handleSendForSigning = async () => {
@@ -758,7 +759,8 @@ const SignDocumentPage: React.FC = () => {
           })),
           signatureFields,
           message: emailMessage || undefined,
-          subject: emailSubject || undefined
+          subject: emailSubject || undefined,
+          senderName: senderName.trim() || undefined
         })
       })
 
@@ -999,20 +1001,30 @@ const SignDocumentPage: React.FC = () => {
                     setExpandedSignerId(expandedSignerId === signer.id ? null : signer.id)
                   }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-1">
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                       style={{ backgroundColor: signer.color }}
                     >
                       {idx + 1}
                     </div>
-                    <div>
-                      <p className="font-semibold text-white flex items-center gap-2">
-                        {signer.name}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter name..."
+                          value={signer.name}
+                          onChange={(e) => {
+                            e.stopPropagation()
+                            updateSigner(signer.id, 'name', e.target.value)
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-semibold text-white bg-transparent outline-none border-b border-transparent hover:border-[#3a3a3a] focus:border-[#c4ff0e] transition-colors w-full max-w-[140px] placeholder-gray-500"
+                        />
                         {signer.is_self && (
-                          <span className="text-xs bg-[#c4ff0e]/20 text-[#c4ff0e] px-1.5 py-0.5 rounded font-medium">Me</span>
+                          <span className="text-xs bg-[#c4ff0e]/20 text-[#c4ff0e] px-1.5 py-0.5 rounded font-medium flex-shrink-0">Me</span>
                         )}
-                      </p>
+                      </div>
                       <p className="text-xs text-gray-600">
                         {placedFields.filter(f => f.signerId === signer.id).length} fields
                       </p>
@@ -1236,21 +1248,27 @@ const SignDocumentPage: React.FC = () => {
                         const isCheckboxType = field.type === 'checkbox' || field.type === 'radio'
                         const isDateType = field.type === 'date'
 
+                        // If signature field has value, show clean display
+                        const isSignedField = isSignatureType && hasValue
+
                         return (
                           <div
                             key={field.id}
-                            className={`pointer-events-auto absolute border-2 rounded-md transition-all group
+                            className={`pointer-events-auto absolute rounded-md transition-all group
+                              ${isSignedField ? 'border-0' : 'border-2'}
                               ${isEditing ? 'border-primary-500 shadow-2xl ring-4 ring-primary-200 z-[200]' : ''}
-                              ${isSelected && !isEditing ? 'border-primary-500 shadow-lg ring-2 ring-primary-200 cursor-move' : ''}
-                              ${!isSelected && !isEditing ? 'border-dashed hover:border-primary-400 cursor-move' : ''}
+                              ${isSelected && !isEditing && !isSignedField ? 'border-primary-500 shadow-lg ring-2 ring-primary-200 cursor-move' : ''}
+                              ${isSelected && !isEditing && isSignedField ? 'ring-2 ring-[#c4ff0e] cursor-move' : ''}
+                              ${!isSelected && !isEditing && !isSignedField ? 'border-dashed hover:border-primary-400 cursor-move' : ''}
+                              ${!isSelected && !isEditing && isSignedField ? 'cursor-move hover:ring-2 hover:ring-[#c4ff0e]/50' : ''}
                             `}
                             style={{
                               left: field.x,
                               top: field.y,
                               width: field.width,
                               height: field.height,
-                              backgroundColor: hasValue ? 'white' : `${field.signerColor}15`,
-                              borderColor: isSelected || isEditing ? undefined : field.signerColor,
+                              backgroundColor: isSignedField ? 'transparent' : (hasValue ? 'white' : `${field.signerColor}15`),
+                              borderColor: isSelected || isEditing || isSignedField ? undefined : field.signerColor,
                               zIndex: isSelected ? 100 : 50
                             }}
                             onMouseDown={(e) => {
@@ -1274,15 +1292,9 @@ const SignDocumentPage: React.FC = () => {
                               }
                             }}
                           >
-                            {/* Editing Mode */}
-                            {isEditing ? (
+                            {/* Editing Mode - Skip for signature types, they use the side panel */}
+                            {isEditing && !isSignatureType ? (
                               <div className="w-full h-full bg-[#1e1e1e] rounded-md overflow-hidden">
-                                {/* Signature/Initials - Just show message to open modal */}
-                                {isSignatureType && (
-                                  <div className="w-full h-full flex items-center justify-center bg-[#1e1e1e] p-2">
-                                    <span className="text-xs text-gray-500">Opening signature pad...</span>
-                                  </div>
-                                )}
 
                                 {/* Text Editor */}
                                 {isTextType && (
@@ -1704,7 +1716,7 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Template Properties Modal */}
       {showTemplateModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] p-4">
           <div className="bg-[#252525] border border-[#2a2a2a] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between p-5 border-b border-[#2a2a2a]">
               <h3 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -1802,7 +1814,7 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Send Modal */}
       {showSendModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] p-4">
           <div className="bg-[#252525] border border-[#2a2a2a] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between p-5 border-b border-[#2a2a2a]">
               <h3 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -1826,6 +1838,19 @@ const SignDocumentPage: React.FC = () => {
                     <p className="text-sm text-gray-600">{placedFields.length} fields configured</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Your Name (Sender) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Your Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter your name (shown in email)..."
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2a2a2a] border border-[#2a2a2a] rounded-lg text-sm text-white focus:ring-2 focus:ring-[#c4ff0e]/50"
+                />
+                <p className="text-xs text-gray-500 mt-1">This name will appear as the sender in the email</p>
               </div>
 
               {/* Signers with their names and emails */}
@@ -1923,7 +1948,7 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Share Modal */}
       {showShareModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] p-4">
           <div className="bg-[#252525] border border-[#2a2a2a] rounded-2xl shadow-2xl max-w-md w-full">
             <div className="flex items-center justify-between p-5 border-b border-[#2a2a2a]">
               <h3 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -1976,7 +2001,7 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Preview Modal */}
       {showPreviewModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[200] p-4">
           <div className="bg-[#1e1e1e] rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a] bg-[#252525]">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -2053,76 +2078,137 @@ const SignDocumentPage: React.FC = () => {
         </div>
       )}
 
-      {/* Signature Modal */}
+      {/* Signature Side Panel - Live preview on document */}
       {signatureModalFieldId && (() => {
         const modalField = placedFields.find(f => f.id === signatureModalFieldId)
         if (!modalField) return null
 
+        const currentWidth = modalField.width
+        const currentHeight = modalField.height
+
+        const adjustFieldSize = (delta: number) => {
+          // Keep field selected while adjusting
+          setSelectedFieldId(signatureModalFieldId)
+          setPlacedFields(prev => prev.map(f =>
+            f.id === signatureModalFieldId
+              ? {
+                  ...f,
+                  width: Math.max(60, Math.min(500, f.width + delta)),
+                  height: Math.max(25, Math.min(250, f.height + (delta * 0.4)))
+                }
+              : f
+          ))
+        }
+
         return (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4">
-            <div className="bg-[#1e1e1e] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] text-white">
-                <span className="text-lg font-semibold">
-                  {modalField.type === 'signature' ? '✍️ Draw Your Signature' : '✍️ Add Initials'}
-                </span>
+          <div
+            className="fixed bottom-4 right-4 z-[300] w-[500px] bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#2a2a2a] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 bg-[#252525] border-b border-[#2a2a2a]">
+              <span className="text-base font-semibold text-white flex items-center gap-2">
+                <PenTool className="w-5 h-5 text-[#c4ff0e]" />
+                {modalField.type === 'signature' ? 'Draw Your Signature' : 'Add Initials'}
+              </span>
+              <button
+                onClick={() => {
+                  setSignatureModalFieldId(null)
+                  // Keep field selected after closing
+                  setSelectedFieldId(modalField.id)
+                }}
+                className="p-2 hover:bg-[#333] rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Signature Canvas - Large comfortable area */}
+            <div className="p-4">
+              <div className="border-2 border-dashed border-[#3a3a3a] rounded-xl overflow-hidden bg-white relative" style={{ height: '280px' }}>
+                <SignatureCanvas
+                  onSave={(data) => {
+                    updateFieldValue(signatureModalFieldId, data)
+                    // Auto-close panel after signing and keep field selected
+                    if (data) {
+                      setTimeout(() => {
+                        setSignatureModalFieldId(null)
+                        setSelectedFieldId(signatureModalFieldId)
+                      }, 300)
+                    }
+                  }}
+                  onClear={() => updateFieldValue(signatureModalFieldId, '')}
+                  initialSignature={modalField.value || undefined}
+                  compact={false}
+                  height={280}
+                  width={468}
+                />
+              </div>
+              <p className="text-sm text-gray-400 mt-3 text-center">
+                ✍️ Sign above - auto saves when done
+              </p>
+            </div>
+
+            {/* Size Controls - Always visible */}
+            <div className="px-3 pb-3">
+              <div className="bg-[#252525] rounded-xl p-3 border border-[#2a2a2a]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-400">Adjust Size</span>
+                  <span className="text-xs text-gray-500">{Math.round(currentWidth)}×{Math.round(currentHeight)}</span>
+                </div>
                 <div className="flex items-center gap-2">
-                  {/* Save Button */}
                   <button
-                    onClick={() => {
-                      setSignatureModalFieldId(null)
-                    }}
-                    disabled={!modalField.value}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => adjustFieldSize(-15)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[#1e1e1e] hover:bg-[#333] text-white text-xs rounded-lg transition-colors border border-[#3a3a3a]"
                   >
-                    <CheckSquare className="w-4 h-4" />
-                    Save Sign
+                    <Minus className="w-3 h-3" />
+                    Smaller
                   </button>
-                  {/* Close Button */}
                   <button
-                    onClick={() => {
-                      setSignatureModalFieldId(null)
-                    }}
-                    className="p-2 hover:bg-[#1e1e1e]/20 rounded-lg transition-colors"
+                    onClick={() => adjustFieldSize(15)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[#1e1e1e] hover:bg-[#333] text-white text-xs rounded-lg transition-colors border border-[#3a3a3a]"
                   >
-                    <X className="w-5 h-5" />
+                    <Plus className="w-3 h-3" />
+                    Larger
                   </button>
                 </div>
-              </div>
-
-              {/* Signature Canvas */}
-              <div className="p-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden" style={{ height: '250px' }}>
-                  <SignatureCanvas
-                    onSave={(data) => {
-                      updateFieldValue(signatureModalFieldId, data)
-                    }}
-                    onClear={() => updateFieldValue(signatureModalFieldId, '')}
-                    initialSignature={modalField.value || undefined}
-                    compact={false}
-                  />
-                </div>
-              </div>
-
-              {/* Footer with indicator */}
-              <div className="px-4 pb-4">
-                {modalField.value ? (
-                  <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckSquare className="w-5 h-5 text-green-600" />
-                    <span className="text-sm text-green-700 font-medium">
-                      Signature ready! Click "Save Sign" to apply at exact position.
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 p-3 bg-[#252525] border border-[#2a2a2a] rounded-lg">
-                    <PenTool className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-500">
-                      Draw your signature above, then click "Save Sign"
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
+
+            {/* Action Buttons */}
+            <div className="px-3 pb-3 flex gap-2">
+              <button
+                onClick={() => updateFieldValue(signatureModalFieldId, '')}
+                disabled={!modalField.value}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 bg-[#252525] hover:bg-[#333] text-white text-sm rounded-xl transition-colors border border-[#2a2a2a] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Clear
+              </button>
+              <button
+                onClick={() => {
+                  setSignatureModalFieldId(null)
+                  // Keep field selected after closing so user can drag it
+                  setSelectedFieldId(signatureModalFieldId)
+                }}
+                disabled={!modalField.value}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black text-sm font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Save className="w-3.5 h-3.5" />
+                Done
+              </button>
+            </div>
+
+            {/* Status indicator */}
+            {modalField.value && (
+              <div className="px-3 pb-3">
+                <div className="flex items-center gap-2 p-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <CheckSquare className="w-4 h-4 text-green-400" />
+                  <span className="text-xs text-green-400">Signature visible on document!</span>
+                </div>
+              </div>
+            )}
           </div>
         )
       })()}

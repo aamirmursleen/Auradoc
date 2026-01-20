@@ -9,6 +9,7 @@ import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import AnnouncementBar from '@/components/AnnouncementBar'
 import FloatingLifetimeDeal from '@/components/FloatingLifetimeDeal'
+import AISupportChat from '@/components/support/AISupportChat'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -184,6 +185,7 @@ export default function RootLayout({
             </div>
             <EmailCapturePopup />
             <FloatingLifetimeDeal />
+            <AISupportChat />
             <GoogleAnalytics />
           </ThemeProvider>
         </body>

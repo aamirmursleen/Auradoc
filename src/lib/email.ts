@@ -203,6 +203,12 @@ export async function sendSigningInvite(params: {
       headers: {
         'X-Entity-Ref-ID': `signing-invite-${Date.now()}`,
       },
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
+      },
     })
 
     return { success: true, id: result.data?.id }
@@ -249,6 +255,12 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
       text,
       headers: {
         'X-Entity-Ref-ID': `signing-request-${data.documentId}-${signerIndex}`,
+      },
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
       },
     })
 
@@ -344,6 +356,12 @@ export async function sendSignatureCompletedNotification(
       to: data.senderEmail,
       subject: isComplete ? `"${data.documentName}" is fully signed!` : `${signer.name} signed "${data.documentName}" (${signedCount}/${total})`,
       html,
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
+      },
     })
 
     return { success: true, data: result }
@@ -418,6 +436,12 @@ export async function sendSignerConfirmation(
       to: signer.email,
       subject: `Your signature on "${data.documentName}" is confirmed`,
       html,
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
+      },
     })
 
     return { success: true, data: result }
@@ -482,6 +506,12 @@ export async function sendDocumentOpenedNotification(data: DocumentEmailData, si
       to: data.senderEmail,
       subject: `${signer.name} viewed "${data.documentName}"`,
       html,
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
+      },
     })
 
     return { success: true, data: result }
@@ -599,6 +629,12 @@ Secure document signing made simple
       headers: {
         'X-Entity-Ref-ID': `signing-reminder-${data.documentId}-${signerIndex}-${reminderNumber}`,
       },
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
+      },
     })
 
     return { success: true, data: result }
@@ -671,6 +707,12 @@ export async function sendDocumentDeclined(
       to: data.senderEmail,
       subject: `${signer.name} declined to sign "${data.documentName}"`,
       html,
+      // Disable click tracking to prevent URL wrapping issues
+      // @ts-ignore - tracking option may not be in types but works in API
+      tracking: {
+        clicks: false,
+        opens: true,
+      },
     })
 
     return { success: true, data: result }

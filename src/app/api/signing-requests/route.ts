@@ -10,13 +10,14 @@ export async function POST(req: NextRequest) {
     const { userId } = await auth()
     const user = await currentUser()
 
-    // Demo mode: Allow sending without being logged in
-    const senderName = user ? (user.firstName || '') + ' ' + (user.lastName || '').trim() || 'MamaSign User' : 'MamaSign User'
+    const body = await req.json()
+    const { documentName, documentData, signers, signatureFields, message, dueDate, senderName: providedSenderName } = body
+
+    // Use provided sender name, or fallback to Clerk user name, or default
+    const clerkUserName = user ? ((user.firstName || '') + ' ' + (user.lastName || '')).trim() : ''
+    const senderName = providedSenderName?.trim() || clerkUserName || 'MamaSign User'
     const senderEmail = user?.emailAddresses?.[0]?.emailAddress || 'noreply@mamasign.com'
     const effectiveUserId = userId || 'demo-user'
-
-    const body = await req.json()
-    const { documentName, documentData, signers, signatureFields, message, dueDate } = body
 
     // Validate required fields
     if (!documentName || !documentData || !signers || signers.length === 0) {
