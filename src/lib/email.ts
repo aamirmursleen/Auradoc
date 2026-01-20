@@ -6,9 +6,8 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Email sender configuration - Use verified domain or Resend test domain
-// To use custom domain: verify it at https://resend.com/domains and set FROM_EMAIL env var
-const FROM_EMAIL = process.env.FROM_EMAIL || 'MamaSign <onboarding@resend.dev>'
+// Email sender configuration - Using verified mamasign.com domain
+const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
 const COMPANY_NAME = 'MamaSign'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
