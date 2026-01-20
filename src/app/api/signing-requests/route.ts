@@ -65,18 +65,18 @@ export async function POST(req: NextRequest) {
       console.error('Database error:', insertError)
     }
 
-    // Find self-signer and first non-self signer
+    // Find self-signer and all non-self signers
     const selfSigner = signersWithTokens.find((s: { is_self?: boolean }) => s.is_self)
-    const firstNonSelfSigner = signersWithTokens.find((s: { is_self?: boolean }) => !s.is_self)
+    const nonSelfSigners = signersWithTokens.filter((s: { is_self?: boolean }) => !s.is_self)
 
-    // Send email to first non-self signer if exists
-    if (firstNonSelfSigner) {
-      const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + firstNonSelfSigner.token + '&email=' + encodeURIComponent(firstNonSelfSigner.email)
+    // Send email to ALL non-self signers at once (parallel signing)
+    for (const signer of nonSelfSigners) {
+      const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + signer.token + '&email=' + encodeURIComponent(signer.email)
 
       try {
         const emailResult = await sendSigningInvite({
-          to: firstNonSelfSigner.email,
-          signerName: firstNonSelfSigner.name,
+          to: signer.email,
+          signerName: signer.name,
           senderName: senderName,
           senderEmail: senderEmail,
           documentName: documentName,
@@ -86,10 +86,10 @@ export async function POST(req: NextRequest) {
         })
 
         if (!emailResult.success) {
-          console.error('Email send failed:', emailResult.error)
+          console.error('Email send failed for', signer.email, ':', emailResult.error)
         }
       } catch (emailError) {
-        console.error('Failed to send email:', emailError)
+        console.error('Failed to send email to', signer.email, ':', emailError)
       }
     }
 
