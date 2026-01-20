@@ -31,6 +31,83 @@ export async function getUserDocuments(userId: string): Promise<Document[]> {
   return data || []
 }
 
+// Signer interface for signing requests
+export interface SigningRequestSigner {
+  name: string
+  email: string
+  order: number
+  status: 'pending' | 'sent' | 'opened' | 'signed'
+  signedAt?: string
+  token?: string
+}
+
+// Signing Request interface
+export interface SigningRequest {
+  id: string
+  user_id: string
+  document_name: string
+  document_url: string
+  sender_name: string
+  sender_email: string
+  signers: SigningRequestSigner[]
+  message?: string
+  due_date?: string
+  status: 'pending' | 'in_progress' | 'completed' | 'declined' | 'expired'
+  current_signer_index: number
+  declined_by?: string
+  declined_reason?: string
+  declined_at?: string
+  completed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+// Get all signing requests for a user
+export async function getUserSigningRequests(userId: string): Promise<SigningRequest[]> {
+  const { data, error } = await supabase
+    .from('signing_requests')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching signing requests:', error)
+    throw error
+  }
+
+  return data || []
+}
+
+// Get single signing request by ID
+export async function getSigningRequest(requestId: string): Promise<SigningRequest | null> {
+  const { data, error } = await supabase
+    .from('signing_requests')
+    .select('*')
+    .eq('id', requestId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    console.error('Error fetching signing request:', error)
+    throw error
+  }
+
+  return data
+}
+
+// Delete signing request
+export async function deleteSigningRequest(requestId: string): Promise<void> {
+  const { error } = await supabase
+    .from('signing_requests')
+    .delete()
+    .eq('id', requestId)
+
+  if (error) {
+    console.error('Error deleting signing request:', error)
+    throw error
+  }
+}
+
 // Get single document by ID
 export async function getDocument(documentId: string): Promise<Document | null> {
   const { data, error } = await supabase

@@ -112,6 +112,39 @@ export async function POST(
       console.error('Failed to send notification:', emailError)
     }
 
+    // Create dashboard notification for sender
+    try {
+      const signedCount = signers.filter((s: { status: string }) => s.status === 'signed').length
+      const totalSigners = signers.length
+
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: signingRequest.user_id,
+          type: allSigned ? 'document_completed' : 'document_signed',
+          title: allSigned
+            ? 'Document Completed!'
+            : `${signers[signerIndex].name} signed your document`,
+          message: allSigned
+            ? `All ${totalSigners} signers have completed signing "${signingRequest.document_name}". Your document is ready!`
+            : `${signers[signerIndex].name} (${signerEmail}) has signed "${signingRequest.document_name}". ${signedCount}/${totalSigners} signatures complete.`,
+          document_id: documentId,
+          document_name: signingRequest.document_name,
+          signer_name: signers[signerIndex].name,
+          signer_email: signerEmail,
+          metadata: {
+            signedAt: new Date().toISOString(),
+            signedCount,
+            totalSigners,
+            isComplete: allSigned
+          },
+          is_read: false,
+          created_at: new Date().toISOString()
+        })
+    } catch (notifError) {
+      console.error('Failed to create dashboard notification:', notifError)
+    }
+
     // Send invite to next signer if not complete
     if (!allSigned && nextSignerIndex >= 0) {
       const nextSigner = signers[nextSignerIndex]

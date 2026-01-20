@@ -22,9 +22,12 @@ import {
   Inbox,
   Sparkles,
   ArrowRight,
-  Loader2
+  Loader2,
+  Bell,
+  ChevronDown
 } from 'lucide-react'
-import { getUserDocuments, deleteDocument } from '@/lib/documents'
+import NotificationBell from '@/components/notifications/NotificationBell'
+import { getUserDocuments, deleteDocument, getUserSigningRequests, deleteSigningRequest, SigningRequest } from '@/lib/documents'
 import { Document, DocumentStatus } from '@/lib/types'
 
 // Status configuration
@@ -96,20 +99,26 @@ const DocumentsPage: React.FC = () => {
   const router = useRouter()
   const { user, isLoaded } = useUser()
   const [documents, setDocuments] = useState<Document[]>([])
+  const [signingRequests, setSigningRequests] = useState<SigningRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<DocumentStatus | 'all'>('all')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
 
-  // Load documents from Supabase
+  // Load documents and signing requests from Supabase
   useEffect(() => {
     const loadDocuments = async () => {
       if (!isLoaded || !user) return
 
       try {
         setLoading(true)
-        const docs = await getUserDocuments(user.id)
+        const [docs, requests] = await Promise.all([
+          getUserDocuments(user.id),
+          getUserSigningRequests(user.id)
+        ])
         setDocuments(docs)
+        setSigningRequests(requests)
       } catch (error) {
         console.error('Error loading documents:', error)
       } finally {
@@ -147,12 +156,51 @@ const DocumentsPage: React.FC = () => {
     router.push('/track')
   }
 
-  // Stats
+  // Stats - combining both documents and signing requests
   const stats = {
-    total: documents.length,
-    pending: documents.filter(d => ['created', 'delivered', 'opened'].includes(d.status)).length,
-    completed: documents.filter(d => d.status === 'completed').length,
-    awaitingSignature: documents.filter(d => d.status === 'opened').length
+    total: documents.length + signingRequests.length,
+    pending: documents.filter(d => ['created', 'delivered', 'opened'].includes(d.status)).length +
+             signingRequests.filter(r => ['pending', 'in_progress'].includes(r.status)).length,
+    completed: documents.filter(d => d.status === 'completed').length +
+               signingRequests.filter(r => r.status === 'completed').length,
+    awaitingSignature: documents.filter(d => d.status === 'opened').length +
+                       signingRequests.filter(r => r.status === 'in_progress').length
+  }
+
+  // Filter signing requests
+  const filteredSigningRequests = signingRequests.filter(req => {
+    const matchesSearch = req.document_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      req.signers.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.email.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    const statusMap: Record<string, DocumentStatus[]> = {
+      'pending': ['created'],
+      'in_progress': ['delivered', 'opened'],
+      'completed': ['completed', 'signed'],
+      'declined': ['created'],
+      'expired': ['created']
+    }
+    const matchesStatus = statusFilter === 'all' ||
+      (statusMap[req.status] && statusMap[req.status].includes(statusFilter as DocumentStatus))
+
+    return matchesSearch && (statusFilter === 'all' || matchesStatus)
+  })
+
+  // Delete signing request
+  const handleDeleteSigningRequest = async (id: string) => {
+    try {
+      await deleteSigningRequest(id)
+      setSigningRequests(prev => prev.filter(req => req.id !== id))
+      setActiveMenu(null)
+    } catch (error) {
+      console.error('Error deleting signing request:', error)
+    }
+  }
+
+  // Get signer progress
+  const getSignerProgress = (signers: SigningRequest['signers']) => {
+    const signed = signers.filter(s => s.status === 'signed').length
+    return { signed, total: signers.length }
   }
 
   if (!isLoaded || loading) {
@@ -189,13 +237,16 @@ const DocumentsPage: React.FC = () => {
               <h1 className="text-2xl font-bold text-white">Documents</h1>
               <p className="text-gray-400 mt-1">Manage and track all your documents</p>
             </div>
-            <button
-              onClick={handleCreateNew}
-              className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-xl font-medium flex items-center gap-2 transition-colors shadow-lg shadow-[#c4ff0e]/25"
-            >
-              <Plus className="w-5 h-5" />
-              New Document
-            </button>
+            <div className="flex items-center gap-4">
+              <NotificationBell />
+              <button
+                onClick={handleCreateNew}
+                className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-xl font-medium flex items-center gap-2 transition-colors shadow-lg shadow-[#c4ff0e]/25"
+              >
+                <Plus className="w-5 h-5" />
+                New Document
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -421,6 +472,161 @@ const DocumentsPage: React.FC = () => {
                 Create Document
               </button>
             )}
+          </div>
+        )}
+
+        {/* Signing Requests Section */}
+        {filteredSigningRequests.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Send className="w-5 h-5 text-[#c4ff0e]" />
+              Signing Requests ({filteredSigningRequests.length})
+            </h2>
+            <div className="space-y-4">
+              {filteredSigningRequests.map((req) => {
+                const progress = getSignerProgress(req.signers)
+                const isExpanded = expandedDoc === req.id
+
+                return (
+                  <div
+                    key={req.id}
+                    className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] shadow-sm overflow-hidden"
+                  >
+                    {/* Main Row */}
+                    <div
+                      className="p-4 cursor-pointer hover:bg-[#252525] transition-colors"
+                      onClick={() => setExpandedDoc(isExpanded ? null : req.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-[#252525] rounded-xl">
+                            <FileText className="w-6 h-6 text-[#c4ff0e]" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-white">{req.document_name}</h3>
+                            <p className="text-sm text-gray-400">
+                              Sent by {req.sender_name} • {formatRelativeTime(req.created_at)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          {/* Progress */}
+                          <div className="text-right">
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 h-2 bg-[#252525] rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#c4ff0e] rounded-full transition-all"
+                                  style={{ width: `${(progress.signed / progress.total) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium text-white">
+                                {progress.signed}/{progress.total}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {progress.signed === progress.total ? 'Complete' : 'Signatures'}
+                            </p>
+                          </div>
+
+                          {/* Status Badge */}
+                          <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                            req.status === 'completed'
+                              ? 'bg-green-500/20 text-green-400'
+                              : req.status === 'declined'
+                              ? 'bg-red-500/20 text-red-400'
+                              : 'bg-[#c4ff0e]/20 text-[#c4ff0e]'
+                          }`}>
+                            {req.status === 'completed' ? 'Completed' :
+                             req.status === 'in_progress' ? 'In Progress' :
+                             req.status === 'declined' ? 'Declined' :
+                             req.status === 'expired' ? 'Expired' : 'Pending'}
+                          </span>
+
+                          {/* Expand Arrow */}
+                          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expanded Details */}
+                    {isExpanded && (
+                      <div className="border-t border-[#2a2a2a] p-4 bg-[#1a1a1a]">
+                        <h4 className="text-sm font-medium text-gray-400 mb-3">Signers</h4>
+                        <div className="space-y-3">
+                          {req.signers.map((signer, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between p-3 bg-[#252525] rounded-lg"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
+                                  signer.status === 'signed' ? 'bg-green-500' : 'bg-gray-600'
+                                }`}>
+                                  {idx + 1}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-white">{signer.name}</p>
+                                  <p className="text-sm text-gray-400">{signer.email}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                {signer.status === 'signed' ? (
+                                  <div className="flex items-center gap-2 text-green-400">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span className="text-sm">Signed</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2 text-gray-400">
+                                    <Clock className="w-4 h-4" />
+                                    <span className="text-sm">Pending</span>
+                                  </div>
+                                )}
+                                {signer.signedAt && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {formatRelativeTime(signer.signedAt)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-3 mt-4 pt-4 border-t border-[#2a2a2a]">
+                          {req.status === 'completed' && (
+                            <button className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors">
+                              <Download className="w-4 h-4" />
+                              Download Signed Document
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigator.clipboard.writeText(`${window.location.origin}/sign/${req.id}`)
+                            }}
+                            className="px-4 py-2 bg-[#252525] text-white rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#2a2a2a] transition-colors"
+                          >
+                            <Copy className="w-4 h-4" />
+                            Copy Signing Link
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteSigningRequest(req.id)
+                            }}
+                            className="px-4 py-2 text-red-400 hover:bg-red-500/10 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors ml-auto"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 
