@@ -407,7 +407,11 @@ export default function SignDocumentPage() {
                 <h3 className="text-xl font-semibold text-white">Create Your Signature</h3>
                 <button onClick={() => { setShowSignaturePad(false); setActiveFieldId(null) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
               </div>
-              <SignatureCanvas onSignatureChange={handleSignatureCreated} />
+              <SignatureCanvas
+                onSignatureChange={handleSignatureCreated}
+                onCancel={() => { setShowSignaturePad(false); setActiveFieldId(null) }}
+                showDoneButton={true}
+              />
             </div>
           </div>
         </div>

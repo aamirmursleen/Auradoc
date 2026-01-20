@@ -2136,11 +2136,11 @@ const SignDocumentPage: React.FC = () => {
 
             {/* Signature Canvas - Large comfortable area */}
             <div className="p-4">
-              <div className="border-2 border-dashed border-[#3a3a3a] rounded-xl overflow-hidden bg-white relative" style={{ height: '280px' }}>
+              <div className="border-2 border-dashed border-[#3a3a3a] rounded-xl overflow-hidden bg-white relative">
                 <SignatureCanvas
                   onSave={(data) => {
                     updateFieldValue(signatureModalFieldId, data)
-                    // Auto-close panel after signing and keep field selected
+                    // Close panel after signing and keep field selected
                     if (data) {
                       setTimeout(() => {
                         setSignatureModalFieldId(null)
@@ -2149,14 +2149,16 @@ const SignDocumentPage: React.FC = () => {
                     }
                   }}
                   onClear={() => updateFieldValue(signatureModalFieldId, '')}
+                  onCancel={() => setSignatureModalFieldId(null)}
                   initialSignature={modalField.value || undefined}
                   compact={false}
-                  height={280}
+                  height={240}
                   width={468}
+                  showDoneButton={true}
                 />
               </div>
               <p className="text-sm text-gray-400 mt-3 text-center">
-                ✍️ Sign above - auto saves when done
+                ✍️ Draw your signature and click Done to save
               </p>
             </div>
 

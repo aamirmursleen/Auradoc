@@ -8,10 +8,12 @@ interface SignatureCanvasProps {
   onSignatureChange?: (signature: string | null) => void
   onSave?: (signature: string) => void
   onClear?: () => void
+  onCancel?: () => void
   initialSignature?: string
   width?: number
   height?: number
   compact?: boolean
+  showDoneButton?: boolean // If true, requires user to click Done to confirm signature
 }
 
 type SignatureMode = 'draw' | 'upload' | 'camera'
@@ -20,10 +22,12 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   onSignatureChange,
   onSave,
   onClear,
+  onCancel,
   initialSignature,
   width = 600,
   height = 200,
   compact = false,
+  showDoneButton = true,
 }) => {
   const signatureRef = useRef<SignatureCanvasLib>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -89,11 +93,28 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     if (signatureRef.current) {
       const isCanvasEmpty = signatureRef.current.isEmpty()
       setIsEmpty(isCanvasEmpty)
-      if (!isCanvasEmpty) {
+      // Only auto-save if showDoneButton is false
+      if (!isCanvasEmpty && !showDoneButton) {
         const signatureData = signatureRef.current.toDataURL('image/png')
         if (onSignatureChange) onSignatureChange(signatureData)
         if (onSave) onSave(signatureData)
       }
+    }
+  }
+
+  // Handle Done button click - confirm and save signature
+  const handleDone = () => {
+    let signatureData: string | null = null
+
+    if (mode === 'draw' && signatureRef.current && !signatureRef.current.isEmpty()) {
+      signatureData = signatureRef.current.toDataURL('image/png')
+    } else if ((mode === 'upload' || mode === 'camera') && uploadedImage) {
+      signatureData = uploadedImage
+    }
+
+    if (signatureData) {
+      if (onSignatureChange) onSignatureChange(signatureData)
+      if (onSave) onSave(signatureData)
     }
   }
 
@@ -189,8 +210,11 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
       const processedImage = canvas.toDataURL('image/png')
       setUploadedImage(processedImage)
       setIsEmpty(false)
-      if (onSignatureChange) onSignatureChange(processedImage)
-      if (onSave) onSave(processedImage)
+      // Only auto-save if showDoneButton is false
+      if (!showDoneButton) {
+        if (onSignatureChange) onSignatureChange(processedImage)
+        if (onSave) onSave(processedImage)
+      }
       setIsProcessing(false)
     }
 
@@ -606,6 +630,28 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
             ? 'Upload a photo of your signature. Background will be removed automatically.'
             : 'Take a photo of your signature on paper. Background will be removed automatically.'}
         </p>
+      )}
+
+      {/* Done and Cancel Buttons */}
+      {showDoneButton && (
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 mt-4">
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              className="px-6 py-2.5 text-gray-600 hover:text-gray-800 font-medium rounded-xl hover:bg-gray-100 transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            onClick={handleDone}
+            disabled={isEmpty && !uploadedImage}
+            className="px-6 py-2.5 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black font-semibold rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <Check className="w-5 h-5" />
+            Done
+          </button>
+        </div>
       )}
     </div>
   )
