@@ -146,7 +146,12 @@ export default function SignDocumentPage() {
           pdfSource = `data:application/pdf;base64,${documentData.documentUrl}`
         }
 
-        const loadingTask = pdfjsLib.getDocument(pdfSource)
+        const loadingTask = pdfjsLib.getDocument({
+          url: pdfSource,
+          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
+          cMapPacked: true,
+          standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
+        })
         const pdf = await loadingTask.promise
         setPdfDoc(pdf)
         setTotalPages(pdf.numPages)

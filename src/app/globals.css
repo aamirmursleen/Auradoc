@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 /* ========================================
+   PDF.JS FIX - Prevent text mirroring
+======================================== */
+canvas {
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Force correct text rendering direction */
+.textLayer {
+  direction: ltr !important;
+}
+
+/* ========================================
    CSS VARIABLES - CalendarJet Theme
 ======================================== */
 :root {
