@@ -759,14 +759,21 @@ export default function SignDocumentPage() {
                             )}
                             {/* Text fields - show the entered value */}
                             {isTxtType && fieldValue && (
-                              <div className="w-full h-full flex items-center justify-center p-1 overflow-hidden">
-                                <span className="truncate" style={textStyle}>{fieldValue}</span>
+                              <div className="w-full h-full flex items-center px-2 py-1">
+                                <span className="w-full text-left break-words leading-tight" style={{
+                                  ...textStyle,
+                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px`,
+                                  lineHeight: '1.2'
+                                }}>{fieldValue}</span>
                               </div>
                             )}
                             {/* Date field - show the selected date */}
                             {isDtType && fieldValue && (
-                              <div className="w-full h-full flex items-center justify-center p-1">
-                                <span style={textStyle}>{new Date(fieldValue).toLocaleDateString()}</span>
+                              <div className="w-full h-full flex items-center px-2 py-1">
+                                <span className="w-full text-left" style={{
+                                  ...textStyle,
+                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px`
+                                }}>{new Date(fieldValue).toLocaleDateString()}</span>
                               </div>
                             )}
                             {/* Checkbox - show checkmark */}
@@ -783,8 +790,11 @@ export default function SignDocumentPage() {
                             )}
                             {/* Selection - show selected value */}
                             {isSelType && fieldValue && (
-                              <div className="w-full h-full flex items-center justify-center p-1">
-                                <span className="truncate" style={textStyle}>{fieldValue}</span>
+                              <div className="w-full h-full flex items-center px-2 py-1">
+                                <span className="w-full text-left" style={{
+                                  ...textStyle,
+                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px`
+                                }}>{fieldValue}</span>
                               </div>
                             )}
                             {/* Strikethrough - show line */}
