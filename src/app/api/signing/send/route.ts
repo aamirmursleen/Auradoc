@@ -4,12 +4,10 @@ import { supabase } from '@/lib/supabase'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mamasign.com'
 
-// Use onboarding.resend.dev for testing, or verified domain for production
-const FROM_EMAIL = process.env.NODE_ENV === 'production'
-  ? 'MamaSign <noreply@mamasign.com>'
-  : 'MamaSign <onboarding@resend.dev>'
+// Use verified mamasign.com domain for all emails
+const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
 
 export async function POST(req: NextRequest) {
   try {
@@ -191,41 +189,39 @@ function getEmailTemplate(params: {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #1e1e1e; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
           <tr>
-            <td style="background-color: #1e1e1e; padding: 30px 40px; text-align: center; border-bottom: 1px solid #2a2a2a;">
-              <h1 style="margin: 0; color: #c4ff0e; font-size: 28px; font-weight: 700;">MamaSign</h1>
-              <p style="margin: 8px 0 0 0; color: #9ca3af; font-size: 14px;">Secure Document Signing</p>
+            <td style="background-color: #000000; padding: 30px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">MamaSign</h1>
             </td>
           </tr>
           <tr>
-            <td style="padding: 40px; background-color: #1e1e1e;">
-              <p style="margin: 0 0 20px 0; font-size: 16px; color: #e0e0e0;">Hello <strong style="color: #ffffff;">${recipientName}</strong>,</p>
-              <p style="margin: 0 0 25px 0; font-size: 15px; color: #9ca3af; line-height: 1.6;"><strong style="color: #ffffff;">${senderName}</strong> has sent you a document to sign. Please review and sign the document at your earliest convenience.</p>
-              ${message ? `<div style="background-color: #2a2a2a; border-left: 4px solid #c4ff0e; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0; font-size: 14px; color: #e0e0e0; font-style: italic;">"${message}"</p></div>` : ''}
-              <div style="background-color: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 12px; padding: 20px; margin: 0 0 30px 0;">
-                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #ffffff;">${documentName}</p>
-                <p style="margin: 0; font-size: 13px; color: #9ca3af;">From: ${senderName}</p>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${recipientName}</strong>,</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;"><strong>${senderName}</strong> has sent you a document to sign. Please review and sign the document at your earliest convenience.</p>
+              ${message ? `<div style="background-color: #f9f9f9; border-left: 4px solid #000000; padding: 15px 20px; margin: 0 0 25px 0;"><p style="margin: 0; font-size: 14px; color: #555555; font-style: italic;">"${message}"</p></div>` : ''}
+              <div style="background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
+                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #000000;">📄 ${documentName}</p>
+                <p style="margin: 0; font-size: 13px; color: #666666;">From: ${senderName}</p>
               </div>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${signingLink}" style="display: inline-block; background-color: #c4ff0e; color: #000000; text-decoration: none; padding: 16px 50px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(196, 255, 14, 0.3);">Sign Document</a>
+                <a href="${signingLink}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600;">Sign Document</a>
               </div>
-              <div style="background-color: rgba(196, 255, 14, 0.1); border: 1px solid rgba(196, 255, 14, 0.2); border-radius: 8px; padding: 15px; margin: 25px 0 0 0;">
-                <p style="margin: 0; font-size: 13px; color: #c4ff0e; text-align: center;">This document is encrypted and securely stored. Your signature will be legally binding.</p>
-              </div>
+              <p style="margin: 25px 0 0 0; font-size: 13px; color: #888888; text-align: center;">🔒 This document is encrypted and securely stored.</p>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #252525; padding: 25px 40px; border-top: 1px solid #2a2a2a; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #c4ff0e;">MamaSign</p>
-              <p style="margin: 0; font-size: 12px; color: #6b7280;">Secure document signing made simple</p>
+            <td style="background-color: #f9f9f9; padding: 25px 40px; border-top: 1px solid #e0e0e0; text-align: center;">
+              <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #000000;">MamaSign</p>
+              <p style="margin: 0; font-size: 12px; color: #888888;">Secure document signing made simple</p>
             </td>
           </tr>
         </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #999999; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
