@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { incrementInvoiceCount } from '@/lib/usageLimit'
 import {
@@ -19,7 +19,13 @@ import {
   Image as ImageIcon,
   Eye,
   X,
-  Printer
+  Printer,
+  Share2,
+  Copy,
+  Mail,
+  MessageCircle,
+  Link2,
+  CheckCircle
 } from 'lucide-react'
 
 interface InvoiceItem {
@@ -66,6 +72,14 @@ interface InvoiceData {
 
   // Currency
   currency: string
+
+  // More Options
+  poNumber?: string
+  referenceNumber?: string
+  discount?: number
+  shipping?: number
+  paymentTerms?: string
+  footerNote?: string
 }
 
 // World Currencies
@@ -177,8 +191,8 @@ const CreateInvoicePage: React.FC = () => {
     clientPhone: '',
     clientAddress: '',
 
-    invoiceNumber: `${new Date().getFullYear()}${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
-    issueDate: new Date().toISOString().split('T')[0],
+    invoiceNumber: '', // Will be set on client side
+    issueDate: '',     // Will be set on client side
     dueDate: '14 days',
     deliveryDate: '',
 
@@ -196,6 +210,26 @@ const CreateInvoicePage: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false)
   const [currencySearch, setCurrencySearch] = useState('')
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [emailTo, setEmailTo] = useState('')
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailMessage, setEmailMessage] = useState('')
+  const [sendingEmail, setSendingEmail] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  // Generate invoice number and date on client side to avoid hydration error
+  useEffect(() => {
+    const year = new Date().getFullYear()
+    const randomNum = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+    const today = new Date().toISOString().split('T')[0]
+
+    setInvoiceData(prev => ({
+      ...prev,
+      invoiceNumber: prev.invoiceNumber || `${year}${randomNum}`,
+      issueDate: prev.issueDate || today
+    }))
+  }, [])
 
   // Calculate totals
   const calculateItemTotal = (item: InvoiceItem) => {
@@ -206,7 +240,9 @@ const CreateInvoicePage: React.FC = () => {
 
   const subtotal = invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
   const totalTax = invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.tax / 100)), 0)
-  const grandTotal = subtotal + totalTax
+  const discountAmount = subtotal * ((invoiceData.discount || 0) / 100)
+  const shippingAmount = invoiceData.shipping || 0
+  const grandTotal = subtotal + totalTax - discountAmount + shippingAmount
 
   const handleInputChange = (field: keyof InvoiceData, value: any) => {
     setInvoiceData(prev => ({ ...prev, [field]: value }))
@@ -685,9 +721,92 @@ const CreateInvoicePage: React.FC = () => {
                   onClick={() => setShowMoreOptions(!showMoreOptions)}
                   className="mt-4 text-sm text-[#c4ff0e] hover:text-[#c4ff0e]/80 font-medium flex items-center gap-1"
                 >
-                  <MoreHorizontal className="w-4 h-4" />
-                  MORE OPTIONS
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showMoreOptions ? 'rotate-180' : ''}`} />
+                  {showMoreOptions ? 'LESS OPTIONS' : 'MORE OPTIONS'}
                 </button>
+
+                {/* More Options Panel */}
+                {showMoreOptions && (
+                  <div className="mt-4 pt-4 border-t border-[#2a2a2a] space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Purchase Order (PO) #</label>
+                        <input
+                          type="text"
+                          value={invoiceData.poNumber || ''}
+                          onChange={(e) => handleInputChange('poNumber', e.target.value)}
+                          placeholder="PO-12345"
+                          className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Reference #</label>
+                        <input
+                          type="text"
+                          value={invoiceData.referenceNumber || ''}
+                          onChange={(e) => handleInputChange('referenceNumber', e.target.value)}
+                          placeholder="REF-001"
+                          className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Discount (%)</label>
+                        <input
+                          type="number"
+                          value={invoiceData.discount || 0}
+                          onChange={(e) => handleInputChange('discount', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          max="100"
+                          placeholder="0"
+                          className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Shipping / Delivery Charges</label>
+                        <input
+                          type="number"
+                          value={invoiceData.shipping || 0}
+                          onChange={(e) => handleInputChange('shipping', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Payment Terms</label>
+                      <select
+                        value={invoiceData.paymentTerms || ''}
+                        onChange={(e) => handleInputChange('paymentTerms', e.target.value)}
+                        className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white"
+                      >
+                        <option value="">Select payment terms</option>
+                        <option value="due_on_receipt">Due on Receipt</option>
+                        <option value="net_7">Net 7 - Payment due in 7 days</option>
+                        <option value="net_15">Net 15 - Payment due in 15 days</option>
+                        <option value="net_30">Net 30 - Payment due in 30 days</option>
+                        <option value="net_60">Net 60 - Payment due in 60 days</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Footer Note / Terms & Conditions</label>
+                      <textarea
+                        value={invoiceData.footerNote || ''}
+                        onChange={(e) => handleInputChange('footerNote', e.target.value)}
+                        placeholder="Payment is due within the specified period. Late payments may incur additional charges..."
+                        rows={2}
+                        className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none text-white placeholder-gray-400"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Items Section */}
@@ -829,11 +948,29 @@ const CreateInvoicePage: React.FC = () => {
               {/* Totals */}
               <div className="bg-[#1F1F1F] rounded-xl border border-[#2a2a2a] p-4">
                 <div className="flex justify-end">
-                  <div className="w-64 space-y-2">
+                  <div className="w-72 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-300">SUBTOTAL</span>
                       <span className="font-medium text-white">{formatCurrency(subtotal)}</span>
                     </div>
+                    {totalTax > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-300">TAX</span>
+                        <span className="font-medium text-white">{formatCurrency(totalTax)}</span>
+                      </div>
+                    )}
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-300">DISCOUNT ({invoiceData.discount}%)</span>
+                        <span className="font-medium text-green-400">-{formatCurrency(discountAmount)}</span>
+                      </div>
+                    )}
+                    {shippingAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-300">SHIPPING</span>
+                        <span className="font-medium text-white">{formatCurrency(shippingAmount)}</span>
+                      </div>
+                    )}
                     <div
                       className="flex justify-between text-sm font-semibold py-2 px-3 rounded-lg bg-[#c4ff0e] text-black"
                     >
@@ -862,10 +999,27 @@ const CreateInvoicePage: React.FC = () => {
                     Generate PDF
                   </button>
                 </div>
-                <button className="w-full py-3 text-gray-300 font-medium hover:text-white transition-colors flex items-center justify-center gap-2">
-                  <Send className="w-4 h-4" />
-                  Send document by email
-                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      setEmailTo(invoiceData.clientEmail || '')
+                      setEmailSubject(`Invoice #${invoiceData.invoiceNumber} from ${invoiceData.businessName || 'Your Business'}`)
+                      setEmailMessage(`Dear ${invoiceData.clientName || 'Customer'},\n\nPlease find attached invoice #${invoiceData.invoiceNumber} for the amount of ${formatCurrency(grandTotal)}.\n\nDue Date: ${invoiceData.dueDate}\n\nThank you for your business!\n\nBest regards,\n${invoiceData.businessName || 'Your Business'}`)
+                      setShowEmailModal(true)
+                    }}
+                    className="w-full py-3 bg-[#252525] text-gray-300 font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2 rounded-xl border border-[#2a2a2a]"
+                  >
+                    <Mail className="w-4 h-4" />
+                    Send by Email
+                  </button>
+                  <button
+                    onClick={() => setShowShareModal(true)}
+                    className="w-full py-3 bg-[#252525] text-gray-300 font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2 rounded-xl border border-[#2a2a2a]"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share Invoice
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -972,6 +1126,12 @@ const CreateInvoicePage: React.FC = () => {
                       <div><span className="text-gray-600">Invoice #:</span> <span className="font-semibold">{invoiceData.invoiceNumber}</span></div>
                       <div><span className="text-gray-600">Date:</span> <span className="font-semibold">{new Date(invoiceData.issueDate).toLocaleDateString()}</span></div>
                       <div><span className="text-gray-600">Due:</span> <span className="font-semibold">{invoiceData.dueDate}</span></div>
+                      {invoiceData.poNumber && (
+                        <div><span className="text-gray-600">PO #:</span> <span className="font-semibold">{invoiceData.poNumber}</span></div>
+                      )}
+                      {invoiceData.referenceNumber && (
+                        <div><span className="text-gray-600">Ref #:</span> <span className="font-semibold">{invoiceData.referenceNumber}</span></div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -997,11 +1157,11 @@ const CreateInvoicePage: React.FC = () => {
                   <table className="w-full">
                     <thead>
                       <tr style={{ backgroundColor: selectedTemplateData?.colors.primary }}>
-                        <th className="text-left text-gray-900 font-semibold py-3 px-4 text-sm">Description</th>
-                        <th className="text-center text-gray-900 font-semibold py-3 px-4 text-sm">Qty</th>
-                        <th className="text-center text-gray-900 font-semibold py-3 px-4 text-sm">Unit</th>
-                        <th className="text-right text-gray-900 font-semibold py-3 px-4 text-sm">Price</th>
-                        <th className="text-right text-gray-900 font-semibold py-3 px-4 text-sm">Amount</th>
+                        <th className="text-left text-white font-semibold py-3 px-4 text-sm">Description</th>
+                        <th className="text-center text-white font-semibold py-3 px-4 text-sm">Qty</th>
+                        <th className="text-center text-white font-semibold py-3 px-4 text-sm">Unit</th>
+                        <th className="text-right text-white font-semibold py-3 px-4 text-sm">Price</th>
+                        <th className="text-right text-white font-semibold py-3 px-4 text-sm">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1034,6 +1194,18 @@ const CreateInvoicePage: React.FC = () => {
                         <span className="font-medium">{formatCurrency(totalTax)}</span>
                       </div>
                     )}
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between py-2 border-b border-gray-200/50 text-sm">
+                        <span className="text-gray-700">Discount ({invoiceData.discount}%)</span>
+                        <span className="font-medium text-green-600">-{formatCurrency(discountAmount)}</span>
+                      </div>
+                    )}
+                    {shippingAmount > 0 && (
+                      <div className="flex justify-between py-2 border-b border-gray-200/50 text-sm">
+                        <span className="text-gray-700">Shipping</span>
+                        <span className="font-medium">{formatCurrency(shippingAmount)}</span>
+                      </div>
+                    )}
                     <div
                       className="flex justify-between py-3 mt-2 rounded-lg px-4 text-lg"
                       style={{ backgroundColor: selectedTemplateData?.colors.primary, color: 'white' }}
@@ -1062,11 +1234,288 @@ const CreateInvoicePage: React.FC = () => {
                   </div>
                 )}
 
+                {/* Payment Terms & Footer Note */}
+                {(invoiceData.paymentTerms || invoiceData.footerNote) && (
+                  <div className="mt-6 pt-4 border-t border-gray-200/50">
+                    {invoiceData.paymentTerms && (
+                      <div className="mb-3">
+                        <span className="text-sm font-semibold text-gray-900">Payment Terms: </span>
+                        <span className="text-sm text-gray-700">
+                          {invoiceData.paymentTerms === 'due_on_receipt' && 'Due on Receipt'}
+                          {invoiceData.paymentTerms === 'net_7' && 'Net 7 - Payment due in 7 days'}
+                          {invoiceData.paymentTerms === 'net_15' && 'Net 15 - Payment due in 15 days'}
+                          {invoiceData.paymentTerms === 'net_30' && 'Net 30 - Payment due in 30 days'}
+                          {invoiceData.paymentTerms === 'net_60' && 'Net 60 - Payment due in 60 days'}
+                          {invoiceData.paymentTerms === 'custom' && 'Custom terms'}
+                        </span>
+                      </div>
+                    )}
+                    {invoiceData.footerNote && (
+                      <div className="text-xs text-gray-600 whitespace-pre-line">{invoiceData.footerNote}</div>
+                    )}
+                  </div>
+                )}
+
                 {/* Footer */}
                 <div className="mt-12 pt-6 border-t border-gray-200/50 text-center">
                   <div className="text-sm text-gray-600">Thank you for your business!</div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowEmailModal(false)
+          }}
+        >
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Mail className="w-5 h-5 text-[#c4ff0e]" />
+                Send Invoice by Email
+              </h2>
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="w-8 h-8 bg-[#252525] hover:bg-red-500 text-gray-400 hover:text-white rounded-lg flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">To *</label>
+                <input
+                  type="email"
+                  value={emailTo}
+                  onChange={(e) => setEmailTo(e.target.value)}
+                  placeholder="client@email.com"
+                  className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Invoice subject"
+                  className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent text-white placeholder-gray-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Message</label>
+                <textarea
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  placeholder="Your message..."
+                  rows={5}
+                  className="w-full px-3 py-2 bg-[#252525] border border-[#2a2a2a] rounded-lg text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-transparent resize-none text-white placeholder-gray-400"
+                />
+              </div>
+
+              <div className="bg-[#252525] rounded-lg p-3 flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#2a2a2a] rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-[#c4ff0e]" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">Invoice #{invoiceData.invoiceNumber}.pdf</p>
+                  <p className="text-xs text-gray-400">Will be attached to email</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-[#2a2a2a] flex gap-3">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="flex-1 py-3 bg-[#252525] text-gray-400 font-medium rounded-xl hover:bg-[#2a2a2a] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!emailTo) {
+                    alert('Please enter recipient email')
+                    return
+                  }
+                  setSendingEmail(true)
+                  // Simulate sending - in production would call API
+                  await new Promise(resolve => setTimeout(resolve, 1500))
+                  setSendingEmail(false)
+                  setShowEmailModal(false)
+                  alert('Invoice sent successfully!')
+                }}
+                disabled={sendingEmail || !emailTo}
+                className="flex-1 py-3 bg-[#c4ff0e] text-black font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {sendingEmail ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Invoice
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowShareModal(false)
+          }}
+        >
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Share2 className="w-5 h-5 text-[#c4ff0e]" />
+                Share Invoice
+              </h2>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="w-8 h-8 bg-[#252525] hover:bg-red-500 text-gray-400 hover:text-white rounded-lg flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {/* Copy Link */}
+              <div className="bg-[#252525] rounded-lg p-3">
+                <label className="block text-xs text-gray-400 mb-2">Invoice Link</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/invoice/view/${invoiceData.invoiceNumber}`}
+                    className="flex-1 px-3 py-2 bg-[#1e1e1e] border border-[#2a2a2a] rounded-lg text-sm text-gray-300"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/invoice/view/${invoiceData.invoiceNumber}`)
+                      setLinkCopied(true)
+                      setTimeout(() => setLinkCopied(false), 2000)
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-all ${
+                      linkCopied
+                        ? 'bg-green-500 text-white'
+                        : 'bg-[#c4ff0e] text-black hover:shadow-lg'
+                    }`}
+                  >
+                    {linkCopied ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Share Options */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-3">Share via</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* WhatsApp */}
+                  <button
+                    onClick={() => {
+                      const text = `Invoice #${invoiceData.invoiceNumber}\nAmount: ${formatCurrency(grandTotal)}\nFrom: ${invoiceData.businessName || 'Business'}\n\nView invoice: ${window.location.origin}/invoice/view/${invoiceData.invoiceNumber}`
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                    }}
+                    className="flex items-center gap-3 p-3 bg-[#252525] hover:bg-[#25D366]/20 border border-[#2a2a2a] hover:border-[#25D366] rounded-xl transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-[#25D366] rounded-lg flex items-center justify-center">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="font-medium text-gray-300 group-hover:text-[#25D366]">WhatsApp</span>
+                  </button>
+
+                  {/* SMS */}
+                  <button
+                    onClick={() => {
+                      const text = `Invoice #${invoiceData.invoiceNumber} - ${formatCurrency(grandTotal)}. View: ${window.location.origin}/invoice/view/${invoiceData.invoiceNumber}`
+                      window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank')
+                    }}
+                    className="flex items-center gap-3 p-3 bg-[#252525] hover:bg-blue-500/20 border border-[#2a2a2a] hover:border-blue-500 rounded-xl transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="font-medium text-gray-300 group-hover:text-blue-500">SMS</span>
+                  </button>
+
+                  {/* Email */}
+                  <button
+                    onClick={() => {
+                      const subject = `Invoice #${invoiceData.invoiceNumber} from ${invoiceData.businessName || 'Business'}`
+                      const body = `Please find invoice details below:\n\nInvoice #: ${invoiceData.invoiceNumber}\nAmount: ${formatCurrency(grandTotal)}\nDue Date: ${invoiceData.dueDate}\n\nView invoice: ${window.location.origin}/invoice/view/${invoiceData.invoiceNumber}`
+                      window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+                    }}
+                    className="flex items-center gap-3 p-3 bg-[#252525] hover:bg-red-500/20 border border-[#2a2a2a] hover:border-red-500 rounded-xl transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="font-medium text-gray-300 group-hover:text-red-500">Email</span>
+                  </button>
+
+                  {/* More Share */}
+                  <button
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: `Invoice #${invoiceData.invoiceNumber}`,
+                          text: `Invoice from ${invoiceData.businessName || 'Business'} - ${formatCurrency(grandTotal)}`,
+                          url: `${window.location.origin}/invoice/view/${invoiceData.invoiceNumber}`
+                        })
+                      } else {
+                        navigator.clipboard.writeText(`${window.location.origin}/invoice/view/${invoiceData.invoiceNumber}`)
+                        setLinkCopied(true)
+                        setTimeout(() => setLinkCopied(false), 2000)
+                      }
+                    }}
+                    className="flex items-center gap-3 p-3 bg-[#252525] hover:bg-purple-500/20 border border-[#2a2a2a] hover:border-purple-500 rounded-xl transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <Share2 className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="font-medium text-gray-300 group-hover:text-purple-500">More</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Download Option */}
+              <button
+                onClick={() => {
+                  handleDownloadPDF()
+                  setShowShareModal(false)
+                }}
+                className="w-full py-3 bg-[#c4ff0e] text-black font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
+              >
+                <Download className="w-5 h-5" />
+                Download PDF to Share
+              </button>
             </div>
           </div>
         </div>

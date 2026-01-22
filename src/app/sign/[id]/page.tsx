@@ -28,12 +28,13 @@ import {
   Phone,
   Building,
   AlignLeft,
-  Circle,
   ChevronDown,
   Strikethrough,
   Stamp,
   Bold,
   Italic,
+  Camera,
+  Upload,
   Palette,
   Move,
   Maximize
@@ -67,6 +68,7 @@ interface SignatureFieldInfo {
   label: string
   pageNumber?: number
   page?: number // Support both field names
+  fontSize?: number // Font size set by document creator
 }
 
 interface DocumentData {
@@ -113,13 +115,135 @@ export default function SignDocumentPage() {
   const [isComplete, setIsComplete] = useState(false)
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null)
   const [showTextInput, setShowTextInput] = useState(false)
+  const [editingFieldId, setEditingFieldId] = useState<string | null>(null)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showSelection, setShowSelection] = useState(false)
   const [showStampPicker, setShowStampPicker] = useState(false)
+  const [showStrikethroughPicker, setShowStrikethroughPicker] = useState(false)
   const [textInputValue, setTextInputValue] = useState('')
+  const [stampImage, setStampImage] = useState<string | null>(null)
+  const [showCamera, setShowCamera] = useState(false)
+  const [processingStamp, setProcessingStamp] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const stampFileInputRef = useRef<HTMLInputElement>(null)
 
   // Stamp options
   const stampOptions = ['APPROVED', 'DRAFT', 'CONFIDENTIAL', 'REVIEWED', 'FINAL', 'COPY']
+
+  // Remove background from stamp image
+  const removeBackground = (imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { resolve(imageData); return }
+
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx.drawImage(img, 0, 0)
+
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const data = imgData.data
+
+        // Get background color from corners (average of corner pixels)
+        const corners = [
+          [0, 0], [canvas.width - 1, 0],
+          [0, canvas.height - 1], [canvas.width - 1, canvas.height - 1]
+        ]
+        let bgR = 0, bgG = 0, bgB = 0
+        corners.forEach(([x, y]) => {
+          const idx = (y * canvas.width + x) * 4
+          bgR += data[idx]
+          bgG += data[idx + 1]
+          bgB += data[idx + 2]
+        })
+        bgR = Math.round(bgR / 4)
+        bgG = Math.round(bgG / 4)
+        bgB = Math.round(bgB / 4)
+
+        // Remove pixels similar to background
+        const threshold = 60
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i + 1], b = data[i + 2]
+          const diff = Math.abs(r - bgR) + Math.abs(g - bgG) + Math.abs(b - bgB)
+          if (diff < threshold) {
+            data[i + 3] = 0 // Make transparent
+          }
+        }
+
+        ctx.putImageData(imgData, 0, 0)
+        resolve(canvas.toDataURL('image/png'))
+      }
+      img.src = imageData
+    })
+  }
+
+  // Handle stamp file upload
+  const handleStampUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setProcessingStamp(true)
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+      const imageData = event.target?.result as string
+      const processedImage = await removeBackground(imageData)
+      setStampImage(processedImage)
+      setProcessingStamp(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Start camera for stamp capture
+  const startCamera = async () => {
+    setShowCamera(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+    } catch (err) {
+      console.error('Camera error:', err)
+      setShowCamera(false)
+    }
+  }
+
+  // Capture stamp from camera
+  const captureStamp = async () => {
+    if (!videoRef.current) return
+
+    setProcessingStamp(true)
+    const canvas = document.createElement('canvas')
+    canvas.width = videoRef.current.videoWidth
+    canvas.height = videoRef.current.videoHeight
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.drawImage(videoRef.current, 0, 0)
+      const imageData = canvas.toDataURL('image/png')
+      const processedImage = await removeBackground(imageData)
+      setStampImage(processedImage)
+    }
+
+    // Stop camera
+    const stream = videoRef.current.srcObject as MediaStream
+    stream?.getTracks().forEach(track => track.stop())
+    setShowCamera(false)
+    setProcessingStamp(false)
+  }
+
+  // Save stamp image
+  const handleStampImageSave = () => {
+    if (activeFieldId && stampImage) {
+      setFieldValues(prev => ({ ...prev, [activeFieldId]: stampImage }))
+      setSignedFields(prev => new Set([...Array.from(prev), activeFieldId]))
+    }
+    setShowStampPicker(false)
+    setActiveFieldId(null)
+    setStampImage(null)
+    setShowCamera(false)
+  }
 
   // Field editing state (position, size, formatting)
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
@@ -252,7 +376,7 @@ export default function SignDocumentPage() {
   const isSignatureType = (type: string) => type === 'signature' || type === 'initials'
   const isTextType = (type: string) => ['text', 'name', 'email', 'phone', 'company', 'multiline'].includes(type)
   const isCheckboxType = (type: string) => type === 'checkbox'
-  const isRadioType = (type: string) => type === 'radio'
+  // Radio type removed
   const isDateType = (type: string) => type === 'date'
   const isSelectionType = (type: string) => type === 'selection'
   const isStrikethroughType = (type: string) => type === 'strikethrough'
@@ -270,7 +394,6 @@ export default function SignDocumentPage() {
       multiline: 'Enter text',
       date: 'Select date',
       checkbox: 'Check',
-      radio: 'Select',
       selection: 'Select option',
       strikethrough: 'Strikethrough',
       stamp: 'Add stamp'
@@ -288,13 +411,14 @@ export default function SignDocumentPage() {
     if (isSignatureType(field.type)) {
       setShowSignaturePad(true)
     } else if (isTextType(field.type)) {
-      setTextInputValue(fieldValues[fieldId] || '')
-      setShowTextInput(true)
+      // Edit directly on document
+      setEditingFieldId(fieldId)
+      setFieldValues(prev => ({ ...prev, [fieldId]: prev[fieldId] || '' }))
     } else if (isDateType(field.type)) {
       setTextInputValue(fieldValues[fieldId] || '')
       setShowDatePicker(true)
-    } else if (isCheckboxType(field.type) || isRadioType(field.type)) {
-      // Toggle checkbox/radio directly
+    } else if (isCheckboxType(field.type)) {
+      // Toggle checkbox directly
       const newValue = fieldValues[fieldId] === 'checked' ? '' : 'checked'
       setFieldValues(prev => ({ ...prev, [fieldId]: newValue }))
       if (newValue === 'checked') {
@@ -311,19 +435,8 @@ export default function SignDocumentPage() {
       setTextInputValue(fieldValues[fieldId] || '')
       setShowSelection(true)
     } else if (isStrikethroughType(field.type)) {
-      // Toggle strikethrough directly
-      const newValue = fieldValues[fieldId] === 'strikethrough' ? '' : 'strikethrough'
-      setFieldValues(prev => ({ ...prev, [fieldId]: newValue }))
-      if (newValue === 'strikethrough') {
-        setSignedFields(prev => new Set([...Array.from(prev), fieldId]))
-      } else {
-        setSignedFields(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(fieldId)
-          return newSet
-        })
-      }
-      setActiveFieldId(null)
+      // Show strikethrough color picker
+      setShowStrikethroughPicker(true)
     } else if (isStampType(field.type)) {
       setShowStampPicker(true)
     }
@@ -338,6 +451,21 @@ export default function SignDocumentPage() {
     setShowDatePicker(false)
     setActiveFieldId(null)
     setTextInputValue('')
+  }
+
+  // Save inline text editing
+  const handleInlineTextSave = (fieldId: string) => {
+    const value = fieldValues[fieldId]
+    if (value && value.trim()) {
+      setSignedFields(prev => new Set([...Array.from(prev), fieldId]))
+    }
+    setEditingFieldId(null)
+    setActiveFieldId(null)
+  }
+
+  // Handle inline text change
+  const handleInlineTextChange = (fieldId: string, value: string) => {
+    setFieldValues(prev => ({ ...prev, [fieldId]: value }))
   }
 
   const handleDateSave = () => {
@@ -378,8 +506,9 @@ export default function SignDocumentPage() {
   }
 
   // Get field formatting
-  const getFieldFormatting = (fieldId: string) => {
-    return fieldFormatting[fieldId] || { fontSize: 14, bold: false, italic: false, color: '#000000' }
+  const getFieldFormatting = (fieldId: string, field?: SignatureFieldInfo) => {
+    const defaultFontSize = field?.fontSize || 14
+    return fieldFormatting[fieldId] || { fontSize: defaultFontSize, bold: false, italic: false, color: '#000000' }
   }
 
   // Handle drag start
@@ -450,9 +579,10 @@ export default function SignDocumentPage() {
 
   // Update field formatting
   const updateFieldFormatting = (fieldId: string, updates: Partial<{ fontSize: number; bold: boolean; italic: boolean; color: string }>) => {
+    const field = myFields.find(f => f.id === fieldId)
     setFieldFormatting(prev => ({
       ...prev,
-      [fieldId]: { ...getFieldFormatting(fieldId), ...updates }
+      [fieldId]: { ...getFieldFormatting(fieldId, field), ...updates }
     }))
   }
 
@@ -588,7 +718,6 @@ export default function SignDocumentPage() {
                       multiline: <AlignLeft className="w-5 h-5" />,
                       date: <Calendar className="w-5 h-5" />,
                       checkbox: <CheckSquare className="w-5 h-5" />,
-                      radio: <Circle className="w-5 h-5" />,
                       selection: <ChevronDown className="w-5 h-5" />,
                       strikethrough: <Strikethrough className="w-5 h-5" />,
                       stamp: <Stamp className="w-5 h-5" />
@@ -607,7 +736,6 @@ export default function SignDocumentPage() {
                       multiline: 'Multiline',
                       date: 'Date',
                       checkbox: 'Checkbox',
-                      radio: 'Radio',
                       selection: 'Selection',
                       strikethrough: 'Strikethrough',
                       stamp: 'Stamp'
@@ -694,7 +822,6 @@ export default function SignDocumentPage() {
                         multiline: <AlignLeft className="w-4 h-4" />,
                         date: <Calendar className="w-4 h-4" />,
                         checkbox: <CheckSquare className="w-4 h-4" />,
-                        radio: <Circle className="w-4 h-4" />,
                         selection: <ChevronDown className="w-4 h-4" />,
                         strikethrough: <Strikethrough className="w-4 h-4" />,
                         stamp: <Stamp className="w-4 h-4" />
@@ -707,7 +834,6 @@ export default function SignDocumentPage() {
                     const isSigType = isSignatureType(field.type)
                     const isTxtType = isTextType(field.type)
                     const isChkType = isCheckboxType(field.type)
-                    const isRadType = isRadioType(field.type)
                     const isDtType = isDateType(field.type)
                     const isSelType = isSelectionType(field.type)
                     const isStrkType = isStrikethroughType(field.type)
@@ -715,7 +841,8 @@ export default function SignDocumentPage() {
                     const hasValue = signedFields.has(field.id)
                     const fieldValue = fieldValues[field.id]
                     const isSelected = selectedFieldId === field.id
-                    const formatting = getFieldFormatting(field.id)
+                    const isEditing = editingFieldId === field.id
+                    const formatting = getFieldFormatting(field.id, field)
                     const canFormat = isTxtType || isDtType || isSelType
 
                     // Text style based on formatting
@@ -738,20 +865,53 @@ export default function SignDocumentPage() {
                           }
                         }}
                         onMouseDown={(e) => hasValue && handleDragStart(e, field.id)}
-                        className={'absolute border-2 rounded-lg transition-all z-10 group ' +
-                          (hasValue
-                            ? (isSelected ? 'border-blue-500 bg-white/95 ring-2 ring-blue-300 cursor-move' : 'border-green-500 bg-green-50/90 cursor-move')
-                            : 'border-dashed border-[#c4ff0e] bg-[#c4ff0e]/20 hover:bg-[#c4ff0e]/20 animate-pulse cursor-pointer'
+                        className={'absolute border-2 rounded transition-all z-10 group ' +
+                          (isEditing
+                            ? 'border-blue-500 ring-2 ring-blue-400'
+                            : hasValue
+                              ? (isSelected ? 'border-blue-500 ring-2 ring-blue-300 cursor-move' : 'border-transparent cursor-move hover:border-blue-400')
+                              : 'border-dashed border-[#c4ff0e] bg-[#c4ff0e]/20 hover:bg-[#c4ff0e]/30 animate-pulse cursor-pointer'
                           )}
+                        data-editing={isEditing}
                         style={{
                           left: leftCalc,
                           top: originalPos.top + ((customPos.y - field.y) * scale),
                           width: customPos.width * scale,
                           height: customPos.height * scale,
-                          zIndex: isSelected ? 100 : 10
+                          zIndex: isEditing ? 200 : (isSelected ? 100 : 10),
+                          backgroundColor: isStrkType ? 'transparent' : ((isEditing || hasValue) ? '#ffffff' : undefined)
                         }}
                       >
-                        {hasValue ? (
+                        {/* Inline editing for text fields */}
+                        {isEditing && isTxtType ? (
+                          <input
+                            type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
+                            value={fieldValue || ''}
+                            onChange={(e) => handleInlineTextChange(field.id, e.target.value)}
+                            onBlur={() => handleInlineTextSave(field.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                handleInlineTextSave(field.id)
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingFieldId(null)
+                                setActiveFieldId(null)
+                              }
+                            }}
+                            placeholder={field.type === 'name' ? 'Type name...' : field.type === 'email' ? 'Type email...' : field.type === 'phone' ? 'Type phone...' : 'Type here...'}
+                            className="w-full h-full px-2 border-none outline-none rounded"
+                            style={{
+                              color: '#000000',
+                              backgroundColor: '#ffffff',
+                              fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                              fontWeight: formatting.bold ? 'bold' : 'normal',
+                              fontStyle: formatting.italic ? 'italic' : 'normal'
+                            }}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : hasValue ? (
                           <>
                             {/* Signature/Initials - show signature image */}
                             {isSigType && signature && (
@@ -759,20 +919,24 @@ export default function SignDocumentPage() {
                             )}
                             {/* Text fields - show the entered value */}
                             {isTxtType && fieldValue && (
-                              <div className="w-full h-full flex items-center px-2 py-1">
-                                <span className="w-full text-left break-words leading-tight" style={{
-                                  ...textStyle,
-                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px`,
-                                  lineHeight: '1.2'
+                              <div className="w-full h-full flex items-center px-2" onClick={() => setEditingFieldId(field.id)}>
+                                <span style={{
+                                  color: '#000000',
+                                  fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                                  fontWeight: formatting.bold ? 'bold' : 'normal',
+                                  fontStyle: formatting.italic ? 'italic' : 'normal',
+                                  lineHeight: '1.2',
+                                  wordBreak: 'break-word'
                                 }}>{fieldValue}</span>
                               </div>
                             )}
                             {/* Date field - show the selected date */}
                             {isDtType && fieldValue && (
-                              <div className="w-full h-full flex items-center px-2 py-1">
-                                <span className="w-full text-left" style={{
-                                  ...textStyle,
-                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px`
+                              <div className="w-full h-full flex items-center px-1">
+                                <span className="w-full text-left text-black" style={{
+                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.7))}px`,
+                                  fontWeight: formatting.bold ? 'bold' : 'normal',
+                                  fontStyle: formatting.italic ? 'italic' : 'normal'
                                 }}>{new Date(fieldValue).toLocaleDateString()}</span>
                               </div>
                             )}
@@ -782,31 +946,30 @@ export default function SignDocumentPage() {
                                 <CheckSquare className="w-5 h-5 text-green-600" />
                               </div>
                             )}
-                            {/* Radio - show filled circle */}
-                            {isRadType && fieldValue === 'checked' && (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <div className="w-4 h-4 rounded-full bg-green-600 border-2 border-green-600" />
-                              </div>
-                            )}
                             {/* Selection - show selected value */}
                             {isSelType && fieldValue && (
-                              <div className="w-full h-full flex items-center px-2 py-1">
-                                <span className="w-full text-left" style={{
-                                  ...textStyle,
-                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px`
+                              <div className="w-full h-full flex items-center px-1">
+                                <span className="w-full text-left text-black" style={{
+                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.7))}px`,
+                                  fontWeight: formatting.bold ? 'bold' : 'normal',
+                                  fontStyle: formatting.italic ? 'italic' : 'normal'
                                 }}>{fieldValue}</span>
                               </div>
                             )}
-                            {/* Strikethrough - show line */}
-                            {isStrkType && fieldValue === 'strikethrough' && (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <div className="w-full h-0.5 bg-red-500" />
+                            {/* Strikethrough - horizontal line through text */}
+                            {isStrkType && fieldValue && (
+                              <div className="w-full h-full flex items-center justify-center pointer-events-none">
+                                <div className="w-full h-[3px] rounded shadow-sm" style={{ backgroundColor: fieldValue.startsWith('#') ? fieldValue : '#dc2626' }} />
                               </div>
                             )}
-                            {/* Stamp - show stamp text */}
+                            {/* Stamp - show stamp image or text */}
                             {isStmpType && fieldValue && (
                               <div className="w-full h-full flex items-center justify-center p-1">
-                                <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${formatting.fontSize}px` }}>{fieldValue}</span>
+                                {fieldValue.startsWith('data:image') ? (
+                                  <img src={fieldValue} alt="Stamp" className="max-w-full max-h-full object-contain" />
+                                ) : (
+                                  <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${formatting.fontSize}px` }}>{fieldValue}</span>
+                                )}
                               </div>
                             )}
 
@@ -885,7 +1048,7 @@ export default function SignDocumentPage() {
                           </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-[#c4ff0e] font-medium text-sm flex items-center gap-1">{fieldIcon}{(isChkType || isRadType || isStrkType) ? 'Click' : 'Click to fill'}</span>
+                            <span className="text-[#c4ff0e] font-medium text-sm flex items-center gap-1">{fieldIcon}{(isChkType || isStrkType) ? 'Click' : 'Click to fill'}</span>
                           </div>
                         )}
                         {!hasValue && (<div className="absolute -top-6 left-0"><span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-white whitespace-nowrap animate-bounce">{fieldLabel}</span></div>)}
@@ -917,30 +1080,57 @@ export default function SignDocumentPage() {
         </div>
       )}
 
-      {/* Text Input Modal */}
+      {/* Text Input Modal - Pad Style */}
       {showTextInput && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-white">
                   {(() => {
                     const field = myFields.find(f => f.id === activeFieldId)
-                    return field ? getFieldLabel(field.type).replace('Enter ', '') : 'Enter Value'
+                    const labels: Record<string, string> = {
+                      name: 'Enter Your Name',
+                      email: 'Enter Your Email',
+                      phone: 'Enter Phone Number',
+                      company: 'Enter Company Name',
+                      text: 'Enter Text',
+                      multiline: 'Enter Text'
+                    }
+                    return labels[field?.type || 'text'] || 'Enter Value'
                   })()}
                 </h3>
                 <button onClick={() => { setShowTextInput(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
               </div>
+
+              {/* Preview Area */}
+              <div className="bg-white rounded-xl p-6 mb-4 min-h-[120px] flex items-center justify-center border-2 border-dashed border-gray-300">
+                {textInputValue ? (
+                  <span className="text-2xl text-black font-medium">{textInputValue}</span>
+                ) : (
+                  <span className="text-gray-400 text-lg">Your text will appear here...</span>
+                )}
+              </div>
+
+              {/* Input Area */}
               <div className="space-y-4">
                 {(() => {
                   const field = myFields.find(f => f.id === activeFieldId)
                   const isMultiline = field?.type === 'multiline'
+                  const placeholders: Record<string, string> = {
+                    name: 'Type your full name...',
+                    email: 'Type your email address...',
+                    phone: 'Type your phone number...',
+                    company: 'Type company name...',
+                    text: 'Type here...',
+                    multiline: 'Type your text here...'
+                  }
                   return isMultiline ? (
                     <textarea
                       value={textInputValue}
                       onChange={(e) => setTextInputValue(e.target.value)}
-                      placeholder={`Enter ${field?.type || 'text'}...`}
-                      className="w-full px-4 py-3 bg-[#252525] border border-[#3a3a3a] rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e] resize-none"
+                      placeholder={placeholders[field?.type || 'text'] || 'Type here...'}
+                      className="w-full px-4 py-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl text-white text-lg placeholder-gray-500 focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e] resize-none"
                       rows={4}
                       autoFocus
                     />
@@ -949,26 +1139,29 @@ export default function SignDocumentPage() {
                       type={field?.type === 'email' ? 'email' : field?.type === 'phone' ? 'tel' : 'text'}
                       value={textInputValue}
                       onChange={(e) => setTextInputValue(e.target.value)}
-                      placeholder={`Enter ${field?.type || 'text'}...`}
-                      className="w-full px-4 py-3 bg-[#252525] border border-[#3a3a3a] rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                      placeholder={placeholders[field?.type || 'text'] || 'Type here...'}
+                      className="w-full px-4 py-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl text-white text-lg placeholder-gray-500 focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
                       autoFocus
                       onKeyDown={(e) => { if (e.key === 'Enter') handleTextInputSave() }}
                     />
                   )
                 })()}
+
+                <p className="text-sm text-gray-400 text-center">After saving, you can drag to move, resize, and format the text on the document</p>
+
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setShowTextInput(false); setActiveFieldId(null); setTextInputValue('') }}
-                    className="flex-1 py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors"
+                    className="flex-1 py-4 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors text-lg"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleTextInputSave}
                     disabled={!textInputValue.trim()}
-                    className="flex-1 py-3 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 py-4 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
-                    Save
+                    Done
                   </button>
                 </div>
               </div>
@@ -977,36 +1170,49 @@ export default function SignDocumentPage() {
         </div>
       )}
 
-      {/* Date Picker Modal */}
+      {/* Date Picker Modal - Pad Style */}
       {showDatePicker && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-white">Select Date</h3>
                 <button onClick={() => { setShowDatePicker(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
               </div>
+
+              {/* Preview Area */}
+              <div className="bg-white rounded-xl p-6 mb-4 min-h-[120px] flex items-center justify-center border-2 border-dashed border-gray-300">
+                {textInputValue ? (
+                  <span className="text-2xl text-black font-medium">{new Date(textInputValue).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                ) : (
+                  <span className="text-gray-400 text-lg">Selected date will appear here...</span>
+                )}
+              </div>
+
               <div className="space-y-4">
                 <input
                   type="date"
                   value={textInputValue}
                   onChange={(e) => setTextInputValue(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#252525] border border-[#3a3a3a] rounded-xl text-white focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                  className="w-full px-4 py-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl text-white text-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
                   autoFocus
                 />
+
+                <p className="text-sm text-gray-400 text-center">After saving, you can drag to move, resize, and format the date on the document</p>
+
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setShowDatePicker(false); setActiveFieldId(null); setTextInputValue('') }}
-                    className="flex-1 py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors"
+                    className="flex-1 py-4 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors text-lg"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleDateSave}
                     disabled={!textInputValue}
-                    className="flex-1 py-3 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 py-4 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
-                    Save
+                    Done
                   </button>
                 </div>
               </div>
@@ -1060,34 +1266,205 @@ export default function SignDocumentPage() {
         </div>
       )}
 
-      {/* Stamp Picker Modal */}
-      {showStampPicker && activeFieldId && (
+      {/* Strikethrough Color Picker Modal */}
+      {showStrikethroughPicker && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Select Stamp</h3>
-                <button onClick={() => { setShowStampPicker(false); setActiveFieldId(null) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <h3 className="text-xl font-semibold text-white">Strikethrough</h3>
+                <button onClick={() => { setShowStrikethroughPicker(false); setActiveFieldId(null) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {stampOptions.map((stamp) => (
+
+              {/* Preview */}
+              <div className="bg-white rounded-xl p-4 mb-4 relative">
+                <p className="text-gray-600 text-center">Sample Text Preview</p>
+                <div
+                  className="absolute inset-x-4 h-[3px] top-1/2 -translate-y-1/2 rounded"
+                  style={{ backgroundColor: fieldValues[activeFieldId]?.startsWith('#') ? fieldValues[activeFieldId] : '#dc2626' }}
+                />
+              </div>
+
+              {/* Color Options */}
+              <p className="text-sm text-gray-400 mb-2">Select line color:</p>
+              <div className="flex justify-center gap-3 mb-4">
+                {[
+                  { color: '#dc2626', name: 'Red' },
+                  { color: '#000000', name: 'Black' },
+                  { color: '#2563eb', name: 'Blue' },
+                  { color: '#16a34a', name: 'Green' },
+                  { color: '#9333ea', name: 'Purple' }
+                ].map(({ color, name }) => (
                   <button
-                    key={stamp}
-                    onClick={() => handleStampSave(stamp)}
-                    className="p-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl hover:border-[#c4ff0e] transition-colors group"
-                  >
-                    <span className="text-red-500 font-bold text-sm border-2 border-red-500 px-3 py-1 rounded transform inline-block group-hover:scale-105 transition-transform">{stamp}</span>
-                  </button>
+                    key={color}
+                    onClick={() => setFieldValues(prev => ({ ...prev, [activeFieldId!]: color }))}
+                    className={`w-10 h-10 rounded-full border-4 transition-transform hover:scale-110 ${fieldValues[activeFieldId] === color ? 'border-white scale-110' : 'border-transparent'}`}
+                    style={{ backgroundColor: color }}
+                    title={name}
+                  />
                 ))}
               </div>
-              <div className="mt-4">
+
+              {/* Actions */}
+              <div className="flex gap-3">
                 <button
-                  onClick={() => { setShowStampPicker(false); setActiveFieldId(null) }}
-                  className="w-full py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors"
+                  onClick={() => {
+                    setFieldValues(prev => { const n = {...prev}; delete n[activeFieldId!]; return n })
+                    setSignedFields(prev => { const s = new Set(prev); s.delete(activeFieldId!); return s })
+                    setShowStrikethroughPicker(false)
+                    setActiveFieldId(null)
+                  }}
+                  className="flex-1 py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors"
                 >
-                  Cancel
+                  Remove
+                </button>
+                <button
+                  onClick={() => {
+                    if (!fieldValues[activeFieldId]) {
+                      setFieldValues(prev => ({ ...prev, [activeFieldId!]: '#dc2626' }))
+                    }
+                    setSignedFields(prev => new Set([...Array.from(prev), activeFieldId!]))
+                    setShowStrikethroughPicker(false)
+                    setActiveFieldId(null)
+                  }}
+                  className="flex-1 py-3 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors"
+                >
+                  Apply
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stamp Picker Modal */}
+      {showStampPicker && activeFieldId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-white">Add Stamp</h3>
+                <button onClick={() => { setShowStampPicker(false); setActiveFieldId(null); setStampImage(null); setShowCamera(false) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+              </div>
+
+              {/* Upload & Camera Options */}
+              <div className="mb-6">
+                <p className="text-sm text-gray-400 mb-3">Upload or capture your stamp</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => stampFileInputRef.current?.click()}
+                    className="flex flex-col items-center gap-2 p-4 bg-[#252525] border-2 border-dashed border-[#3a3a3a] rounded-xl hover:border-[#c4ff0e] transition-colors"
+                  >
+                    <Upload className="w-8 h-8 text-[#c4ff0e]" />
+                    <span className="text-sm text-gray-300">Upload Image</span>
+                  </button>
+                  <button
+                    onClick={startCamera}
+                    className="flex flex-col items-center gap-2 p-4 bg-[#252525] border-2 border-dashed border-[#3a3a3a] rounded-xl hover:border-[#c4ff0e] transition-colors"
+                  >
+                    <Camera className="w-8 h-8 text-[#c4ff0e]" />
+                    <span className="text-sm text-gray-300">Take Photo</span>
+                  </button>
+                </div>
+                <input
+                  ref={stampFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleStampUpload}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Camera View */}
+              {showCamera && (
+                <div className="mb-6">
+                  <div className="relative bg-black rounded-xl overflow-hidden">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+                      <button
+                        onClick={captureStamp}
+                        className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium hover:bg-[#b3e60d]"
+                      >
+                        Capture
+                      </button>
+                      <button
+                        onClick={() => {
+                          const stream = videoRef.current?.srcObject as MediaStream
+                          stream?.getTracks().forEach(track => track.stop())
+                          setShowCamera(false)
+                        }}
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Processing Indicator */}
+              {processingStamp && (
+                <div className="mb-6 flex items-center justify-center gap-2 p-4 bg-[#252525] rounded-xl">
+                  <Loader2 className="w-5 h-5 animate-spin text-[#c4ff0e]" />
+                  <span className="text-gray-300">Removing background...</span>
+                </div>
+              )}
+
+              {/* Stamp Preview */}
+              {stampImage && !processingStamp && (
+                <div className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Preview (background removed)</p>
+                  <div className="bg-white rounded-xl p-4 flex items-center justify-center" style={{ backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', backgroundSize: '20px 20px', backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px' }}>
+                    <img src={stampImage} alt="Stamp preview" className="max-h-32 object-contain" />
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => setStampImage(null)}
+                      className="flex-1 py-2 bg-[#252525] text-gray-300 rounded-lg hover:bg-[#3a3a3a]"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      onClick={handleStampImageSave}
+                      className="flex-1 py-2 bg-[#c4ff0e] text-black rounded-lg font-semibold hover:bg-[#b3e60d]"
+                    >
+                      Use This Stamp
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Text Stamp Options */}
+              {!stampImage && !showCamera && (
+                <>
+                  <div className="border-t border-[#3a3a3a] my-4 pt-4">
+                    <p className="text-sm text-gray-400 mb-3">Or choose a text stamp</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {stampOptions.map((stamp) => (
+                        <button
+                          key={stamp}
+                          onClick={() => handleStampSave(stamp)}
+                          className="p-3 bg-[#252525] border border-[#3a3a3a] rounded-lg hover:border-[#c4ff0e] transition-colors"
+                        >
+                          <span className="text-red-500 font-bold text-xs border border-red-500 px-2 py-0.5 rounded">{stamp}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <button
+                onClick={() => { setShowStampPicker(false); setActiveFieldId(null); setStampImage(null); setShowCamera(false) }}
+                className="w-full py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors mt-4"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

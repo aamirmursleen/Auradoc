@@ -9,12 +9,9 @@ import {
   PenTool,
   Type,
   AtSign,
-  Phone,
   Building2,
   Calendar,
   CheckSquare,
-  List,
-  AlignLeft,
   User,
   ZoomIn,
   ZoomOut,
@@ -36,13 +33,12 @@ import {
   AlertCircle,
   Plus,
   Minus,
-  Circle,
   Stamp,
-  Strikethrough,
   ChevronDown,
   Mail,
   Eye,
-  Download
+  Download,
+  Camera
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { incrementSignCount } from '@/lib/usageLimit'
@@ -80,30 +76,32 @@ const SignatureCanvas = dynamic(() => import('@/components/signature/SignatureCa
   )
 })
 
-// Field Types - Left Column
-const LEFT_COLUMN_FIELDS = [
+// Field Types - Signature Fields
+const SIGNATURE_FIELDS = [
   { id: 'signature', name: 'Signature', icon: PenTool },
-  { id: 'name', name: 'Name', icon: User },
-  { id: 'phone', name: 'Phone', icon: Phone },
-  { id: 'text', name: 'Text', icon: Type },
-  { id: 'checkbox', name: 'Checkbox', icon: CheckSquare },
-  { id: 'selection', name: 'Selection', icon: List },
-  { id: 'strikethrough', name: 'Strikethrough', icon: Strikethrough },
+  { id: 'initials', name: 'Initial', icon: FileSignature },
+  { id: 'stamp', name: 'Stamp', icon: Stamp },
+  { id: 'date', name: 'Date Signed', icon: Calendar },
 ]
 
-// Field Types - Right Column
-const RIGHT_COLUMN_FIELDS = [
-  { id: 'initials', name: 'Initials', icon: FileSignature },
-  { id: 'email', name: 'Email', icon: AtSign },
+// Field Types - Contact/Identity Fields
+const CONTACT_FIELDS = [
+  { id: 'name', name: 'Name', icon: User },
+  { id: 'firstName', name: 'First Name', icon: User },
+  { id: 'lastName', name: 'Last Name', icon: User },
+  { id: 'email', name: 'Email Address', icon: AtSign },
   { id: 'company', name: 'Company', icon: Building2 },
-  { id: 'multiline', name: 'Multiline', icon: AlignLeft },
-  { id: 'radio', name: 'Radio', icon: Circle },
-  { id: 'date', name: 'Date', icon: Calendar },
-  { id: 'stamp', name: 'Stamp', icon: Stamp },
+  { id: 'title', name: 'Title', icon: Type },
+]
+
+// Field Types - Other Fields
+const OTHER_FIELDS = [
+  { id: 'text', name: 'Text', icon: Type },
+  { id: 'checkbox', name: 'Checkbox', icon: CheckSquare },
 ]
 
 // All field types combined
-const ALL_FIELD_TYPES = [...LEFT_COLUMN_FIELDS, ...RIGHT_COLUMN_FIELDS]
+const ALL_FIELD_TYPES = [...SIGNATURE_FIELDS, ...CONTACT_FIELDS, ...OTHER_FIELDS]
 
 // Signer colors
 const SIGNER_COLORS = [
@@ -141,6 +139,8 @@ interface PlacedField {
   tip: string
   label: string
   value?: string // For storing user input (text, signature image, etc.)
+  fontSize?: number // Font size for text fields
+  options?: string[] // For selection field dropdown options
 }
 
 interface TemplateProperties {
@@ -183,6 +183,17 @@ const SignDocumentPage: React.FC = () => {
   const [draggedFieldType, setDraggedFieldType] = useState<string | null>(null)
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null) // For inline editing
   const [signatureModalFieldId, setSignatureModalFieldId] = useState<string | null>(null) // For signature modal
+  const [signatureTab, setSignatureTab] = useState<'style' | 'draw' | 'upload'>('style')
+  const [signatureFullName, setSignatureFullName] = useState('')
+  const [signatureInitials, setSignatureInitials] = useState('')
+  const [signatureStyle, setSignatureStyle] = useState(0)
+  const [stampImage, setStampImage] = useState<string | null>(null)
+  const [stampModalFieldId, setStampModalFieldId] = useState<string | null>(null)
+  const [showStampCamera, setShowStampCamera] = useState(false)
+  const [processingStamp, setProcessingStamp] = useState(false)
+  const stampVideoRef = useRef<HTMLVideoElement>(null)
+  const stampFileInputRef = useRef<HTMLInputElement>(null)
+  const signatureFileInputRef = useRef<HTMLInputElement>(null)
 
   // UI state
   const [zoom, setZoom] = useState(1)
@@ -196,6 +207,7 @@ const SignDocumentPage: React.FC = () => {
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [resizeDirection, setResizeDirection] = useState<string>('se')
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isSending, setIsSending] = useState(false)
@@ -350,15 +362,16 @@ const SignDocumentPage: React.FC = () => {
       type: draggedFieldType,
       x: Math.max(0, x - 75),
       y: Math.max(0, y - 20),
-      width: draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' || draggedFieldType === 'radio' ? 30 : 150,
-      height: draggedFieldType === 'signature' ? 60 : draggedFieldType === 'multiline' ? 80 : draggedFieldType === 'checkbox' || draggedFieldType === 'radio' ? 30 : 40,
+      width: draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : 150,
+      height: draggedFieldType === 'signature' ? 60 : draggedFieldType === 'checkbox' ? 30 : 40,
       page: currentPage,
       signerId: activeSigner.id,
       signerColor: activeSigner.color,
       mandatory: true,
       placeholder: '',
       tip: '',
-      label: fieldType.name
+      label: fieldType.name,
+      value: undefined
     }
 
     setPlacedFields(prev => [...prev, newField])
@@ -406,7 +419,7 @@ const SignDocumentPage: React.FC = () => {
   }, [isDragging, selectedFieldId, zoom])
 
   // Handle resize start
-  const handleResizeStart = useCallback((e: React.MouseEvent, fieldId: string) => {
+  const handleResizeStart = useCallback((e: React.MouseEvent, fieldId: string, direction: string = 'se') => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -415,8 +428,10 @@ const SignDocumentPage: React.FC = () => {
 
     setSelectedFieldId(fieldId)
     setIsResizing(true)
+    setResizeDirection(direction)
     dragStartPos.current = { x: e.clientX, y: e.clientY }
     resizeStartSize.current = { width: field.width, height: field.height }
+    fieldStartPos.current = { x: field.x, y: field.y }
   }, [placedFields])
 
   // Handle resize move
@@ -426,16 +441,33 @@ const SignDocumentPage: React.FC = () => {
     const deltaX = (e.clientX - dragStartPos.current.x) / zoom
     const deltaY = (e.clientY - dragStartPos.current.y) / zoom
 
-    setPlacedFields(prev => prev.map(field =>
-      field.id === selectedFieldId
-        ? {
-            ...field,
-            width: Math.max(30, resizeStartSize.current.width + deltaX),
-            height: Math.max(20, resizeStartSize.current.height + deltaY)
-          }
-        : field
-    ))
-  }, [isResizing, selectedFieldId, zoom])
+    setPlacedFields(prev => prev.map(field => {
+      if (field.id !== selectedFieldId) return field
+
+      let newWidth = resizeStartSize.current.width
+      let newHeight = resizeStartSize.current.height
+      let newX = fieldStartPos.current.x
+      let newY = fieldStartPos.current.y
+
+      // Handle different resize directions
+      if (resizeDirection.includes('e')) {
+        newWidth = Math.max(50, resizeStartSize.current.width + deltaX)
+      }
+      if (resizeDirection.includes('w')) {
+        newWidth = Math.max(50, resizeStartSize.current.width - deltaX)
+        newX = fieldStartPos.current.x + deltaX
+      }
+      if (resizeDirection.includes('s')) {
+        newHeight = Math.max(30, resizeStartSize.current.height + deltaY)
+      }
+      if (resizeDirection.includes('n')) {
+        newHeight = Math.max(30, resizeStartSize.current.height - deltaY)
+        newY = fieldStartPos.current.y + deltaY
+      }
+
+      return { ...field, width: newWidth, height: newHeight, x: newX, y: newY }
+    }))
+  }, [isResizing, selectedFieldId, zoom, resizeDirection])
 
   // Handle mouse up
   const handleMouseUp = useCallback(() => {
@@ -484,9 +516,98 @@ const SignDocumentPage: React.FC = () => {
     ))
   }
 
+  // Update field font size
+  const updateFieldFontSize = (fieldId: string, fontSize: number) => {
+    setPlacedFields(prev => prev.map(field =>
+      field.id === fieldId ? { ...field, fontSize } : field
+    ))
+  }
+
   // Handle signature save from SignatureCanvas
   const handleSignatureSave = (fieldId: string, signatureData: string) => {
     updateFieldValue(fieldId, signatureData)
+    setEditingFieldId(null)
+  }
+
+  // Stamp functions
+  const removeStampBackground = (imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        const canvas = globalThis.document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { resolve(imageData); return }
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx.drawImage(img, 0, 0)
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const data = imgData.data
+        const corners = [[0, 0], [canvas.width - 1, 0], [0, canvas.height - 1], [canvas.width - 1, canvas.height - 1]]
+        let bgR = 0, bgG = 0, bgB = 0
+        corners.forEach(([x, y]) => {
+          const idx = (y * canvas.width + x) * 4
+          bgR += data[idx]; bgG += data[idx + 1]; bgB += data[idx + 2]
+        })
+        bgR = Math.round(bgR / 4); bgG = Math.round(bgG / 4); bgB = Math.round(bgB / 4)
+        for (let i = 0; i < data.length; i += 4) {
+          const diff = Math.abs(data[i] - bgR) + Math.abs(data[i + 1] - bgG) + Math.abs(data[i + 2] - bgB)
+          if (diff < 60) data[i + 3] = 0
+        }
+        ctx.putImageData(imgData, 0, 0)
+        resolve(canvas.toDataURL('image/png'))
+      }
+      img.src = imageData
+    })
+  }
+
+  const handleStampUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldId: string) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setProcessingStamp(true)
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+      const processed = await removeStampBackground(event.target?.result as string)
+      setStampImage(processed)
+      setProcessingStamp(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const startStampCamera = async () => {
+    setShowStampCamera(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      if (stampVideoRef.current) stampVideoRef.current.srcObject = stream
+    } catch (err) {
+      console.error('Camera error:', err)
+      setShowStampCamera(false)
+    }
+  }
+
+  const captureStampImage = async () => {
+    if (!stampVideoRef.current) return
+    setProcessingStamp(true)
+    const canvas = globalThis.document.createElement('canvas')
+    canvas.width = stampVideoRef.current.videoWidth
+    canvas.height = stampVideoRef.current.videoHeight
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.drawImage(stampVideoRef.current, 0, 0)
+      const processed = await removeStampBackground(canvas.toDataURL('image/png'))
+      setStampImage(processed)
+    }
+    const stream = stampVideoRef.current.srcObject as MediaStream
+    stream?.getTracks().forEach(track => track.stop())
+    setShowStampCamera(false)
+    setProcessingStamp(false)
+  }
+
+  const saveStampToField = (fieldId: string) => {
+    if (stampImage) {
+      updateFieldValue(fieldId, stampImage)
+    }
+    setStampImage(null)
     setEditingFieldId(null)
   }
 
@@ -575,7 +696,7 @@ const SignDocumentPage: React.FC = () => {
               img.onerror = () => resolve()
               img.src = field.value!
             })
-          } else if (field.type === 'checkbox' || field.type === 'radio') {
+          } else if (field.type === 'checkbox') {
             if (field.value === 'checked') {
               ctx.fillStyle = '#7C3AED'
               ctx.fillRect(x, y, width, height)
@@ -616,6 +737,7 @@ const SignDocumentPage: React.FC = () => {
 
     try {
       const pdfjsLib = await import('pdfjs-dist')
+      const { jsPDF } = await import('jspdf')
       pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
       const arrayBuffer = await document.arrayBuffer()
@@ -629,11 +751,68 @@ const SignDocumentPage: React.FC = () => {
       // Get base dimensions for scaling
       const firstPage = await pdf.getPage(1)
       const baseViewport = firstPage.getViewport({ scale: 1 })
-      // Field coordinates are stored relative to displayed page size (original * zoom)
       const viewerWidth = baseViewport.width * zoom
       const viewerHeight = baseViewport.height * zoom
 
-      // If only one page, download as image
+      // Helper function to render fields on a canvas
+      const renderFieldsOnCanvas = async (ctx: CanvasRenderingContext2D, pageNum: number, scaleX: number, scaleY: number) => {
+        const fieldsOnPage = placedFields.filter(f => f.page === pageNum)
+        for (const field of fieldsOnPage) {
+          if (!field.value) continue
+
+          const x = field.x * scaleX
+          const y = field.y * scaleY
+          const width = field.width * scaleX
+          const height = field.height * scaleY
+
+          if (field.type === 'signature' || field.type === 'initials' || (field.type === 'stamp' && field.value.startsWith('data:image'))) {
+            const img = new window.Image()
+            img.crossOrigin = 'anonymous'
+            await new Promise<void>((resolve) => {
+              img.onload = () => {
+                ctx.drawImage(img, x, y, width, height)
+                resolve()
+              }
+              img.onerror = () => resolve()
+              img.src = field.value!
+            })
+          } else if (field.type === 'checkbox') {
+            if (field.value === 'checked') {
+              ctx.fillStyle = '#16a34a'
+              ctx.fillRect(x, y, width, height)
+              ctx.fillStyle = 'white'
+              ctx.font = `${height * 0.7}px Arial`
+              ctx.textAlign = 'center'
+              ctx.textBaseline = 'middle'
+              ctx.fillText('✓', x + width / 2, y + height / 2)
+            }
+          } else if (field.type === 'stamp' && !field.value.startsWith('data:image')) {
+            // Text stamp
+            ctx.save()
+            ctx.translate(x + width / 2, y + height / 2)
+            ctx.rotate(-12 * Math.PI / 180)
+            ctx.strokeStyle = '#dc2626'
+            ctx.lineWidth = 2
+            ctx.font = `bold ${Math.min(height * 0.5, 16)}px Arial`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.strokeText(field.value, 0, 0)
+            ctx.fillStyle = '#dc2626'
+            ctx.fillText(field.value, 0, 0)
+            ctx.restore()
+          } else {
+            // Text fields (name, email, date, etc.)
+            ctx.fillStyle = '#000000'
+            const fontSize = field.fontSize || 14
+            ctx.font = `${Math.min(fontSize * scaleX, height * 0.8)}px Arial`
+            ctx.textAlign = 'left'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(field.value || '', x + 4, y + height / 2, width - 8)
+          }
+        }
+      }
+
+      // Single page - download as PNG
       if (pdf.numPages === 1) {
         const page = await pdf.getPage(1)
         const previewScale = 2
@@ -648,58 +827,59 @@ const SignDocumentPage: React.FC = () => {
 
         await page.render({ canvasContext: ctx, viewport }).promise
 
-        // Calculate scale factors
         const scaleX = viewport.width / viewerWidth
         const scaleY = viewport.height / viewerHeight
 
-        // Overlay fields
-        const fieldsOnPage = placedFields.filter(f => f.page === 1)
-        for (const field of fieldsOnPage) {
-          if (!field.value) continue
+        await renderFieldsOnCanvas(ctx, 1, scaleX, scaleY)
 
-          const x = field.x * scaleX
-          const y = field.y * scaleY
-          const width = field.width * scaleX
-          const height = field.height * scaleY
-
-          if (field.type === 'signature' || field.type === 'initials') {
-            const img = new window.Image()
-            img.crossOrigin = 'anonymous'
-            await new Promise<void>((resolve) => {
-              img.onload = () => {
-                ctx.drawImage(img, x, y, width, height)
-                resolve()
-              }
-              img.onerror = () => resolve()
-              img.src = field.value!
-            })
-          } else if (field.type === 'checkbox' || field.type === 'radio') {
-            if (field.value === 'checked') {
-              ctx.fillStyle = '#7C3AED'
-              ctx.fillRect(x, y, width, height)
-              ctx.fillStyle = 'white'
-              ctx.font = `${height * 0.7}px Arial`
-              ctx.textAlign = 'center'
-              ctx.textBaseline = 'middle'
-              ctx.fillText('✓', x + width / 2, y + height / 2)
-            }
-          } else {
-            ctx.fillStyle = '#1e293b'
-            ctx.font = `${Math.min(height * 0.6, 24)}px Arial`
-            ctx.textAlign = 'left'
-            ctx.textBaseline = 'middle'
-            ctx.fillText(field.value || '', x + 4, y + height / 2, width - 8)
-          }
-        }
-
-        // Download
         const link = window.document.createElement('a')
         link.download = `${templateProps.name || 'signed-document'}.png`
         link.href = canvas.toDataURL('image/png')
         link.click()
       } else {
-        // Multiple pages - generate preview for download
-        await generatePreview()
+        // Multiple pages - create PDF with all pages
+        const previewScale = 2
+        const firstViewport = firstPage.getViewport({ scale: previewScale })
+
+        // Create jsPDF with first page dimensions
+        const pdfDoc = new jsPDF({
+          orientation: firstViewport.width > firstViewport.height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [firstViewport.width, firstViewport.height]
+        })
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum)
+          const viewport = page.getViewport({ scale: previewScale })
+
+          const canvas = window.document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (!ctx) continue
+
+          canvas.width = viewport.width
+          canvas.height = viewport.height
+
+          await page.render({ canvasContext: ctx, viewport }).promise
+
+          // Get page-specific dimensions for field scaling
+          const pageBaseViewport = page.getViewport({ scale: 1 })
+          const pageViewerWidth = pageBaseViewport.width * zoom
+          const pageViewerHeight = pageBaseViewport.height * zoom
+          const scaleX = viewport.width / pageViewerWidth
+          const scaleY = viewport.height / pageViewerHeight
+
+          await renderFieldsOnCanvas(ctx, pageNum, scaleX, scaleY)
+
+          const imgData = canvas.toDataURL('image/png')
+
+          if (pageNum > 1) {
+            pdfDoc.addPage([viewport.width, viewport.height])
+          }
+
+          pdfDoc.addImage(imgData, 'PNG', 0, 0, viewport.width, viewport.height)
+        }
+
+        pdfDoc.save(`${templateProps.name || 'signed-document'}.pdf`)
       }
     } catch (err) {
       console.error('Error downloading:', err)
@@ -707,7 +887,7 @@ const SignDocumentPage: React.FC = () => {
     } finally {
       setIsDownloading(false)
     }
-  }, [document, placedFields, templateProps.name, generatePreview, zoom])
+  }, [document, placedFields, templateProps.name, zoom])
 
   // Send document for signing
   const handleSendForSigning = async () => {
@@ -751,7 +931,8 @@ const SignDocumentPage: React.FC = () => {
         type: field.type,
         label: field.label,
         mandatory: field.mandatory,
-        page: field.page
+        page: field.page,
+        fontSize: field.fontSize
       }))
 
       // Send to API
@@ -1086,15 +1267,34 @@ const SignDocumentPage: React.FC = () => {
                       />
                     </div>
 
-                    {/* Two Column Field Layout */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* Left Column */}
-                      <div className="space-y-2">
-                        {LEFT_COLUMN_FIELDS.map(field => renderFieldButton(field))}
+                    {/* Fields Section */}
+                    <div className="space-y-3">
+                      {/* Signature Fields */}
+                      <div>
+                        <p className="text-xs font-semibold text-purple-400 mb-2 uppercase tracking-wide">Fields</p>
+                        <div className="space-y-1">
+                          {SIGNATURE_FIELDS.map(field => renderFieldButton(field))}
+                        </div>
                       </div>
-                      {/* Right Column */}
-                      <div className="space-y-2">
-                        {RIGHT_COLUMN_FIELDS.map(field => renderFieldButton(field))}
+
+                      {/* Divider */}
+                      <div className="border-t border-[#3a3a3a]" />
+
+                      {/* Contact Fields */}
+                      <div>
+                        <div className="space-y-1">
+                          {CONTACT_FIELDS.map(field => renderFieldButton(field))}
+                        </div>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="border-t border-[#3a3a3a]" />
+
+                      {/* Other Fields */}
+                      <div>
+                        <div className="space-y-1">
+                          {OTHER_FIELDS.map(field => renderFieldButton(field))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1224,15 +1424,16 @@ const SignDocumentPage: React.FC = () => {
                           type: draggedFieldType,
                           x: Math.max(0, x - 75),
                           y: Math.max(0, y - 20),
-                          width: draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' || draggedFieldType === 'radio' ? 30 : 150,
-                          height: draggedFieldType === 'signature' ? 60 : draggedFieldType === 'multiline' ? 80 : draggedFieldType === 'checkbox' || draggedFieldType === 'radio' ? 30 : 40,
+                          width: draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : 150,
+                          height: draggedFieldType === 'signature' ? 60 : draggedFieldType === 'checkbox' ? 30 : 40,
                           page: pageNum,
                           signerId: activeSigner.id,
                           signerColor: activeSigner.color,
                           mandatory: true,
                           placeholder: '',
                           tip: '',
-                          label: fieldType.name
+                          label: fieldType.name,
+                          value: undefined
                         }
 
                         setPlacedFields(prev => [...prev, newField])
@@ -1254,96 +1455,103 @@ const SignDocumentPage: React.FC = () => {
 
                         // Check if this is a signature/initials type field
                         const isSignatureType = field.type === 'signature' || field.type === 'initials'
-                        const isTextType = ['text', 'name', 'email', 'phone', 'company', 'multiline'].includes(field.type)
-                        const isCheckboxType = field.type === 'checkbox' || field.type === 'radio'
+                        const isTextType = ['text', 'name', 'firstName', 'lastName', 'email', 'company', 'title'].includes(field.type)
+                        const isCheckboxType = field.type === 'checkbox'
                         const isDateType = field.type === 'date'
 
                         // If signature field has value, show clean display
                         const isSignedField = isSignatureType && hasValue
+                        const isCleanField = isSignedField
 
                         return (
                           <div
                             key={field.id}
-                            className={`pointer-events-auto absolute rounded-md transition-all group
-                              ${isSignedField ? 'border-0' : 'border-2'}
-                              ${isEditing ? 'border-primary-500 shadow-2xl ring-4 ring-primary-200 z-[200]' : ''}
-                              ${isSelected && !isEditing && !isSignedField ? 'border-primary-500 shadow-lg ring-2 ring-primary-200 cursor-move' : ''}
-                              ${isSelected && !isEditing && isSignedField ? 'ring-2 ring-[#c4ff0e] cursor-move' : ''}
-                              ${!isSelected && !isEditing && !isSignedField ? 'border-dashed hover:border-primary-400 cursor-move' : ''}
-                              ${!isSelected && !isEditing && isSignedField ? 'cursor-move hover:ring-2 hover:ring-[#c4ff0e]/50' : ''}
+                            className={`pointer-events-auto absolute transition-all group
+                              ${isEditing ? 'z-[200]' : ''}
                             `}
                             style={{
                               left: field.x,
                               top: field.y,
                               width: field.width,
                               height: field.height,
-                              backgroundColor: isSignedField ? 'transparent' : (hasValue ? 'white' : `${field.signerColor}15`),
-                              borderColor: isSelected || isEditing || isSignedField ? undefined : field.signerColor,
-                              zIndex: isSelected ? 100 : 50
-                            }}
-                            onMouseDown={(e) => {
-                              if (!isEditing) handleFieldMouseDown(e, field.id)
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (!isEditing) {
-                                setSelectedFieldId(field.id)
-                                setShowPropertiesPanel(true)
-                              }
-                            }}
-                            onDoubleClick={(e) => {
-                              e.stopPropagation()
-                              setSelectedFieldId(field.id)
-                              // Open modal for signature/initials, inline for others
-                              if (field.type === 'signature' || field.type === 'initials') {
-                                setSignatureModalFieldId(field.id)
-                              } else {
-                                setEditingFieldId(field.id)
-                              }
+                              zIndex: isEditing ? 200 : (isSelected ? 100 : 50)
                             }}
                           >
-                            {/* Editing Mode - Skip for signature types, they use the side panel */}
-                            {isEditing && !isSignatureType ? (
-                              <div className="w-full h-full bg-[#1e1e1e] rounded-md overflow-hidden">
+                            {/* Yellow Left Border - Drag Handle */}
+                            <div
+                              className="absolute left-0 top-0 bottom-0 w-2 cursor-move rounded-l"
+                              style={{ backgroundColor: '#D4A017' }}
+                              onMouseDown={(e) => {
+                                if (!isEditing) handleFieldMouseDown(e, field.id)
+                              }}
+                              title="Drag to move"
+                            />
 
-                                {/* Text Editor */}
+                            {/* Main Field Content */}
+                            <div
+                              className={`absolute left-2 top-0 right-0 bottom-0 border-2 rounded-r cursor-pointer
+                                ${isSelected ? 'border-gray-400' : 'border-gray-300'}
+                              `}
+                              style={{
+                                backgroundColor: hasValue || isSelected ? '#FFF9C4' : '#FFFDE7'
+                              }}
+                              onMouseDown={(e) => {
+                                if (!isEditing) handleFieldMouseDown(e, field.id)
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (!isEditing) {
+                                  setSelectedFieldId(field.id)
+                                  setShowPropertiesPanel(true)
+                                }
+                              }}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedFieldId(field.id)
+                                // Open modal for signature/initials/stamp, inline for others
+                                if (field.type === 'signature' || field.type === 'initials') {
+                                  setSignatureModalFieldId(field.id)
+                                } else if (field.type === 'stamp') {
+                                  setStampModalFieldId(field.id)
+                                } else {
+                                  setEditingFieldId(field.id)
+                                }
+                              }}
+                            >
+                            {/* Editing Mode - Skip for signature types */}
+                            {isEditing && !isSignatureType ? (
+                              <div className="w-full h-full rounded-md" style={{ backgroundColor: '#ffffff', overflow: 'hidden' }}>
+
+                                {/* Text Editor - Direct inline editing with size control */}
                                 {isTextType && (
-                                  <div className="w-full h-full flex flex-col p-2">
-                                    {field.type === 'multiline' ? (
-                                      <textarea
-                                        value={field.value || ''}
-                                        onChange={(e) => updateFieldValue(field.id, e.target.value)}
-                                        placeholder={field.placeholder || `Enter ${field.label}...`}
-                                        className="flex-1 w-full px-2 py-1 text-sm border border-gray-300 rounded resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                        autoFocus
-                                        onClick={(e) => e.stopPropagation()}
-                                      />
-                                    ) : (
-                                      <input
-                                        type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
-                                        value={field.value || ''}
-                                        onChange={(e) => updateFieldValue(field.id, e.target.value)}
-                                        placeholder={field.placeholder || `Enter ${field.label}...`}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                        autoFocus
-                                        onClick={(e) => e.stopPropagation()}
-                                        onKeyDown={(e) => {
-                                          if (e.key === 'Enter') {
-                                            setEditingFieldId(null)
-                                          }
-                                        }}
-                                      />
-                                    )}
-                                    <div className="flex justify-end mt-2">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          setEditingFieldId(null)
-                                        }}
-                                        className="px-3 py-1 text-sm bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#b8f206] transition-all"
-                                      >
-                                        Done
-                                      </button>
+                                  <div className="w-full h-full flex flex-col bg-white" onClick={(e) => e.stopPropagation()}>
+                                    {/* Size Control */}
+                                    <div className="flex items-center gap-1 px-2 py-1 border-b border-gray-200 bg-gray-50">
+                                      <span className="text-[10px] text-gray-500">Size:</span>
+                                      {[10, 12, 14, 16, 18, 20, 24].map((size) => (
+                                        <button
+                                          key={size}
+                                          onClick={() => updateFieldFontSize(field.id, size)}
+                                          className={`px-1.5 py-0.5 text-[10px] rounded ${field.fontSize === size ? 'bg-[#c4ff0e] text-black font-bold' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                                        >
+                                          {size}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    {/* Input */}
+                                    <input
+                                      type={field.type === 'email' ? 'email' : 'text'}
+                                      value={field.value || ''}
+                                      onChange={(e) => updateFieldValue(field.id, e.target.value)}
+                                      placeholder={field.placeholder || `Type ${field.label}...`}
+                                      className="flex-1 w-full px-2 border-none outline-none"
+                                      style={{ color: '#000000', backgroundColor: '#ffffff', fontSize: `${field.fontSize || 14}px` }}
+                                      autoFocus
+                                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditingFieldId(null) }}
+                                    />
+                                    {/* Done button */}
+                                    <div className="px-2 py-1 border-t border-gray-200 bg-gray-50 flex justify-end">
+                                      <button onClick={() => setEditingFieldId(null)} className="px-3 py-1 bg-[#c4ff0e] text-black text-xs font-medium rounded">Done</button>
                                     </div>
                                   </div>
                                 )}
@@ -1368,28 +1576,99 @@ const SignDocumentPage: React.FC = () => {
                                   </div>
                                 )}
 
-                                {/* Date Editor */}
+                                {/* Date Editor - Simple date picker */}
                                 {isDateType && (
-                                  <div className="w-full h-full flex flex-col p-2">
+                                  <div className="w-full h-full flex items-center justify-center bg-white" onClick={(e) => e.stopPropagation()}>
                                     <input
                                       type="date"
                                       value={field.value || ''}
-                                      onChange={(e) => updateFieldValue(field.id, e.target.value)}
-                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                      onChange={(e) => {
+                                        updateFieldValue(field.id, e.target.value)
+                                        // Auto close after selecting date
+                                        if (e.target.value) {
+                                          setTimeout(() => setEditingFieldId(null), 100)
+                                        }
+                                      }}
+                                      className="w-full h-full px-2 text-sm border-none outline-none bg-transparent"
+                                      style={{ fontSize: `${field.fontSize || 14}px` }}
                                       autoFocus
-                                      onClick={(e) => e.stopPropagation()}
                                     />
-                                    <div className="flex justify-end mt-2">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          setEditingFieldId(null)
-                                        }}
-                                        className="px-3 py-1 text-sm bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#b8f206] transition-all"
-                                      >
-                                        Done
-                                      </button>
-                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Stamp Editor */}
+                                {field.type === 'stamp' && (
+                                  <div className="w-full h-full flex flex-col p-2 bg-white overflow-auto" onClick={(e) => e.stopPropagation()}>
+                                    {/* Upload & Camera */}
+                                    {!stampImage && !showStampCamera && !processingStamp && (
+                                      <div className="flex gap-2 mb-2">
+                                        <button
+                                          onClick={() => stampFileInputRef.current?.click()}
+                                          className="flex-1 flex items-center justify-center gap-1 py-2 bg-[#252525] text-white rounded text-xs hover:bg-[#3a3a3a]"
+                                        >
+                                          <Upload className="w-3 h-3" /> Upload
+                                        </button>
+                                        <button
+                                          onClick={startStampCamera}
+                                          className="flex-1 flex items-center justify-center gap-1 py-2 bg-[#252525] text-white rounded text-xs hover:bg-[#3a3a3a]"
+                                        >
+                                          <Camera className="w-3 h-3" /> Camera
+                                        </button>
+                                        <input
+                                          ref={stampFileInputRef}
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={(e) => handleStampUpload(e, field.id)}
+                                          className="hidden"
+                                        />
+                                      </div>
+                                    )}
+
+                                    {/* Camera View */}
+                                    {showStampCamera && (
+                                      <div className="relative mb-2">
+                                        <video ref={stampVideoRef} autoPlay playsInline className="w-full h-24 object-cover rounded" />
+                                        <div className="flex gap-1 mt-1">
+                                          <button onClick={captureStampImage} className="flex-1 py-1 bg-[#c4ff0e] text-black rounded text-xs font-medium">Capture</button>
+                                          <button onClick={() => { const s = stampVideoRef.current?.srcObject as MediaStream; s?.getTracks().forEach(t => t.stop()); setShowStampCamera(false) }} className="flex-1 py-1 bg-red-500 text-white rounded text-xs">Cancel</button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Processing */}
+                                    {processingStamp && (
+                                      <div className="flex items-center justify-center gap-1 py-4">
+                                        <Loader2 className="w-4 h-4 animate-spin text-[#c4ff0e]" />
+                                        <span className="text-xs text-gray-500">Processing...</span>
+                                      </div>
+                                    )}
+
+                                    {/* Preview */}
+                                    {stampImage && !processingStamp && (
+                                      <div className="mb-2">
+                                        <div className="bg-gray-100 rounded p-2 flex justify-center" style={{ backgroundImage: 'linear-gradient(45deg, #ddd 25%, transparent 25%), linear-gradient(-45deg, #ddd 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ddd 75%), linear-gradient(-45deg, transparent 75%, #ddd 75%)', backgroundSize: '10px 10px' }}>
+                                          <img src={stampImage} alt="Stamp" className="max-h-16 object-contain" />
+                                        </div>
+                                        <div className="flex gap-1 mt-1">
+                                          <button onClick={() => setStampImage(null)} className="flex-1 py-1 bg-gray-200 text-gray-700 rounded text-xs">Clear</button>
+                                          <button onClick={() => saveStampToField(field.id)} className="flex-1 py-1 bg-[#c4ff0e] text-black rounded text-xs font-medium">Use</button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Text Stamps */}
+                                    {!stampImage && !showStampCamera && !processingStamp && (
+                                      <>
+                                        <p className="text-[10px] text-gray-500 mb-1">Or text stamp:</p>
+                                        <div className="grid grid-cols-3 gap-1">
+                                          {['APPROVED', 'DRAFT', 'FINAL', 'COPY', 'VOID', 'PAID'].map((s) => (
+                                            <button key={s} onClick={() => { updateFieldValue(field.id, s); setEditingFieldId(null) }} className="py-1 bg-gray-100 hover:bg-gray-200 rounded text-[9px] font-bold text-red-500 border border-red-300">{s}</button>
+                                          ))}
+                                        </div>
+                                      </>
+                                    )}
+
+                                    <button onClick={() => { setEditingFieldId(null); setStampImage(null); setShowStampCamera(false) }} className="mt-2 py-1 bg-gray-300 text-gray-700 rounded text-xs">Cancel</button>
                                   </div>
                                 )}
                               </div>
@@ -1397,103 +1676,97 @@ const SignDocumentPage: React.FC = () => {
                               /* Display Mode */
                               <>
                                 {/* Show saved value or placeholder */}
-                                <div className="w-full h-full flex items-center justify-center p-1 overflow-hidden">
+                                <div className="w-full h-full flex items-center p-1 overflow-hidden">
                                   {hasValue ? (
                                     <>
+                                      {/* Signature/Initials Display */}
                                       {isSignatureType && field.value && (
-                                        <img
-                                          src={field.value}
-                                          alt="Signature"
-                                          className="max-w-full max-h-full object-contain"
-                                        />
+                                        <div className="w-full h-full flex flex-col">
+                                          <span className="text-[10px] text-gray-500">Signed by:</span>
+                                          <img
+                                            src={field.value}
+                                            alt="Signature"
+                                            className="max-w-full max-h-full object-contain flex-1"
+                                          />
+                                        </div>
                                       )}
+                                      {/* Text Fields Display */}
                                       {isTextType && (
-                                        <span className="text-sm text-white truncate">{field.value}</span>
+                                        <span style={{ color: '#000000', fontSize: `${field.fontSize || 14}px` }}>{field.value}</span>
                                       )}
+                                      {/* Checkbox Display */}
                                       {isCheckboxType && field.value === 'checked' && (
-                                        <CheckSquare className="w-5 h-5 text-[#c4ff0e]" />
+                                        <CheckSquare className="w-5 h-5 text-green-600" />
                                       )}
-                                      {isDateType && (
-                                        <span className="text-sm text-white">{field.value}</span>
+                                      {/* Date Display */}
+                                      {isDateType && field.value && (
+                                        <span style={{ color: '#000000', fontSize: `${field.fontSize || 14}px`, fontWeight: '500' }}>
+                                          {new Date(field.value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                                        </span>
+                                      )}
+                                      {/* Stamp Display */}
+                                      {field.type === 'stamp' && field.value && (
+                                        field.value.startsWith('data:image') ? (
+                                          <img src={field.value} alt="Stamp" className="max-w-full max-h-full object-contain" />
+                                        ) : (
+                                          <span className="text-red-600 font-bold border border-red-600 px-1 rounded transform -rotate-12 text-xs">{field.value}</span>
+                                        )
                                       )}
                                     </>
                                   ) : (
-                                    <div className="flex flex-col items-center gap-1 text-xs font-medium" style={{ color: field.signerColor }}>
-                                      <FieldIcon className="w-4 h-4 flex-shrink-0" />
-                                      <span className="truncate">{field.label}</span>
-                                      <span className="text-[10px] opacity-70">Double-click to edit</span>
+                                    /* Empty Field Placeholder */
+                                    <div className="flex items-center justify-center gap-2 text-gray-600">
+                                      <FieldIcon className="w-4 h-4" />
+                                      <span className="text-sm font-medium">{field.label}</span>
                                     </div>
                                   )}
                                 </div>
 
-                                {/* Clear/Delete value button - shows when field has value */}
-                                {hasValue && (
-                                  <button
-                                    className="absolute -top-2 -left-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      updateFieldValue(field.id, '')
-                                    }}
-                                    title="Clear signature"
-                                  >
-                                    <RotateCcw className="w-3 h-3 text-white" />
-                                  </button>
-                                )}
-
-                                {/* Edit button - shows when field has value */}
-                                {hasValue && (
-                                  <button
-                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-1 bg-black/60 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setEditingFieldId(field.id)
-                                    }}
-                                    title="Edit"
-                                  >
-                                    Double-click to edit
-                                  </button>
-                                )}
-
-                                {/* Mandatory indicator */}
-                                {field.mandatory && !hasValue && (
-                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" title="Required" />
-                                )}
-
-                                {/* Signer indicator */}
-                                {!hasValue && (
-                                  <div
-                                    className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[10px] font-medium text-white"
-                                    style={{ backgroundColor: field.signerColor }}
-                                  >
-                                    {fieldSigner?.name || 'Signer'}
-                                  </div>
-                                )}
-
-                                {/* Resize handle */}
-                                {isSelected && (
-                                  <div
-                                    className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#c4ff0e] rounded-br-md cursor-se-resize flex items-center justify-center"
-                                    onMouseDown={(e) => handleResizeStart(e, field.id)}
-                                  >
-                                    <div className="w-2 h-2 border-r-2 border-b-2 border-white" />
-                                  </div>
-                                )}
-
-                                {/* Delete button */}
-                                <button
-                                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:flex"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setPlacedFields(prev => prev.filter(f => f.id !== field.id))
-                                    if (selectedFieldId === field.id) {
-                                      setSelectedFieldId(null)
-                                      setShowPropertiesPanel(false)
-                                    }
-                                  }}
-                                >
-                                  <X className="w-3 h-3 text-white" />
-                                </button>
                               </>
+                            )}
+                            </div>
+
+                            {/* Gray Corner Handles - DocuSign Style */}
+                            {isSelected && (
+                              <>
+                                {/* Top-Left Handle */}
+                                <div
+                                  className="absolute -top-2 -left-2 w-4 h-4 bg-gray-400 rounded-full cursor-nw-resize border-2 border-white shadow"
+                                  onMouseDown={(e) => handleResizeStart(e, field.id, 'nw')}
+                                />
+                                {/* Top-Right Handle */}
+                                <div
+                                  className="absolute -top-2 -right-2 w-4 h-4 bg-gray-400 rounded-full cursor-ne-resize border-2 border-white shadow"
+                                  onMouseDown={(e) => handleResizeStart(e, field.id, 'ne')}
+                                />
+                                {/* Bottom-Left Handle */}
+                                <div
+                                  className="absolute -bottom-2 -left-2 w-4 h-4 bg-gray-400 rounded-full cursor-sw-resize border-2 border-white shadow"
+                                  onMouseDown={(e) => handleResizeStart(e, field.id, 'sw')}
+                                />
+                                {/* Bottom-Right Handle */}
+                                <div
+                                  className="absolute -bottom-2 -right-2 w-4 h-4 bg-gray-400 rounded-full cursor-se-resize border-2 border-white shadow"
+                                  onMouseDown={(e) => handleResizeStart(e, field.id, 'se')}
+                                />
+                              </>
+                            )}
+
+                            {/* Red X Delete Button - DocuSign Style */}
+                            {isSelected && (
+                              <button
+                                className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setPlacedFields(prev => prev.filter(f => f.id !== field.id))
+                                  if (selectedFieldId === field.id) {
+                                    setSelectedFieldId(null)
+                                    setShowPropertiesPanel(false)
+                                  }
+                                }}
+                              >
+                                <X className="w-4 h-4 text-white" />
+                              </button>
                             )}
                           </div>
                         )
@@ -2088,139 +2361,381 @@ const SignDocumentPage: React.FC = () => {
         </div>
       )}
 
-      {/* Signature Side Panel - Live preview on document */}
+      {/* DocuSign-Style Signature/Initials Modal */}
       {signatureModalFieldId && (() => {
         const modalField = placedFields.find(f => f.id === signatureModalFieldId)
         if (!modalField) return null
 
-        const currentWidth = modalField.width
-        const currentHeight = modalField.height
+        const isInitials = modalField.type === 'initials'
+        const title = isInitials ? 'Adopt Your Initials' : 'Adopt Your Signature'
 
-        const adjustFieldSize = (delta: number) => {
-          // Keep field selected while adjusting
-          setSelectedFieldId(signatureModalFieldId)
-          setPlacedFields(prev => prev.map(f =>
-            f.id === signatureModalFieldId
-              ? {
-                  ...f,
-                  width: Math.max(60, Math.min(500, f.width + delta)),
-                  height: Math.max(25, Math.min(250, f.height + (delta * 0.4)))
-                }
-              : f
-          ))
+        // Signature font styles
+        const signatureFonts = [
+          { name: 'Brush Script MT', style: 'italic' },
+          { name: 'Lucida Handwriting', style: 'normal' },
+          { name: 'Segoe Script', style: 'normal' },
+          { name: 'Comic Sans MS', style: 'italic' },
+        ]
+
+        // Generate signature from typed name
+        const generateStyledSignature = (name: string, initials: string, fontIndex: number) => {
+          const canvas = window.document.createElement('canvas')
+          canvas.width = 300
+          canvas.height = 80
+          const ctx = canvas.getContext('2d')
+          if (!ctx) return ''
+
+          ctx.fillStyle = 'white'
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+          const font = signatureFonts[fontIndex] || signatureFonts[0]
+          ctx.fillStyle = '#1a1a1a'
+          ctx.font = `${font.style} 32px ${font.name}, cursive`
+          ctx.textAlign = 'left'
+          ctx.textBaseline = 'middle'
+
+          const text = isInitials ? initials : name
+          ctx.fillText(text, 20, 45)
+
+          return canvas.toDataURL('image/png')
+        }
+
+        // Handle file upload for signature
+        const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const file = e.target.files?.[0]
+          if (!file) return
+
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            const dataUrl = event.target?.result as string
+            updateFieldValue(signatureModalFieldId, dataUrl)
+          }
+          reader.readAsDataURL(file)
+        }
+
+        // Auto-generate initials from full name
+        const autoGenerateInitials = (name: string) => {
+          const parts = name.trim().split(' ').filter(p => p.length > 0)
+          if (parts.length === 0) return ''
+          if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+          return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
         }
 
         return (
-          <div
-            className="fixed bottom-4 right-4 z-[300] w-[500px] bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#2a2a2a] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 bg-[#252525] border-b border-[#2a2a2a]">
-              <span className="text-base font-semibold text-white flex items-center gap-2">
-                <PenTool className="w-5 h-5 text-[#c4ff0e]" />
-                {modalField.type === 'signature' ? 'Draw Your Signature' : 'Add Initials'}
-              </span>
-              <button
-                onClick={() => {
-                  setSignatureModalFieldId(null)
-                  // Keep field selected after closing
-                  setSelectedFieldId(modalField.id)
-                }}
-                className="p-2 hover:bg-[#333] rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
+          <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setSignatureModalFieldId(null)}>
+            <div
+              className="w-[580px] max-h-[90vh] bg-white rounded-lg shadow-2xl overflow-y-auto my-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+                  <p className="text-sm text-gray-500 mt-1">Confirm your name, initials, and signature.</p>
+                </div>
+                <button
+                  onClick={() => setSignatureModalFieldId(null)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
 
-            {/* Signature Canvas - Large comfortable area */}
-            <div className="p-4">
-              <div className="border-2 border-dashed border-[#3a3a3a] rounded-xl overflow-hidden bg-white relative">
-                <SignatureCanvas
-                  onSave={(data) => {
-                    updateFieldValue(signatureModalFieldId, data)
-                    // Close panel after signing and keep field selected
-                    if (data) {
-                      setTimeout(() => {
-                        setSignatureModalFieldId(null)
-                        setSelectedFieldId(signatureModalFieldId)
-                      }, 300)
+              {/* Name Inputs */}
+              <div className="px-6 py-4 grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={signatureFullName}
+                    onChange={(e) => {
+                      setSignatureFullName(e.target.value)
+                      setSignatureInitials(autoGenerateInitials(e.target.value))
+                    }}
+                    placeholder="Enter your full name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Initials <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={signatureInitials}
+                    onChange={(e) => setSignatureInitials(e.target.value.toUpperCase())}
+                    placeholder="Initials"
+                    maxLength={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="px-6 border-b border-gray-200">
+                <div className="flex gap-6">
+                  {[
+                    { id: 'style', label: 'SELECT STYLE' },
+                    { id: 'draw', label: 'DRAW' },
+                    { id: 'upload', label: 'UPLOAD' },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSignatureTab(tab.id as any)}
+                      className={`py-3 text-sm font-medium border-b-2 transition-colors ${
+                        signatureTab === tab.id
+                          ? 'text-blue-600 border-blue-600'
+                          : 'text-gray-500 border-transparent hover:text-gray-700'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab Content */}
+              <div className="px-6 py-4">
+                {/* SELECT STYLE Tab */}
+                {signatureTab === 'style' && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-gray-500">PREVIEW</span>
+                      <button
+                        onClick={() => setSignatureStyle((prev) => (prev + 1) % signatureFonts.length)}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Change Style
+                      </button>
+                    </div>
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="flex gap-8">
+                        {/* Signature Preview */}
+                        <div className="flex-1">
+                          <div className="border-l-4 border-blue-200 pl-3">
+                            <p className="text-xs text-gray-400 mb-1">Signed by:</p>
+                            <p
+                              className="text-2xl text-gray-800"
+                              style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style }}
+                            >
+                              {signatureFullName || 'Your Name'}
+                            </p>
+                          </div>
+                        </div>
+                        {/* Initials Preview */}
+                        <div className="w-24">
+                          <div className="border-l-4 border-blue-200 pl-3">
+                            <p className="text-xs text-gray-400 mb-1">DS</p>
+                            <p
+                              className="text-2xl text-gray-800"
+                              style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style }}
+                            >
+                              {signatureInitials || 'AB'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* DRAW Tab */}
+                {signatureTab === 'draw' && (
+                  <div>
+                    <p className="text-sm text-gray-500 mb-3">Draw your signature below:</p>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-white">
+                      <SignatureCanvas
+                        onSave={(data) => {
+                          if (data) {
+                            updateFieldValue(signatureModalFieldId, data)
+                          }
+                        }}
+                        onClear={() => {}}
+                        onCancel={() => {}}
+                        initialSignature={modalField.value?.startsWith('data:image') ? modalField.value : undefined}
+                        compact={false}
+                        height={150}
+                        width={530}
+                        showDoneButton={false}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* UPLOAD Tab */}
+                {signatureTab === 'upload' && (
+                  <div>
+                    <input
+                      ref={signatureFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleSignatureUpload}
+                      className="hidden"
+                    />
+                    <div
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                      onClick={() => signatureFileInputRef.current?.click()}
+                    >
+                      <div className="flex flex-col items-center">
+                        <Stamp className="w-16 h-16 text-gray-300 mb-4" />
+                        <p className="text-lg font-medium text-gray-600 mb-1">Drag & drop signature image here</p>
+                        <p className="text-sm text-gray-400">or use <span className="font-semibold">UPLOAD IMAGE</span> to browse and select</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => signatureFileInputRef.current?.click()}
+                      className="mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      UPLOAD IMAGE
+                    </button>
+                    {modalField.value?.startsWith('data:image') && (
+                      <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <p className="text-xs text-gray-500 mb-2">Uploaded signature:</p>
+                        <img src={modalField.value} alt="Uploaded signature" className="max-h-20 object-contain" />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Legal Text */}
+              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+                <p className="text-xs text-blue-600">
+                  By selecting Adopt and Initial, I agree that this mark will be the electronic representation of my signature or initials whenever I use it. I also understand that recipients of electronic documents will be able to see my DocuSign ID, which will include my email address.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="px-6 py-4 flex gap-3 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    // Generate signature from style if using style tab
+                    if (signatureTab === 'style' && signatureFullName) {
+                      const signatureData = generateStyledSignature(signatureFullName, signatureInitials, signatureStyle)
+                      updateFieldValue(signatureModalFieldId, signatureData)
                     }
+                    setSignatureModalFieldId(null)
+                    setSelectedFieldId(signatureModalFieldId)
                   }}
-                  onClear={() => updateFieldValue(signatureModalFieldId, '')}
-                  onCancel={() => setSignatureModalFieldId(null)}
-                  initialSignature={modalField.value || undefined}
-                  compact={false}
-                  height={240}
-                  width={468}
-                  showDoneButton={true}
+                  disabled={!signatureFullName || !signatureInitials}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Adopt and Initial
+                </button>
+                <button
+                  onClick={() => setSignatureModalFieldId(null)}
+                  className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* DocuSign-Style Stamp Modal */}
+      {stampModalFieldId && (() => {
+        const modalField = placedFields.find(f => f.id === stampModalFieldId)
+        if (!modalField) return null
+
+        const handleStampFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const file = e.target.files?.[0]
+          if (!file) return
+
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            const dataUrl = event.target?.result as string
+            updateFieldValue(stampModalFieldId, dataUrl)
+          }
+          reader.readAsDataURL(file)
+        }
+
+        return (
+          <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setStampModalFieldId(null)}>
+            <div
+              className="w-[500px] max-h-[90vh] bg-white rounded-lg shadow-2xl overflow-y-auto my-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Adopt Stamp</h2>
+                  <p className="text-sm text-gray-500 mt-1">Adopt a stamp to finish this document.</p>
+                </div>
+                <button
+                  onClick={() => setStampModalFieldId(null)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              {/* Upload Button */}
+              <div className="px-6 pt-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleStampFileUpload}
+                  className="hidden"
+                  id="stamp-file-input"
                 />
+                <label
+                  htmlFor="stamp-file-input"
+                  className="inline-block px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  UPLOAD IMAGE
+                </label>
               </div>
-              <p className="text-sm text-gray-400 mt-3 text-center">
-                ✍️ Draw your signature and click Done to save
-              </p>
-            </div>
 
-            {/* Size Controls - Always visible */}
-            <div className="px-3 pb-3">
-              <div className="bg-[#252525] rounded-xl p-3 border border-[#2a2a2a]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-400">Adjust Size</span>
-                  <span className="text-xs text-gray-500">{Math.round(currentWidth)}×{Math.round(currentHeight)}</span>
+              {/* Drag & Drop Area */}
+              <div className="px-6 py-6">
+                <label
+                  htmlFor="stamp-file-input"
+                  className="block border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-gray-400 transition-colors bg-gray-50"
+                >
+                  <div className="flex flex-col items-center">
+                    <Stamp className="w-20 h-20 text-red-400 mb-4" />
+                    <p className="text-lg font-medium text-gray-600 mb-2">Drag & drop stamp image here</p>
+                    <p className="text-sm text-gray-400">or use <span className="font-semibold">UPLOAD IMAGE</span> to browse and select</p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Preview if uploaded */}
+              {modalField.value?.startsWith('data:image') && (
+                <div className="px-6 pb-4">
+                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <p className="text-xs text-gray-500 mb-2">Uploaded stamp:</p>
+                    <div className="flex items-center justify-center">
+                      <img src={modalField.value} alt="Stamp" className="max-h-24 object-contain" />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => adjustFieldSize(-15)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[#1e1e1e] hover:bg-[#333] text-white text-xs rounded-lg transition-colors border border-[#3a3a3a]"
-                  >
-                    <Minus className="w-3 h-3" />
-                    Smaller
-                  </button>
-                  <button
-                    onClick={() => adjustFieldSize(15)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[#1e1e1e] hover:bg-[#333] text-white text-xs rounded-lg transition-colors border border-[#3a3a3a]"
-                  >
-                    <Plus className="w-3 h-3" />
-                    Larger
-                  </button>
-                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="px-6 py-4 flex gap-3 border-t border-gray-200 bg-yellow-50">
+                <button
+                  onClick={() => {
+                    setStampModalFieldId(null)
+                    setSelectedFieldId(stampModalFieldId)
+                  }}
+                  disabled={!modalField.value}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Adopt Stamp
+                </button>
+                <button
+                  onClick={() => setStampModalFieldId(null)}
+                  className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="px-3 pb-3 flex gap-2">
-              <button
-                onClick={() => updateFieldValue(signatureModalFieldId, '')}
-                disabled={!modalField.value}
-                className="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 bg-[#252525] hover:bg-[#333] text-white text-sm rounded-xl transition-colors border border-[#2a2a2a] disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Clear
-              </button>
-              <button
-                onClick={() => {
-                  setSignatureModalFieldId(null)
-                  // Keep field selected after closing so user can drag it
-                  setSelectedFieldId(signatureModalFieldId)
-                }}
-                disabled={!modalField.value}
-                className="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black text-sm font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Save className="w-3.5 h-3.5" />
-                Done
-              </button>
-            </div>
-
-            {/* Status indicator */}
-            {modalField.value && (
-              <div className="px-3 pb-3">
-                <div className="flex items-center gap-2 p-2 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <CheckSquare className="w-4 h-4 text-green-400" />
-                  <span className="text-xs text-green-400">Signature visible on document!</span>
-                </div>
-              </div>
-            )}
           </div>
         )
       })()}

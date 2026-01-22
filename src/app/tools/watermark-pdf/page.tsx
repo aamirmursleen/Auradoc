@@ -1,24 +1,48 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
-import { Droplets, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock } from 'lucide-react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { Droplets, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock, Eye, Type, Image, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib'
+import * as pdfjsLib from 'pdfjs-dist'
+
+// Set worker source
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+}
 
 export default function WatermarkPDFPage() {
   const [file, setFile] = useState<File | null>(null)
   const [processing, setProcessing] = useState(false)
-  const [processed, setProcessed] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null)
 
-  // Watermark options
+  // Preview states
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewPages, setPreviewPages] = useState<string[]>([])
+  const [totalPages, setTotalPages] = useState(0)
+
+  // Watermark type
+  const [watermarkType, setWatermarkType] = useState<'text' | 'image'>('text')
+
+  // Page selection for watermark
+  const [pageSelection, setPageSelection] = useState<'all' | 'custom'>('all')
+  const [selectedPages, setSelectedPages] = useState<string>('') // e.g., "1,3,5" or "1-5"
+
+  // Text Watermark options
   const [watermarkText, setWatermarkText] = useState('CONFIDENTIAL')
   const [fontSize, setFontSize] = useState(60)
   const [opacity, setOpacity] = useState(0.3)
   const [rotation, setRotation] = useState(-45)
   const [color, setColor] = useState('#ff0000')
-  const [position, setPosition] = useState<'center' | 'tile'>('center')
+  const [position, setPosition] = useState<'center' | 'tile' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('center')
+
+  // Image Watermark options
+  const [watermarkImage, setWatermarkImage] = useState<string | null>(null)
+  const [imageOpacity, setImageOpacity] = useState(0.3)
+  const [imageScale, setImageScale] = useState(0.3)
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -39,8 +63,9 @@ export default function WatermarkPDFPage() {
     )
     if (droppedFile) {
       setFile(droppedFile)
-      setProcessed(false)
       setPdfBlob(null)
+      setPreviewPages([])
+      loadPdfPreview(droppedFile)
     }
   }, [])
 
@@ -48,8 +73,120 @@ export default function WatermarkPDFPage() {
     const selectedFile = e.target.files?.[0]
     if (selectedFile && selectedFile.type === 'application/pdf') {
       setFile(selectedFile)
-      setProcessed(false)
       setPdfBlob(null)
+      setPreviewPages([])
+      loadPdfPreview(selectedFile)
+    }
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setWatermarkImage(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  // Parse page selection string like "1,3,5" or "1-5" or "1,3-5,7"
+  const parsePageSelection = (input: string, totalPages: number): number[] => {
+    if (!input.trim()) return []
+
+    const pages = new Set<number>()
+    const parts = input.split(',').map(p => p.trim())
+
+    for (const part of parts) {
+      if (part.includes('-')) {
+        const [start, end] = part.split('-').map(n => parseInt(n.trim()))
+        if (!isNaN(start) && !isNaN(end)) {
+          for (let i = Math.max(1, start); i <= Math.min(totalPages, end); i++) {
+            pages.add(i)
+          }
+        }
+      } else {
+        const num = parseInt(part)
+        if (!isNaN(num) && num >= 1 && num <= totalPages) {
+          pages.add(num)
+        }
+      }
+    }
+
+    return Array.from(pages).sort((a, b) => a - b)
+  }
+
+  // Render PDF pages to images using pdfjs-dist - ALL PAGES in one scroll
+  const loadPdfPreview = async (pdfFile: File) => {
+    setPreviewLoading(true)
+    try {
+      const arrayBuffer = await pdfFile.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      const numPages = pdf.numPages
+      setTotalPages(numPages)
+
+      const pages: string[] = []
+
+      // Render ALL pages
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i)
+        const scale = 1.5
+        const viewport = page.getViewport({ scale })
+
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')!
+        canvas.width = viewport.width
+        canvas.height = viewport.height
+
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise
+
+        pages.push(canvas.toDataURL('image/png'))
+      }
+
+      setPreviewPages(pages)
+    } catch (error) {
+      console.error('Error loading PDF preview:', error)
+    } finally {
+      setPreviewLoading(false)
+    }
+  }
+
+  // Render watermarked PDF to preview - ALL PAGES
+  const renderWatermarkedPreview = async (pdfBytes: Uint8Array) => {
+    setPreviewLoading(true)
+    try {
+      const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise
+      const numPages = pdf.numPages
+      setTotalPages(numPages)
+
+      const pages: string[] = []
+
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i)
+        const scale = 1.5
+        const viewport = page.getViewport({ scale })
+
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')!
+        canvas.width = viewport.width
+        canvas.height = viewport.height
+
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise
+
+        pages.push(canvas.toDataURL('image/png'))
+      }
+
+      setPreviewPages(pages)
+    } catch (error) {
+      console.error('Error rendering watermarked preview:', error)
+    } finally {
+      setPreviewLoading(false)
     }
   }
 
@@ -62,84 +199,209 @@ export default function WatermarkPDFPage() {
     } : { r: 1, g: 0, b: 0 }
   }
 
-  const handleWatermark = async () => {
-    if (!file || !watermarkText.trim()) return
-    setProcessing(true)
+  // Generate preview with watermark
+  const generatePreview = async () => {
+    if (!file) return
+    if (watermarkType === 'text' && !watermarkText.trim()) return
+    if (watermarkType === 'image' && !watermarkImage) return
+
+    setPreviewLoading(true)
+
+    try {
+      const pdfBytes = await applyWatermark()
+      if (!pdfBytes) return
+
+      // Store blob for download
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+      setPdfBlob(blob)
+
+      // Render watermarked pages to preview
+      await renderWatermarkedPreview(pdfBytes)
+    } catch (error) {
+      console.error('Error generating preview:', error)
+      alert('Error generating preview. Please try again.')
+    } finally {
+      setPreviewLoading(false)
+    }
+  }
+
+  // Apply watermark to PDF (with page selection support)
+  const applyWatermark = async (): Promise<Uint8Array | null> => {
+    if (!file) return null
 
     try {
       const arrayBuffer = await file.arrayBuffer()
       const pdf = await PDFDocument.load(arrayBuffer)
       const pages = pdf.getPages()
-      const font = await pdf.embedFont(StandardFonts.HelveticaBold)
 
-      const { r, g, b } = hexToRgb(color)
+      // Determine which pages to watermark
+      let pagesToWatermark: number[] = []
+      if (pageSelection === 'all') {
+        pagesToWatermark = pages.map((_, i) => i + 1) // All pages (1-indexed)
+      } else {
+        pagesToWatermark = parsePageSelection(selectedPages, pages.length)
+      }
 
-      for (const page of pages) {
-        const { width, height } = page.getSize()
+      if (watermarkType === 'text') {
+        const font = await pdf.embedFont(StandardFonts.HelveticaBold)
+        const { r, g, b } = hexToRgb(color)
 
-        if (position === 'center') {
-          // Single centered watermark
-          const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
-          const textHeight = fontSize
+        for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+          // Skip if this page is not in the selection
+          if (!pagesToWatermark.includes(pageIndex + 1)) continue
 
-          page.drawText(watermarkText, {
-            x: (width - textWidth) / 2,
-            y: (height - textHeight) / 2,
-            size: fontSize,
-            font,
-            color: rgb(r, g, b),
-            opacity: opacity,
-            rotate: degrees(rotation),
-          })
-        } else {
-          // Tiled watermarks
-          const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
-          const spacing = Math.max(textWidth + 50, 200)
+          const page = pages[pageIndex]
+          const { width, height } = page.getSize()
 
-          for (let x = -spacing; x < width + spacing; x += spacing) {
-            for (let y = -spacing; y < height + spacing; y += spacing) {
-              page.drawText(watermarkText, {
-                x,
-                y,
-                size: fontSize,
-                font,
-                color: rgb(r, g, b),
-                opacity: opacity,
-                rotate: degrees(rotation),
-              })
+          if (position === 'center') {
+            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+            page.drawText(watermarkText, {
+              x: (width - textWidth) / 2,
+              y: height / 2,
+              size: fontSize,
+              font,
+              color: rgb(r, g, b),
+              opacity: opacity,
+              rotate: degrees(rotation),
+            })
+          } else if (position === 'tile') {
+            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+            const spacing = Math.max(textWidth + 100, 250)
+
+            for (let x = -spacing; x < width + spacing; x += spacing) {
+              for (let y = -spacing; y < height + spacing; y += spacing) {
+                page.drawText(watermarkText, {
+                  x,
+                  y,
+                  size: fontSize,
+                  font,
+                  color: rgb(r, g, b),
+                  opacity: opacity,
+                  rotate: degrees(rotation),
+                })
+              }
             }
+          } else {
+            // Corner positions
+            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+            const padding = 30
+            let x = padding
+            let y = padding
+
+            if (position === 'top-left') {
+              x = padding
+              y = height - padding - fontSize
+            } else if (position === 'top-right') {
+              x = width - textWidth - padding
+              y = height - padding - fontSize
+            } else if (position === 'bottom-left') {
+              x = padding
+              y = padding
+            } else if (position === 'bottom-right') {
+              x = width - textWidth - padding
+              y = padding
+            }
+
+            page.drawText(watermarkText, {
+              x,
+              y,
+              size: fontSize,
+              font,
+              color: rgb(r, g, b),
+              opacity: opacity,
+              rotate: degrees(0), // No rotation for corner positions
+            })
           }
+        }
+      } else if (watermarkType === 'image' && watermarkImage) {
+        // Image watermark
+        const imageBytes = await fetch(watermarkImage).then(res => res.arrayBuffer())
+        let embeddedImage
+
+        if (watermarkImage.includes('image/png')) {
+          embeddedImage = await pdf.embedPng(imageBytes)
+        } else {
+          embeddedImage = await pdf.embedJpg(imageBytes)
+        }
+
+        const imgDims = embeddedImage.scale(imageScale)
+
+        for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+          // Skip if this page is not in the selection
+          if (!pagesToWatermark.includes(pageIndex + 1)) continue
+
+          const page = pages[pageIndex]
+          const { width, height } = page.getSize()
+          const x = (width - imgDims.width) / 2
+          const y = (height - imgDims.height) / 2
+
+          page.drawImage(embeddedImage, {
+            x,
+            y,
+            width: imgDims.width,
+            height: imgDims.height,
+            opacity: imageOpacity,
+          })
         }
       }
 
-      const pdfBytes = await pdf.save()
-      const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
-      setPdfBlob(blob)
-      setProcessed(true)
+      return await pdf.save()
     } catch (error) {
-      console.error('Error adding watermark:', error)
-      alert('Error adding watermark. The file may be corrupted or password-protected.')
+      console.error('Error applying watermark:', error)
+      return null
+    }
+  }
+
+  // Remove watermark (reset to original)
+  const removeWatermark = async () => {
+    if (!file) return
+    setPdfBlob(null)
+    // Reload original file preview
+    await loadPdfPreview(file)
+  }
+
+  // Download watermarked PDF
+  const downloadPDF = async () => {
+    if (!file) return
+
+    setProcessing(true)
+    try {
+      let blob = pdfBlob
+
+      if (!blob) {
+        const pdfBytes = await applyWatermark()
+        if (pdfBytes) {
+          blob = new Blob([pdfBytes], { type: 'application/pdf' })
+          setPdfBlob(blob)
+        }
+      }
+
+      if (blob) {
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `watermarked-${file.name}`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      }
+    } catch (error) {
+      console.error('Error downloading:', error)
+      alert('Error downloading PDF')
     } finally {
       setProcessing(false)
     }
   }
 
-  const downloadPDF = () => {
-    if (!pdfBlob || !file) return
-    const url = URL.createObjectURL(pdfBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `watermarked-${file.name}`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
-
   const clearAll = () => {
     setFile(null)
-    setProcessed(false)
     setPdfBlob(null)
+    setPreviewPages([])
+    setTotalPages(0)
+    setWatermarkImage(null)
+    setPageSelection('all')
+    setSelectedPages('')
   }
 
   const formatSize = (bytes: number) => {
@@ -148,37 +410,41 @@ export default function WatermarkPDFPage() {
     return (bytes / 1024 / 1024).toFixed(2) + ' MB'
   }
 
-  const presetTexts = ['CONFIDENTIAL', 'DRAFT', 'SAMPLE', 'COPY', 'DO NOT COPY', 'PRIVATE']
+  const presetTexts = ['CONFIDENTIAL', 'DRAFT', 'SAMPLE', 'COPY', 'DO NOT COPY', 'PRIVATE', 'APPROVED', 'VOID']
 
   return (
     <div className="min-h-screen bg-[#1e1e1e]">
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Droplets className="w-4 h-4" />
-            Free PDF Tool
+      <section className="py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Droplets className="w-4 h-4" />
+              Free PDF Tool
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              Watermark PDF
+            </h1>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Add or remove custom text/image watermarks to your PDF documents.
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Watermark PDF
-          </h1>
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-            Add custom text watermarks to your PDF documents.
-            Protect your content with professional watermarks.
-          </p>
 
-          <div
-            className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 transition-all ${
-              dragActive
-                ? 'border-[#c4ff0e] bg-[#252525]'
-                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            {!file ? (
-              <div className="text-center py-8">
+          {/* Main Content */}
+          {!file ? (
+            /* Upload Area */
+            <div
+              className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-12 transition-all ${
+                dragActive
+                  ? 'border-[#c4ff0e] bg-[#252525]'
+                  : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <div className="text-center">
                 <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
                   <Upload className="w-8 h-8 text-[#c4ff0e]" />
                 </div>
@@ -188,7 +454,7 @@ export default function WatermarkPDFPage() {
                 <p className="text-gray-400 mb-4">or click to browse</p>
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,application/pdf"
                   onChange={handleFileChange}
                   className="hidden"
                   id="pdf-upload"
@@ -201,85 +467,168 @@ export default function WatermarkPDFPage() {
                   Select PDF File
                 </label>
               </div>
-            ) : !processed ? (
-              <div>
-                <div className="flex items-center gap-3 p-3 bg-[#252525] rounded-lg border border-[#2a2a2a] mb-6">
-                  <div className="w-10 h-10 bg-[#2a2a2a] rounded flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-[#c4ff0e]" />
+            </div>
+          ) : (
+            /* Editor Layout */
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Panel - Settings */}
+              <div className="lg:col-span-1 space-y-4">
+                {/* File Info */}
+                <div className="bg-[#252525] rounded-xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#2a2a2a] rounded flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-[#c4ff0e]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                      <p className="text-xs text-gray-400">{formatSize(file.size)} • {totalPages} page{totalPages !== 1 ? 's' : ''}</p>
+                    </div>
+                    <button
+                      onClick={clearAll}
+                      className="p-2 hover:bg-red-900/20 rounded text-gray-400 hover:text-red-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{file.name}</p>
-                    <p className="text-xs text-gray-400">{formatSize(file.size)}</p>
-                  </div>
-                  <button
-                    onClick={clearAll}
-                    className="p-1 hover:bg-red-900/20 rounded text-gray-400 hover:text-red-400"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
                 </div>
 
-                {/* Watermark Settings */}
-                <div className="space-y-4 mb-6 text-left">
-                  {/* Watermark Text */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Watermark Text
-                    </label>
-                    <input
-                      type="text"
-                      value={watermarkText}
-                      onChange={(e) => setWatermarkText(e.target.value)}
-                      className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
-                      placeholder="Enter watermark text"
-                    />
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {presetTexts.map(text => (
-                        <button
-                          key={text}
-                          onClick={() => setWatermarkText(text)}
-                          className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                            watermarkText === text
-                              ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
-                              : 'border-[#2a2a2a] hover:border-[#3a3a3a] text-gray-400'
-                          }`}
-                        >
-                          {text}
-                        </button>
-                      ))}
-                    </div>
+                {/* Watermark Type Toggle */}
+                <div className="bg-[#252525] rounded-xl p-4">
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Watermark Type
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setWatermarkType('text')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                        watermarkType === 'text'
+                          ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]'
+                          : 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]'
+                      }`}
+                    >
+                      <Type className="w-5 h-5" />
+                      Text
+                    </button>
+                    <button
+                      onClick={() => setWatermarkType('image')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                        watermarkType === 'image'
+                          ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]'
+                          : 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]'
+                      }`}
+                    >
+                      <Image className="w-5 h-5" />
+                      Image
+                    </button>
                   </div>
+                </div>
 
-                  {/* Position */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Position
-                    </label>
-                    <div className="flex gap-4">
+                {/* Page Selection */}
+                <div className="bg-[#252525] rounded-xl p-4">
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Apply Watermark To
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => setPosition('center')}
-                        className={`flex-1 px-4 py-2 rounded-lg border-2 transition-all ${
-                          position === 'center'
-                            ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
-                            : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                        onClick={() => setPageSelection('all')}
+                        className={`flex-1 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                          pageSelection === 'all'
+                            ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]'
+                            : 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]'
                         }`}
                       >
-                        Centered
+                        All Pages
                       </button>
                       <button
-                        onClick={() => setPosition('tile')}
-                        className={`flex-1 px-4 py-2 rounded-lg border-2 transition-all ${
-                          position === 'tile'
-                            ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
-                            : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                        onClick={() => setPageSelection('custom')}
+                        className={`flex-1 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                          pageSelection === 'custom'
+                            ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]'
+                            : 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]'
                         }`}
                       >
-                        Tiled
+                        Custom Pages
                       </button>
                     </div>
+                    {pageSelection === 'custom' && (
+                      <div>
+                        <input
+                          type="text"
+                          value={selectedPages}
+                          onChange={(e) => setSelectedPages(e.target.value)}
+                          placeholder="e.g., 1,3,5 or 1-5 or 1,3-5,7"
+                          className="w-full px-3 py-2 bg-[#1e1e1e] border border-[#3a3a3a] rounded-lg text-white text-sm focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Total: {totalPages} pages
+                        </p>
+                      </div>
+                    )}
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                {/* Text Watermark Settings */}
+                {watermarkType === 'text' && (
+                  <div className="bg-[#252525] rounded-xl p-4 space-y-4">
+                    {/* Watermark Text */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Watermark Text
+                      </label>
+                      <input
+                        type="text"
+                        value={watermarkText}
+                        onChange={(e) => setWatermarkText(e.target.value)}
+                        className="w-full px-3 py-2 bg-[#1e1e1e] border border-[#3a3a3a] rounded-lg text-white focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                        placeholder="Enter watermark text"
+                      />
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {presetTexts.map(text => (
+                          <button
+                            key={text}
+                            onClick={() => setWatermarkText(text)}
+                            className={`px-2 py-1 text-xs rounded border transition-colors ${
+                              watermarkText === text
+                                ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]'
+                                : 'border-[#3a3a3a] hover:border-[#4a4a4a] text-gray-400'
+                            }`}
+                          >
+                            {text}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Position */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Position
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: 'top-left', label: '↖' },
+                          { id: 'center', label: '⊕' },
+                          { id: 'top-right', label: '↗' },
+                          { id: 'bottom-left', label: '↙' },
+                          { id: 'tile', label: '⊞' },
+                          { id: 'bottom-right', label: '↘' },
+                        ].map(pos => (
+                          <button
+                            key={pos.id}
+                            onClick={() => setPosition(pos.id as any)}
+                            className={`px-3 py-2 rounded-lg border-2 text-lg transition-all ${
+                              position === pos.id
+                                ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]'
+                                : 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]'
+                            }`}
+                          >
+                            {pos.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Font Size */}
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -288,10 +637,10 @@ export default function WatermarkPDFPage() {
                       <input
                         type="range"
                         min="20"
-                        max="120"
+                        max="150"
                         value={fontSize}
                         onChange={(e) => setFontSize(parseInt(e.target.value))}
-                        className="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                        className="w-full h-2 bg-[#3a3a3a] rounded-lg appearance-none cursor-pointer accent-[#c4ff0e]"
                       />
                     </div>
 
@@ -302,16 +651,14 @@ export default function WatermarkPDFPage() {
                       </label>
                       <input
                         type="range"
-                        min="10"
+                        min="5"
                         max="100"
                         value={opacity * 100}
                         onChange={(e) => setOpacity(parseInt(e.target.value) / 100)}
-                        className="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                        className="w-full h-2 bg-[#3a3a3a] rounded-lg appearance-none cursor-pointer accent-[#c4ff0e]"
                       />
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
                     {/* Rotation */}
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -323,7 +670,7 @@ export default function WatermarkPDFPage() {
                         max="90"
                         value={rotation}
                         onChange={(e) => setRotation(parseInt(e.target.value))}
-                        className="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                        className="w-full h-2 bg-[#3a3a3a] rounded-lg appearance-none cursor-pointer accent-[#c4ff0e]"
                       />
                     </div>
 
@@ -332,19 +679,19 @@ export default function WatermarkPDFPage() {
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Color
                       </label>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         <input
                           type="color"
                           value={color}
                           onChange={(e) => setColor(e.target.value)}
-                          className="w-10 h-10 rounded cursor-pointer border border-[#2a2a2a]"
+                          className="w-10 h-10 rounded cursor-pointer border border-[#3a3a3a]"
                         />
                         <div className="flex gap-1">
-                          {['#ff0000', '#0000ff', '#808080', '#000000'].map(c => (
+                          {['#ff0000', '#0000ff', '#808080', '#000000', '#008000'].map(c => (
                             <button
                               key={c}
                               onClick={() => setColor(c)}
-                              className={`w-8 h-8 rounded border-2 ${color === c ? 'border-[#c4ff0e]' : 'border-[#2a2a2a]'}`}
+                              className={`w-8 h-8 rounded border-2 ${color === c ? 'border-[#c4ff0e]' : 'border-[#3a3a3a]'}`}
                               style={{ backgroundColor: c }}
                             />
                           ))}
@@ -352,89 +699,215 @@ export default function WatermarkPDFPage() {
                       </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Preview */}
-                  <div className="bg-[#2a2a2a] rounded-lg p-4 text-center">
-                    <p className="text-xs text-gray-400 mb-2">Preview</p>
-                    <div
-                      className="inline-block font-bold"
-                      style={{
-                        fontSize: `${Math.min(fontSize / 2, 32)}px`,
-                        color: color,
-                        opacity: opacity,
-                        transform: `rotate(${rotation}deg)`,
-                      }}
-                    >
-                      {watermarkText}
+                {/* Image Watermark Settings */}
+                {watermarkType === 'image' && (
+                  <div className="bg-[#252525] rounded-xl p-4 space-y-4">
+                    {/* Image Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Watermark Image
+                      </label>
+                      <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      {watermarkImage ? (
+                        <div className="relative">
+                          <img
+                            src={watermarkImage}
+                            alt="Watermark"
+                            className="w-full h-32 object-contain bg-[#1e1e1e] rounded-lg border border-[#3a3a3a]"
+                          />
+                          <button
+                            onClick={() => setWatermarkImage(null)}
+                            className="absolute top-2 right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => imageInputRef.current?.click()}
+                          className="w-full py-8 border-2 border-dashed border-[#3a3a3a] rounded-lg text-gray-400 hover:border-[#c4ff0e] hover:text-[#c4ff0e] transition-colors"
+                        >
+                          <Image className="w-8 h-8 mx-auto mb-2" />
+                          <span>Click to upload image</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Image Opacity */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Opacity: {Math.round(imageOpacity * 100)}%
+                      </label>
+                      <input
+                        type="range"
+                        min="5"
+                        max="100"
+                        value={imageOpacity * 100}
+                        onChange={(e) => setImageOpacity(parseInt(e.target.value) / 100)}
+                        className="w-full h-2 bg-[#3a3a3a] rounded-lg appearance-none cursor-pointer accent-[#c4ff0e]"
+                      />
+                    </div>
+
+                    {/* Image Scale */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Size: {Math.round(imageScale * 100)}%
+                      </label>
+                      <input
+                        type="range"
+                        min="10"
+                        max="100"
+                        value={imageScale * 100}
+                        onChange={(e) => setImageScale(parseInt(e.target.value) / 100)}
+                        className="w-full h-2 bg-[#3a3a3a] rounded-lg appearance-none cursor-pointer accent-[#c4ff0e]"
+                      />
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="flex justify-center gap-3">
+                {/* Action Buttons */}
+                <div className="space-y-2">
                   <button
-                    onClick={clearAll}
-                    className="px-4 py-2 text-gray-400 hover:bg-[#2a2a2a] rounded-lg transition-colors"
-                    disabled={processing}
+                    onClick={generatePreview}
+                    disabled={previewLoading || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white font-medium rounded-lg transition-colors disabled:opacity-50"
                   >
-                    Cancel
+                    {previewLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-5 h-5" />
+                        Preview Your File
+                      </>
+                    )}
                   </button>
+
                   <button
-                    onClick={handleWatermark}
-                    disabled={processing || !watermarkText.trim()}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                    onClick={downloadPDF}
+                    disabled={processing || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#c4ff0e] hover:bg-[#d4ff3e] text-black font-medium rounded-lg transition-colors disabled:opacity-50"
                   >
                     {processing ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Adding Watermark...
+                        Processing...
                       </>
                     ) : (
                       <>
-                        <Droplets className="w-5 h-5" />
-                        Add Watermark
+                        <Download className="w-5 h-5" />
+                        Download Your File
                       </>
                     )}
                   </button>
+
+                  {pdfBlob && (
+                    <button
+                      onClick={removeWatermark}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-medium rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                      Remove Watermark
+                    </button>
+                  )}
                 </div>
               </div>
-            ) : (
-              <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Watermark Added Successfully!</span>
+
+              {/* Right Panel - Preview */}
+              <div className="lg:col-span-2 bg-[#252525] rounded-xl p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-[#c4ff0e]" />
+                    Preview
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {pdfBlob && (
+                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                        Watermark Applied
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <button
-                  onClick={downloadPDF}
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
-                >
-                  <Download className="w-5 h-5" />
-                  Download Watermarked PDF
-                </button>
-                <button
-                  onClick={clearAll}
-                  className="block mx-auto text-sm text-gray-400 hover:text-gray-300"
-                >
-                  Watermark another PDF
-                </button>
+                <div className="bg-[#1e1e1e] rounded-lg overflow-hidden" style={{ minHeight: '500px' }}>
+                  {previewLoading ? (
+                    <div className="flex items-center justify-center h-[500px]">
+                      <div className="text-center">
+                        <Loader2 className="w-10 h-10 animate-spin text-[#c4ff0e] mx-auto mb-4" />
+                        <p className="text-gray-400">Loading preview...</p>
+                      </div>
+                    </div>
+                  ) : previewPages.length > 0 ? (
+                    <div className="flex flex-col">
+                      {/* Page Count Header */}
+                      <div className="flex items-center justify-center gap-4 py-3 bg-[#2a2a2a] border-b border-[#3a3a3a]">
+                        <span className="text-white text-sm">
+                          {previewPages.length} Page{previewPages.length !== 1 ? 's' : ''} • Scroll to view all
+                        </span>
+                      </div>
+
+                      {/* All Pages Display - Continuous Scroll */}
+                      <div className="overflow-y-auto p-4 space-y-4" style={{ maxHeight: '600px' }}>
+                        {previewPages.map((pageImg, index) => (
+                          <div key={index} className="relative">
+                            {/* Page number badge */}
+                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
+                              Page {index + 1}
+                            </div>
+                            <img
+                              src={pageImg}
+                              alt={`Page ${index + 1}`}
+                              className="w-full object-contain shadow-xl rounded border border-[#3a3a3a]"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-[500px] text-center text-gray-500">
+                      <div>
+                        <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p>Upload a PDF to see preview</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {pdfBlob && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-green-400">
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Watermark applied! Click "Download Your File" to save.</span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#1F1F1F]">
+      {/* Features Section */}
+      <section className="py-12 px-4 bg-[#1F1F1F]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
-            Why Use PDF Watermarks?
+          <h2 className="text-2xl font-bold text-center text-white mb-8">
+            Why Use Our PDF Watermark Tool?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { icon: Zap, title: 'Instant Processing', desc: 'Add watermarks instantly in your browser' },
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device' },
               { icon: Clock, title: 'No Limits', desc: 'Watermark any PDF regardless of size' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
+              <div key={idx} className="text-center p-6 rounded-xl bg-[#252525]">
                 <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
                 </div>
@@ -446,12 +919,13 @@ export default function WatermarkPDFPage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#252525]">
+      {/* CTA Section */}
+      <section className="py-12 px-4 bg-[#252525]">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-white mb-4">
             Need More PDF Tools?
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className="text-gray-300 mb-6">
             Explore our complete suite of free PDF tools
           </p>
           <Link
