@@ -212,7 +212,7 @@ export default function WatermarkPDFPage() {
       if (!pdfBytes) return
 
       // Store blob for download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+      const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
       setPdfBlob(blob)
 
       // Render watermarked pages to preview
@@ -371,7 +371,7 @@ export default function WatermarkPDFPage() {
       if (!blob) {
         const pdfBytes = await applyWatermark()
         if (pdfBytes) {
-          blob = new Blob([pdfBytes], { type: 'application/pdf' })
+          blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
           setPdfBlob(blob)
         }
       }
