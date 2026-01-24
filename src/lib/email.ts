@@ -230,7 +230,7 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const signUrl = `${APP_URL}/sign/${data.documentId}?signer=${signer.email}`
+  const signUrl = `${APP_URL}/sign/${data.documentId}?email=${encodeURIComponent(signer.email)}`
 
   const html = getOdooStyleTemplate({
     recipientName: signer.name,
@@ -580,7 +580,7 @@ export async function sendSigningReminder(
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const signUrl = `${APP_URL}/sign/${data.documentId}?signer=${signer.email}`
+  const signUrl = `${APP_URL}/sign/${data.documentId}?email=${encodeURIComponent(signer.email)}`
   const isUrgent = reminderNumber >= 3
 
   const html = `
