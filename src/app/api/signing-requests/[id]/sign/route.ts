@@ -91,7 +91,6 @@ export async function POST(
         signers,
         current_signer_index: nextSignerIndex >= 0 ? nextSignerIndex : signerIndex,
         status: allSigned ? 'completed' : 'in_progress',
-        completed_at: allSigned ? new Date().toISOString() : null,
         updated_at: new Date().toISOString()
       })
       .eq('id', documentId)
