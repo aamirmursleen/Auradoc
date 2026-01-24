@@ -255,12 +255,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   // Continuous Scroll Mode
   if (continuousScroll) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col">
         <div
           ref={containerRef}
-          className="flex-1 overflow-auto bg-gray-200 p-6"
+          className="flex flex-col items-center gap-6"
         >
-          <div className="flex flex-col items-center gap-6">
             {pagesLoading ? (
               <div className="flex items-center justify-center h-96">
                 <Loader2 className="w-10 h-10 animate-spin text-primary-500" />
@@ -302,7 +301,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
                 )
               })
             )}
-          </div>
         </div>
       </div>
     )

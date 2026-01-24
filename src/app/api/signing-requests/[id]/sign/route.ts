@@ -16,7 +16,10 @@ export async function POST(
     const ipAddress = forwardedFor ? forwardedFor.split(',')[0].trim() : req.headers.get('x-real-ip') || 'unknown'
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
+    console.log('📝 Sign request received:', { documentId, signerEmail, hasSignature: !!signature })
+
     if (!documentId || !signerEmail || !signature) {
+      console.error('❌ Missing required fields:', { documentId, signerEmail, hasSignature: !!signature })
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
@@ -30,20 +33,40 @@ export async function POST(
       .eq('id', documentId)
       .single()
 
-    if (fetchError || !signingRequest) {
-      // For demo, just return success
-      return NextResponse.json({
-        success: true,
-        message: 'Signature recorded successfully',
-        isComplete: true
-      })
+    if (fetchError) {
+      console.error('❌ Error fetching signing request:', fetchError)
+      return NextResponse.json(
+        { success: false, message: 'Failed to fetch signing request: ' + fetchError.message },
+        { status: 500 }
+      )
     }
 
-    // Find and update the signer
-    const signers = signingRequest.signers || []
+    if (!signingRequest) {
+      console.error('❌ Signing request not found:', documentId)
+      return NextResponse.json(
+        { success: false, message: 'Signing request not found' },
+        { status: 404 }
+      )
+    }
+
+    console.log('✅ Signing request found:', {
+      id: signingRequest.id,
+      status: signingRequest.status,
+      signersCount: signingRequest.signers?.length
+    })
+
+    // Find and update the signer - create a deep copy to avoid reference issues
+    const signers = JSON.parse(JSON.stringify(signingRequest.signers || []))
     const signerIndex = signers.findIndex((s: { email: string }) =>
       s.email.toLowerCase() === signerEmail.toLowerCase()
     )
+
+    console.log('🔍 Signer lookup:', {
+      signerEmail,
+      signerIndex,
+      signersEmails: signers.map((s: { email: string }) => s.email),
+      currentStatuses: signers.map((s: { email: string; status: string }) => ({ email: s.email, status: s.status }))
+    })
 
     if (signerIndex === -1) {
       return NextResponse.json(
@@ -61,11 +84,19 @@ export async function POST(
     }
 
     // Update signer status
+    const signedAt = new Date().toISOString()
     signers[signerIndex].status = 'signed'
-    signers[signerIndex].signedAt = new Date().toISOString()
+    signers[signerIndex].signedAt = signedAt
+
+    console.log('📝 Updated signer in array:', {
+      signerIndex,
+      newStatus: signers[signerIndex].status,
+      signedAt,
+      allSigners: signers.map((s: { email: string; status: string }) => ({ email: s.email, status: s.status }))
+    })
 
     // Store signature record with audit trail
-    await supabaseAdmin
+    const { error: recordError } = await supabaseAdmin
       .from('signature_records')
       .insert({
         signing_request_id: documentId,
@@ -77,34 +108,95 @@ export async function POST(
         user_agent: userAgent,
         consent_given: true,
         consent_text: 'I agree to sign this document electronically',
-        signed_at: new Date().toISOString()
+        signed_at: signedAt
       })
+
+    if (recordError) {
+      console.error('⚠️ Error storing signature record:', recordError)
+      // Don't fail the request, signature record is for audit
+    }
 
     // Check if all signers have signed
     const allSigned = signers.every((s: { status: string }) => s.status === 'signed')
     const nextSignerIndex = signers.findIndex((s: { status: string }) => s.status === 'pending')
 
+    console.log('📊 Signing progress:', {
+      allSigned,
+      nextSignerIndex,
+      signedCount: signers.filter((s: { status: string }) => s.status === 'signed').length,
+      totalSigners: signers.length
+    })
+
     // Update the signing request
+    const updatePayload = {
+      signers,
+      current_signer_index: nextSignerIndex >= 0 ? nextSignerIndex : signerIndex,
+      status: allSigned ? 'completed' : 'in_progress',
+      updated_at: new Date().toISOString()
+    }
+
+    console.log('💾 Updating signing_requests with:', {
+      documentId,
+      status: updatePayload.status,
+      signersCount: updatePayload.signers.length,
+      signersStatuses: updatePayload.signers.map((s: { email: string; status: string }) => ({ email: s.email, status: s.status }))
+    })
+
     const { data: updateData, error: updateError } = await supabaseAdmin
       .from('signing_requests')
-      .update({
-        signers,
-        current_signer_index: nextSignerIndex >= 0 ? nextSignerIndex : signerIndex,
-        status: allSigned ? 'completed' : 'in_progress',
-        updated_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq('id', documentId)
       .select()
 
     if (updateError) {
-      console.error('Update error:', updateError)
+      console.error('❌ Update error:', updateError)
       return NextResponse.json(
         { success: false, message: 'Failed to update signing status: ' + updateError.message },
         { status: 500 }
       )
     }
 
-    console.log('✅ Signing request updated successfully:', updateData)
+    console.log('✅ Signing request updated successfully:', {
+      id: updateData?.[0]?.id,
+      status: updateData?.[0]?.status,
+      signersStatuses: updateData?.[0]?.signers?.map((s: { email: string; status: string }) => ({ email: s.email, status: s.status }))
+    })
+
+    // Also update document_signers table if signer has an id (for consistency)
+    const signerId = signers[signerIndex].id
+    if (signerId) {
+      const { error: signerUpdateError } = await supabaseAdmin
+        .from('document_signers')
+        .update({
+          status: 'signed',
+          signed_at: signedAt,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', signerId)
+
+      if (signerUpdateError) {
+        console.error('⚠️ Error updating document_signers:', signerUpdateError)
+      } else {
+        console.log('✅ document_signers table updated for signer:', signerId)
+      }
+    }
+
+    // Update document status if all signed
+    if (allSigned && signingRequest.document_id) {
+      const { error: docUpdateError } = await supabaseAdmin
+        .from('documents')
+        .update({
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', signingRequest.document_id)
+
+      if (docUpdateError) {
+        console.error('⚠️ Error updating document status:', docUpdateError)
+      } else {
+        console.log('✅ Document status updated to completed')
+      }
+    }
 
     // Send notification to sender
     try {
