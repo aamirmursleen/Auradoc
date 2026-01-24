@@ -85,7 +85,7 @@ export async function POST(
     const nextSignerIndex = signers.findIndex((s: { status: string }) => s.status === 'pending')
 
     // Update the signing request
-    const { error: updateError } = await supabaseAdmin
+    const { data: updateData, error: updateError } = await supabaseAdmin
       .from('signing_requests')
       .update({
         signers,
@@ -95,10 +95,17 @@ export async function POST(
         updated_at: new Date().toISOString()
       })
       .eq('id', documentId)
+      .select()
 
     if (updateError) {
       console.error('Update error:', updateError)
+      return NextResponse.json(
+        { success: false, message: 'Failed to update signing status: ' + updateError.message },
+        { status: 500 }
+      )
     }
+
+    console.log('✅ Signing request updated successfully:', updateData)
 
     // Send notification to sender
     try {

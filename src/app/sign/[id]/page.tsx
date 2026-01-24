@@ -383,12 +383,32 @@ export default function SignDocumentPage() {
       try {
         const page = await pdfDoc.getPage(i)
         const viewport = page.getViewport({ scale })
-        canvas.height = viewport.height
+
+        // Set canvas dimensions
         canvas.width = viewport.width
+        canvas.height = viewport.height
         heights.push(viewport.height)
         widths.push(viewport.width)
+
         const context = canvas.getContext('2d')
-        if (context) await page.render({ canvasContext: context, viewport }).promise
+        if (context) {
+          // Reset any transforms
+          context.setTransform(1, 0, 0, 1, 0, 0)
+
+          // Clear canvas completely
+          context.clearRect(0, 0, canvas.width, canvas.height)
+
+          // Fill with white background
+          context.fillStyle = '#ffffff'
+          context.fillRect(0, 0, canvas.width, canvas.height)
+
+          // Render PDF page with proper background
+          await page.render({
+            canvasContext: context,
+            viewport,
+            background: 'white'
+          }).promise
+        }
       } catch (err) { console.error('Error rendering page', i, err) }
     }
     setPageHeights(heights)
@@ -859,7 +879,7 @@ export default function SignDocumentPage() {
                       <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page 1 of 1</div>
                     </div>
                   ) : (
-                    Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-[#1F1F1F] rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))
+                    Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-white rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))
                   )}
                   {myFields.map((field) => {
                     const originalPos = getFieldPosition(field)

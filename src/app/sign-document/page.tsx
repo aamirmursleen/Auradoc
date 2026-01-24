@@ -664,10 +664,19 @@ const SignDocumentPage: React.FC = () => {
         canvas.width = viewport.width
         canvas.height = viewport.height
 
+        // Reset transforms and clear canvas
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        // Fill with white background
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
         // Render PDF page
         await page.render({
           canvasContext: ctx,
-          viewport: viewport
+          viewport: viewport,
+          background: 'white'
         }).promise
 
         // Overlay fields for this page
@@ -828,7 +837,13 @@ const SignDocumentPage: React.FC = () => {
         canvas.width = viewport.width
         canvas.height = viewport.height
 
-        await page.render({ canvasContext: ctx, viewport }).promise
+        // Reset transforms and fill white background
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        await page.render({ canvasContext: ctx, viewport, background: 'white' }).promise
 
         const scaleX = viewport.width / viewerWidth
         const scaleY = viewport.height / viewerHeight
@@ -862,7 +877,13 @@ const SignDocumentPage: React.FC = () => {
           canvas.width = viewport.width
           canvas.height = viewport.height
 
-          await page.render({ canvasContext: ctx, viewport }).promise
+          // Reset transforms and fill white background
+          ctx.setTransform(1, 0, 0, 1, 0, 0)
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+          await page.render({ canvasContext: ctx, viewport, background: 'white' }).promise
 
           // Get page-specific dimensions for field scaling
           const pageBaseViewport = page.getViewport({ scale: 1 })

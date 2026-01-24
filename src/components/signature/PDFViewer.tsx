@@ -111,9 +111,18 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         canvas.width = viewport.width
         canvas.height = viewport.height
 
+        // Reset transforms and clear canvas
+        context.setTransform(1, 0, 0, 1, 0, 0)
+        context.clearRect(0, 0, canvas.width, canvas.height)
+
+        // Fill with white background before rendering
+        context.fillStyle = '#ffffff'
+        context.fillRect(0, 0, canvas.width, canvas.height)
+
         await page.render({
           canvasContext: context,
-          viewport: viewport
+          viewport: viewport,
+          background: 'white'
         }).promise
 
         const imageUrl = canvas.toDataURL('image/png')
@@ -160,9 +169,18 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         canvas.width = viewport.width
         canvas.height = viewport.height
 
+        // Reset transforms and clear canvas
+        context.setTransform(1, 0, 0, 1, 0, 0)
+        context.clearRect(0, 0, canvas.width, canvas.height)
+
+        // Fill with white background
+        context.fillStyle = '#ffffff'
+        context.fillRect(0, 0, canvas.width, canvas.height)
+
         await page.render({
           canvasContext: context,
-          viewport: viewport
+          viewport: viewport,
+          background: 'white'
         }).promise
 
         if (!isMounted) return
