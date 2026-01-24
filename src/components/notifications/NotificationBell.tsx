@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { Bell, X, Check, CheckCheck, FileCheck, FileText, Eye, XCircle, Clock } from 'lucide-react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { Bell, X, Check, CheckCheck, FileCheck, FileText, Eye, XCircle, Clock, Wifi, WifiOff } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
+import { useRealtimeNotifications, RealtimeNotification } from '@/hooks/useRealtimeNotifications'
+import { useToastContext } from '@/contexts/ToastContext'
 
 interface Notification {
   id: string
@@ -20,6 +22,7 @@ interface Notification {
 
 const NotificationBell: React.FC = () => {
   const { user } = useUser()
+  const { addToast } = useToastContext()
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -27,7 +30,7 @@ const NotificationBell: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Fetch notifications
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user) return
 
     try {
@@ -41,16 +44,51 @@ const NotificationBell: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
     }
-  }
+  }, [user])
 
-  // Initial fetch and polling
+  // Handle new realtime notification
+  const handleNewNotification = useCallback((notification: RealtimeNotification) => {
+    // Add to local state
+    setNotifications(prev => [notification, ...prev])
+    setUnreadCount(prev => prev + 1)
+
+    // Show toast notification
+    addToast({
+      type: notification.type as any,
+      title: notification.title,
+      message: notification.message,
+      documentName: notification.document_name || undefined,
+      signerName: notification.signer_name || undefined,
+      duration: 6000
+    })
+  }, [addToast])
+
+  // Handle connection status changes
+  const handleConnectionChange = useCallback((connected: boolean) => {
+    if (connected) {
+      // Resync data when reconnecting
+      fetchNotifications()
+    }
+  }, [fetchNotifications])
+
+  // Setup realtime subscription
+  const { isConnected } = useRealtimeNotifications({
+    userId: user?.id,
+    onNotification: handleNewNotification,
+    onConnectionChange: handleConnectionChange
+  })
+
+  // Initial fetch
   useEffect(() => {
     fetchNotifications()
+  }, [fetchNotifications])
 
-    // Poll every 30 seconds for new notifications
+  // Fallback polling every 30 seconds (backup for missed events)
+  useEffect(() => {
+    if (!user) return
     const interval = setInterval(fetchNotifications, 30000)
     return () => clearInterval(interval)
-  }, [user])
+  }, [user, fetchNotifications])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -147,10 +185,12 @@ const NotificationBell: React.FC = () => {
       >
         <Bell className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
+        {/* Connection indicator */}
+        <span className={`absolute bottom-0 right-0 w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
       </button>
 
       {/* Dropdown */}
@@ -161,6 +201,22 @@ const NotificationBell: React.FC = () => {
             <h3 className="font-semibold text-white flex items-center gap-2">
               <Bell className="w-4 h-4 text-[#c4ff0e]" />
               Notifications
+              {/* Live indicator */}
+              <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
+                isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+              }`}>
+                {isConnected ? (
+                  <>
+                    <Wifi className="w-3 h-3" />
+                    Live
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="w-3 h-3" />
+                    Offline
+                  </>
+                )}
+              </span>
             </h3>
             {unreadCount > 0 && (
               <button
@@ -211,7 +267,7 @@ const NotificationBell: React.FC = () => {
                           {notification.title}
                         </p>
                         {!notification.is_read && (
-                          <span className="w-2 h-2 bg-[#c4ff0e] rounded-full flex-shrink-0 mt-1.5" />
+                          <span className="w-2 h-2 bg-[#c4ff0e] rounded-full flex-shrink-0 mt-1.5 animate-pulse" />
                         )}
                       </div>
                       <p className="text-xs text-gray-500 mt-1 line-clamp-2">

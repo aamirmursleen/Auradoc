@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer'
 import EmailCapturePopup from '@/components/EmailCapturePopup'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { ToastProvider } from '@/contexts/ToastContext'
 // import AnnouncementBar from '@/components/AnnouncementBar' // Removed - moved to Hero Section
 import FloatingLifetimeDeal from '@/components/FloatingLifetimeDeal'
 import AISupportChat from '@/components/support/AISupportChat'
@@ -176,17 +177,19 @@ export default function RootLayout({
         </head>
         <body className={`${inter.className} antialiased`}>
           <ThemeProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <EmailCapturePopup />
-            <FloatingLifetimeDeal />
-            <AISupportChat />
-            <GoogleAnalytics />
+            <ToastProvider>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-grow">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+              <EmailCapturePopup />
+              <FloatingLifetimeDeal />
+              <AISupportChat />
+              <GoogleAnalytics />
+            </ToastProvider>
           </ThemeProvider>
         </body>
       </html>

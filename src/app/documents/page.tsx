@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
@@ -24,11 +24,16 @@ import {
   ArrowRight,
   Loader2,
   Bell,
-  ChevronDown
+  ChevronDown,
+  Wifi,
+  WifiOff,
+  RefreshCw
 } from 'lucide-react'
 import NotificationBell from '@/components/notifications/NotificationBell'
 import { getUserDocuments, deleteDocument, getUserSigningRequests, deleteSigningRequest, SigningRequest } from '@/lib/documents'
 import { Document, DocumentStatus } from '@/lib/types'
+import { useRealtimeNotifications, SigningRequestUpdate } from '@/hooks/useRealtimeNotifications'
+import { useToastContext } from '@/contexts/ToastContext'
 
 // Status configuration
 const statusConfig: Record<DocumentStatus, {
@@ -98,6 +103,7 @@ const formatRelativeTime = (dateString: string) => {
 const DocumentsPage: React.FC = () => {
   const router = useRouter()
   const { user, isLoaded } = useUser()
+  const { addToast } = useToastContext()
   const [documents, setDocuments] = useState<Document[]>([])
   const [signingRequests, setSigningRequests] = useState<SigningRequest[]>([])
   const [loading, setLoading] = useState(true)
@@ -105,9 +111,10 @@ const DocumentsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<DocumentStatus | 'all'>('all')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Load documents and signing requests from Supabase
-  const loadDocuments = async (showLoader = true) => {
+  const loadDocuments = useCallback(async (showLoader = true) => {
     if (!isLoaded || !user) return
 
     try {
@@ -123,20 +130,82 @@ const DocumentsPage: React.FC = () => {
     } finally {
       if (showLoader) setLoading(false)
     }
-  }
+  }, [isLoaded, user])
+
+  // Handle signing request realtime updates
+  const handleSigningRequestUpdate = useCallback((updatedRequest: SigningRequestUpdate) => {
+    setSigningRequests(prev => prev.map(req => {
+      if (req.id === updatedRequest.id) {
+        // Check if there's a new signer who just signed
+        const oldSignedCount = req.signers.filter(s => s.status === 'signed').length
+        const newSignedCount = updatedRequest.signers.filter(s => s.status === 'signed').length
+
+        if (newSignedCount > oldSignedCount) {
+          // Find the newly signed signer
+          const newlySigned = updatedRequest.signers.find(
+            (s, i) => s.status === 'signed' && req.signers[i]?.status !== 'signed'
+          )
+
+          if (newlySigned) {
+            // Show toast for the new signature
+            addToast({
+              type: updatedRequest.status === 'completed' ? 'document_completed' : 'document_signed',
+              title: updatedRequest.status === 'completed' ? 'Document Complete!' : 'New Signature!',
+              message: updatedRequest.status === 'completed'
+                ? `All signers have signed "${updatedRequest.document_name}"`
+                : `${newlySigned.name} signed "${updatedRequest.document_name}"`,
+              documentName: updatedRequest.document_name,
+              signerName: newlySigned.name,
+              duration: 8000
+            })
+          }
+        }
+
+        return {
+          ...req,
+          status: updatedRequest.status,
+          signers: updatedRequest.signers as SigningRequest['signers'],
+          updated_at: updatedRequest.updated_at
+        }
+      }
+      return req
+    }))
+  }, [addToast])
+
+  // Handle connection status changes
+  const handleConnectionChange = useCallback((connected: boolean) => {
+    if (connected) {
+      // Resync data when reconnecting
+      loadDocuments(false)
+    }
+  }, [loadDocuments])
+
+  // Setup realtime subscription for signing requests
+  const { isConnected } = useRealtimeNotifications({
+    userId: user?.id,
+    onSigningRequestUpdate: handleSigningRequestUpdate,
+    onConnectionChange: handleConnectionChange
+  })
 
   useEffect(() => {
     loadDocuments()
-  }, [user, isLoaded])
+  }, [loadDocuments])
 
-  // Auto-refresh every 5 seconds for real-time updates
+  // Auto-refresh every 15 seconds as backup (reduced from 5s since we have realtime)
   useEffect(() => {
     if (!user) return
     const interval = setInterval(() => {
       loadDocuments(false) // Don't show loader on auto-refresh
-    }, 5000)
+    }, 15000)
     return () => clearInterval(interval)
-  }, [user, isLoaded])
+  }, [user, loadDocuments])
+
+  // Manual refresh
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true)
+    await loadDocuments(false)
+    setIsRefreshing(false)
+  }
 
   // Filter documents
   const filteredDocuments = documents.filter(doc => {
@@ -243,10 +312,37 @@ const DocumentsPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white">Documents</h1>
-              <p className="text-gray-400 mt-1">Manage and track all your documents</p>
+              <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                Documents
+                {/* Live connection indicator */}
+                <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+                  isConnected ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                }`}>
+                  {isConnected ? (
+                    <>
+                      <Wifi className="w-3 h-3" />
+                      Live
+                    </>
+                  ) : (
+                    <>
+                      <WifiOff className="w-3 h-3" />
+                      Connecting...
+                    </>
+                  )}
+                </span>
+              </h1>
+              <p className="text-gray-400 mt-1">Manage and track all your documents in real-time</p>
             </div>
             <div className="flex items-center gap-4">
+              {/* Refresh button */}
+              <button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors disabled:opacity-50"
+                title="Refresh"
+              >
+                <RefreshCw className={`w-5 h-5 text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </button>
               <NotificationBell />
               <button
                 onClick={handleCreateNew}
@@ -581,40 +677,86 @@ const DocumentsPage: React.FC = () => {
                     {/* Expanded Details */}
                     {isExpanded && (
                       <div className="border-t border-[#2a2a2a] p-4 bg-[#1a1a1a]">
-                        <h4 className="text-sm font-medium text-gray-400 mb-3">Signers</h4>
+                        {/* Signer Progress Header */}
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <Send className="w-4 h-4" />
+                            Signers ({progress.signed}/{progress.total} signed)
+                          </h4>
+                          {progress.signed === progress.total && (
+                            <span className="flex items-center gap-1 text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
+                              <CheckCircle2 className="w-3 h-3" />
+                              All Signed
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="mb-4">
+                          <div className="h-2 bg-[#252525] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-[#c4ff0e] to-green-500 rounded-full transition-all duration-500"
+                              style={{ width: `${(progress.signed / progress.total) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Signer cards */}
                         <div className="space-y-3">
                           {req.signers.map((signer, idx) => (
                             <div
                               key={idx}
-                              className="flex items-center justify-between p-3 bg-[#252525] rounded-lg"
+                              className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
+                                signer.status === 'signed'
+                                  ? 'bg-green-500/5 border-green-500/30'
+                                  : 'bg-[#252525] border-[#2a2a2a]'
+                              }`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                                  signer.status === 'signed' ? 'bg-green-500' : 'bg-gray-600'
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg ${
+                                  signer.status === 'signed'
+                                    ? 'bg-gradient-to-br from-green-500 to-green-600'
+                                    : 'bg-gradient-to-br from-gray-600 to-gray-700'
                                 }`}>
-                                  {idx + 1}
+                                  {signer.status === 'signed' ? (
+                                    <CheckCircle2 className="w-5 h-5" />
+                                  ) : (
+                                    idx + 1
+                                  )}
                                 </div>
                                 <div>
-                                  <p className="font-medium text-white">{signer.name}</p>
+                                  <p className="font-medium text-white flex items-center gap-2">
+                                    {signer.name}
+                                    {signer.is_self && (
+                                      <span className="text-xs px-1.5 py-0.5 bg-[#c4ff0e]/20 text-[#c4ff0e] rounded">You</span>
+                                    )}
+                                  </p>
                                   <p className="text-sm text-gray-400">{signer.email}</p>
                                 </div>
                               </div>
                               <div className="text-right">
                                 {signer.status === 'signed' ? (
-                                  <div className="flex items-center gap-2 text-green-400">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    <span className="text-sm">Signed</span>
+                                  <div>
+                                    <div className="flex items-center gap-2 text-green-400">
+                                      <CheckCircle2 className="w-4 h-4" />
+                                      <span className="text-sm font-medium">Signed</span>
+                                    </div>
+                                    {signer.signedAt && (
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        {formatDate(signer.signedAt)} at {new Date(signer.signedAt).toLocaleTimeString()}
+                                      </p>
+                                    )}
                                   </div>
                                 ) : (
-                                  <div className="flex items-center gap-2 text-gray-400">
-                                    <Clock className="w-4 h-4" />
-                                    <span className="text-sm">Pending</span>
+                                  <div>
+                                    <div className="flex items-center gap-2 text-yellow-400">
+                                      <Clock className="w-4 h-4 animate-pulse" />
+                                      <span className="text-sm font-medium">Awaiting</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Waiting for signature
+                                    </p>
                                   </div>
-                                )}
-                                {signer.signedAt && (
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {formatRelativeTime(signer.signedAt)}
-                                  </p>
                                 )}
                               </div>
                             </div>

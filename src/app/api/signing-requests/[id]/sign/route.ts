@@ -11,6 +11,11 @@ export async function POST(
     const body = await req.json()
     const { signerEmail, token, signature, signedFields } = body
 
+    // Capture IP and User Agent for audit trail
+    const forwardedFor = req.headers.get('x-forwarded-for')
+    const ipAddress = forwardedFor ? forwardedFor.split(',')[0].trim() : req.headers.get('x-real-ip') || 'unknown'
+    const userAgent = req.headers.get('user-agent') || 'unknown'
+
     if (!documentId || !signerEmail || !signature) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
@@ -59,7 +64,7 @@ export async function POST(
     signers[signerIndex].status = 'signed'
     signers[signerIndex].signedAt = new Date().toISOString()
 
-    // Store signature record
+    // Store signature record with audit trail
     await supabaseAdmin
       .from('signature_records')
       .insert({
@@ -67,6 +72,11 @@ export async function POST(
         signer_email: signerEmail,
         signer_name: signers[signerIndex].name,
         signature_image: signature,
+        signature_type: 'draw', // Could be 'draw', 'type', or 'upload'
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        consent_given: true,
+        consent_text: 'I agree to sign this document electronically',
         signed_at: new Date().toISOString()
       })
 
@@ -136,7 +146,9 @@ export async function POST(
             signedAt: new Date().toISOString(),
             signedCount,
             totalSigners,
-            isComplete: allSigned
+            isComplete: allSigned,
+            ipAddress: ipAddress,
+            userAgent: userAgent.substring(0, 100) // Truncate for storage
           },
           is_read: false,
           created_at: new Date().toISOString()
