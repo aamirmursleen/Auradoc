@@ -30,7 +30,7 @@ export interface DocumentEmailData {
   dueDate?: string
 }
 
-// MamaSign Simple Black & White Email Template
+// Clean professional email template - optimized to avoid spam filters
 function getOdooStyleTemplate(params: {
   recipientName: string
   senderName: string
@@ -47,52 +47,70 @@ function getOdooStyleTemplate(params: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document for signature</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #ffffff;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
-          <!-- Header -->
+      <td align="center" style="padding: 30px 20px;">
+        <table role="presentation" width="560" cellspacing="0" cellpadding="0" border="0" style="max-width: 560px;">
           <tr>
-            <td style="background-color: #000000; padding: 30px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">MamaSign</h1>
+            <td style="padding: 0 0 20px 0;">
+              <p style="margin: 0; font-size: 14px; color: #333333; line-height: 1.6;">
+                Hi ${recipientName},
+              </p>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
-            <td style="padding: 40px;">
-              <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${recipientName}</strong>,</p>
-              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.7;"><strong>${senderName}</strong> has sent you a document that requires your signature. Please review and sign the document.</p>
-              ${message ? `<div style="background-color: #f9f9f9; border-left: 4px solid #000000; padding: 15px 20px; margin: 0 0 25px 0;"><p style="margin: 0; font-size: 14px; color: #555555; font-style: italic;">"${message}"</p></div>` : ''}
-              <!-- Document Card -->
-              <div style="background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
-                <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #000000;">Document: ${documentName}</p>
-                <p style="margin: 0; font-size: 14px; color: #666666;">From: ${senderName}</p>
-                ${expiresAt ? `<p style="margin: 8px 0 0 0; font-size: 13px; color: #999999;">Due: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
-              </div>
-              <!-- CTA Button -->
-              <div style="text-align: center; margin: 35px 0;">
-                <a href="${signingLink}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600;">Sign Document</a>
-              </div>
-              <!-- Security Note -->
-              <p style="margin: 25px 0 0 0; font-size: 13px; color: #888888; text-align: center;">This document is encrypted and securely stored.</p>
+            <td style="padding: 0 0 20px 0;">
+              <p style="margin: 0; font-size: 14px; color: #333333; line-height: 1.6;">
+                ${senderName} has shared a document with you for signature:
+              </p>
             </td>
           </tr>
-          <!-- Footer -->
           <tr>
-            <td style="background-color: #f9f9f9; padding: 25px 40px; border-top: 1px solid #e0e0e0; text-align: center;">
-              <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #000000;">${COMPANY_NAME}</p>
-              <p style="margin: 0 0 10px 0; font-size: 12px; color: #888888;">Secure document signing made simple</p>
-              <p style="margin: 0 0 10px 0; font-size: 11px; color: #999999;">MamaSign, Kickstart 58A2, Gulberg, Lahore, Pakistan</p>
-              <p style="margin: 0; font-size: 11px; color: #666666;">
-                <a href="mailto:unsubscribe@mamasign.com?subject=Unsubscribe" style="color: #666666; text-decoration: underline;">Unsubscribe</a> |
-                <a href="https://mamasign.com/privacy" style="color: #666666; text-decoration: underline;">Privacy Policy</a>
+            <td style="padding: 15px; background-color: #f7f7f7; border-radius: 4px;">
+              <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: bold; color: #333333;">${documentName}</p>
+              <p style="margin: 0; font-size: 13px; color: #666666;">Sent by: ${senderName}</p>
+              ${expiresAt ? `<p style="margin: 5px 0 0 0; font-size: 12px; color: #888888;">Due by: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
+            </td>
+          </tr>
+          ${message ? `
+          <tr>
+            <td style="padding: 20px 0 0 0;">
+              <p style="margin: 0; font-size: 13px; color: #666666; font-style: italic;">"${message}"</p>
+            </td>
+          </tr>
+          ` : ''}
+          <tr>
+            <td style="padding: 25px 0;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="background-color: #0066cc; border-radius: 4px;">
+                    <a href="${signingLink}" style="display: inline-block; padding: 12px 30px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold;">Review and Sign</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 0 20px 0;">
+              <p style="margin: 0; font-size: 12px; color: #888888; line-height: 1.5;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="${signingLink}" style="color: #0066cc; word-break: break-all;">${signingLink}</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0 0 0; border-top: 1px solid #eeeeee;">
+              <p style="margin: 0; font-size: 11px; color: #999999; line-height: 1.5;">
+                This email was sent by MamaSign on behalf of ${senderName}.<br>
+                MamaSign - Kickstart 58A2, Gulberg, Lahore, Pakistan<br>
+                <a href="mailto:support@mamasign.com" style="color: #999999;">Contact Support</a>
               </p>
             </td>
           </tr>
         </table>
-        <p style="margin: 20px 0 0 0; font-size: 11px; color: #999999; text-align: center;">© ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
       </td>
     </tr>
   </table>
@@ -114,43 +132,33 @@ function getPlainTextInvite(params: {
 }): string {
   const { recipientName, senderName, documentName, signingLink, message, expiresAt } = params
 
-  let text = `Hello ${recipientName},
+  let text = `Hi ${recipientName},
 
-${senderName} has sent you a document that requires your signature. Please review and sign the document.
+${senderName} has shared a document with you for signature:
 
-`
-  if (message) {
-    text += `Message from ${senderName}:
-"${message}"
-
-`
-  }
-
-  text += `Document: ${documentName}
-From: ${senderName}
+Document: ${documentName}
+Sent by: ${senderName}
 `
 
   if (expiresAt) {
-    text += `Expires: ${new Date(expiresAt).toLocaleDateString()}
+    text += `Due by: ${new Date(expiresAt).toLocaleDateString()}
+`
+  }
+
+  if (message) {
+    text += `
+Message: "${message}"
 `
   }
 
   text += `
-To sign this document, visit:
+To review and sign, visit:
 ${signingLink}
 
-This document is encrypted and securely stored. Your signature will be legally binding.
-
 ---
-${COMPANY_NAME}
-Secure document signing made simple
-
-MamaSign
-Kickstart 58A2, Gulberg
-Lahore, Pakistan
-
-To unsubscribe, email: unsubscribe@mamasign.com
-Privacy Policy: https://mamasign.com/privacy
+This email was sent by MamaSign on behalf of ${senderName}.
+MamaSign - Kickstart 58A2, Gulberg, Lahore, Pakistan
+Contact: support@mamasign.com
 `
 
   return text
@@ -197,21 +205,14 @@ export async function sendSigningInvite(params: {
       from: FROM_EMAIL,
       to,
       replyTo: senderEmail,
-      subject: `Action Required: Sign "${documentName}" from ${senderName}`,
+      subject: `${senderName} shared "${documentName}" for your signature`,
       html,
       text,
       headers: {
         'X-Entity-Ref-ID': uniqueId,
         'Message-ID': `<${uniqueId}@mamasign.com>`,
-        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'Feedback-ID': `signing:mamasign:${uniqueId}`,
-      },
-      // Disable tracking to improve deliverability
-      // @ts-ignore - tracking option may not be in types but works in API
-      tracking: {
-        clicks: false,
-        opens: false,
+        'References': `<doc-${documentName.replace(/[^a-z0-9]/gi, '')}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com?subject=Unsubscribe>',
       },
     })
 

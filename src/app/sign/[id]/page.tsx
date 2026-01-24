@@ -105,6 +105,7 @@ export default function SignDocumentPage() {
   const [pdfError, setPdfError] = useState<string | null>(null)
   const [pageHeights, setPageHeights] = useState<number[]>([])
   const [pageWidths, setPageWidths] = useState<number[]>([])
+  const [pageImages, setPageImages] = useState<string[]>([])
 
   // Image document state
   const [fileType, setFileType] = useState<'pdf' | 'image' | 'unknown'>('unknown')
@@ -261,7 +262,6 @@ export default function SignDocumentPage() {
   const [resizeStart, setResizeStart] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
 
   const pagesContainerRef = useRef<HTMLDivElement>(null)
-  const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([])
   const documentContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -385,7 +385,6 @@ export default function SignDocumentPage() {
           console.log('PDF loaded successfully, pages:', pdf.numPages)
           setPdfDoc(pdf)
           setTotalPages(pdf.numPages)
-          canvasRefs.current = new Array(pdf.numPages).fill(null)
         } catch (err) {
           console.error('Error loading PDF:', err)
           setPdfError('Failed to load document. Please contact the sender.')
@@ -401,52 +400,70 @@ export default function SignDocumentPage() {
     if (!pdfDoc) return
     const heights: number[] = []
     const widths: number[] = []
+    const images: string[] = []
+    const renderScale = 1.5 // Fixed scale for rendering quality
+
     for (let i = 1; i <= pdfDoc.numPages; i++) {
-      const canvas = canvasRefs.current[i - 1]
-      if (!canvas) continue
       try {
         const page = await pdfDoc.getPage(i)
-        const viewport = page.getViewport({ scale })
+        const viewport = page.getViewport({ scale: renderScale })
 
-        // Set canvas dimensions
+        // Create off-screen canvas for rendering
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')
+
+        if (!context) continue
+
         canvas.width = viewport.width
         canvas.height = viewport.height
-        heights.push(viewport.height)
-        widths.push(viewport.width)
 
-        const context = canvas.getContext('2d')
-        if (context) {
-          // Reset any transforms
-          context.setTransform(1, 0, 0, 1, 0, 0)
+        // Reset transforms and clear
+        context.setTransform(1, 0, 0, 1, 0, 0)
+        context.clearRect(0, 0, canvas.width, canvas.height)
 
-          // Clear canvas completely
-          context.clearRect(0, 0, canvas.width, canvas.height)
+        // Fill with white background
+        context.fillStyle = '#ffffff'
+        context.fillRect(0, 0, canvas.width, canvas.height)
 
-          // Fill with white background
-          context.fillStyle = '#ffffff'
-          context.fillRect(0, 0, canvas.width, canvas.height)
+        // Render PDF page
+        await page.render({
+          canvasContext: context,
+          viewport: viewport,
+          background: 'white'
+        }).promise
 
-          // Render PDF page with proper background
-          await page.render({
-            canvasContext: context,
-            viewport,
-            background: 'white'
-          }).promise
-        }
-      } catch (err) { console.error('Error rendering page', i, err) }
+        // Convert to image URL
+        const imageUrl = canvas.toDataURL('image/png')
+        images.push(imageUrl)
+
+        // Store actual dimensions (scaled for display)
+        heights.push((viewport.height / renderScale) * scale)
+        widths.push((viewport.width / renderScale) * scale)
+      } catch (err) {
+        console.error('Error rendering page', i, err)
+        images.push('') // Push empty for failed pages
+        heights.push(842 * scale)
+        widths.push(595 * scale)
+      }
     }
+    setPageImages(images)
     setPageHeights(heights)
     setPageWidths(widths)
   }, [pdfDoc, scale])
 
   useEffect(() => {
-    if (pdfDoc && canvasRefs.current.length === pdfDoc.numPages) {
+    if (pdfDoc) {
       const timer = setTimeout(() => renderAllPages(), 100)
       return () => clearTimeout(timer)
     }
-  }, [pdfDoc, renderAllPages, totalPages])
+  }, [pdfDoc, renderAllPages])
 
-  useEffect(() => { if (pdfDoc) renderAllPages() }, [scale, pdfDoc, renderAllPages])
+  // Re-render when scale changes
+  useEffect(() => {
+    if (pdfDoc) {
+      renderAllPages()
+    }
+  }, [scale])
 
   // Update image dimensions when scale changes
   useEffect(() => {
@@ -912,7 +929,24 @@ export default function SignDocumentPage() {
                       <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page 1 of 1</div>
                     </div>
                   ) : (
-                    Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-white rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))
+                    pageImages.map((imgUrl, i) => (
+                      <div key={i} className="relative" style={{ width: pageWidths[i] || 595 * scale, height: pageHeights[i] || 842 * scale }}>
+                        {imgUrl ? (
+                          <img
+                            src={imgUrl}
+                            alt={`Page ${i + 1}`}
+                            className="w-full h-full rounded-lg shadow-lg bg-white"
+                            style={{ display: 'block' }}
+                            draggable={false}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                          </div>
+                        )}
+                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div>
+                      </div>
+                    ))
                   )}
                   {myFields.map((field) => {
                     const originalPos = getFieldPosition(field)
