@@ -197,10 +197,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               <FileText className="w-4 h-4" />
               <span>PDF</span>
             </span>
-            <span className="flex items-center space-x-1">
-              <Image className="w-4 h-4" />
-              <span>PNG, JPG</span>
-            </span>
             <span>Max {maxSizeMB}MB</span>
           </div>
         </div>

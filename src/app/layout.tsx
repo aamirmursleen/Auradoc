@@ -7,7 +7,7 @@ import Footer from '@/components/layout/Footer'
 import EmailCapturePopup from '@/components/EmailCapturePopup'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import AnnouncementBar from '@/components/AnnouncementBar'
+// import AnnouncementBar from '@/components/AnnouncementBar' // Removed - moved to Hero Section
 import FloatingLifetimeDeal from '@/components/FloatingLifetimeDeal'
 import AISupportChat from '@/components/support/AISupportChat'
 
@@ -20,7 +20,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#c4ff0e' },
+    { media: '(prefers-color-scheme: light)', color: '#4C00FF' },
     { media: '(prefers-color-scheme: dark)', color: '#1F1F1F' },
   ],
   viewportFit: 'cover',
@@ -144,16 +144,17 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       dynamic
     >
-      <html lang="en" className="dark">
+      <html lang="en" className="light">
         <head>
-          {/* Prevent flash of light theme - check localStorage before React loads */}
+          {/* Prevent flash of wrong theme - check localStorage before React loads */}
           <script
             dangerouslySetInnerHTML={{
               __html: `
                 (function() {
-                  var savedTheme = localStorage.getItem('mamasign_theme');
-                  if (savedTheme === 'light') {
-                    document.documentElement.classList.remove('dark');
+                  var savedTheme = localStorage.getItem('auradoc_theme');
+                  if (savedTheme === 'dark') {
+                    document.documentElement.classList.remove('light');
+                    document.documentElement.classList.add('dark');
                   }
                 })();
               `,
@@ -173,10 +174,9 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
           />
         </head>
-        <body className={`${inter.className} antialiased bg-[#1F1F1F] text-white`}>
+        <body className={`${inter.className} antialiased`}>
           <ThemeProvider>
             <div className="flex flex-col min-h-screen">
-              <AnnouncementBar />
               <Header />
               <main className="flex-grow">
                 {children}

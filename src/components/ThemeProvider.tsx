@@ -13,18 +13,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark')
+  const [theme, setThemeState] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    // Check for saved preference - default is dark
-    const savedTheme = localStorage.getItem('mamasign_theme') as Theme | null
+    // Check for saved preference - default is light
+    const savedTheme = localStorage.getItem('auradoc_theme') as Theme | null
 
     if (savedTheme) {
       setThemeState(savedTheme)
     }
-    // If no saved preference, keep default (dark)
+    // If no saved preference, keep default (light)
   }, [])
 
   useEffect(() => {
@@ -32,11 +32,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // Update document class
       if (theme === 'dark') {
         document.documentElement.classList.add('dark')
+        document.documentElement.classList.remove('light')
       } else {
+        document.documentElement.classList.add('light')
         document.documentElement.classList.remove('dark')
       }
       // Save preference
-      localStorage.setItem('mamasign_theme', theme)
+      localStorage.setItem('auradoc_theme', theme)
     }
   }, [theme, mounted])
 

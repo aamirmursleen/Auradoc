@@ -25,6 +25,19 @@ import DraggableFieldOnDocument from '@/components/signing/DraggableFieldOnDocum
 // Set PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
+// Helper function to detect file type from URL
+const getFileType = (url: string): 'pdf' | 'image' | 'unknown' => {
+  const lowerUrl = url.toLowerCase()
+  // Check file extension
+  if (lowerUrl.includes('.pdf') || lowerUrl.includes('application/pdf')) return 'pdf'
+  if (lowerUrl.match(/\.(png|jpg|jpeg|gif|webp|bmp)/)) return 'image'
+  if (lowerUrl.includes('image/')) return 'image'
+  // Check for common image hosting patterns
+  if (lowerUrl.includes('blob:') || lowerUrl.includes('data:image')) return 'image'
+  // Default to PDF for unknown types (legacy behavior)
+  return 'unknown'
+}
+
 // Main Editor Component (wrapped with DndProvider at export)
 const DocumentEditorInner: React.FC = () => {
   const params = useParams()
@@ -43,6 +56,11 @@ const DocumentEditorInner: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'fields' | 'signers'>('signers')
   const [selectedSignerId, setSelectedSignerId] = useState<string | null>(null)
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
+
+  // File type and rendering state
+  const [fileType, setFileType] = useState<'pdf' | 'image' | 'unknown'>('unknown')
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null)
 
   // PDF state for continuous scroll
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
@@ -84,24 +102,108 @@ const DocumentEditorInner: React.FC = () => {
     fetchDocument()
   }, [documentId])
 
-  // Load PDF
+  // Load PDF or Image
   useEffect(() => {
-    const loadPdf = async () => {
+    const loadDocument = async () => {
       if (!document?.file_url) return
 
-      try {
-        const loadingTask = pdfjsLib.getDocument(document.file_url)
-        const pdf = await loadingTask.promise
-        setPdfDoc(pdf)
-        setTotalPages(pdf.numPages)
-        canvasRefs.current = new Array(pdf.numPages).fill(null)
-      } catch (err) {
-        console.error('Error loading PDF:', err)
-        setError('Failed to load PDF')
+      // Use document's stored mime_type if available, otherwise detect from URL
+      let detectedFileType: 'pdf' | 'image' | 'unknown' = 'unknown'
+
+      if (document.mime_type) {
+        if (document.mime_type.includes('pdf')) {
+          detectedFileType = 'pdf'
+        } else if (document.mime_type.includes('image')) {
+          detectedFileType = 'image'
+        }
+      }
+
+      // Fallback to URL detection if mime_type not available
+      if (detectedFileType === 'unknown') {
+        detectedFileType = getFileType(document.file_url)
+      }
+
+      console.log('Document file_url:', document.file_url)
+      console.log('Document mime_type:', document.mime_type)
+      console.log('Detected file type:', detectedFileType)
+
+      setFileType(detectedFileType)
+
+      if (detectedFileType === 'pdf') {
+        // Load PDF with PDF.js
+        try {
+          const loadingTask = pdfjsLib.getDocument(document.file_url)
+          const pdf = await loadingTask.promise
+          setPdfDoc(pdf)
+          setTotalPages(pdf.numPages)
+          canvasRefs.current = new Array(pdf.numPages).fill(null)
+        } catch (err) {
+          console.error('Error loading PDF:', err)
+          setError('Failed to load PDF')
+        }
+      } else if (detectedFileType === 'image') {
+        // Load Image - wait for dimensions before setting totalPages
+        try {
+          const img = new Image()
+          img.onload = () => {
+            // Set image URL and dimensions FIRST
+            setImageUrl(document.file_url)
+            setImageDimensions({ width: img.width, height: img.height })
+            // Set page dimensions based on actual image size
+            const imgWidth = Math.max(img.width, 400) // minimum width
+            const imgHeight = Math.max(img.height, 400) // minimum height
+            setPageWidth(imgWidth * scale)
+            setPageHeights([imgHeight * scale])
+            // NOW set totalPages to trigger render with correct dimensions
+            setTotalPages(1)
+            setPdfRendered(true)
+          }
+          img.onerror = () => {
+            console.error('Error loading image')
+            setError('Failed to load image')
+          }
+          img.src = document.file_url
+        } catch (err) {
+          console.error('Error loading image:', err)
+          setError('Failed to load image')
+        }
+      } else {
+        // For unknown type, try to load as image first (since images are more common)
+        console.log('Unknown file type, trying to load as image...')
+        try {
+          const img = new Image()
+          img.onload = () => {
+            console.log('Successfully loaded as image')
+            setFileType('image')
+            setImageUrl(document.file_url)
+            setImageDimensions({ width: img.width, height: img.height })
+            const imgWidth = Math.max(img.width, 400)
+            const imgHeight = Math.max(img.height, 400)
+            setPageWidth(imgWidth * scale)
+            setPageHeights([imgHeight * scale])
+            setTotalPages(1)
+            setPdfRendered(true)
+          }
+          img.onerror = () => {
+            console.log('Failed to load as image, trying PDF...')
+            // Try loading as PDF
+            pdfjsLib.getDocument(document.file_url).promise.then(pdf => {
+              setFileType('pdf')
+              setPdfDoc(pdf)
+              setTotalPages(pdf.numPages)
+              canvasRefs.current = new Array(pdf.numPages).fill(null)
+            }).catch(() => {
+              setError('Unsupported file type. Please upload a PDF or image file.')
+            })
+          }
+          img.src = document.file_url
+        } catch (err) {
+          setError('Unsupported file type. Please upload a PDF or image file.')
+        }
       }
     }
 
-    loadPdf()
+    loadDocument()
   }, [document?.file_url])
 
   // Render all pages
@@ -145,13 +247,19 @@ const DocumentEditorInner: React.FC = () => {
 
   // Render pages when PDF is loaded or scale changes
   useEffect(() => {
-    if (pdfDoc && canvasRefs.current.length === pdfDoc.numPages) {
+    if (fileType === 'pdf' && pdfDoc && canvasRefs.current.length === pdfDoc.numPages) {
       const timer = setTimeout(() => {
         renderAllPages()
       }, 100)
       return () => clearTimeout(timer)
+    } else if (fileType === 'image' && imageDimensions) {
+      // Update image dimensions when scale changes
+      const imgWidth = Math.max(imageDimensions.width, 400)
+      const imgHeight = Math.max(imageDimensions.height, 400)
+      setPageWidth(imgWidth * scale)
+      setPageHeights([imgHeight * scale])
     }
-  }, [pdfDoc, scale, renderAllPages])
+  }, [pdfDoc, scale, renderAllPages, fileType, imageDimensions])
 
   // Calculate cumulative heights for field positioning
   const getCumulativeHeight = (pageIndex: number): number => {
@@ -178,12 +286,13 @@ const DocumentEditorInner: React.FC = () => {
   // Drop handler
   const [, drop] = useDrop(() => ({
     accept: ['new-field', 'existing-field'],
+    canDrop: () => pdfRendered && pageHeights.length > 0,
     drop: (item: any, monitor) => {
       const offset = monitor.getClientOffset()
       const containerRect = pagesContainerRef.current?.getBoundingClientRect()
       const scrollTop = scrollContainerRef.current?.scrollTop || 0
 
-      if (!offset || !containerRect) return
+      if (!offset || !containerRect || !pdfRendered) return
 
       const relativeX = offset.x - containerRect.left
       const relativeY = offset.y - containerRect.top + scrollTop
@@ -191,12 +300,12 @@ const DocumentEditorInner: React.FC = () => {
       // Determine which page
       const pageNum = getPageFromY(relativeY)
       const pageTopOffset = getCumulativeHeight(pageNum - 1)
-      const pageHeight = pageHeights[pageNum - 1] || 792 * scale
+      const currentPageHeight = pageHeights[pageNum - 1] || 792 * scale
 
       // Position within that page as percentage
-      const xPercent = (relativeX / pageWidth) * 100
+      const xPercent = Math.max(0, Math.min(100, (relativeX / pageWidth) * 100))
       const yInPage = relativeY - pageTopOffset
-      const yPercent = (yInPage / pageHeight) * 100
+      const yPercent = Math.max(0, Math.min(100, (yInPage / currentPageHeight) * 100))
 
       if (item.type === 'new-field') {
         handleAddField(item.fieldType, xPercent, yPercent, pageNum)
@@ -204,7 +313,7 @@ const DocumentEditorInner: React.FC = () => {
         handleUpdateField(item.fieldId, { x: xPercent, y: yPercent, page_number: pageNum })
       }
     },
-  }), [pageHeights, pageWidth, scale])
+  }), [pageHeights, pageWidth, scale, pdfRendered, selectedSignerId])
 
   // Add field
   const handleAddField = async (fieldType: FieldType, x?: number, y?: number, pageNum?: number) => {
@@ -556,7 +665,7 @@ const DocumentEditorInner: React.FC = () => {
             </div>
           </div>
 
-          {/* Scrollable PDF Container */}
+          {/* Scrollable Document Container */}
           <div
             ref={(el) => {
               scrollContainerRef.current = el
@@ -590,29 +699,35 @@ const DocumentEditorInner: React.FC = () => {
                       Page {pageNum}
                     </div>
 
-                    {/* Canvas for PDF page */}
-                    <canvas
-                      ref={(el) => {
-                        canvasRefs.current[index] = el
-                      }}
-                      className="block"
-                    />
+                    {/* Render PDF page or Image */}
+                    {fileType === 'pdf' ? (
+                      <canvas
+                        ref={(el) => {
+                          canvasRefs.current[index] = el
+                        }}
+                        className="block"
+                      />
+                    ) : fileType === 'image' && imageUrl && imageDimensions ? (
+                      <img
+                        src={imageUrl}
+                        alt="Document"
+                        style={{
+                          width: pageWidth,
+                          height: pageHeight,
+                          display: 'block',
+                          objectFit: 'fill',
+                          pointerEvents: 'none',
+                        }}
+                        draggable={false}
+                      />
+                    ) : null}
 
-                    {/* Fields overlay for this page */}
-                    <div className="absolute inset-0 pointer-events-none">
-                      {fieldsOnPage.map(field => (
-                        <div
-                          key={field.id}
-                          className="pointer-events-auto"
-                          style={{
-                            position: 'absolute',
-                            left: `${field.x}%`,
-                            top: `${field.y}%`,
-                            width: `${field.width}%`,
-                            height: `${field.height}%`,
-                          }}
-                        >
+                    {/* Fields overlay for this page - only show when document is ready */}
+                    {pdfRendered && (
+                      <div className="absolute inset-0 z-10" style={{ pointerEvents: 'none' }}>
+                        {fieldsOnPage.map(field => (
                           <DraggableFieldOnDocument
+                            key={field.id}
                             field={field}
                             signerColor={getSignerColor(field.signer_id)}
                             signerName={getSignerName(field.signer_id)}
@@ -624,17 +739,21 @@ const DocumentEditorInner: React.FC = () => {
                             onUpdate={(updates) => handleUpdateField(field.id, updates)}
                             onDelete={() => handleDeleteField(field.id)}
                           />
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )
               })}
 
-              {/* Loading state */}
+              {/* Loading/Debug state */}
               {totalPages === 0 && (
-                <div className="flex items-center justify-center h-96">
-                  <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                <div className="flex flex-col items-center justify-center h-96 text-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-gray-400 mb-4" />
+                  <p className="text-gray-400 text-sm">Loading document...</p>
+                  <p className="text-gray-500 text-xs mt-2">
+                    File type: {fileType} | URL: {document?.file_url ? 'Yes' : 'No'}
+                  </p>
                 </div>
               )}
             </div>

@@ -803,7 +803,7 @@ const SignPage: React.FC = () => {
                       Click or drag file
                     </p>
                     <p className="text-xs text-gray-300 mt-1">
-                      PDF, PNG, JPG (max 25MB)
+                      PDF (max 25MB)
                     </p>
                   </label>
                 )}
@@ -1004,10 +1004,7 @@ const SignPage: React.FC = () => {
                           <FileText className="w-4 h-4" />
                           PDF
                         </span>
-                        <span className="flex items-center gap-1">
-                          <ImageIcon className="w-4 h-4" />
-                          PNG, JPG
-                        </span>
+                        <span>Max 25MB</span>
                       </div>
                     </div>
                   </label>

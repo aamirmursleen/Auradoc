@@ -139,6 +139,7 @@ const DraggableFieldOnDocument: React.FC<DraggableFieldOnDocumentProps> = ({
         height: pixelHeight,
         borderColor: signerColor,
         backgroundColor: `${signerColor}15`,
+        pointerEvents: 'auto',
       }}
     >
       {/* Field Icon and Label */}

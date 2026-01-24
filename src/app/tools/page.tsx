@@ -17,6 +17,7 @@ import {
   Globe,
   CheckCircle,
 } from 'lucide-react'
+import { useTheme } from '@/components/ThemeProvider'
 
 const allTools = [
   {
@@ -119,27 +120,30 @@ const features = [
 ]
 
 export default function ToolsPage() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   return (
-    <div className="min-h-screen bg-[#1e1e1e]">
+    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-[#1F1F1F]">
+      <section className={`py-20 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+          <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
             All PDF Tools
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+          <p className={`text-xl max-w-2xl mx-auto mb-8 ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>
             Everything you need to work with PDFs. Convert, compress, merge, split, and more - all free and secure.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <span className="inline-flex items-center gap-2 bg-[#2a2a2a] px-4 py-2 rounded-full text-gray-300 text-sm">
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm ${isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-[#EDE5FF] text-gray-500'}`}>
               <CheckCircle className="w-4 h-4" />
               Free to Use
             </span>
-            <span className="inline-flex items-center gap-2 bg-[#2a2a2a] px-4 py-2 rounded-full text-gray-300 text-sm">
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm ${isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-[#EDE5FF] text-gray-500'}`}>
               <CheckCircle className="w-4 h-4" />
               No Signup Required
             </span>
-            <span className="inline-flex items-center gap-2 bg-[#2a2a2a] px-4 py-2 rounded-full text-gray-300 text-sm">
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm ${isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-[#EDE5FF] text-gray-500'}`}>
               <CheckCircle className="w-4 h-4" />
               Processed Locally
             </span>
@@ -148,17 +152,17 @@ export default function ToolsPage() {
       </section>
 
       {/* Features Strip */}
-      <section className="py-12 px-4 bg-[#1F1F1F] border-b border-[#2a2a2a]">
+      <section className={`py-12 px-4 border-b ${isDark ? 'bg-[#1F1F1F] border-[#2a2a2a]' : 'bg-gray-50 border-gray-200'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, idx) => (
               <div key={idx} className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center flex-shrink-0">
-                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
+                  <feature.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
-                  <p className="text-gray-400 text-sm">{feature.description}</p>
+                  <h3 className={`font-semibold mb-1 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{feature.title}</h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{feature.description}</p>
                 </div>
               </div>
             ))}
@@ -170,10 +174,10 @@ export default function ToolsPage() {
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1 bg-[#2a2a2a] text-[#c4ff0e] rounded-full text-sm font-medium mb-4">
+            <span className={`inline-block px-4 py-1 rounded-full text-sm font-medium mb-4 ${isDark ? 'bg-[#2a2a2a] text-[#c4ff0e]' : 'bg-[#EDE5FF] text-[#4C00FF]'}`}>
               Most Popular
             </span>
-            <h2 className="text-3xl font-bold text-white">
+            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
               Popular Tools
             </h2>
           </div>
@@ -183,18 +187,18 @@ export default function ToolsPage() {
               <Link
                 key={idx}
                 href={tool.href}
-                className="group p-6 bg-[#252525] rounded-2xl border border-[#2a2a2a] hover:border-[#c4ff0e] hover:shadow-xl transition-all duration-300"
+                className={`group p-6 rounded-2xl border transition-all duration-300 ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]' : 'bg-white border-gray-200 hover:border-[#4C00FF]'} hover:shadow-xl`}
               >
-                <div className="w-14 h-14 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <tool.icon className="w-7 h-7 text-black" />
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}>
+                  <tool.icon className={`w-7 h-7 ${isDark ? 'text-black' : 'text-white'}`} />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-[#c4ff0e] transition-colors">
+                <h3 className={`text-xl font-semibold mb-2 transition-colors ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
                   {tool.name}
                 </h3>
-                <p className="text-gray-400 mb-4">
+                <p className={`mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   {tool.description}
                 </p>
-                <span className="inline-flex items-center gap-2 text-[#c4ff0e] font-medium group-hover:gap-3 transition-all">
+                <span className={`inline-flex items-center gap-2 font-medium group-hover:gap-3 transition-all ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
                   Use Tool
                   <ArrowRight className="w-4 h-4" />
                 </span>
@@ -205,13 +209,13 @@ export default function ToolsPage() {
       </section>
 
       {/* All Tools by Category */}
-      <section className="py-16 px-4 bg-[#1F1F1F]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white">
+            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
               All Tools by Category
             </h2>
-            <p className="text-gray-400 mt-2">
+            <p className={`mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
               Browse our complete collection of PDF tools
             </p>
           </div>
@@ -219,7 +223,7 @@ export default function ToolsPage() {
           <div className="space-y-12">
             {allTools.map((category, catIdx) => (
               <div key={catIdx}>
-                <h3 className="text-xl font-bold text-white mb-6 pb-2 border-b border-[#2a2a2a]">
+                <h3 className={`text-xl font-bold mb-6 pb-2 border-b ${isDark ? 'text-white border-[#2a2a2a]' : 'text-[#26065D] border-gray-200'}`}>
                   {category.category}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -227,16 +231,16 @@ export default function ToolsPage() {
                     <Link
                       key={toolIdx}
                       href={tool.href}
-                      className="group flex items-start gap-4 p-5 bg-[#252525] rounded-xl border border-[#2a2a2a] hover:border-[#c4ff0e] hover:shadow-lg transition-all"
+                      className={`group flex items-start gap-4 p-5 rounded-xl border transition-all ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]' : 'bg-white border-gray-200 hover:border-[#4C00FF]'} hover:shadow-lg`}
                     >
-                      <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                        <tool.icon className="w-6 h-6 text-black" />
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}>
+                        <tool.icon className={`w-6 h-6 ${isDark ? 'text-black' : 'text-white'}`} />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-white group-hover:text-[#c4ff0e] transition-colors">
+                        <h4 className={`font-semibold transition-colors ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
                           {tool.name}
                         </h4>
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {tool.description}
                         </p>
                       </div>
@@ -250,25 +254,25 @@ export default function ToolsPage() {
       </section>
 
       {/* E-Signature CTA */}
-      <section className="py-20 px-4 bg-[#252525]">
+      <section className={`py-20 px-4 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
             Need to Sign Documents?
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className={`text-xl mb-8 ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>
             Try our free e-signature tool to sign documents legally and securely
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/sign-document"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#c4ff0e] text-black font-semibold rounded-xl hover:shadow-xl transition-all"
+              className={`inline-flex items-center gap-2 px-8 py-4 font-semibold rounded-xl hover:shadow-xl transition-all ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`}
             >
               <PenTool className="w-5 h-5" />
               Sign a Document
             </Link>
             <Link
               href="/verify"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#2a2a2a] text-white font-semibold rounded-xl hover:bg-[#3a3a3a] transition-all"
+              className={`inline-flex items-center gap-2 px-8 py-4 font-semibold rounded-xl transition-all ${isDark ? 'bg-[#2a2a2a] text-white hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] text-[#26065D] hover:bg-[#E0D4FF]'}`}
             >
               <Shield className="w-5 h-5" />
               Verify Signature
@@ -278,24 +282,24 @@ export default function ToolsPage() {
       </section>
 
       {/* FAQ Preview */}
-      <section className="py-16 px-4 bg-[#1F1F1F]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
+          <h2 className={`text-3xl font-bold mb-6 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
             Frequently Asked Questions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-8">
-            <div className="p-6 bg-[#252525] rounded-xl">
-              <h4 className="font-semibold text-white mb-2">Are these tools really free?</h4>
-              <p className="text-gray-400 text-sm">Yes! All our PDF tools are completely free to use with no hidden costs or registration required.</p>
+            <div className={`p-6 rounded-xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
+              <h4 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Are these tools really free?</h4>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Yes! All our PDF tools are completely free to use with no hidden costs or registration required.</p>
             </div>
-            <div className="p-6 bg-[#252525] rounded-xl">
-              <h4 className="font-semibold text-white mb-2">Are my files secure?</h4>
-              <p className="text-gray-400 text-sm">Absolutely. All files are processed locally in your browser and never uploaded to any server.</p>
+            <div className={`p-6 rounded-xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
+              <h4 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Are my files secure?</h4>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Absolutely. All files are processed locally in your browser and never uploaded to any server.</p>
             </div>
           </div>
           <Link
             href="/faq"
-            className="inline-flex items-center gap-2 text-[#c4ff0e] font-medium hover:text-[#d4ff3e]"
+            className={`inline-flex items-center gap-2 font-medium ${isDark ? 'text-[#c4ff0e] hover:text-[#d4ff3e]' : 'text-[#4C00FF] hover:text-[#3a00cc]'}`}
           >
             View all FAQs
             <ArrowRight className="w-4 h-4" />

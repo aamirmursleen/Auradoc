@@ -233,7 +233,7 @@ const TrackDocumentPageInner: React.FC = () => {
       // Show email simulation
       setEmailContent({
         subject: `Document "${documentData.name}" is ready for your signature`,
-        body: `Hi ${documentData.recipient.name},\n\n${documentData.sender.name} has sent you a document to review and sign.\n\nDocument: ${documentData.name}\n\nClick here to view and sign the document.\n\nBest regards,\nAuraDoc Team`
+        body: `Hi ${documentData.recipient.name},\n\n${documentData.sender.name} has sent you a document to review and sign.\n\nDocument: ${documentData.name}\n\nClick here to view and sign the document.\n\nBest regards,\nMamaSign Team`
       })
       setShowEmailSimulation(true)
       setIsSimulating(false)
@@ -275,7 +275,7 @@ const TrackDocumentPageInner: React.FC = () => {
       // Show email simulation
       setEmailContent({
         subject: `${documentData.recipient.name} opened "${documentData.name}"`,
-        body: `Hi ${documentData.sender.name},\n\n${documentData.recipient.name} has opened the document you sent.\n\nDocument: ${documentData.name}\nOpened at: ${formatDate(new Date())}\n\nYou'll be notified when they sign.\n\nBest regards,\nAuraDoc Team`
+        body: `Hi ${documentData.sender.name},\n\n${documentData.recipient.name} has opened the document you sent.\n\nDocument: ${documentData.name}\nOpened at: ${formatDate(new Date())}\n\nYou'll be notified when they sign.\n\nBest regards,\nMamaSign Team`
       })
       setShowEmailSimulation(true)
       setIsSimulating(false)
@@ -324,7 +324,7 @@ const TrackDocumentPageInner: React.FC = () => {
       // Show email simulation
       setEmailContent({
         subject: `"${documentData.name}" has been signed!`,
-        body: `Hi ${documentData.sender.name},\n\nGreat news! ${documentData.recipient.name} has signed the document.\n\nDocument: ${documentData.name}\nSigned at: ${formatDate(new Date())}\n\nAll parties have signed. The document is now complete.\n\nYou can download the signed document from your dashboard.\n\nBest regards,\nAuraDoc Team`
+        body: `Hi ${documentData.sender.name},\n\nGreat news! ${documentData.recipient.name} has signed the document.\n\nDocument: ${documentData.name}\nSigned at: ${formatDate(new Date())}\n\nAll parties have signed. The document is now complete.\n\nYou can download the signed document from your dashboard.\n\nBest regards,\nMamaSign Team`
       })
       setShowEmailSimulation(true)
       setIsSimulating(false)

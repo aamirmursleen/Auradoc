@@ -1,0 +1,807 @@
+/*
+==================================================
+MOBILE-FIRST OPTIMIZATIONS
+Complete Mobile UX Enhancement for MamaSign
+==================================================
+
+Import this file in globals.css or layout.tsx
+Target: 320px+ with no horizontal scroll
+*/
+
+/* ===========================================
+   1. MOBILE VIEWPORT & FOUNDATION
+   =========================================== */
+
+/* Prevent horizontal scrolling on all devices */
+html,
+body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  position: relative;
+}
+
+* {
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Mobile-first container */
+@media (max-width: 767px) {
+  .container,
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* ===========================================
+   2. TYPOGRAPHY - MOBILE READABLE
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Base font size - prevents iOS zoom */
+  html {
+    font-size: 16px !important;
+  }
+
+  /* Headings - Fluid & Readable */
+  h1 {
+    font-size: clamp(1.75rem, 8vw, 2.5rem) !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 2rem) !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.875rem !important;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 5vw, 1.75rem) !important;
+    line-height: 1.4 !important;
+  }
+
+  h4 {
+    font-size: clamp(1.125rem, 4vw, 1.5rem) !important;
+  }
+
+  /* Body text - minimum 16px to prevent zoom */
+  p,
+  li,
+  span,
+  div {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Small text still readable */
+  small,
+  .text-sm {
+    font-size: 14px !important;
+  }
+
+  .text-xs {
+    font-size: 13px !important;
+  }
+}
+
+/* ===========================================
+   3. TOUCH-FRIENDLY INTERACTIVE ELEMENTS
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* All buttons & links - 44px minimum (Apple HIG) */
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  [role="button"],
+  .btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+    touch-action: manipulation;
+  }
+
+  /* Form inputs - prevent zoom */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    min-height: 48px !important;
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Checkbox & radio - touch friendly */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 24px !important;
+    min-height: 24px !important;
+    margin-right: 12px !important;
+  }
+}
+
+/* ===========================================
+   4. MOBILE NAVIGATION
+   =========================================== */
+
+@media (max-width: 1023px) {
+  /* Sticky header optimization */
+  header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Hamburger menu */
+  .mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 999;
+    padding: 80px 24px 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Nav links - thumb friendly */
+  nav a,
+  nav button {
+    min-height: 48px !important;
+    display: flex;
+    align-items: center;
+    padding: 16px 20px !important;
+    font-size: 18px !important;
+  }
+}
+
+/* ===========================================
+   5. HERO SECTION - MOBILE FIRST
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Hero padding */
+  .hero-section,
+  section:first-of-type {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* CTA buttons stack */
+  .hero-cta,
+  .cta-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 12px !important;
+  }
+
+  .hero-cta a,
+  .hero-cta button,
+  .cta-buttons a,
+  .cta-buttons button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Hero images */
+  .hero-image,
+  .hero-mockup {
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* ===========================================
+   6. TOOLS PAGES - MOBILE OPTIMIZED
+   =========================================== */
+
+@media (max-width: 1023px) {
+  /* Tool cards grid - single column */
+  .tools-grid,
+  .tool-cards,
+  [class*="grid-cols-"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Tool card - full width */
+  .tool-card {
+    width: 100% !important;
+    padding: 20px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Tool upload area - responsive */
+  .upload-area,
+  .dropzone,
+  [class*="upload"] {
+    width: 100% !important;
+    min-height: 200px !important;
+    padding: 24px 16px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Tool settings - collapsible */
+  .tool-settings,
+  .tool-options {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Sticky action bar at bottom */
+  .sticky-action-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 16px !important;
+    background: white !important;
+    border-top: 1px solid #e5e7eb !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1) !important;
+    z-index: 50 !important;
+  }
+
+  .sticky-action-bar button {
+    width: 100% !important;
+    min-height: 52px !important;
+    font-size: 17px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Add bottom padding to body when sticky bar present */
+  body.has-sticky-bar {
+    padding-bottom: 88px !important;
+  }
+}
+
+/* ===========================================
+   7. TABLES - MOBILE RESPONSIVE
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Option 1: Horizontal scroll with sticky column */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 -1rem !important;
+    padding: 0 1rem !important;
+  }
+
+  .table-responsive table {
+    min-width: 600px !important;
+  }
+
+  .table-responsive th:first-child,
+  .table-responsive td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    background: white !important;
+    z-index: 10 !important;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Option 2: Convert table to cards */
+  .table-to-cards {
+    display: block !important;
+  }
+
+  .table-to-cards thead {
+    display: none !important;
+  }
+
+  .table-to-cards tbody {
+    display: block !important;
+  }
+
+  .table-to-cards tr {
+    display: block !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    background: white !important;
+  }
+
+  .table-to-cards td {
+    display: flex !important;
+    justify-content: space-between !important;
+    padding: 8px 0 !important;
+    border: none !important;
+  }
+
+  .table-to-cards td::before {
+    content: attr(data-label) !important;
+    font-weight: 600 !important;
+    margin-right: 16px !important;
+  }
+}
+
+/* ===========================================
+   8. IMAGES & MEDIA - RESPONSIVE
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* All images responsive */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+
+  /* Background images contain */
+  .bg-cover {
+    background-size: contain !important;
+  }
+
+  /* Icons reasonable size */
+  svg,
+  .icon {
+    max-width: 48px !important;
+    max-height: 48px !important;
+  }
+}
+
+/* ===========================================
+   9. MODALS & POPUPS - MOBILE FULLSCREEN
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Modals fullscreen on mobile */
+  .modal,
+  .dialog,
+  [role="dialog"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    max-width: 100% !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  /* Modal content padding */
+  .modal-content,
+  .dialog-content {
+    padding: 24px 20px !important;
+  }
+
+  /* Close button - top right, touch friendly */
+  .modal-close,
+  .dialog-close {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    z-index: 10 !important;
+  }
+}
+
+/* ===========================================
+   10. FORMS - MOBILE OPTIMIZED
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* All form fields stack */
+  form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* Labels above inputs */
+  label {
+    display: block !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+  }
+
+  /* Input groups stack */
+  .input-group,
+  .form-row {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* Submit buttons full width */
+  form button[type="submit"],
+  form input[type="submit"] {
+    width: 100% !important;
+    margin-top: 8px !important;
+  }
+}
+
+/* ===========================================
+   11. SPACING & LAYOUT
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Section padding reduced */
+  section {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  /* Card spacing */
+  .card,
+  [class*="card"] {
+    padding: 20px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Grid gaps reduced */
+  .grid {
+    gap: 16px !important;
+  }
+
+  /* Flex gaps */
+  .flex {
+    gap: 12px !important;
+  }
+}
+
+/* ===========================================
+   12. iOS-SPECIFIC FIXES
+   =========================================== */
+
+/* iOS Safari 100vh fix */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen,
+  .h-screen {
+    min-height: -webkit-fill-available !important;
+  }
+
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Smooth scrolling */
+  .overflow-scroll,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Fix sticky positioning */
+  .sticky {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+  }
+}
+
+/* ===========================================
+   13. ACCORDION / COLLAPSIBLE (For Long Content)
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Accordion header */
+  .accordion-header {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 16px !important;
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    min-height: 56px !important;
+    font-weight: 600 !important;
+  }
+
+  .accordion-header:active {
+    background: #f3f4f6 !important;
+  }
+
+  /* Accordion content */
+  .accordion-content {
+    max-height: 0 !important;
+    overflow: hidden !important;
+    transition: max-height 0.3s ease !important;
+  }
+
+  .accordion-content.open {
+    max-height: 1000px !important;
+    padding: 16px !important;
+  }
+
+  /* Accordion icon rotation */
+  .accordion-icon {
+    transition: transform 0.3s ease !important;
+  }
+
+  .accordion-header.open .accordion-icon {
+    transform: rotate(180deg) !important;
+  }
+}
+
+/* ===========================================
+   14. HIDE/SHOW HELPERS
+   =========================================== */
+
+/* Hide on mobile */
+@media (max-width: 767px) {
+  .mobile-hide,
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Compact on mobile (reduce size) */
+  .mobile-compact {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Show only on mobile */
+.mobile-only {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+/* ===========================================
+   15. PERFORMANCE OPTIMIZATIONS
+   =========================================== */
+
+/* Reduce animations on mobile for performance */
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  * {
+    animation-duration: 0.5s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* Disable heavy animations */
+  .animate-spin,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
+
+/* ===========================================
+   16. SIGNATURE PAD / CANVAS - MOBILE FIX
+   =========================================== */
+
+@media (max-width: 767px) {
+  .signature-canvas-container {
+    width: 100% !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  canvas.signature-canvas,
+  .signature-pad canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 200px !important;
+    touch-action: none !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+  }
+
+  /* Signature tools */
+  .signature-tools {
+    display: flex !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+
+  .signature-tools button {
+    flex: 1 !important;
+    min-width: auto !important;
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ===========================================
+   17. PDF VIEWER - MOBILE RESPONSIVE
+   =========================================== */
+
+@media (max-width: 767px) {
+  .pdf-viewer,
+  .document-viewer {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .pdf-page,
+  .document-page {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 auto 16px !important;
+  }
+
+  /* PDF controls - bottom sticky */
+  .pdf-controls {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 12px !important;
+    background: white !important;
+    border-top: 1px solid #e5e7eb !important;
+    z-index: 40 !important;
+  }
+
+  .pdf-controls button {
+    min-height: 44px !important;
+    flex: 1 !important;
+  }
+}
+
+/* ===========================================
+   18. SAFE AREA INSETS (Notch Support)
+   =========================================== */
+
+@supports (padding: env(safe-area-inset-top)) {
+  /* Header with notch */
+  header {
+    padding-top: env(safe-area-inset-top) !important;
+  }
+
+  /* Bottom bars with home indicator */
+  .sticky-action-bar,
+  .bottom-nav,
+  .pdf-controls {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Modal fullscreen with notch */
+  .modal,
+  [role="dialog"] {
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+}
+
+/* ===========================================
+   19. LOADING STATES - MOBILE FRIENDLY
+   =========================================== */
+
+@media (max-width: 767px) {
+  /* Skeleton loaders */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background-size: 200% 100% !important;
+    animation: skeleton-loading 1.5s infinite !important;
+  }
+
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Spinner - centered */
+  .spinner,
+  .loading {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* ===========================================
+   20. DARK MODE MOBILE ADJUSTMENTS
+   =========================================== */
+
+@media (max-width: 767px) {
+  .dark {
+    /* Reduce brightness on mobile dark mode */
+    filter: brightness(0.95);
+  }
+
+  /* Dark mode tables */
+  .dark .table-responsive th:first-child,
+  .dark .table-responsive td:first-child {
+    background: #1e1e1e !important;
+  }
+
+  /* Dark mode sticky bars */
+  .dark .sticky-action-bar {
+    background: #1e1e1e !important;
+    border-top-color: #2a2a2a !important;
+  }
+
+  /* Dark mode modal */
+  .dark .modal,
+  .dark [role="dialog"] {
+    background: #1e1e1e !important;
+  }
+}
+
+/* ===========================================
+   21. LANDSCAPE MOBILE ORIENTATION
+   =========================================== */
+
+@media (max-width: 926px) and (orientation: landscape) {
+  /* Reduce vertical padding in landscape */
+  section {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  /* Hero section compact */
+  .hero-section {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  /* Modal max height */
+  .modal,
+  [role="dialog"] {
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* ===========================================
+   22. PRINT STYLES (Bonus)
+   =========================================== */
+
+@media print {
+  /* Hide non-essential elements */
+  header,
+  footer,
+  nav,
+  .mobile-menu,
+  .sticky-action-bar,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Optimize for print */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  a {
+    text-decoration: underline !important;
+  }
+}
+
+/* ===========================================
+   END OF MOBILE-FIRST OPTIMIZATIONS
+   =========================================== */

@@ -106,6 +106,11 @@ export default function SignDocumentPage() {
   const [pageHeights, setPageHeights] = useState<number[]>([])
   const [pageWidths, setPageWidths] = useState<number[]>([])
 
+  // Image document state
+  const [fileType, setFileType] = useState<'pdf' | 'image' | 'unknown'>('unknown')
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null)
+
   // Signing state
   const [showSignaturePad, setShowSignaturePad] = useState(false)
   const [signature, setSignature] = useState<string | null>(null)
@@ -281,52 +286,92 @@ export default function SignDocumentPage() {
     else { setError('Invalid signing link'); setLoading(false) }
   }, [documentId, signerEmail, token])
 
+  // Helper function to detect file type from URL
+  const getFileTypeFromUrl = (url: string): 'pdf' | 'image' | 'unknown' => {
+    const lowerUrl = url.toLowerCase()
+    if (lowerUrl.includes('.pdf') || lowerUrl.includes('application/pdf')) return 'pdf'
+    if (lowerUrl.match(/\.(png|jpg|jpeg|gif|webp|bmp)/) || lowerUrl.includes('image/')) return 'image'
+    // Default to PDF for data URLs without clear type
+    if (lowerUrl.startsWith('data:') && !lowerUrl.includes('image/')) return 'pdf'
+    return 'unknown'
+  }
+
   useEffect(() => {
-    const loadPdf = async () => {
+    const loadDocument = async () => {
       if (!documentData?.documentUrl) {
         setPdfError('No document data available')
         return
       }
-      try {
-        setPdfLoading(true)
-        setPdfError(null)
 
-        // Handle different document URL formats
-        let pdfSource: string | { data: Uint8Array } = documentData.documentUrl
+      const detectedType = getFileTypeFromUrl(documentData.documentUrl)
+      setFileType(detectedType)
 
-        // If it's a base64 string without data URL prefix, convert it
-        if (documentData.documentUrl.startsWith('data:application/pdf;base64,')) {
-          // Already a data URL, use as-is
-          pdfSource = documentData.documentUrl
-        } else if (documentData.documentUrl.startsWith('data:')) {
-          // Other data URL format
-          pdfSource = documentData.documentUrl
-        } else if (!documentData.documentUrl.startsWith('http') && !documentData.documentUrl.startsWith('/')) {
-          // Likely raw base64 - convert to data URL
-          pdfSource = `data:application/pdf;base64,${documentData.documentUrl}`
+      if (detectedType === 'image') {
+        // Load image document
+        try {
+          setPdfLoading(true)
+          setPdfError(null)
+          setImageUrl(documentData.documentUrl)
+          setTotalPages(1)
+
+          // Load image to get dimensions
+          const img = new Image()
+          img.onload = () => {
+            setImageDimensions({ width: img.width, height: img.height })
+            setPageWidths([img.width * scale])
+            setPageHeights([img.height * scale])
+            setPdfLoading(false)
+          }
+          img.onerror = () => {
+            setPdfError('Failed to load image document.')
+            setPdfLoading(false)
+          }
+          img.src = documentData.documentUrl
+        } catch (err) {
+          console.error('Error loading image:', err)
+          setPdfError('Failed to load image document.')
+          setPdfLoading(false)
         }
+      } else {
+        // Load PDF document
+        try {
+          setPdfLoading(true)
+          setPdfError(null)
 
-        const loadingTask = pdfjsLib.getDocument({
-          url: pdfSource,
-          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
-          cMapPacked: true,
-          standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
-          useSystemFonts: true,
-          disableFontFace: false,
-        })
-        const pdf = await loadingTask.promise
-        setPdfDoc(pdf)
-        setTotalPages(pdf.numPages)
-        canvasRefs.current = new Array(pdf.numPages).fill(null)
-      } catch (err) {
-        console.error('Error loading PDF:', err)
-        setPdfError('Failed to load PDF document. Please contact the sender.')
-      } finally {
-        setPdfLoading(false)
+          // Handle different document URL formats
+          let pdfSource: string | { data: Uint8Array } = documentData.documentUrl
+
+          // If it's a base64 string without data URL prefix, convert it
+          if (documentData.documentUrl.startsWith('data:application/pdf;base64,')) {
+            pdfSource = documentData.documentUrl
+          } else if (documentData.documentUrl.startsWith('data:')) {
+            pdfSource = documentData.documentUrl
+          } else if (!documentData.documentUrl.startsWith('http') && !documentData.documentUrl.startsWith('/')) {
+            pdfSource = `data:application/pdf;base64,${documentData.documentUrl}`
+          }
+
+          const loadingTask = pdfjsLib.getDocument({
+            url: pdfSource,
+            cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
+            cMapPacked: true,
+            standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
+            useSystemFonts: true,
+            disableFontFace: false,
+          })
+          const pdf = await loadingTask.promise
+          setPdfDoc(pdf)
+          setTotalPages(pdf.numPages)
+          canvasRefs.current = new Array(pdf.numPages).fill(null)
+        } catch (err) {
+          console.error('Error loading PDF:', err)
+          setPdfError('Failed to load document. Please contact the sender.')
+        } finally {
+          setPdfLoading(false)
+        }
       }
     }
-    loadPdf()
-  }, [documentData?.documentUrl])
+    loadDocument()
+  }, [documentData?.documentUrl, scale])
 
   const renderAllPages = useCallback(async () => {
     if (!pdfDoc) return
@@ -358,6 +403,14 @@ export default function SignDocumentPage() {
   }, [pdfDoc, renderAllPages, totalPages])
 
   useEffect(() => { if (pdfDoc) renderAllPages() }, [scale, pdfDoc, renderAllPages])
+
+  // Update image dimensions when scale changes
+  useEffect(() => {
+    if (fileType === 'image' && imageDimensions) {
+      setPageWidths([imageDimensions.width * scale])
+      setPageHeights([imageDimensions.height * scale])
+    }
+  }, [scale, fileType, imageDimensions])
 
   const zoomIn = () => setScale(prev => Math.min(prev + 0.25, 3))
   const zoomOut = () => setScale(prev => Math.max(prev - 0.25, 0.5))
@@ -796,11 +849,18 @@ export default function SignDocumentPage() {
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
             >
-              {pdfLoading ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading PDF...</p></div></div>)
+              {pdfLoading ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading document...</p></div></div>)
               : pdfError ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><p className="text-gray-300">{pdfError}</p></div></div>)
               : (
                 <div ref={pagesContainerRef} className="flex flex-col items-center gap-4 relative">
-                  {Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-[#1F1F1F] rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))}
+                  {fileType === 'image' && imageUrl ? (
+                    <div className="relative" style={{ width: pageWidths[0] || 595 * scale, height: pageHeights[0] || 842 * scale }}>
+                      <img src={imageUrl} alt="Document" className="w-full h-full rounded-lg shadow-lg bg-white" draggable={false} />
+                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page 1 of 1</div>
+                    </div>
+                  ) : (
+                    Array.from({ length: totalPages }, (_, i) => (<div key={i} className="relative"><canvas ref={(el) => { canvasRefs.current[i] = el }} className="bg-[#1F1F1F] rounded-lg shadow-lg" /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div></div>))
+                  )}
                   {myFields.map((field) => {
                     const originalPos = getFieldPosition(field)
                     const customPos = getCustomFieldPosition(field)
@@ -862,6 +922,15 @@ export default function SignDocumentPage() {
                             setSelectedFieldId(field.id)
                           } else {
                             handleFieldClick(field.id)
+                          }
+                        }}
+                        onDoubleClick={(e) => {
+                          // Allow editing signed fields on double-click
+                          if (isTxtType && hasValue) {
+                            e.stopPropagation()
+                            setEditingFieldId(field.id)
+                            setActiveFieldId(field.id)
+                            setSelectedFieldId(null)
                           }
                         }}
                         onMouseDown={(e) => hasValue && handleDragStart(e, field.id)}

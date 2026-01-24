@@ -63,11 +63,11 @@ function getOdooStyleTemplate(params: {
           <tr>
             <td style="padding: 40px;">
               <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333;">Hello <strong>${recipientName}</strong>,</p>
-              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.7;"><strong>${senderName}</strong> has sent you a document to sign. Please review and sign the document at your earliest convenience.</p>
+              <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.7;"><strong>${senderName}</strong> has sent you a document that requires your signature. Please review and sign the document.</p>
               ${message ? `<div style="background-color: #f9f9f9; border-left: 4px solid #000000; padding: 15px 20px; margin: 0 0 25px 0;"><p style="margin: 0; font-size: 14px; color: #555555; font-style: italic;">"${message}"</p></div>` : ''}
               <!-- Document Card -->
               <div style="background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
-                <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #000000;">📄 ${documentName}</p>
+                <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #000000;">Document: ${documentName}</p>
                 <p style="margin: 0; font-size: 14px; color: #666666;">From: ${senderName}</p>
                 ${expiresAt ? `<p style="margin: 8px 0 0 0; font-size: 13px; color: #999999;">Due: ${new Date(expiresAt).toLocaleDateString()}</p>` : ''}
               </div>
@@ -76,14 +76,19 @@ function getOdooStyleTemplate(params: {
                 <a href="${signingLink}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 16px; font-weight: 600;">Sign Document</a>
               </div>
               <!-- Security Note -->
-              <p style="margin: 25px 0 0 0; font-size: 13px; color: #888888; text-align: center;">🔒 This document is encrypted and securely stored.</p>
+              <p style="margin: 25px 0 0 0; font-size: 13px; color: #888888; text-align: center;">This document is encrypted and securely stored.</p>
             </td>
           </tr>
           <!-- Footer -->
           <tr>
             <td style="background-color: #f9f9f9; padding: 25px 40px; border-top: 1px solid #e0e0e0; text-align: center;">
               <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #000000;">${COMPANY_NAME}</p>
-              <p style="margin: 0; font-size: 12px; color: #888888;">Secure document signing made simple</p>
+              <p style="margin: 0 0 10px 0; font-size: 12px; color: #888888;">Secure document signing made simple</p>
+              <p style="margin: 0 0 10px 0; font-size: 11px; color: #999999;">MamaSign, Kickstart 58A2, Gulberg, Lahore, Pakistan</p>
+              <p style="margin: 0; font-size: 11px; color: #666666;">
+                <a href="mailto:unsubscribe@mamasign.com?subject=Unsubscribe" style="color: #666666; text-decoration: underline;">Unsubscribe</a> |
+                <a href="https://mamasign.com/privacy" style="color: #666666; text-decoration: underline;">Privacy Policy</a>
+              </p>
             </td>
           </tr>
         </table>
@@ -111,7 +116,7 @@ function getPlainTextInvite(params: {
 
   let text = `Hello ${recipientName},
 
-${senderName} has sent you a document to sign. Please review and sign the document at your earliest convenience.
+${senderName} has sent you a document that requires your signature. Please review and sign the document.
 
 `
   if (message) {
@@ -131,7 +136,7 @@ From: ${senderName}
   }
 
   text += `
-To sign this document, click the link below:
+To sign this document, visit:
 ${signingLink}
 
 This document is encrypted and securely stored. Your signature will be legally binding.
@@ -139,6 +144,13 @@ This document is encrypted and securely stored. Your signature will be legally b
 ---
 ${COMPANY_NAME}
 Secure document signing made simple
+
+MamaSign
+Kickstart 58A2, Gulberg
+Lahore, Pakistan
+
+To unsubscribe, email: unsubscribe@mamasign.com
+Privacy Policy: https://mamasign.com/privacy
 `
 
   return text
@@ -190,15 +202,16 @@ export async function sendSigningInvite(params: {
       text,
       headers: {
         'X-Entity-Ref-ID': uniqueId,
-        'X-Mailer': 'MamaSign',
-        'X-Priority': '1',
-        'Importance': 'high',
+        'Message-ID': `<${uniqueId}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
       },
-      // Disable click tracking to prevent URL wrapping issues
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 
@@ -246,12 +259,16 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
       text,
       headers: {
         'X-Entity-Ref-ID': `signing-request-${data.documentId}-${signerIndex}`,
+        'Message-ID': `<signing-request-${data.documentId}-${signerIndex}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
       },
-      // Disable click tracking to prevent URL wrapping issues
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 
@@ -347,11 +364,18 @@ export async function sendSignatureCompletedNotification(
       to: data.senderEmail,
       subject: isComplete ? `"${data.documentName}" is fully signed!` : `${signer.name} signed "${data.documentName}" (${signedCount}/${total})`,
       html,
-      // Disable click tracking to prevent URL wrapping issues
+      headers: {
+        'X-Entity-Ref-ID': `signature-notification-${data.documentId}-${Date.now()}`,
+        'Message-ID': `<signature-notification-${data.documentId}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
+      },
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 
@@ -427,11 +451,18 @@ export async function sendSignerConfirmation(
       to: signer.email,
       subject: `Your signature on "${data.documentName}" is confirmed`,
       html,
-      // Disable click tracking to prevent URL wrapping issues
+      headers: {
+        'X-Entity-Ref-ID': `signer-confirmation-${data.documentId}-${Date.now()}`,
+        'Message-ID': `<signer-confirmation-${data.documentId}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
+      },
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 
@@ -497,11 +528,18 @@ export async function sendDocumentOpenedNotification(data: DocumentEmailData, si
       to: data.senderEmail,
       subject: `${signer.name} viewed "${data.documentName}"`,
       html,
-      // Disable click tracking to prevent URL wrapping issues
+      headers: {
+        'X-Entity-Ref-ID': `opened-notification-${data.documentId}-${Date.now()}`,
+        'Message-ID': `<opened-notification-${data.documentId}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
+      },
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 
@@ -619,12 +657,16 @@ Secure document signing made simple
       text,
       headers: {
         'X-Entity-Ref-ID': `signing-reminder-${data.documentId}-${signerIndex}-${reminderNumber}`,
+        'Message-ID': `<signing-reminder-${data.documentId}-${signerIndex}-${reminderNumber}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
       },
-      // Disable click tracking to prevent URL wrapping issues
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 
@@ -698,11 +740,18 @@ export async function sendDocumentDeclined(
       to: data.senderEmail,
       subject: `${signer.name} declined to sign "${data.documentName}"`,
       html,
-      // Disable click tracking to prevent URL wrapping issues
+      headers: {
+        'X-Entity-Ref-ID': `declined-notification-${data.documentId}-${Date.now()}`,
+        'Message-ID': `<declined-notification-${data.documentId}-${Date.now()}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'Precedence': 'bulk',
+      },
+      // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
       tracking: {
         clicks: false,
-        opens: true,
+        opens: false,
       },
     })
 

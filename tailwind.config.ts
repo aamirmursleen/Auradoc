@@ -17,19 +17,25 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // CalendarJet-inspired color system
+        // LinkForge Purple Theme
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#c4ff0e',
-          dark: '#a8dd0c',
-          foreground: '#000000',
+          DEFAULT: '#4C00FF',
+          hover: '#3D00CC',
+          light: '#CBC2FF',
+          pale: '#EDE5FF',
+          foreground: '#ffffff',
+        },
+        dark: {
+          DEFAULT: '#26065D',
+          hover: '#1A0440',
         },
         secondary: {
-          DEFAULT: '#2a2a2a',
+          DEFAULT: '#26065D',
           foreground: '#ffffff',
         },
         destructive: {
@@ -37,21 +43,21 @@ const config: Config = {
           foreground: '#ffffff',
         },
         muted: {
-          DEFAULT: '#9CA3AF',
-          foreground: '#6b7280',
+          DEFAULT: '#6B7280',
+          foreground: '#9CA3AF',
         },
         accent: {
-          DEFAULT: '#c4ff0e',
-          foreground: '#000000',
-        },
-        card: {
-          DEFAULT: '#1e1e1e',
+          DEFAULT: '#FF5252',
+          hover: '#E64545',
           foreground: '#ffffff',
         },
-        lime: {
-          DEFAULT: '#c4ff0e',
-          glow: 'hsl(75 100% 60% / 0.3)',
+        card: {
+          DEFAULT: '#ffffff',
+          foreground: '#26065D',
         },
+        success: '#10B981',
+        warning: '#F59E0B',
+        error: '#EF4444',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

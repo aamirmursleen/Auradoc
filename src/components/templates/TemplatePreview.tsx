@@ -192,7 +192,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ template, onClose, on
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
             {/* Template Header Banner - Like template.net */}
             <div className="bg-gradient-to-r from-gray-700 via-gray-600 to-amber-600 p-4 text-white text-center text-sm">
-              <span className="opacity-80">AuraDoc</span>
+              <span className="opacity-80">MamaSign</span>
               <span className="mx-2">|</span>
               <span>{template.name}</span>
             </div>

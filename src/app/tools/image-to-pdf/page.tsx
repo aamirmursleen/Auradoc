@@ -4,8 +4,12 @@ import React, { useState, useCallback } from 'react'
 import { Image as ImageIcon, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Plus, X } from 'lucide-react'
 import Link from 'next/link'
 import { PDFDocument } from 'pdf-lib'
+import { useTheme } from '@/components/ThemeProvider'
 
 export default function ImageToPDFPage() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   const [files, setFiles] = useState<File[]>([])
   const [converting, setConverting] = useState(false)
   const [converted, setConverted] = useState(false)
@@ -134,18 +138,18 @@ export default function ImageToPDFPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e]">
+    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} px-4 py-2 rounded-full text-sm font-medium mb-6`}>
             <ImageIcon className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
             Image to PDF Converter
           </h1>
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-8 max-w-2xl mx-auto`}>
             Convert JPG, PNG, and other images to PDF.
             Combine multiple images into a single PDF document.
           </p>
@@ -154,8 +158,8 @@ export default function ImageToPDFPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 transition-all ${
               dragActive
-                ? 'border-[#c4ff0e] bg-[#252525]'
-                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
+                ? `${isDark ? 'border-[#c4ff0e]' : 'border-[#4C00FF]'} ${isDark ? 'bg-[#252525]' : 'bg-gray-50'}`
+                : `${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'} ${isDark ? 'hover:border-[#c4ff0e]' : 'hover:border-[#4C00FF]'} ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -164,13 +168,13 @@ export default function ImageToPDFPage() {
           >
             {files.length === 0 ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
+                <div className={`w-16 h-16 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <Upload className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>
                   Drop your images here
                 </h3>
-                <p className="text-gray-400 mb-4">or click to browse</p>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4`}>or click to browse</p>
                 <input
                   type="file"
                   accept="image/*"
@@ -181,12 +185,12 @@ export default function ImageToPDFPage() {
                 />
                 <label
                   htmlFor="image-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
+                  className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg cursor-pointer hover:opacity-90 transition-colors`}
                 >
                   <Upload className="w-5 h-5" />
                   Select Images
                 </label>
-                <p className="text-sm text-gray-400 mt-4">JPG, PNG, GIF, WebP supported</p>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-4`}>JPG, PNG, GIF, WebP supported</p>
               </div>
             ) : (
               <div>
@@ -197,7 +201,7 @@ export default function ImageToPDFPage() {
                       <img
                         src={preview}
                         alt={`Preview ${idx + 1}`}
-                        className="w-full h-full object-cover rounded-lg border border-[#2a2a2a]"
+                        className={`w-full h-full object-cover rounded-lg border ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}
                       />
                       <button
                         onClick={() => removeFile(idx)}
@@ -214,10 +218,10 @@ export default function ImageToPDFPage() {
                   {/* Add More Button */}
                   <label
                     htmlFor="image-upload-more"
-                    className="aspect-square border-2 border-dashed border-[#3a3a3a] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c4ff0e] hover:bg-[#252525] transition-colors"
+                    className={`aspect-square border-2 border-dashed ${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'} rounded-lg flex flex-col items-center justify-center cursor-pointer ${isDark ? 'hover:border-[#c4ff0e]' : 'hover:border-[#4C00FF]'} ${isDark ? 'hover:bg-[#252525]' : 'hover:bg-gray-50'} transition-colors`}
                   >
-                    <Plus className="w-6 h-6 text-gray-400" />
-                    <span className="text-xs text-gray-400 mt-1">Add</span>
+                    <Plus className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-1`}>Add</span>
                   </label>
                   <input
                     type="file"
@@ -229,7 +233,7 @@ export default function ImageToPDFPage() {
                   />
                 </div>
 
-                <p className="text-sm text-gray-400 mb-4 text-center">
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4 text-center`}>
                   {files.length} image{files.length > 1 ? 's' : ''} selected
                 </p>
 
@@ -237,14 +241,14 @@ export default function ImageToPDFPage() {
                   <div className="flex justify-center gap-3">
                     <button
                       onClick={clearAll}
-                      className="px-4 py-2 text-gray-400 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                      className={`px-4 py-2 ${isDark ? 'text-gray-400' : 'text-gray-500'} ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'} rounded-lg transition-colors`}
                     >
                       Clear All
                     </button>
                     <button
                       onClick={handleConvert}
                       disabled={converting}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                      className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50`}
                     >
                       {converting ? (
                         <>
@@ -261,20 +265,20 @@ export default function ImageToPDFPage() {
                   </div>
                 ) : (
                   <div className="text-center space-y-4">
-                    <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
+                    <div className={`flex items-center justify-center gap-2 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">PDF Created Successfully!</span>
                     </div>
                     <button
                       onClick={downloadPdf}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
+                      className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:opacity-90 transition-colors`}
                     >
                       <Download className="w-5 h-5" />
                       Download PDF
                     </button>
                     <button
                       onClick={clearAll}
-                      className="block mx-auto text-sm text-gray-400 hover:text-gray-300"
+                      className={`block mx-auto text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} ${isDark ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}
                     >
                       Convert more images
                     </button>
@@ -287,9 +291,9 @@ export default function ImageToPDFPage() {
       </section>
 
       {/* Features */}
-      <section className="py-16 px-4 bg-[#1F1F1F]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
+          <h2 className={`text-3xl font-bold text-center ${isDark ? 'text-white' : 'text-[#26065D]'} mb-12`}>
             Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -298,12 +302,12 @@ export default function ImageToPDFPage() {
               { icon: Zap, title: 'Instant Conversion', desc: 'Get your PDF in seconds' },
               { icon: Shield, title: 'Privacy First', desc: 'Images processed in your browser' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
-                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
+              <div key={idx} className={`text-center p-6 rounded-2xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
+                <div className={`w-12 h-12 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-xl flex items-center justify-center mx-auto mb-4`}>
+                  <feature.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.desc}</p>
+                <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>{feature.title}</h3>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -311,17 +315,17 @@ export default function ImageToPDFPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-[#252525]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#252525]' : 'bg-gray-50'}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
             Need to Verify a PDF?
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
             Check if a document has been tampered with using our verification tool
           </p>
           <Link
             href="/verify"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1F1F1F] text-[#c4ff0e] font-medium rounded-lg hover:shadow-lg transition-all"
+            className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#1F1F1F]' : 'bg-white border border-gray-200'} ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} font-medium rounded-lg hover:shadow-lg transition-all`}
           >
             Verify PDF
             <ArrowRight className="w-5 h-5" />

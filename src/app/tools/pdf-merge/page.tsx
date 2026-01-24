@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react'
 import { Layers, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, GripVertical, Zap, Shield, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { PDFDocument } from 'pdf-lib'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface PDFFile {
   file: File
@@ -11,6 +12,9 @@ interface PDFFile {
 }
 
 export default function PDFMergePage() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   const [files, setFiles] = useState<PDFFile[]>([])
   const [merging, setMerging] = useState(false)
   const [merged, setMerged] = useState(false)
@@ -129,17 +133,17 @@ export default function PDFMergePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e]">
+    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a] text-[#c4ff0e]' : 'bg-[#F0E6FF] text-[#4C00FF]'} px-4 py-2 rounded-full text-sm font-medium mb-6`}>
             <Layers className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
             PDF Merge
           </h1>
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'} mb-8 max-w-2xl mx-auto`}>
             Combine multiple PDF files into one document.
             Drag to reorder pages before merging.
           </p>
@@ -147,8 +151,8 @@ export default function PDFMergePage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 transition-all ${
               dragActive
-                ? 'border-[#c4ff0e] bg-[#252525]'
-                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
+                ? `${isDark ? 'border-[#c4ff0e] bg-[#252525]' : 'border-[#4C00FF] bg-[#F8F5FF]'}`
+                : `${isDark ? 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]' : 'border-gray-300 hover:border-[#4C00FF] bg-[#FAFAFA]'}`
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -157,13 +161,13 @@ export default function PDFMergePage() {
           >
             {files.length === 0 ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
+                <div className={`w-16 h-16 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#F0E6FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <Upload className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>
                   Drop your PDFs here
                 </h3>
-                <p className="text-gray-400 mb-4">or click to browse</p>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} mb-4`}>or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -174,12 +178,12 @@ export default function PDFMergePage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
+                  className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'} font-medium rounded-lg cursor-pointer transition-colors`}
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF Files
                 </label>
-                <p className="text-sm text-gray-400 mt-4">Select 2 or more PDFs to merge</p>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-4`}>Select 2 or more PDFs to merge</p>
               </div>
             ) : (
               <div>
@@ -191,24 +195,24 @@ export default function PDFMergePage() {
                       onDragStart={() => handleDragStart(item.id)}
                       onDragOver={(e) => handleDragOver(e, item.id)}
                       onDragEnd={() => setDraggedItem(null)}
-                      className={`flex items-center gap-3 p-3 bg-[#252525] rounded-lg border border-[#2a2a2a] cursor-move ${
+                      className={`flex items-center gap-3 p-3 ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-lg border cursor-move ${
                         draggedItem === item.id ? 'opacity-50' : ''
                       }`}
                     >
-                      <GripVertical className="w-5 h-5 text-gray-400" />
-                      <div className="w-8 h-8 bg-[#2a2a2a] rounded flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-[#c4ff0e]" />
+                      <GripVertical className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <div className={`w-8 h-8 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#F0E6FF]'} rounded flex items-center justify-center`}>
+                        <FileText className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{item.file.name}</p>
-                        <p className="text-xs text-gray-400">{formatSize(item.file.size)}</p>
+                        <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'} truncate`}>{item.file.name}</p>
+                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{formatSize(item.file.size)}</p>
                       </div>
-                      <span className="text-xs text-gray-400 bg-[#2a2a2a] px-2 py-1 rounded">
+                      <span className={`text-xs ${isDark ? 'text-gray-400 bg-[#2a2a2a]' : 'text-gray-600 bg-gray-100'} px-2 py-1 rounded`}>
                         #{index + 1}
                       </span>
                       <button
                         onClick={() => removeFile(item.id)}
-                        className="p-1 hover:bg-red-900/20 rounded text-gray-400 hover:text-red-400"
+                        className={`p-1 hover:bg-red-900/20 rounded ${isDark ? 'text-gray-400' : 'text-gray-500'} hover:text-red-400`}
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -227,7 +231,7 @@ export default function PDFMergePage() {
                   />
                   <label
                     htmlFor="pdf-upload-more"
-                    className="text-[#c4ff0e] hover:text-[#c4ff0e] text-sm font-medium cursor-pointer"
+                    className={`${isDark ? 'text-[#c4ff0e] hover:text-[#c4ff0e]' : 'text-[#4C00FF] hover:text-[#3D00CC]'} text-sm font-medium cursor-pointer`}
                   >
                     + Add more PDFs
                   </label>
@@ -237,14 +241,14 @@ export default function PDFMergePage() {
                   <div className="flex justify-center gap-3">
                     <button
                       onClick={clearAll}
-                      className="px-4 py-2 text-gray-400 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                      className={`px-4 py-2 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-600 hover:bg-gray-100'} rounded-lg transition-colors`}
                     >
                       Clear All
                     </button>
                     <button
                       onClick={handleMerge}
                       disabled={merging || files.length < 2}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                      className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50`}
                     >
                       {merging ? (
                         <>
@@ -261,20 +265,20 @@ export default function PDFMergePage() {
                   </div>
                 ) : (
                   <div className="text-center space-y-4">
-                    <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
+                    <div className={`flex items-center justify-center gap-2 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">PDFs Merged Successfully!</span>
                     </div>
                     <button
                       onClick={downloadMerged}
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
+                      className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'} font-medium rounded-lg transition-colors`}
                     >
                       <Download className="w-5 h-5" />
                       Download Merged PDF
                     </button>
                     <button
                       onClick={clearAll}
-                      className="block mx-auto text-sm text-gray-400 hover:text-gray-300"
+                      className={`block mx-auto text-sm ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}
                     >
                       Merge more PDFs
                     </button>
@@ -286,9 +290,9 @@ export default function PDFMergePage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#1F1F1F]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-[#FAFAFA]'}`}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
+          <h2 className={`text-3xl font-bold text-center ${isDark ? 'text-white' : 'text-[#26065D]'} mb-12`}>
             Why Use Our PDF Merger?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -297,29 +301,29 @@ export default function PDFMergePage() {
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device' },
               { icon: Clock, title: 'No Limits', desc: 'Merge as many PDFs as you want' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
-                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
+              <div key={idx} className={`text-center p-6 rounded-2xl ${isDark ? 'bg-[#252525]' : 'bg-white shadow-sm'}`}>
+                <div className={`w-12 h-12 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#F0E6FF]'} rounded-xl flex items-center justify-center mx-auto mb-4`}>
+                  <feature.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.desc}</p>
+                <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>{feature.title}</h3>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-sm`}>{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#252525]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#252525]' : 'bg-[#F0E6FF]'}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
             Need to Split a PDF?
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
             Extract specific pages or split large PDFs into smaller files
           </p>
           <Link
             href="/tools/pdf-split"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1F1F1F] text-[#c4ff0e] font-medium rounded-lg hover:shadow-lg transition-all"
+            className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#1F1F1F] text-[#c4ff0e]' : 'bg-white text-[#4C00FF]'} font-medium rounded-lg hover:shadow-lg transition-all`}
           >
             Split PDF
             <ArrowRight className="w-5 h-5" />

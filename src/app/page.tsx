@@ -17,7 +17,6 @@ import {
   CreditCard,
   Palette,
   ShieldCheck,
-  AlertTriangle,
   FileCheck,
   Clock,
   Lock,
@@ -31,9 +30,13 @@ import {
   Layers,
   Scissors,
   Droplets,
+  TrendingUp,
+  X,
+  Check,
 } from 'lucide-react'
 import HeroSection from '@/components/home/HeroSection'
 import FloatingMobileCTA from '@/components/FloatingMobileCTA'
+import { useTheme } from '@/components/ThemeProvider'
 
 // Scroll Reveal Component
 const ScrollReveal = ({
@@ -124,34 +127,34 @@ const TemplatesMockup = () => {
 
   return (
     <Link href="/templates" className="block">
-      <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 cursor-pointer group">
-        <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-cyan-500/30 transition-all">
-          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 flex items-center justify-between">
+      <div className="relative w-full h-full min-h-[400px] bg-white rounded-2xl p-8 shadow-2xl border border-[#4C00FF]/20 hover:border-[#4C00FF]/40 transition-all duration-300 cursor-pointer group">
+        <div className="bg-white backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200 group-hover:border-[#4C00FF]/30 transition-all">
+          <div className="bg-gradient-to-r from-[#4C00FF] to-[#8B5CF6] p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <FileText className="w-5 h-5 text-gray-900" />
-              <span className="text-gray-900 font-semibold">Resume Templates</span>
+              <FileText className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold">Resume Templates</span>
             </div>
-            <Download className="w-5 h-5 text-gray-900" />
+            <Download className="w-5 h-5 text-white" />
           </div>
-          <div className="p-6 grid grid-cols-2 gap-4">
+          <div className="p-6 grid grid-cols-2 gap-4 bg-gray-50">
             {templates.map((template, idx) => (
               <div key={idx} className="cursor-pointer block">
-                <div className="bg-gray-50/50 rounded-lg p-3 border-2 border-gray-600 group-hover:border-cyan-400/50 transition-all duration-300 transform group-hover:scale-[1.02]">
+                <div className="bg-white rounded-lg p-3 border-2 border-gray-200 group-hover:border-[#4C00FF]/50 transition-all duration-300 transform group-hover:scale-[1.02]">
                   <div className="h-28 mb-2">
                     <ResumePreview type={template.name} color={template.color} />
                   </div>
-                  <p className="text-xs font-medium text-gray-700 text-center">{template.name}</p>
+                  <p className="text-xs font-medium text-[#26065D] text-center">{template.name}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="px-6 pb-6">
-            <div className="block w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-gray-900 py-3 rounded-lg font-medium group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-all text-center">
+          <div className="px-6 pb-6 bg-gray-50">
+            <div className="block w-full bg-gradient-to-r from-[#4C00FF] to-[#8B5CF6] text-white py-3 rounded-lg font-medium group-hover:shadow-lg group-hover:shadow-[#4C00FF]/30 transition-all text-center">
               Choose Template
             </div>
           </div>
         </div>
-        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-cyan-500/30 flex items-center space-x-2">
+        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-[#4C00FF] to-[#8B5CF6] text-white px-4 py-2 rounded-full shadow-lg shadow-[#4C00FF]/30 flex items-center space-x-2">
           <Sparkles className="w-4 h-4" />
           <span className="text-sm font-semibold">ATS-Friendly</span>
         </div>
@@ -163,48 +166,48 @@ const TemplatesMockup = () => {
 const SignDocumentMockup = () => {
   return (
     <Link href="/sign-document" className="block">
-      <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 cursor-pointer group">
-        <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-purple-500/30 transition-all">
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 flex items-center justify-between">
+      <div className="relative w-full h-full min-h-[400px] bg-white rounded-2xl p-8 shadow-2xl border border-[#EC4899]/20 hover:border-[#EC4899]/40 transition-all duration-300 cursor-pointer group">
+        <div className="bg-white backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200 group-hover:border-[#EC4899]/30 transition-all">
+          <div className="bg-gradient-to-r from-[#EC4899] to-[#8B5CF6] p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <FileSignature className="w-5 h-5 text-gray-900" />
-              <span className="text-gray-900 font-semibold">Sign Document</span>
+              <FileSignature className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold">Sign Document</span>
             </div>
-            <Users className="w-5 h-5 text-gray-900" />
+            <Users className="w-5 h-5 text-white" />
           </div>
-          <div className="p-6">
-            <div className="bg-gray-50/50 rounded-lg p-6 border-2 border-dashed border-purple-500/30 min-h-[200px] relative">
+          <div className="p-6 bg-gray-50">
+            <div className="bg-white rounded-lg p-6 border-2 border-dashed border-[#EC4899]/30 min-h-[200px] relative">
               <div className="space-y-3">
-                <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-300 rounded w-full"></div>
-                <div className="h-3 bg-gray-300 rounded w-5/6"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 rounded w-full"></div>
+                <div className="h-3 bg-gray-200 rounded w-5/6"></div>
               </div>
-              <div className="absolute bottom-6 right-6 bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-500/50 rounded-lg p-4 w-40 group-hover:border-purple-400 transition-all">
+              <div className="absolute bottom-6 right-6 bg-gradient-to-r from-[#EC4899]/10 to-[#8B5CF6]/10 border-2 border-[#EC4899]/50 rounded-lg p-4 w-40 group-hover:border-[#EC4899] transition-all">
                 <div className="flex items-center justify-center space-x-2">
-                  <FileSignature className="w-5 h-5 text-purple-600" />
-                  <span className="text-xs font-medium text-purple-600">Sign Here</span>
+                  <FileSignature className="w-5 h-5 text-[#EC4899]" />
+                  <span className="text-xs font-medium text-[#EC4899]">Sign Here</span>
                 </div>
               </div>
             </div>
             <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between bg-purple-100 p-3 rounded-lg border border-purple-500/20">
+              <div className="flex items-center justify-between bg-green-50 p-3 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm text-gray-700">John Doe</span>
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm text-[#26065D]">John Doe</span>
                 </div>
-                <span className="text-xs text-purple-600 font-medium">Signed</span>
+                <span className="text-xs text-green-600 font-medium">Signed</span>
               </div>
-              <div className="flex items-center justify-between bg-gray-100/50 p-3 rounded-lg border border-gray-200/50">
+              <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
                 <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">Jane Smith</span>
+                  <Clock className="w-4 h-4 text-[#6B7280]" />
+                  <span className="text-sm text-[#6B7280]">Jane Smith</span>
                 </div>
-                <span className="text-xs text-gray-500 font-medium">Pending</span>
+                <span className="text-xs text-[#6B7280] font-medium">Pending</span>
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-purple-500/30 flex items-center space-x-2">
+        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-[#EC4899] to-[#8B5CF6] text-white px-4 py-2 rounded-full shadow-lg shadow-[#EC4899]/30 flex items-center space-x-2">
           <Bell className="w-4 h-4" />
           <span className="text-sm font-semibold">Live Tracking</span>
         </div>
@@ -216,53 +219,53 @@ const SignDocumentMockup = () => {
 const InvoiceMockup = () => {
   return (
     <Link href="/create-invoice" className="block">
-      <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer group">
-        <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-emerald-500/30 transition-all">
+      <div className="relative w-full h-full min-h-[400px] bg-white rounded-2xl p-8 shadow-2xl border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer group">
+        <div className="bg-white backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200 group-hover:border-emerald-500/30 transition-all">
           <div className="bg-gradient-to-r from-emerald-500 to-green-500 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <CreditCard className="w-5 h-5 text-gray-900" />
-              <span className="text-gray-900 font-semibold">Invoice #1234</span>
+              <CreditCard className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold">Invoice #1234</span>
             </div>
-            <Download className="w-5 h-5 text-gray-900" />
+            <Download className="w-5 h-5 text-white" />
           </div>
-          <div className="p-6">
+          <div className="p-6 bg-gray-50">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <Palette className="w-6 h-6 text-gray-900" />
+                  <Palette className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">Your Company</p>
-                  <p className="text-xs text-gray-600">Professional Invoices</p>
+                  <p className="text-sm font-bold text-[#26065D]">Your Company</p>
+                  <p className="text-xs text-[#6B7280]">Professional Invoices</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-500">Date</p>
-                <p className="text-sm font-semibold text-gray-700">Dec 11, 2024</p>
+                <p className="text-xs text-[#6B7280]">Date</p>
+                <p className="text-sm font-semibold text-[#26065D]">Dec 11, 2024</p>
               </div>
             </div>
             <div className="space-y-2 mb-4">
-              <div className="flex justify-between bg-gray-50/50 p-3 rounded border border-gray-200/50">
-                <span className="text-sm text-gray-700">Service Item 1</span>
-                <span className="text-sm font-medium text-gray-900">$500.00</span>
+              <div className="flex justify-between bg-white p-3 rounded border border-gray-200">
+                <span className="text-sm text-[#26065D]">Service Item 1</span>
+                <span className="text-sm font-medium text-[#26065D]">$500.00</span>
               </div>
-              <div className="flex justify-between bg-gray-50/50 p-3 rounded border border-gray-200/50">
-                <span className="text-sm text-gray-700">Service Item 2</span>
-                <span className="text-sm font-medium text-gray-900">$750.00</span>
+              <div className="flex justify-between bg-white p-3 rounded border border-gray-200">
+                <span className="text-sm text-[#26065D]">Service Item 2</span>
+                <span className="text-sm font-medium text-[#26065D]">$750.00</span>
               </div>
             </div>
             <div className="border-t-2 border-gray-200 pt-3">
               <div className="flex justify-between items-center bg-gradient-to-r from-emerald-500 to-green-500 p-4 rounded-lg shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-all">
                 <div className="flex items-center space-x-2">
-                  <Calculator className="w-5 h-5 text-gray-900" />
-                  <span className="text-gray-900 font-semibold">Total</span>
+                  <Calculator className="w-5 h-5 text-white" />
+                  <span className="text-white font-semibold">Total</span>
                 </div>
-                <span className="text-2xl font-bold text-gray-900">$1,250.00</span>
+                <span className="text-2xl font-bold text-white">$1,250.00</span>
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-emerald-500/30 flex items-center space-x-2">
+        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-2 rounded-full shadow-lg shadow-emerald-500/30 flex items-center space-x-2">
           <Calculator className="w-4 h-4" />
           <span className="text-sm font-semibold">Auto-Calculate</span>
         </div>
@@ -274,48 +277,48 @@ const InvoiceMockup = () => {
 const VerifyMockup = () => {
   return (
     <Link href="/verify" className="block">
-      <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-white rounded-2xl p-8 shadow-2xl border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 cursor-pointer group">
-        <div className="bg-gray-100/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200/50 group-hover:border-orange-500/30 transition-all">
+      <div className="relative w-full h-full min-h-[400px] bg-white rounded-2xl p-8 shadow-2xl border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 cursor-pointer group">
+        <div className="bg-white backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-gray-200 group-hover:border-orange-500/30 transition-all">
           <div className="bg-gradient-to-r from-orange-500 to-red-500 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-gray-900" />
-              <span className="text-gray-900 font-semibold">PDF Verification</span>
+              <ShieldCheck className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold">PDF Verification</span>
             </div>
-            <Shield className="w-5 h-5 text-gray-900" />
+            <Shield className="w-5 h-5 text-white" />
           </div>
-          <div className="p-6">
-            <div className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-lg p-6 border-2 border-dashed border-orange-500/30 mb-6 group-hover:border-orange-400/50 transition-all">
+          <div className="p-6 bg-gray-50">
+            <div className="bg-orange-50 rounded-lg p-6 border-2 border-dashed border-orange-500/30 mb-6 group-hover:border-orange-400/50 transition-all">
               <div className="flex flex-col items-center justify-center space-y-3">
                 <FileCheck className="w-12 h-12 text-orange-600" />
-                <p className="text-sm font-medium text-gray-700">document.pdf</p>
-                <div className="w-full bg-gray-300 rounded-full h-2">
+                <p className="text-sm font-medium text-[#26065D]">document.pdf</p>
+                <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full w-full"></div>
                 </div>
               </div>
             </div>
             <div className="space-y-3">
-              <div className="flex items-center justify-between bg-emerald-100 p-4 rounded-lg border border-emerald-500/30">
+              <div className="flex items-center justify-between bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle className="w-5 h-5 text-green-600" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Hash Verified</p>
-                    <p className="text-xs text-gray-600">SHA-256 Match</p>
+                    <p className="text-sm font-medium text-[#26065D]">Hash Verified</p>
+                    <p className="text-xs text-[#6B7280]">SHA-256 Match</p>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between bg-emerald-100 p-4 rounded-lg border border-emerald-500/30">
+              <div className="flex items-center justify-between bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle className="w-5 h-5 text-green-600" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">No Modifications</p>
-                    <p className="text-xs text-gray-600">Document Intact</p>
+                    <p className="text-sm font-medium text-[#26065D]">No Modifications</p>
+                    <p className="text-xs text-[#6B7280]">Document Intact</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-orange-500 to-red-500 text-gray-900 px-4 py-2 rounded-full shadow-lg shadow-orange-500/30 flex items-center space-x-2">
+        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full shadow-lg shadow-orange-500/30 flex items-center space-x-2">
           <Shield className="w-4 h-4" />
           <span className="text-sm font-semibold">SHA-256</span>
         </div>
@@ -325,6 +328,9 @@ const VerifyMockup = () => {
 }
 
 const HomePage: React.FC = () => {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   const stats = [
     { value: '10M+', label: 'Documents Signed' },
     { value: '50K+', label: 'Happy Users' },
@@ -356,8 +362,8 @@ const HomePage: React.FC = () => {
       subtitle: 'Professional Resume Builder',
       description: 'Create stunning resumes that get noticed by recruiters and pass ATS systems with ease.',
       href: '/templates',
-      gradient: 'from-cyan-500 to-blue-600',
-      bgGradient: 'from-cyan-500/10 to-blue-600/10',
+      gradient: 'from-[#4C00FF] to-[#8B5CF6]',
+      bgGradient: 'from-[#4C00FF]/10 to-[#8B5CF6]/10',
       mockup: TemplatesMockup,
       benefits: [
         'Multiple professional designs',
@@ -372,8 +378,8 @@ const HomePage: React.FC = () => {
       subtitle: 'E-Signature Platform',
       description: 'Get documents signed faster with our secure, legally-binding electronic signature solution.',
       href: '/sign-document',
-      gradient: 'from-purple-500 to-pink-500',
-      bgGradient: 'from-purple-500/10 to-pink-500/10',
+      gradient: 'from-[#EC4899] to-[#8B5CF6]',
+      bgGradient: 'from-[#EC4899]/10 to-[#8B5CF6]/10',
       mockup: SignDocumentMockup,
       benefits: [
         'Drag & drop signature fields',
@@ -468,18 +474,33 @@ const HomePage: React.FC = () => {
     },
   ]
 
+  // Comparison data for HelloSign and Adobe Sign
+  const comparisonFeatures = [
+    { feature: 'E-Signatures (Sign Documents)', auradoc: true, hellosign: true, adobesign: true },
+    { feature: 'Unlimited Documents', auradoc: true, hellosign: '3/month', adobesign: '2/month' },
+    { feature: 'Document Verification (SHA-256)', auradoc: true, hellosign: false, adobesign: false },
+    { feature: 'PDF Watermarking', auradoc: true, hellosign: false, adobesign: 'Paid add-on' },
+    { feature: 'Audit Trail & Certificates', auradoc: true, hellosign: true, adobesign: true },
+    { feature: 'Multiple Signers', auradoc: true, hellosign: 'Paid only', adobesign: 'Paid only' },
+    { feature: 'Templates', auradoc: 'Unlimited', hellosign: '5 max', adobesign: '5 max' },
+    { feature: 'Free PDF Tools (7+ tools)', auradoc: true, hellosign: false, adobesign: false },
+    { feature: 'Invoice Generator', auradoc: true, hellosign: false, adobesign: false },
+    { feature: 'Resume Builder', auradoc: true, hellosign: false, adobesign: false },
+    { feature: 'One-Time Payment', auradoc: true, hellosign: false, adobesign: false },
+  ]
+
   return (
-    <div className="overflow-hidden bg-[#1F1F1F]">
+    <div className={`overflow-hidden ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
       {/* Hero Section */}
       <HeroSection />
 
       {/* Trust Badges */}
-      <section className="py-6 bg-[#1e1e1e] border-y border-[#2a2a2a]">
+      <section className={`py-6 border-y ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-100'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {trustBadges.map((badge, index) => (
-              <div key={index} className="flex items-center justify-center gap-2 text-gray-300">
-                <badge.icon className="w-5 h-5 text-[#c4ff0e]" />
+              <div key={index} className={`flex items-center justify-center gap-2 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
+                <badge.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 <span className="text-xs sm:text-sm font-medium">{badge.label}</span>
               </div>
             ))}
@@ -488,16 +509,16 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 md:py-16 bg-[#252525] border-y border-[#2a2a2a]">
+      <section className={`py-12 md:py-16 border-b ${isDark ? 'bg-[#1F1F1F] border-[#2a2a2a]' : 'bg-white border-gray-100'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
               <ScrollReveal key={index} animation="scroll-reveal-scale" delay={index * 0.1}>
-                <div className="text-center p-4 md:p-6 rounded-xl hover:bg-[#2a2a2a] transition-all duration-300">
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#c4ff0e] mb-2">
+                <div className={`text-center p-4 md:p-6 rounded-xl transition-all duration-300 ${isDark ? 'hover:bg-[#c4ff0e]/10' : 'hover:bg-[#EDE5FF]/30'}`}>
+                  <div className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-2 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
                     {stat.value}
                   </div>
-                  <div className="text-sm md:text-base text-gray-300">{stat.label}</div>
+                  <div className={`text-sm md:text-base ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{stat.label}</div>
                 </div>
               </ScrollReveal>
             ))}
@@ -505,18 +526,251 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Competitor Comparison Section */}
+      <section className={`py-16 md:py-20 ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 border ${isDark ? 'bg-green-900/30 text-green-400 border-green-700' : 'bg-green-100 text-green-700 border-green-200'}`}>
+              <TrendingUp className="w-4 h-4" />
+              Save 98% vs Competitors
+            </div>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+              Why choose MamaSign over HelloSign & Adobe Sign?
+            </h2>
+            <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
+              Get all premium features at a fraction of the cost. One-time payment, lifetime access.
+            </p>
+          </div>
+
+          {/* Comparison Table - Desktop */}
+          <div className="max-w-4xl mx-auto mb-12 hidden md:block">
+            <div className={`rounded-2xl border-2 shadow-xl overflow-hidden ${isDark ? 'bg-[#252525] border-[#c4ff0e]' : 'bg-white border-[#4C00FF]'}`}>
+              {/* Table Header */}
+              <div className={`grid grid-cols-4 border-b ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`p-4 font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Feature</div>
+                <div className={`p-4 text-center border-x ${isDark ? 'bg-[#c4ff0e]/10 border-[#c4ff0e]/20' : 'bg-[#4C00FF]/10 border-[#4C00FF]/20'}`}>
+                  <div className={`font-bold ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>MamaSign</div>
+                  <div className={`text-xs ${isDark ? 'text-[#c4ff0e]/70' : 'text-[#4C00FF]/70'}`}>Recommended</div>
+                </div>
+                <div className={`p-4 text-center font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>HelloSign</div>
+                <div className={`p-4 text-center font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Adobe Sign</div>
+              </div>
+
+              {/* Price Row */}
+              <div className={`grid grid-cols-4 border-b ${isDark ? 'border-[#3a3a3a] bg-gradient-to-r from-green-900/20 to-[#252525]' : 'border-gray-100 bg-gradient-to-r from-green-50 to-white'}`}>
+                <div className={`p-4 font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+                  Price
+                </div>
+                <div className={`p-4 text-center border-x ${isDark ? 'bg-[#c4ff0e]/5 border-[#c4ff0e]/10' : 'bg-[#4C00FF]/5 border-[#4C00FF]/10'}`}>
+                  <div className={`text-2xl font-bold ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>$27</div>
+                  <div className="text-xs text-green-600 font-semibold">LIFETIME</div>
+                </div>
+                <div className="p-4 text-center">
+                  <div className={`text-xl font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>$180</div>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>/year</div>
+                </div>
+                <div className="p-4 text-center">
+                  <div className={`text-xl font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>$156</div>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>/year</div>
+                </div>
+              </div>
+
+              {/* Feature Rows */}
+              {comparisonFeatures.map((row, index) => (
+                <div key={row.feature} className={`grid grid-cols-4 border-b last:border-b-0 ${isDark ? (index % 2 === 0 ? 'bg-[#252525]' : 'bg-[#2a2a2a]/50') + ' border-[#3a3a3a]' : (index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50') + ' border-gray-100'}`}>
+                  <div className={`p-4 font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{row.feature}</div>
+                  <div className={`p-4 flex items-center justify-center border-x ${isDark ? 'bg-[#c4ff0e]/5 border-[#c4ff0e]/10' : 'bg-[#4C00FF]/5 border-[#4C00FF]/10'}`}>
+                    {typeof row.auradoc === 'boolean' ? (
+                      row.auradoc ? (
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                          <Check className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                        </div>
+                      ) : (
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                          <X className={`h-4 w-4 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                        </div>
+                      )
+                    ) : (
+                      <span className={`text-sm font-medium ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>{row.auradoc}</span>
+                    )}
+                  </div>
+                  <div className="p-4 flex items-center justify-center">
+                    {typeof row.hellosign === 'boolean' ? (
+                      row.hellosign ? (
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                          <Check className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                        </div>
+                      ) : (
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                          <X className={`h-4 w-4 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                        </div>
+                      )
+                    ) : (
+                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{row.hellosign}</span>
+                    )}
+                  </div>
+                  <div className="p-4 flex items-center justify-center">
+                    {typeof row.adobesign === 'boolean' ? (
+                      row.adobesign ? (
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                          <Check className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                        </div>
+                      ) : (
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                          <X className={`h-4 w-4 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                        </div>
+                      )
+                    ) : (
+                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{row.adobesign}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Comparison Table - Mobile */}
+          <div className="md:hidden mb-12 space-y-4">
+            {/* Price Cards Mobile */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className={`rounded-xl p-4 text-center ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`}>
+                <div className="text-xs font-medium opacity-80">MamaSign</div>
+                <div className="text-2xl font-bold">$27</div>
+                <div className={`text-xs font-semibold ${isDark ? 'text-green-700' : 'text-green-300'}`}>LIFETIME</div>
+              </div>
+              <div className={`rounded-xl p-4 text-center ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>HelloSign</div>
+                <div className={`text-xl font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>$180</div>
+                <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>/year</div>
+              </div>
+              <div className={`rounded-xl p-4 text-center ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Adobe Sign</div>
+                <div className={`text-xl font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>$156</div>
+                <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>/year</div>
+              </div>
+            </div>
+
+            {/* Feature List Mobile */}
+            <div className={`rounded-2xl border shadow-lg overflow-hidden ${isDark ? 'bg-[#252525] border-[#3a3a3a]' : 'bg-white border-gray-200'}`}>
+              {comparisonFeatures.map((row, index) => (
+                <div key={row.feature} className={`p-4 border-b last:border-b-0 ${isDark ? (index % 2 === 0 ? 'bg-[#252525]' : 'bg-[#2a2a2a]') + ' border-[#3a3a3a]' : (index % 2 === 0 ? 'bg-white' : 'bg-gray-50') + ' border-gray-100'}`}>
+                  <div className={`text-sm font-semibold mb-3 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{row.feature}</div>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="flex flex-col items-center">
+                      <span className={`font-medium mb-1 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>MamaSign</span>
+                      {typeof row.auradoc === 'boolean' ? (
+                        row.auradoc ? (
+                          <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                            <Check className={`h-3 w-3 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                          </div>
+                        ) : (
+                          <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                            <X className={`h-3 w-3 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                          </div>
+                        )
+                      ) : (
+                        <span className={`font-medium ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>{row.auradoc}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className={`mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>HelloSign</span>
+                      {typeof row.hellosign === 'boolean' ? (
+                        row.hellosign ? (
+                          <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                            <Check className={`h-3 w-3 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                          </div>
+                        ) : (
+                          <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                            <X className={`h-3 w-3 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                          </div>
+                        )
+                      ) : (
+                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{row.hellosign}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className={`mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Adobe</span>
+                      {typeof row.adobesign === 'boolean' ? (
+                        row.adobesign ? (
+                          <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                            <Check className={`h-3 w-3 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                          </div>
+                        ) : (
+                          <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                            <X className={`h-3 w-3 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                          </div>
+                        )
+                      ) : (
+                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{row.adobesign}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Savings Highlight */}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-5 sm:p-8 text-center text-white">
+              <div className="text-base sm:text-lg font-medium mb-2">5-Year Cost Comparison</div>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+                <div className="bg-white/20 rounded-xl p-3 sm:p-4">
+                  <div className="text-xl sm:text-3xl font-bold">$27</div>
+                  <div className="text-xs sm:text-sm opacity-90">MamaSign</div>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+                  <div className="text-lg sm:text-2xl font-bold">$900</div>
+                  <div className="text-xs sm:text-sm opacity-80">HelloSign</div>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+                  <div className="text-lg sm:text-2xl font-bold">$780</div>
+                  <div className="text-xs sm:text-sm opacity-80">Adobe Sign</div>
+                </div>
+              </div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">
+                Save $753+ with MamaSign
+              </div>
+              <Link href="/pricing" className="inline-flex items-center gap-2 bg-white text-green-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
+                Get Lifetime Access - $27
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Switching Banner */}
+          <div className="max-w-3xl mx-auto mt-6 sm:mt-8">
+            <div className={`rounded-xl p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left border ${isDark ? 'bg-[#c4ff0e]/10 border-[#c4ff0e]/20' : 'bg-[#EDE5FF] border-[#4C00FF]/20'}`}>
+              <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
+                <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-[#c4ff0e]/10' : 'bg-[#4C00FF]/10'}`}>
+                  <Zap className={`h-5 w-5 sm:h-6 sm:w-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                </div>
+                <div>
+                  <div className={`font-semibold text-sm sm:text-base ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Switching from HelloSign or Adobe?</div>
+                  <div className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>Import all your templates in one click.</div>
+                </div>
+              </div>
+              <Link href="/sign-up" className={`w-full md:w-auto inline-flex items-center justify-center gap-2 border px-4 py-2.5 rounded-lg font-medium transition-colors text-sm ${isDark ? 'border-[#c4ff0e]/30 text-[#c4ff0e] hover:bg-[#c4ff0e]/10' : 'border-[#4C00FF]/30 text-[#4C00FF] hover:bg-[#4C00FF]/10'}`}>
+                Start Migration
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Free PDF Tools Section */}
-      <section className="py-12 md:py-16 bg-[#1F1F1F]">
+      <section className={`py-12 md:py-16 ${isDark ? 'bg-[#252525]' : 'bg-gray-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 bg-[#c4ff0e]/10 text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-4 border border-[#c4ff0e]/30">
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 border ${isDark ? 'bg-[#c4ff0e]/10 text-[#c4ff0e] border-[#c4ff0e]/30' : 'bg-[#4C00FF]/10 text-[#4C00FF] border-[#4C00FF]/30'}`}>
               <Zap className="w-4 h-4" />
               100% Free - No Sign Up Required
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
               Free PDF Tools
             </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
               Powerful PDF tools that work directly in your browser. No uploads to servers, your files stay private.
             </p>
           </ScrollReveal>
@@ -526,15 +780,15 @@ const HomePage: React.FC = () => {
               <ScrollReveal key={index} delay={index * 0.05}>
                 <Link
                   href={tool.href}
-                  className="group block p-4 md:p-6 bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] hover:border-[#c4ff0e]/50 hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-all duration-300"
+                  className={`group block p-4 md:p-6 rounded-xl border transition-all duration-300 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a] hover:border-[#c4ff0e]/50 hover:shadow-lg hover:shadow-[#c4ff0e]/10' : 'bg-white border-gray-200 hover:border-[#4C00FF]/50 hover:shadow-lg hover:shadow-[#4C00FF]/10'}`}
                 >
-                  <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <tool.icon className="w-6 h-6 text-black" />
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}>
+                    <tool.icon className={`w-6 h-6 ${isDark ? 'text-black' : 'text-white'}`} />
                   </div>
-                  <h3 className="font-semibold text-white mb-1 group-hover:text-[#c4ff0e] transition-colors">
+                  <h3 className={`font-semibold mb-1 transition-colors ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
                     {tool.name}
                   </h3>
-                  <p className="text-sm text-gray-400">{tool.desc}</p>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{tool.desc}</p>
                 </Link>
               </ScrollReveal>
             ))}
@@ -543,14 +797,14 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Features Showcase Section */}
-      <section className="py-12 md:py-20 bg-[#252525]">
+      <section className={`py-12 md:py-20 ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-12 md:mb-20">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
               Everything You Need in
-              <span className="text-[#c4ff0e]"> One Platform</span>
+              <span className={isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}> One Platform</span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto px-4">
+            <p className={`text-base sm:text-lg md:text-xl max-w-3xl mx-auto px-4 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
               Powerful tools designed to streamline your document workflow, from resume building to e-signatures to invoicing.
             </p>
           </ScrollReveal>
@@ -568,13 +822,13 @@ const HomePage: React.FC = () => {
                       className={`${!isEven ? 'lg:col-start-2' : ''} order-2 lg:order-none`}
                     >
                       <div className="mb-6 text-center lg:text-left">
-                        <div className="inline-block bg-[#c4ff0e] text-black px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
+                        <div className={`inline-block bg-gradient-to-r ${feature.gradient} text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg`}>
                           {feature.subtitle}
                         </div>
-                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+                        <h3 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
                           {feature.title}
                         </h3>
-                        <p className="text-base md:text-lg text-gray-300 mb-6 md:mb-8">
+                        <p className={`text-base md:text-lg mb-6 md:mb-8 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
                           {feature.description}
                         </p>
                       </div>
@@ -582,10 +836,10 @@ const HomePage: React.FC = () => {
                       <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
                         {feature.benefits.map((benefit, benefitIndex) => (
                           <li key={benefitIndex} className="flex items-start">
-                            <div className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#c4ff0e] flex items-center justify-center mt-0.5 shadow-lg">
-                              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-black" />
+                            <div className={`flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center mt-0.5 ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+                              <CheckCircle className={`w-3 h-3 md:w-4 md:h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
                             </div>
-                            <span className="ml-3 text-gray-300 text-sm md:text-base lg:text-lg">{benefit}</span>
+                            <span className={`ml-3 text-sm md:text-base lg:text-lg ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{benefit}</span>
                           </li>
                         ))}
                       </ul>
@@ -593,7 +847,7 @@ const HomePage: React.FC = () => {
                       <div className="text-center lg:text-left">
                         <Link
                           href={feature.href}
-                          className="inline-flex items-center justify-center px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-medium text-black bg-[#c4ff0e] rounded-lg hover:shadow-lg hover:shadow-[#c4ff0e]/30 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
+                          className={`inline-flex items-center justify-center px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-medium text-white bg-gradient-to-r ${feature.gradient} rounded-lg hover:shadow-lg hover:shadow-[#4C00FF]/30 transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1`}
                         >
                           Try {feature.title}
                           <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
@@ -621,13 +875,13 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-12 md:py-20 bg-[#1F1F1F] border-y border-[#2a2a2a]">
+      <section className={`py-12 md:py-20 border-y ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-100'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-10 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
               Trusted by 50,000+ Businesses Worldwide
             </h2>
-            <p className="text-base md:text-xl text-gray-300 max-w-2xl mx-auto px-4">
+            <p className={`text-base md:text-xl max-w-2xl mx-auto px-4 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
               See what our customers have to say about MamaSign.
             </p>
           </ScrollReveal>
@@ -635,21 +889,21 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {testimonials.map((testimonial, index) => (
               <ScrollReveal key={index} delay={index * 0.1}>
-                <div className="bg-[#1e1e1e] rounded-2xl p-6 md:p-8 border border-[#2a2a2a] hover:border-[#c4ff0e]/50 hover:shadow-xl hover:shadow-[#c4ff0e]/10 transition-all duration-500 ease-out transform hover:-translate-y-2 h-full">
+                <div className={`rounded-2xl p-6 md:p-8 border transition-all duration-500 ease-out transform hover:-translate-y-2 h-full ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a] hover:border-[#c4ff0e]/50 hover:shadow-xl hover:shadow-[#c4ff0e]/10' : 'bg-white border-gray-200 hover:border-[#4C00FF]/50 hover:shadow-xl hover:shadow-[#4C00FF]/10'}`}>
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-[#c4ff0e] fill-current" />
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                     ))}
                   </div>
-                  <p className="text-gray-300 mb-6 text-base leading-relaxed">
+                  <p className={`mb-6 text-base leading-relaxed ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
                     "{testimonial.quote}"
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#c4ff0e] flex items-center justify-center text-black font-bold">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`}>
                       {testimonial.image}
                     </div>
                     <div>
-                      <p className="font-semibold text-white">{testimonial.author}</p>
+                      <p className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{testimonial.author}</p>
                     </div>
                   </div>
                 </div>
@@ -660,69 +914,70 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-12 md:py-20 bg-[#252525]">
+      <section className={`py-12 md:py-20 ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
               Why Choose MamaSign?
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-[#1e1e1e] rounded-2xl border border-[#2a2a2a] hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-shadow">
-              <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#c4ff0e]/30">
-                <Zap className="w-8 h-8 text-black" />
+            <div className={`text-center p-6 rounded-2xl border transition-shadow ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a] hover:shadow-lg hover:shadow-[#c4ff0e]/10' : 'bg-white border-gray-200 hover:shadow-lg hover:shadow-[#4C00FF]/10'}`}>
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ${isDark ? 'bg-[#c4ff0e] shadow-[#c4ff0e]/30' : 'bg-[#4C00FF] shadow-[#4C00FF]/30'}`}>
+                <Zap className={`w-8 h-8 ${isDark ? 'text-black' : 'text-white'}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Lightning Fast</h3>
-              <p className="text-gray-400">Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Lightning Fast</h3>
+              <p className={isDark ? 'text-gray-400' : 'text-[#6B7280]'}>Get documents signed in minutes, not days. Our streamlined process saves you time.</p>
             </div>
-            <div className="text-center p-6 bg-[#1e1e1e] rounded-2xl border border-[#2a2a2a] hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-shadow">
-              <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#c4ff0e]/30">
-                <Lock className="w-8 h-8 text-black" />
+            <div className={`text-center p-6 rounded-2xl border transition-shadow ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a] hover:shadow-lg hover:shadow-[#c4ff0e]/10' : 'bg-white border-gray-200 hover:shadow-lg hover:shadow-[#4C00FF]/10'}`}>
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ${isDark ? 'bg-[#c4ff0e] shadow-[#c4ff0e]/30' : 'bg-[#4C00FF] shadow-[#4C00FF]/30'}`}>
+                <Lock className={`w-8 h-8 ${isDark ? 'text-black' : 'text-white'}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Bank-Level Security</h3>
-              <p className="text-gray-400">256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Bank-Level Security</h3>
+              <p className={isDark ? 'text-gray-400' : 'text-[#6B7280]'}>256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
             </div>
-            <div className="text-center p-6 bg-[#1e1e1e] rounded-2xl border border-[#2a2a2a] hover:shadow-lg hover:shadow-[#c4ff0e]/10 transition-shadow">
-              <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#c4ff0e]/30">
-                <Award className="w-8 h-8 text-black" />
+            <div className={`text-center p-6 rounded-2xl border transition-shadow ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a] hover:shadow-lg hover:shadow-[#c4ff0e]/10' : 'bg-white border-gray-200 hover:shadow-lg hover:shadow-[#4C00FF]/10'}`}>
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ${isDark ? 'bg-[#c4ff0e] shadow-[#c4ff0e]/30' : 'bg-[#4C00FF] shadow-[#4C00FF]/30'}`}>
+                <Award className={`w-8 h-8 ${isDark ? 'text-black' : 'text-white'}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Legally Binding</h3>
-              <p className="text-gray-400">Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Legally Binding</h3>
+              <p className={isDark ? 'text-gray-400' : 'text-[#6B7280]'}>Our e-signatures are legally valid in 180+ countries under ESIGN Act and eIDAS.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 md:py-20 bg-[#1e1e1e] relative overflow-hidden">
+      <section className={`py-12 md:py-20 relative overflow-hidden ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}>
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-48 md:w-72 h-48 md:h-72 bg-[#c4ff0e]/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-64 md:w-96 h-64 md:h-96 bg-[#c4ff0e]/10 rounded-full blur-3xl"></div>
+          <div className={`absolute top-10 left-10 w-48 md:w-72 h-48 md:h-72 rounded-full blur-3xl ${isDark ? 'bg-black/10' : 'bg-white/10'}`}></div>
+          <div className={`absolute bottom-10 right-10 w-64 md:w-96 h-64 md:h-96 rounded-full blur-3xl ${isDark ? 'bg-black/10' : 'bg-white/10'}`}></div>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-black' : 'text-white'}`}>
             Ready to Transform Your Document Workflow?
           </h2>
-          <p className="text-base md:text-xl text-gray-300 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
+          <p className={`text-base md:text-xl mb-6 md:mb-8 max-w-2xl mx-auto px-4 ${isDark ? 'text-black/70' : 'text-white/80'}`}>
             Join 50,000+ businesses who trust MamaSign for their document needs.
             Get started for free today - no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
             <Link
               href="/sign-document"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-black bg-[#c4ff0e] rounded-lg shadow-lg hover:bg-[#b8f206] transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1"
+              className={`w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium rounded-lg shadow-lg transition-all duration-500 ease-out transform hover:scale-105 hover:-translate-y-1 ${isDark ? 'text-[#c4ff0e] bg-black hover:bg-gray-900' : 'text-[#4C00FF] bg-white hover:bg-gray-100'}`}
             >
               Start Signing Free
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
             </Link>
             <Link
               href="/templates"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white border-2 border-[#2a2a2a] rounded-lg hover:bg-[#2a2a2a] transition-all duration-500 ease-out"
+              className={`w-full sm:w-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium border-2 rounded-lg transition-all duration-500 ease-out ${isDark ? 'text-black border-black/30 hover:bg-black/10' : 'text-white border-white/30 hover:bg-white/10'}`}
             >
               Build Your Resume
             </Link>
           </div>
+          <p className={`text-sm mt-6 ${isDark ? 'text-black/60' : 'text-white/60'}`}>No credit card required · Free plan available</p>
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react'
 import { Scissors, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { PDFDocument } from 'pdf-lib'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface PageSelection {
   pageNum: number
@@ -11,6 +12,9 @@ interface PageSelection {
 }
 
 export default function PDFSplitPage() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   const [file, setFile] = useState<File | null>(null)
   const [processing, setProcessing] = useState(false)
   const [processed, setProcessed] = useState(false)
@@ -208,17 +212,17 @@ export default function PDFSplitPage() {
   const selectedCount = pages.filter(p => p.selected).length
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e]">
+    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a] text-[#c4ff0e]' : 'bg-[#EDE5FF] text-[#4C00FF]'} px-4 py-2 rounded-full text-sm font-medium mb-6`}>
             <Scissors className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
             PDF Split
           </h1>
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-8 max-w-2xl mx-auto`}>
             Extract specific pages or split a PDF into individual pages.
             Select exactly what you need.
           </p>
@@ -226,8 +230,8 @@ export default function PDFSplitPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 transition-all ${
               dragActive
-                ? 'border-[#c4ff0e] bg-[#252525]'
-                : 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]'
+                ? `${isDark ? 'border-[#c4ff0e] bg-[#252525]' : 'border-[#4C00FF] bg-white border border-gray-200'}`
+                : `${isDark ? 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]' : 'border-gray-300 hover:border-[#4C00FF] bg-gray-50'}`
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -236,13 +240,13 @@ export default function PDFSplitPage() {
           >
             {!file ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-[#c4ff0e]" />
+                <div className={`w-16 h-16 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <Upload className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>
                   Drop your PDF here
                 </h3>
-                <p className="text-gray-400 mb-4">or click to browse</p>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4`}>or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -252,7 +256,7 @@ export default function PDFSplitPage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg cursor-pointer hover:bg-[#d4ff3e] transition-colors"
+                  className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'} font-medium rounded-lg cursor-pointer transition-colors`}
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF File
@@ -260,17 +264,17 @@ export default function PDFSplitPage() {
               </div>
             ) : !processed ? (
               <div>
-                <div className="flex items-center gap-3 p-3 bg-[#252525] rounded-lg border border-[#2a2a2a] mb-6">
-                  <div className="w-10 h-10 bg-[#2a2a2a] rounded flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-[#c4ff0e]" />
+                <div className={`flex items-center gap-3 p-3 ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border border-gray-200'} rounded-lg border mb-6`}>
+                  <div className={`w-10 h-10 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded flex items-center justify-center`}>
+                    <FileText className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{file.name}</p>
-                    <p className="text-xs text-gray-400">{formatSize(file.size)} - {totalPages} pages</p>
+                    <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'} truncate`}>{file.name}</p>
+                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{formatSize(file.size)} - {totalPages} pages</p>
                   </div>
                   <button
                     onClick={clearAll}
-                    className="p-1 hover:bg-red-900/20 rounded text-gray-400 hover:text-red-400"
+                    className={`p-1 hover:bg-red-900/20 rounded ${isDark ? 'text-gray-400' : 'text-gray-500'} hover:text-red-400`}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -278,14 +282,14 @@ export default function PDFSplitPage() {
 
                 {/* Split Mode Selection */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-300 mb-3">Split Mode</label>
+                  <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-3`}>Split Mode</label>
                   <div className="flex gap-4 justify-center">
                     <button
                       onClick={() => setSplitMode('extract')}
                       className={`px-4 py-2 rounded-lg border-2 transition-all ${
                         splitMode === 'extract'
-                          ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
-                          : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                          ? `${isDark ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]' : 'border-[#4C00FF] bg-white border border-gray-200 text-[#4C00FF]'}`
+                          : `${isDark ? 'border-[#2a2a2a] hover:border-[#3a3a3a]' : 'border-gray-200 hover:border-gray-300'}`
                       }`}
                     >
                       Extract Selected Pages
@@ -294,8 +298,8 @@ export default function PDFSplitPage() {
                       onClick={() => setSplitMode('split-all')}
                       className={`px-4 py-2 rounded-lg border-2 transition-all ${
                         splitMode === 'split-all'
-                          ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]'
-                          : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                          ? `${isDark ? 'border-[#c4ff0e] bg-[#252525] text-[#c4ff0e]' : 'border-[#4C00FF] bg-white border border-gray-200 text-[#4C00FF]'}`
+                          : `${isDark ? 'border-[#2a2a2a] hover:border-[#3a3a3a]' : 'border-gray-200 hover:border-gray-300'}`
                       }`}
                     >
                       Split All Pages
@@ -307,7 +311,7 @@ export default function PDFSplitPage() {
                   <>
                     {/* Range Input */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
                         Enter page range (e.g., 1-5, 8, 10-12)
                       </label>
                       <div className="flex gap-2">
@@ -316,11 +320,11 @@ export default function PDFSplitPage() {
                           value={rangeInput}
                           onChange={(e) => setRangeInput(e.target.value)}
                           placeholder="1-5, 8, 10-12"
-                          className="flex-1 px-3 py-2 border border-[#3a3a3a] rounded-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                          className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 ${isDark ? 'border-[#3a3a3a] bg-[#1e1e1e] text-white focus:ring-[#c4ff0e] focus:border-[#c4ff0e]' : 'border-gray-300 bg-white text-[#26065D] focus:ring-[#4C00FF] focus:border-[#4C00FF]'}`}
                         />
                         <button
                           onClick={selectRange}
-                          className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg text-sm font-medium"
+                          className={`px-4 py-2 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white' : 'bg-[#EDE5FF] hover:bg-[#DDD5EF] text-[#4C00FF]'} rounded-lg text-sm font-medium`}
                         >
                           Apply
                         </button>
@@ -329,11 +333,11 @@ export default function PDFSplitPage() {
 
                     {/* Quick Actions */}
                     <div className="flex gap-2 justify-center mb-4">
-                      <button onClick={selectAll} className="text-sm text-[#c4ff0e] hover:underline">
+                      <button onClick={selectAll} className={`text-sm ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} hover:underline`}>
                         Select All
                       </button>
-                      <span className="text-gray-300">|</span>
-                      <button onClick={deselectAll} className="text-sm text-[#c4ff0e] hover:underline">
+                      <span className={`${isDark ? 'text-gray-300' : 'text-gray-400'}`}>|</span>
+                      <button onClick={deselectAll} className={`text-sm ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} hover:underline`}>
                         Deselect All
                       </button>
                     </div>
@@ -346,8 +350,8 @@ export default function PDFSplitPage() {
                           onClick={() => togglePage(page.pageNum)}
                           className={`aspect-square rounded-lg border-2 text-sm font-medium transition-all ${
                             page.selected
-                              ? 'border-[#c4ff0e] bg-orange-500 text-white'
-                              : 'border-[#2a2a2a] hover:border-orange-300 text-gray-300'
+                              ? `${isDark ? 'border-[#c4ff0e] bg-orange-500 text-white' : 'border-[#4C00FF] bg-[#4C00FF] text-white'}`
+                              : `${isDark ? 'border-[#2a2a2a] hover:border-orange-300 text-gray-300' : 'border-gray-200 hover:border-[#4C00FF] text-gray-600'}`
                           }`}
                         >
                           {page.pageNum}
@@ -355,7 +359,7 @@ export default function PDFSplitPage() {
                       ))}
                     </div>
 
-                    <p className="text-sm text-gray-400 mb-4">
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4`}>
                       {selectedCount} of {totalPages} pages selected
                     </p>
                   </>
@@ -364,14 +368,14 @@ export default function PDFSplitPage() {
                 <div className="flex justify-center gap-3">
                   <button
                     onClick={clearAll}
-                    className="px-4 py-2 text-gray-400 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                    className={`px-4 py-2 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'} rounded-lg transition-colors`}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSplit}
                     disabled={processing || (splitMode === 'extract' && selectedCount === 0)}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                    className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50`}
                   >
                     {processing ? (
                       <>
@@ -389,18 +393,18 @@ export default function PDFSplitPage() {
               </div>
             ) : (
               <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-2 text-[#c4ff0e]">
+                <div className={`flex items-center justify-center gap-2 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-medium">PDF Split Successfully!</span>
                 </div>
 
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {splitBlobs.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 bg-[#252525] rounded-lg">
-                      <span className="text-sm text-gray-300">{item.name}</span>
+                    <div key={idx} className={`flex items-center justify-between p-2 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-lg`}>
+                      <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{item.name}</span>
                       <button
                         onClick={() => downloadFile(item.blob, item.name)}
-                        className="text-[#c4ff0e] hover:text-[#c4ff0e] text-sm font-medium"
+                        className={`${isDark ? 'text-[#c4ff0e] hover:text-[#c4ff0e]' : 'text-[#4C00FF] hover:text-[#3D00CC]'} text-sm font-medium`}
                       >
                         Download
                       </button>
@@ -411,7 +415,7 @@ export default function PDFSplitPage() {
                 {splitBlobs.length > 1 && (
                   <button
                     onClick={downloadAll}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
+                    className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'} font-medium rounded-lg transition-colors`}
                   >
                     <Download className="w-5 h-5" />
                     Download All ({splitBlobs.length} files)
@@ -421,7 +425,7 @@ export default function PDFSplitPage() {
                 {splitBlobs.length === 1 && (
                   <button
                     onClick={() => downloadFile(splitBlobs[0].blob, splitBlobs[0].name)}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#c4ff0e] text-black font-medium rounded-lg hover:bg-[#d4ff3e] transition-colors"
+                    className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'} font-medium rounded-lg transition-colors`}
                   >
                     <Download className="w-5 h-5" />
                     Download PDF
@@ -430,7 +434,7 @@ export default function PDFSplitPage() {
 
                 <button
                   onClick={clearAll}
-                  className="block mx-auto text-sm text-gray-400 hover:text-gray-300"
+                  className={`block mx-auto text-sm ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'}`}
                 >
                   Split another PDF
                 </button>
@@ -440,9 +444,9 @@ export default function PDFSplitPage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#1F1F1F]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
+          <h2 className={`text-3xl font-bold text-center ${isDark ? 'text-white' : 'text-[#26065D]'} mb-12`}>
             Why Use Our PDF Splitter?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -451,29 +455,29 @@ export default function PDFSplitPage() {
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device' },
               { icon: Clock, title: 'No Limits', desc: 'Split any PDF regardless of size' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-6 rounded-2xl bg-[#252525]">
-                <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-[#c4ff0e]" />
+              <div key={idx} className={`text-center p-6 rounded-2xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
+                <div className={`w-12 h-12 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-xl flex items-center justify-center mx-auto mb-4`}>
+                  <feature.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.desc}</p>
+                <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>{feature.title}</h3>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#252525]">
+      <section className={`py-16 px-4 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
             Need to Merge PDFs?
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className={`${isDark ? 'text-gray-300' : 'text-gray-500'} mb-8`}>
             Combine multiple PDF files into one document
           </p>
           <Link
             href="/tools/pdf-merge"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1F1F1F] text-[#c4ff0e] font-medium rounded-lg hover:shadow-lg transition-all"
+            className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#1F1F1F] text-[#c4ff0e]' : 'bg-gray-50 text-[#4C00FF] border border-gray-200'} font-medium rounded-lg hover:shadow-lg transition-all`}
           >
             Merge PDFs
             <ArrowRight className="w-5 h-5" />
