@@ -447,7 +447,7 @@ export default function SignDocumentPage() {
 
   // Helper functions to identify field types
   const isSignatureType = (type: string) => type === 'signature' || type === 'initials'
-  const isTextType = (type: string) => ['text', 'name', 'email', 'phone', 'company', 'multiline'].includes(type)
+  const isTextType = (type: string) => ['text', 'name', 'firstName', 'lastName', 'title', 'email', 'phone', 'company', 'multiline'].includes(type)
   const isCheckboxType = (type: string) => type === 'checkbox'
   // Radio type removed
   const isDateType = (type: string) => type === 'date'
@@ -461,6 +461,9 @@ export default function SignDocumentPage() {
       initials: 'Initial here',
       text: 'Enter text',
       name: 'Enter name',
+      firstName: 'Enter first name',
+      lastName: 'Enter last name',
+      title: 'Enter title',
       email: 'Enter email',
       phone: 'Enter phone',
       company: 'Enter company',
@@ -471,7 +474,7 @@ export default function SignDocumentPage() {
       strikethrough: 'Strikethrough',
       stamp: 'Add stamp'
     }
-    return labels[type] || 'Fill here'
+    return labels[type] || 'Click to fill'
   }
 
   const handleFieldClick = (fieldId: string) => {
@@ -785,6 +788,9 @@ export default function SignDocumentPage() {
                       initials: <Type className="w-5 h-5" />,
                       text: <AlignLeft className="w-5 h-5" />,
                       name: <User className="w-5 h-5" />,
+                      firstName: <User className="w-5 h-5" />,
+                      lastName: <User className="w-5 h-5" />,
+                      title: <Type className="w-5 h-5" />,
                       email: <Mail className="w-5 h-5" />,
                       phone: <Phone className="w-5 h-5" />,
                       company: <Building className="w-5 h-5" />,
@@ -803,6 +809,9 @@ export default function SignDocumentPage() {
                       initials: 'Initials',
                       text: 'Text',
                       name: 'Name',
+                      firstName: 'First Name',
+                      lastName: 'Last Name',
+                      title: 'Title',
                       email: 'Email',
                       phone: 'Phone',
                       company: 'Company',
@@ -896,6 +905,9 @@ export default function SignDocumentPage() {
                         initials: <Type className="w-4 h-4" />,
                         text: <AlignLeft className="w-4 h-4" />,
                         name: <User className="w-4 h-4" />,
+                        firstName: <User className="w-4 h-4" />,
+                        lastName: <User className="w-4 h-4" />,
+                        title: <Type className="w-4 h-4" />,
                         email: <Mail className="w-4 h-4" />,
                         phone: <Phone className="w-4 h-4" />,
                         company: <Building className="w-4 h-4" />,
