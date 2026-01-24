@@ -163,7 +163,7 @@ const DocumentsPage: React.FC = () => {
 
         return {
           ...req,
-          status: updatedRequest.status,
+          status: updatedRequest.status as SigningRequest['status'],
           signers: updatedRequest.signers as SigningRequest['signers'],
           updated_at: updatedRequest.updated_at
         }
