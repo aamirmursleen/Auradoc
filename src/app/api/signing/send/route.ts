@@ -137,8 +137,7 @@ export async function POST(req: NextRequest) {
               .from('document_signers')
               .update({ status: 'sent' })
               .eq('id', signer.id)
-              .then(() => {})
-              .catch((err: any) => console.error('Failed to update signer status:', err))
+              .then(() => { /* status updated */ })
           }
           return { success: true, email: signer.email }
         } catch (emailError: any) {
