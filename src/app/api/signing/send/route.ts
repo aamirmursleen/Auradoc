@@ -103,49 +103,53 @@ export async function POST(req: NextRequest) {
       .update({ status: 'sent', updated_at: new Date().toISOString() })
       .eq('id', document_id)
 
-    // Send email to signers (excluding self-signers who will sign directly)
+    // Send email to signers in parallel (excluding self-signers who will sign directly)
     let emailsSent = 0
     let emailErrors: string[] = []
 
-    for (const signer of signersWithTokens) {
-      // Skip if this is a self-signer (uploader signing themselves)
-      if (signer.is_self) {
-        continue
-      }
+    const emailPromises = signersWithTokens
+      .filter((signer: any) => !signer.is_self)
+      .map(async (signer: any) => {
+        const signingLink = `${APP_URL}/sign/${signingRequestId}?token=${signer.token}&email=${encodeURIComponent(signer.email)}`
 
-      const signingLink = `${APP_URL}/sign/${signingRequestId}?token=${signer.token}&email=${encodeURIComponent(signer.email)}`
+        try {
+          const result = await resend.emails.send({
+            from: FROM_EMAIL,
+            replyTo: senderEmail,
+            to: signer.email,
+            subject: `${senderName} sent you "${documentName}" to sign`,
+            html: getEmailTemplate({
+              recipientName: signer.name || 'there',
+              senderName,
+              documentName,
+              signingLink
+            }),
+            text: `Hello ${signer.name || 'there'},\n\n${senderName} has sent you a document to sign.\n\nDocument: ${documentName}\n\nPlease click the link below to sign:\n${signingLink}\n\nThis document is encrypted and securely stored. Your signature will be legally binding.\n\n- MamaSign`,
+            headers: {
+              'X-Entity-Ref-ID': crypto.randomUUID()
+            }
+          })
 
-      try {
-        const result = await resend.emails.send({
-          from: FROM_EMAIL,
-          replyTo: senderEmail,
-          to: signer.email,
-          subject: `${senderName} sent you "${documentName}" to sign`,
-          html: getEmailTemplate({
-            recipientName: signer.name || 'there',
-            senderName,
-            documentName,
-            signingLink
-          }),
-          text: `Hello ${signer.name || 'there'},\n\n${senderName} has sent you a document to sign.\n\nDocument: ${documentName}\n\nPlease click the link below to sign:\n${signingLink}\n\nThis document is encrypted and securely stored. Your signature will be legally binding.\n\n- MamaSign`,
-          headers: {
-            'X-Entity-Ref-ID': crypto.randomUUID()
+          if (result.data?.id) {
+            emailsSent++
+            // Update signer status in background (don't wait)
+            supabase
+              .from('document_signers')
+              .update({ status: 'sent' })
+              .eq('id', signer.id)
+              .then(() => {})
+              .catch((err: any) => console.error('Failed to update signer status:', err))
           }
-        })
-
-        if (result.data?.id) {
-          emailsSent++
-          // Update signer status
-          await supabase
-            .from('document_signers')
-            .update({ status: 'sent' })
-            .eq('id', signer.id)
+          return { success: true, email: signer.email }
+        } catch (emailError: any) {
+          console.error(`Failed to send email to ${signer.email}:`, emailError)
+          emailErrors.push(`Failed to send to ${signer.email}: ${emailError.message}`)
+          return { success: false, email: signer.email, error: emailError.message }
         }
-      } catch (emailError: any) {
-        console.error(`Failed to send email to ${signer.email}:`, emailError)
-        emailErrors.push(`Failed to send to ${signer.email}: ${emailError.message}`)
-      }
-    }
+      })
+
+    // Wait for all emails to be sent in parallel
+    await Promise.all(emailPromises)
 
     // Check if there's a self-signer
     const selfSigner = signersWithTokens.find((s: any) => s.is_self)
