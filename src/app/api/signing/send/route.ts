@@ -31,26 +31,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Fetch document
-    const { data: document, error: docError } = await supabase
-      .from('documents')
-      .select('*')
-      .eq('id', document_id)
-      .eq('user_id', userId)
-      .single()
+    // Fetch all data in parallel for speed
+    const [documentResult, signersResult, fieldsResult] = await Promise.all([
+      supabase.from('documents').select('*').eq('id', document_id).eq('user_id', userId).single(),
+      supabase.from('document_signers').select('*').eq('document_id', document_id).order('order', { ascending: true }),
+      supabase.from('document_fields').select('*').eq('document_id', document_id)
+    ])
 
-    // Fetch signers
-    const { data: signers, error: signersError } = await supabase
-      .from('document_signers')
-      .select('*')
-      .eq('document_id', document_id)
-      .order('order', { ascending: true })
-
-    // Fetch fields
-    const { data: fields } = await supabase
-      .from('document_fields')
-      .select('*')
-      .eq('document_id', document_id)
+    const document = documentResult.data
+    const signers = signersResult.data
+    const fields = fieldsResult.data
 
     if (!signers || signers.length === 0) {
       return NextResponse.json(
@@ -79,7 +69,8 @@ export async function POST(req: NextRequest) {
       status: 'pending'
     }))
 
-    await supabase
+    // Insert signing request (don't await - do in background)
+    const insertPromise = supabase
       .from('signing_requests')
       .insert({
         id: signingRequestId,
@@ -97,58 +88,86 @@ export async function POST(req: NextRequest) {
         updated_at: new Date().toISOString()
       })
 
-    // Update document status
-    await supabase
+    // Update document status (don't await - do in background)
+    const updatePromise = supabase
       .from('documents')
       .update({ status: 'sent', updated_at: new Date().toISOString() })
       .eq('id', document_id)
 
-    // Send email to signers in parallel (excluding self-signers who will sign directly)
-    let emailsSent = 0
-    let emailErrors: string[] = []
-
-    const emailPromises = signersWithTokens
+    // Prepare batch emails for signers (excluding self-signers)
+    const emailsToSend = signersWithTokens
       .filter((signer: any) => !signer.is_self)
-      .map(async (signer: any) => {
+      .map((signer: any) => {
         const signingLink = `${APP_URL}/sign/${signingRequestId}?token=${signer.token}&email=${encodeURIComponent(signer.email)}`
-
-        try {
-          const result = await resend.emails.send({
-            from: FROM_EMAIL,
-            replyTo: senderEmail,
-            to: signer.email,
-            subject: `${senderName} sent you "${documentName}" to sign`,
-            html: getEmailTemplate({
-              recipientName: signer.name || 'there',
-              senderName,
-              documentName,
-              signingLink
-            }),
-            text: `Hello ${signer.name || 'there'},\n\n${senderName} has sent you a document to sign.\n\nDocument: ${documentName}\n\nPlease click the link below to sign:\n${signingLink}\n\nThis document is encrypted and securely stored. Your signature will be legally binding.\n\n- MamaSign`,
-            headers: {
-              'X-Entity-Ref-ID': crypto.randomUUID()
-            }
-          })
-
-          if (result.data?.id) {
-            emailsSent++
-            // Update signer status in background (don't wait)
-            supabase
-              .from('document_signers')
-              .update({ status: 'sent' })
-              .eq('id', signer.id)
-              .then(() => { /* status updated */ })
+        return {
+          from: FROM_EMAIL,
+          to: signer.email,
+          replyTo: senderEmail,
+          subject: `Action Required: ${senderName} sent you "${documentName}" to sign`,
+          html: getEmailTemplate({
+            recipientName: signer.name || 'there',
+            senderName,
+            documentName,
+            signingLink
+          }),
+          text: `Hello ${signer.name || 'there'},\n\n${senderName} has sent you a document to sign.\n\nDocument: ${documentName}\n\nPlease click the link below to sign:\n${signingLink}\n\nThis document is encrypted and securely stored. Your signature will be legally binding.\n\n- MamaSign`,
+          headers: {
+            'X-Priority': '1',
+            'X-MSMail-Priority': 'High',
+            'Importance': 'high',
+            'X-Entity-Ref-ID': crypto.randomUUID()
           }
-          return { success: true, email: signer.email }
-        } catch (emailError: any) {
-          console.error(`Failed to send email to ${signer.email}:`, emailError)
-          emailErrors.push(`Failed to send to ${signer.email}: ${emailError.message}`)
-          return { success: false, email: signer.email, error: emailError.message }
         }
       })
 
-    // Wait for all emails to be sent in parallel
-    await Promise.all(emailPromises)
+    let emailsSent = 0
+    let emailErrors: string[] = []
+
+    // Send all emails using Resend Batch API (single API call for ALL emails)
+    if (emailsToSend.length > 0) {
+      try {
+        console.log(`📧 Sending ${emailsToSend.length} emails via Batch API...`)
+        const startTime = Date.now()
+
+        // Use batch API for multiple emails
+        const result = await resend.batch.send(emailsToSend)
+
+        const endTime = Date.now()
+        console.log(`✅ Batch email sent in ${endTime - startTime}ms`, result)
+
+        if (result.data) {
+          emailsSent = Array.isArray(result.data) ? result.data.length : 1
+        }
+      } catch (emailError: any) {
+        console.error('Batch email error:', emailError)
+        emailErrors.push(`Batch send failed: ${emailError.message}`)
+
+        // Fallback: try sending individually if batch fails
+        console.log('Falling back to individual sends...')
+        for (const email of emailsToSend) {
+          try {
+            await resend.emails.send(email)
+            emailsSent++
+          } catch (e: any) {
+            emailErrors.push(`Failed to send to ${email.to}: ${e.message}`)
+          }
+        }
+      }
+    }
+
+    // Wait for database operations to complete
+    await Promise.all([insertPromise, updatePromise])
+
+    // Update signer statuses in background
+    signersWithTokens
+      .filter((s: any) => !s.is_self)
+      .forEach((signer: any) => {
+        supabase
+          .from('document_signers')
+          .update({ status: 'sent' })
+          .eq('id', signer.id)
+          .then(() => {})
+      })
 
     // Check if there's a self-signer
     const selfSigner = signersWithTokens.find((s: any) => s.is_self)
@@ -164,7 +183,7 @@ export async function POST(req: NextRequest) {
       signingRequestId,
       emailsSent,
       emailErrors: emailErrors.length > 0 ? emailErrors : undefined,
-      selfSigningLink // Return this so uploader can sign immediately
+      selfSigningLink
     })
 
   } catch (error: any) {
