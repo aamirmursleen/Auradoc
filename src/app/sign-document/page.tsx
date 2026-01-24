@@ -1119,7 +1119,7 @@ const SignDocumentPage: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen flex flex-col ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}
+      className={`h-screen flex flex-col overflow-hidden ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}
       onMouseMove={isDragging ? handleMouseMove : isResizing ? handleResizeMove : undefined}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -1393,7 +1393,7 @@ const SignDocumentPage: React.FC = () => {
 
           {/* Document Area */}
           <div
-            className="flex-1 overflow-auto p-6 flex justify-center"
+            className="flex-1 overflow-hidden p-6 flex justify-center"
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDocumentDrop}
           >
@@ -1424,8 +1424,7 @@ const SignDocumentPage: React.FC = () => {
             ) : (
               <div
                 ref={documentContainerRef}
-                className={`relative shadow-xl ${isDark ? 'bg-[#252525]/80' : 'bg-white'}`}
-                style={{ zoom: zoom }}
+                className={`relative shadow-xl max-h-full overflow-auto ${isDark ? 'bg-[#252525]/80' : 'bg-white'}`}
               >
                 {isPDF ? (
                   <PDFViewer

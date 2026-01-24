@@ -197,7 +197,7 @@ export async function sendSigningInvite(params: {
       from: FROM_EMAIL,
       to,
       replyTo: senderEmail,
-      subject: `${senderName} sent you "${documentName}" to sign`,
+      subject: `Action Required: Sign "${documentName}" from ${senderName}`,
       html,
       text,
       headers: {
@@ -205,8 +205,7 @@ export async function sendSigningInvite(params: {
         'Message-ID': `<${uniqueId}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': `signing:mamasign:${uniqueId}`,
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
@@ -263,8 +262,7 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
         'Message-ID': `<signing-request-${data.documentId}-${signerIndex}-${Date.now()}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': 'mamasign:notification',
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
@@ -371,8 +369,7 @@ export async function sendSignatureCompletedNotification(
         'Message-ID': `<signature-notification-${data.documentId}-${Date.now()}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': 'mamasign:notification',
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
@@ -459,8 +456,7 @@ export async function sendSignerConfirmation(
         'Message-ID': `<signer-confirmation-${data.documentId}-${Date.now()}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': 'mamasign:notification',
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
@@ -537,8 +533,7 @@ export async function sendDocumentOpenedNotification(data: DocumentEmailData, si
         'Message-ID': `<opened-notification-${data.documentId}-${Date.now()}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': 'mamasign:notification',
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
@@ -665,8 +660,7 @@ Secure document signing made simple
         'Message-ID': `<signing-reminder-${data.documentId}-${signerIndex}-${reminderNumber}-${Date.now()}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': 'mamasign:notification',
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API
@@ -751,8 +745,7 @@ export async function sendDocumentDeclined(
         'Message-ID': `<declined-notification-${data.documentId}-${Date.now()}@mamasign.com>`,
         'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'Feedback-ID': 'mamasign:notification',
       },
       // Disable tracking to improve deliverability
       // @ts-ignore - tracking option may not be in types but works in API

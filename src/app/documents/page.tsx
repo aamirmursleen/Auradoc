@@ -275,6 +275,67 @@ const DocumentsPage: React.FC = () => {
     }
   }
 
+  // Download signed document
+  const handleDownloadSignedDocument = async (req: SigningRequest) => {
+    try {
+      // Get the document URL from signing request
+      const documentUrl = req.document_url
+
+      if (!documentUrl) {
+        addToast({
+          type: 'document_declined',
+          title: 'Download Failed',
+          message: 'Document not available for download',
+          duration: 5000
+        })
+        return
+      }
+
+      // If it's a base64 data URL, convert and download
+      if (documentUrl.startsWith('data:')) {
+        const link = document.createElement('a')
+        link.href = documentUrl
+        link.download = `${req.document_name.replace(/\.[^/.]+$/, '')}_signed.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        addToast({
+          type: 'document_completed',
+          title: 'Download Started',
+          message: `Downloading "${req.document_name}"`,
+          duration: 3000
+        })
+      } else if (documentUrl.startsWith('http')) {
+        // For HTTP URLs, open in new tab or fetch and download
+        window.open(documentUrl, '_blank')
+      } else {
+        // Assume raw base64, convert to data URL
+        const link = document.createElement('a')
+        link.href = `data:application/pdf;base64,${documentUrl}`
+        link.download = `${req.document_name.replace(/\.[^/.]+$/, '')}_signed.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        addToast({
+          type: 'document_completed',
+          title: 'Download Started',
+          message: `Downloading "${req.document_name}"`,
+          duration: 3000
+        })
+      }
+    } catch (error) {
+      console.error('Error downloading document:', error)
+      addToast({
+        type: 'document_declined',
+        title: 'Download Failed',
+        message: 'Could not download the document',
+        duration: 5000
+      })
+    }
+  }
+
   // Get signer progress
   const getSignerProgress = (signers: SigningRequest['signers']) => {
     const signed = signers.filter(s => s.status === 'signed').length
@@ -766,7 +827,13 @@ const DocumentsPage: React.FC = () => {
                         {/* Actions */}
                         <div className="flex items-center gap-3 mt-4 pt-4 border-t border-[#2a2a2a]">
                           {req.status === 'completed' && (
-                            <button className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDownloadSignedDocument(req)
+                              }}
+                              className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors"
+                            >
                               <Download className="w-4 h-4" />
                               Download Signed Document
                             </button>

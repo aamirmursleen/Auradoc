@@ -338,20 +338,43 @@ export default function SignDocumentPage() {
           setPdfLoading(true)
           setPdfError(null)
 
-          // Handle different document URL formats
-          let pdfSource: string | { data: Uint8Array } = documentData.documentUrl
+          console.log('Loading PDF, URL type:', documentData.documentUrl.substring(0, 50))
 
-          // If it's a base64 string without data URL prefix, convert it
-          if (documentData.documentUrl.startsWith('data:application/pdf;base64,')) {
-            pdfSource = documentData.documentUrl
-          } else if (documentData.documentUrl.startsWith('data:')) {
-            pdfSource = documentData.documentUrl
-          } else if (!documentData.documentUrl.startsWith('http') && !documentData.documentUrl.startsWith('/')) {
-            pdfSource = `data:application/pdf;base64,${documentData.documentUrl}`
+          // Convert base64 to Uint8Array for pdf.js
+          let pdfData: Uint8Array | string
+
+          if (documentData.documentUrl.startsWith('data:')) {
+            // Extract base64 from data URL
+            const base64Match = documentData.documentUrl.match(/base64,(.*)/)
+            if (base64Match) {
+              const base64 = base64Match[1]
+              // Convert base64 to Uint8Array
+              const binaryString = atob(base64)
+              const bytes = new Uint8Array(binaryString.length)
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i)
+              }
+              pdfData = bytes
+              console.log('Converted base64 to Uint8Array, length:', bytes.length)
+            } else {
+              throw new Error('Invalid data URL format')
+            }
+          } else if (documentData.documentUrl.startsWith('http') || documentData.documentUrl.startsWith('/')) {
+            // Use URL directly for HTTP/HTTPS URLs
+            pdfData = documentData.documentUrl
+          } else {
+            // Assume raw base64
+            const binaryString = atob(documentData.documentUrl)
+            const bytes = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i)
+            }
+            pdfData = bytes
           }
 
           const loadingTask = pdfjsLib.getDocument({
-            url: pdfSource,
+            data: typeof pdfData === 'string' ? undefined : pdfData,
+            url: typeof pdfData === 'string' ? pdfData : undefined,
             cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
             cMapPacked: true,
             standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
@@ -359,6 +382,7 @@ export default function SignDocumentPage() {
             disableFontFace: false,
           })
           const pdf = await loadingTask.promise
+          console.log('PDF loaded successfully, pages:', pdf.numPages)
           setPdfDoc(pdf)
           setTotalPages(pdf.numPages)
           canvasRefs.current = new Array(pdf.numPages).fill(null)
