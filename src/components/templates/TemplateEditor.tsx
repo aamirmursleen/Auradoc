@@ -120,27 +120,63 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
     document.execCommand(command, false, value)
   }
 
-  // AI Generate content
+  // AI Generate content using OpenAI API
   const handleAiGenerate = async () => {
     if (!aiPrompt.trim()) return
 
     setIsGenerating(true)
 
-    // Simulate AI generation (in real app, call AI API)
-    setTimeout(() => {
-      // Generate sample content based on prompt and template type
-      const generatedContent = generateAiContent(aiPrompt, template)
+    try {
+      const response = await fetch('/api/generate-template', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          category: template.category,
+          fields: template.fields.map(f => ({
+            name: f.name,
+            label: f.label,
+            type: f.type
+          }))
+        })
+      })
 
-      // Update form data with generated content
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        // Update form data with AI-generated content
+        Object.keys(result.data).forEach(key => {
+          if (formData.hasOwnProperty(key) || template.fields.find(f => f.name === key)) {
+            handleFieldChange(key, result.data[key])
+          }
+        })
+        setAiPrompt('')
+      } else {
+        // Fallback to local generation if API fails
+        console.warn('AI API failed, using fallback:', result.error)
+        const generatedContent = generateAiContent(aiPrompt, template)
+        Object.keys(generatedContent).forEach(key => {
+          if (formData.hasOwnProperty(key) || template.fields.find(f => f.name === key)) {
+            handleFieldChange(key, generatedContent[key])
+          }
+        })
+        setAiPrompt('')
+      }
+    } catch (error) {
+      console.error('AI generation error:', error)
+      // Fallback to local generation
+      const generatedContent = generateAiContent(aiPrompt, template)
       Object.keys(generatedContent).forEach(key => {
         if (formData.hasOwnProperty(key) || template.fields.find(f => f.name === key)) {
           handleFieldChange(key, generatedContent[key])
         }
       })
-
-      setIsGenerating(false)
       setAiPrompt('')
-    }, 1500)
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   // Generate AI content based on prompt
