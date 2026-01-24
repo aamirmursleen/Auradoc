@@ -39,6 +39,7 @@ export interface SigningRequestSigner {
   status: 'pending' | 'sent' | 'opened' | 'signed'
   signedAt?: string
   token?: string
+  is_self?: boolean
 }
 
 // Signing Request interface
