@@ -1,0 +1,195 @@
+=================================================================
+DNS RECORDS - COPY PASTE READY
+Domain: mamasign.com
+Date: 2026-01-24
+=================================================================
+
+IMPORTANT: Copy these EXACT values when adding DNS records
+No extra spaces, no typos!
+
+=================================================================
+RECORD 1: SPF
+=================================================================
+
+Type: TXT
+
+Name: @
+(Note: Some providers want you to leave this blank, or type "mamasign.com")
+
+Value (COPY EXACTLY):
+v=spf1 include:_spf.resend.com ~all
+
+TTL: 3600
+(Or select "1 Hour" or "Auto" if those are the options)
+
+=================================================================
+RECORD 2: DMARC
+=================================================================
+
+Type: TXT
+
+Name: _dmarc
+(Note: Must include the underscore _ before dmarc)
+
+Value (COPY EXACTLY):
+v=DMARC1; p=quarantine; rua=mailto:dmarc@mamasign.com; pct=100
+
+TTL: 3600
+(Or select "1 Hour" or "Auto")
+
+=================================================================
+DKIM RECORDS (FROM RESEND)
+=================================================================
+
+YOU MUST GET THESE FROM RESEND DASHBOARD!
+
+Steps:
+1. Go to: https://resend.com/domains
+2. Add domain: mamasign.com
+3. Resend will show you 2-3 records
+4. Copy those EXACT values
+5. Add them to your DNS
+
+Example format (your values will be different):
+
+-----------------------------------
+DKIM Record 1:
+-----------------------------------
+Type: TXT
+Name: resend._domainkey
+Value: p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQ... (long string)
+TTL: 3600
+
+-----------------------------------
+DKIM Record 2:
+-----------------------------------
+Type: TXT
+Name: resend2._domainkey
+Value: p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQ... (long string)
+TTL: 3600
+
+-----------------------------------
+DKIM Record 3 (if shown):
+-----------------------------------
+Type: CNAME (or TXT)
+Name: resend
+Value: feedback-smtp.resend.com
+TTL: 3600
+
+=================================================================
+VERIFICATION CHECKLIST
+=================================================================
+
+After adding all records:
+
+1. Wait 2-6 hours for DNS propagation
+
+2. Check SPF:
+   - Go to: https://mxtoolbox.com/spf.aspx
+   - Enter: mamasign.com
+   - Should show: v=spf1 include:_spf.resend.com ~all
+
+3. Check DMARC:
+   - Go to: https://mxtoolbox.com/dmarc.aspx
+   - Enter: mamasign.com
+   - Should show: v=DMARC1; p=quarantine...
+
+4. Check DKIM:
+   - Go to: https://mxtoolbox.com/dkim.aspx
+   - Enter: resend._domainkey.mamasign.com
+   - Should show: Public key details
+
+5. Verify in Resend:
+   - Go to: https://resend.com/domains
+   - Click "Verify" next to mamasign.com
+   - Status should turn green "Verified"
+
+=================================================================
+COMMON MISTAKES TO AVOID
+=================================================================
+
+❌ Adding extra spaces before/after values
+❌ Forgetting underscore in _dmarc
+❌ Using @ instead of _dmarc for DMARC record
+❌ Copying incomplete DKIM values (they are very long!)
+❌ Not waiting for DNS propagation
+❌ Having multiple SPF records (should only have ONE)
+
+✅ Copy values EXACTLY as shown
+✅ Wait 24-48 hours if records don't show immediately
+✅ Use MXToolbox to verify each record
+✅ Get DKIM values from Resend, not this file
+
+=================================================================
+SUMMARY TABLE
+=================================================================
+
+Record Type | Name Field    | Value Preview
+------------|---------------|----------------------------------
+SPF         | @             | v=spf1 include:_spf.resend.com ~all
+DMARC       | _dmarc        | v=DMARC1; p=quarantine...
+DKIM 1      | resend._domainkey  | p=MIG... (from Resend)
+DKIM 2      | resend2._domainkey | p=MIG... (from Resend)
+DKIM 3      | resend        | feedback-smtp.resend.com
+
+=================================================================
+TESTING AFTER SETUP
+=================================================================
+
+1. Mail-tester.com:
+   - Send test email to address shown on mail-tester.com
+   - Check score (should be 8+/10)
+
+2. Real emails:
+   - Send to your Gmail
+   - Send to your Outlook
+   - Check if in inbox (not spam)
+
+3. Resend dashboard:
+   - Check delivery rate (should be >95%)
+   - Check bounce rate (should be <5%)
+
+=================================================================
+HELP & SUPPORT
+=================================================================
+
+Need help adding DNS records?
+
+GoDaddy:
+- Help: https://godaddy.com/help/add-a-txt-record-19232
+- Support: Chat available in dashboard
+
+Namecheap:
+- Help: https://www.namecheap.com/support/knowledgebase/article.aspx/317/2237/how-do-i-add-txtspfdkimdmarc-records-for-my-domain/
+- Support: Ticket system
+
+Cloudflare:
+- Help: https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/
+- Support: Community forum
+
+Resend:
+- Email: support@resend.com
+- Docs: https://resend.com/docs
+
+=================================================================
+NEXT STEPS
+=================================================================
+
+1. Add SPF record now (5 minutes)
+2. Add DMARC record now (5 minutes)
+3. Go to Resend, add domain, get DKIM records
+4. Add DKIM records to DNS (10 minutes)
+5. Wait 24 hours
+6. Verify domain in Resend
+7. Test with mail-tester.com
+8. Start sending emails (follow warmup strategy!)
+
+=================================================================
+
+Good luck! Your emails will go to inbox, not spam! 🚀
+
+For detailed instructions in Urdu/English, see:
+- DNS_SETUP_URDU_GUIDE.md
+- EMAIL_COMPLETE_SETUP_GUIDE.md
+
+=================================================================

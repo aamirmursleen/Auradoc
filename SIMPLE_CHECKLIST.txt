@@ -1,0 +1,343 @@
+===============================================================
+MAMASIGN EMAIL SPAM FIX - SIMPLE CHECKLIST
+===============================================================
+
+Print this and check off each item as you complete it!
+
+Date Started: _______________
+Expected Completion: _______________ (24-48 hours from start)
+
+===============================================================
+PHASE 1: DNS SETUP (Do Today - 30 Minutes)
+===============================================================
+
+Step 1: Login to DNS Provider
+-----------------------------
+[ ] Found where domain is registered (GoDaddy/Namecheap/Cloudflare)
+[ ] Logged into account
+[ ] Opened DNS Management / DNS Settings page
+
+Step 2: Add SPF Record
+-----------------------------
+[ ] Clicked "Add Record" or "Add New Record"
+[ ] Selected Type: TXT
+[ ] Name field: @ (or left blank)
+[ ] Value: v=spf1 include:_spf.resend.com ~all
+[ ] TTL: 3600 (or Auto/1 Hour)
+[ ] Clicked Save
+[ ] Confirmed record appears in DNS list
+
+Step 3: Add DMARC Record
+-----------------------------
+[ ] Clicked "Add Record" again
+[ ] Selected Type: TXT
+[ ] Name field: _dmarc (with underscore!)
+[ ] Value: v=DMARC1; p=quarantine; rua=mailto:dmarc@mamasign.com; pct=100
+[ ] TTL: 3600 (or Auto/1 Hour)
+[ ] Clicked Save
+[ ] Confirmed record appears in DNS list
+
+Step 4: Setup Resend Account
+-----------------------------
+[ ] Went to https://resend.com
+[ ] Logged into account (or created new account)
+[ ] Clicked on "Domains" in left menu
+[ ] Clicked "Add Domain" button
+[ ] Entered: mamasign.com
+[ ] Clicked "Add" or "Submit"
+[ ] Domain now shows in list
+
+Step 5: Copy DKIM Records from Resend
+-----------------------------
+[ ] Resend showed me 2-3 DNS records to add
+[ ] I took a screenshot OR wrote down the values
+[ ] Record 1 name: ___________________________
+[ ] Record 2 name: ___________________________
+[ ] Record 3 name: ___________________________ (if shown)
+
+Step 6: Add DKIM Records to DNS
+-----------------------------
+[ ] Back to DNS provider (same place as SPF/DMARC)
+[ ] Added DKIM Record 1 (Type: TXT, copied exact values)
+[ ] Added DKIM Record 2 (Type: TXT, copied exact values)
+[ ] Added DKIM Record 3 if shown (Type: CNAME or TXT)
+[ ] All records saved
+[ ] Confirmed all DKIM records appear in DNS list
+
+TOTAL DNS RECORDS ADDED: 5 records
+(1 SPF + 1 DMARC + 3 DKIM = 5 total)
+
+===============================================================
+PHASE 2: WAIT FOR DNS (2-48 Hours, Usually 6 Hours)
+===============================================================
+
+Started Waiting: Date __________ Time __________
+
+[ ] Waited at least 6 hours
+[ ] Waited at least 12 hours
+[ ] Waited at least 24 hours (if still not working)
+
+===============================================================
+PHASE 3: VERIFY RECORDS (Do After DNS Propagates)
+===============================================================
+
+Check SPF Record:
+-----------------------------
+[ ] Went to: https://mxtoolbox.com/spf.aspx
+[ ] Entered: mamasign.com
+[ ] Clicked "SPF Record Lookup"
+[ ] Result shows: v=spf1 include:_spf.resend.com ~all
+[ ] Status: PASS (green)
+
+Check DMARC Record:
+-----------------------------
+[ ] Went to: https://mxtoolbox.com/dmarc.aspx
+[ ] Entered: mamasign.com
+[ ] Clicked "DMARC Lookup"
+[ ] Result shows: v=DMARC1; p=quarantine...
+[ ] Status: PASS (green)
+
+Check DKIM Record:
+-----------------------------
+[ ] Went to: https://mxtoolbox.com/dkim.aspx
+[ ] Entered: resend._domainkey.mamasign.com
+[ ] Clicked "DKIM Lookup"
+[ ] Result shows: Public key details
+[ ] Status: PASS (green)
+
+Verify Domain in Resend:
+-----------------------------
+[ ] Went to: https://resend.com/domains
+[ ] Found mamasign.com in list
+[ ] Clicked "Verify" button
+[ ] Status changed to: Verified (green checkmark)
+[ ] No errors shown
+
+===============================================================
+PHASE 4: TEST EMAIL DELIVERY (After Domain Verified)
+===============================================================
+
+Test 1: Mail-Tester (CRITICAL)
+-----------------------------
+[ ] Went to: https://mail-tester.com
+[ ] Copied test email address shown
+[ ] Sent test email from my app to that address
+[ ] Went back to mail-tester.com
+[ ] Clicked "Then check your score"
+[ ] Score achieved: _____/10
+[ ] Score is 8 or higher (if not, read report and fix issues)
+
+Test 2: Gmail Test
+-----------------------------
+[ ] Sent test email to my Gmail account: ___________________
+[ ] Email arrived
+[ ] Email is in INBOX (not spam)
+[ ] Clicked "Not Spam" if it was in spam folder
+
+Test 3: Outlook Test
+-----------------------------
+[ ] Sent test email to Outlook account: ___________________
+[ ] Email arrived
+[ ] Email is in INBOX (not spam)
+[ ] Clicked "Not Junk" if it was in junk folder
+
+Test 4: Yahoo Test (Optional)
+-----------------------------
+[ ] Sent test email to Yahoo account: ___________________
+[ ] Email arrived
+[ ] Email is in INBOX (not spam)
+
+===============================================================
+PHASE 5: PRODUCTION READINESS
+===============================================================
+
+Check Resend Dashboard:
+-----------------------------
+[ ] Went to: https://resend.com/emails
+[ ] Checked delivery rate: ______% (should be >95%)
+[ ] Checked bounce rate: ______% (should be <5%)
+[ ] Checked spam rate: ______% (should be <0.1%)
+[ ] All metrics look good
+
+Setup Monitoring:
+-----------------------------
+[ ] Bookmarked Resend dashboard
+[ ] Set calendar reminder to check weekly
+[ ] Created email alias: dmarc@mamasign.com (for reports)
+[ ] Ready to monitor email performance
+
+===============================================================
+PHASE 6: EMAIL WARMUP SCHEDULE
+===============================================================
+
+IMPORTANT: Follow this schedule strictly!
+
+Week 1 (Days 1-7):
+-----------------------------
+Maximum: 50 emails per day
+
+[ ] Day 1: Sent _____ emails (max 50)
+[ ] Day 2: Sent _____ emails (max 50)
+[ ] Day 3: Sent _____ emails (max 50)
+[ ] Day 4: Sent _____ emails (max 50)
+[ ] Day 5: Sent _____ emails (max 50)
+[ ] Day 6: Sent _____ emails (max 50)
+[ ] Day 7: Sent _____ emails (max 50)
+
+Week 2 (Days 8-14):
+-----------------------------
+Maximum: 100 emails per day
+
+[ ] Day 8: Sent _____ emails (max 100)
+[ ] Day 9: Sent _____ emails (max 100)
+[ ] Day 10: Sent _____ emails (max 100)
+[ ] Day 11: Sent _____ emails (max 100)
+[ ] Day 12: Sent _____ emails (max 100)
+[ ] Day 13: Sent _____ emails (max 100)
+[ ] Day 14: Sent _____ emails (max 100)
+
+Week 3 (Days 15-21):
+-----------------------------
+Maximum: 250 emails per day
+
+[ ] Day 15: Sent _____ emails (max 250)
+[ ] Day 16: Sent _____ emails (max 250)
+[ ] Day 17: Sent _____ emails (max 250)
+[ ] Day 18: Sent _____ emails (max 250)
+[ ] Day 19: Sent _____ emails (max 250)
+[ ] Day 20: Sent _____ emails (max 250)
+[ ] Day 21: Sent _____ emails (max 250)
+
+Week 4 (Days 22-28):
+-----------------------------
+Maximum: 500 emails per day
+
+[ ] Day 22: Sent _____ emails (max 500)
+[ ] Day 23: Sent _____ emails (max 500)
+[ ] Day 24: Sent _____ emails (max 500)
+[ ] Day 25: Sent _____ emails (max 500)
+[ ] Day 26: Sent _____ emails (max 500)
+[ ] Day 27: Sent _____ emails (max 500)
+[ ] Day 28: Sent _____ emails (max 500)
+
+Month 2 onwards:
+-----------------------------
+[ ] Warmup complete!
+[ ] Can send normal email volume
+[ ] Continue monitoring metrics weekly
+
+===============================================================
+TROUBLESHOOTING LOG
+===============================================================
+
+If you encounter problems, note them here:
+
+Issue 1:
+Date: ______________
+Problem: ___________________________________________________
+Solution tried: ____________________________________________
+Result: ____________________________________________________
+
+Issue 2:
+Date: ______________
+Problem: ___________________________________________________
+Solution tried: ____________________________________________
+Result: ____________________________________________________
+
+Issue 3:
+Date: ______________
+Problem: ___________________________________________________
+Solution tried: ____________________________________________
+Result: ____________________________________________________
+
+===============================================================
+SUPPORT CONTACTS USED
+===============================================================
+
+If you contacted support, track it here:
+
+Contact 1:
+Date: ______________
+Provider: Resend / DNS Provider / Other: ___________________
+Ticket #: ___________________
+Issue: _____________________________________________________
+Status: Resolved / Pending / Escalated
+Resolution: ________________________________________________
+
+Contact 2:
+Date: ______________
+Provider: ___________________
+Issue: _____________________________________________________
+Status: _____________________________________________________
+
+===============================================================
+FINAL VERIFICATION (Do 1 Week After Setup)
+===============================================================
+
+One Week Check:
+-----------------------------
+[ ] Mail-tester score still 8+/10
+[ ] Test emails still going to inbox
+[ ] Resend delivery rate: ______% (>95%)
+[ ] Resend bounce rate: ______% (<5%)
+[ ] No spam complaints received
+[ ] Following warmup schedule
+[ ] Everything working perfectly!
+
+===============================================================
+FUTURE TASKS
+===============================================================
+
+UK Company Registration (Next Month):
+-----------------------------
+[ ] Company registered in UK
+[ ] Got UK address
+[ ] Updated email.ts file with UK address
+[ ] Updated plain text email template
+[ ] Added company registration number to footer
+[ ] Tested emails still working
+[ ] Updated privacy policy
+
+Annual Review:
+-----------------------------
+[ ] Checked DNS records still exist (Date: _________)
+[ ] Verified domain still verified in Resend
+[ ] Reviewed email deliverability metrics
+[ ] All good for another year
+
+===============================================================
+COMPLETION CERTIFICATE
+===============================================================
+
+I, ________________________, have successfully completed the
+MamaSign email spam prevention setup on _____________________.
+
+All DNS records verified: YES / NO
+Domain verified in Resend: YES / NO
+Mail-tester score: _____/10
+Emails landing in inbox: YES / NO
+
+Setup Status: COMPLETE ✓
+
+Signature: _________________________
+
+Date: _________________________
+
+===============================================================
+
+CONGRATULATIONS! 🎉
+
+Your emails will now go to inbox, not spam!
+
+Keep this checklist for your records.
+Review monthly to ensure everything still works.
+
+===============================================================
+
+For detailed help, see these files:
+- EMAIL_FIX_SUMMARY.md (start here)
+- DNS_SETUP_URDU_GUIDE.md (step by step)
+- DNS_COPY_PASTE_VALUES.txt (quick reference)
+- EMAIL_COMPLETE_SETUP_GUIDE.md (comprehensive)
+
+===============================================================
