@@ -726,7 +726,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                 />
 
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
                       <Globe className="w-4 h-4" />
                     </button>
@@ -736,8 +736,12 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                   </div>
                   <button
                     onClick={handleAiGenerate}
-                    disabled={isGenerating || !aiPrompt.trim()}
-                    className="px-4 py-1.5 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 text-white text-sm rounded-full transition-colors flex items-center gap-2"
+                    disabled={isGenerating}
+                    className={`px-4 py-1.5 text-sm rounded-full transition-colors flex items-center gap-2 flex-shrink-0 ${
+                      aiPrompt.trim()
+                        ? 'bg-[#c4ff0e] hover:bg-[#b3e60d] text-black font-medium'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    } ${isGenerating ? 'opacity-70' : ''}`}
                   >
                     {isGenerating ? (
                       <>
