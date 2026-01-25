@@ -37,6 +37,8 @@ import {
 import HeroSection from '@/components/home/HeroSection'
 import FloatingMobileCTA from '@/components/FloatingMobileCTA'
 import { useTheme } from '@/components/ThemeProvider'
+import MobileAppShell from '@/components/mobile/MobileAppShell'
+import MobileHomeDashboard from '@/components/mobile/MobileHomeDashboard'
 
 // Scroll Reveal Component
 const ScrollReveal = ({
@@ -490,7 +492,17 @@ const HomePage: React.FC = () => {
   ]
 
   return (
-    <div className={`overflow-hidden ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
+    <>
+      {/* Mobile App View - SaaS App UX */}
+      <MobileAppShell>
+        {/* Hero Section for Mobile */}
+        <HeroSection />
+        {/* Mobile Dashboard Content */}
+        <MobileHomeDashboard />
+      </MobileAppShell>
+
+      {/* Desktop Marketing View */}
+      <div className={`hidden md:block overflow-hidden ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
       {/* Hero Section */}
       <HeroSection />
 
@@ -981,9 +993,10 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Floating Mobile CTA */}
+      {/* Floating Mobile CTA - Hidden on mobile since we have bottom nav */}
       <FloatingMobileCTA />
-    </div>
+      </div>
+    </>
   )
 }
 

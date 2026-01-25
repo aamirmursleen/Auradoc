@@ -235,7 +235,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   // Loading state
   if (loading && !pageImageUrl && allPages.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[500px] bg-gray-100 rounded-xl">
+      <div className="flex flex-col items-center justify-center min-h-[300px] md:min-h-[500px] bg-gray-100 rounded-xl">
         <Loader2 className="w-10 h-10 animate-spin text-primary-500 mb-4" />
         <p className="text-gray-600">Loading PDF...</p>
       </div>
@@ -245,7 +245,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-[500px] bg-red-50 rounded-xl">
+      <div className="flex flex-col items-center justify-center min-h-[300px] md:min-h-[500px] bg-red-50 rounded-xl">
         <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
         <p className="text-red-600 font-medium">{error}</p>
       </div>
@@ -312,8 +312,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       {/* PDF Container */}
       <div
         ref={containerRef}
-        className="relative bg-gray-300 overflow-auto flex justify-center p-4"
-        style={{ minHeight: '500px', maxHeight: 'calc(100vh - 200px)' }}
+        className="relative bg-gray-300 overflow-auto flex justify-center p-2 md:p-4"
+        style={{ minHeight: 'min(300px, 60vh)', maxHeight: 'calc(100vh - 120px)' }}
         onClick={(e) => handleClick(e)}
       >
         <div

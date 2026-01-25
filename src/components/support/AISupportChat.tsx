@@ -145,12 +145,21 @@ const AISupportChat: React.FC = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed bottom-6 right-6 z-[1000] bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#2a2a2a] overflow-hidden transition-all ${
-            isMinimized ? 'w-72 h-14' : 'w-96 h-[500px]'
-          }`}
+          className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 z-[1000] bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#2a2a2a] overflow-hidden transition-all ${
+            isMinimized ? 'h-14' : 'h-[85vh] sm:h-[500px]'
+          } sm:w-96`}
         >
+          {/* Close Button - Always visible at top right */}
+          <button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-2 right-2 z-10 w-10 h-10 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors shadow-lg"
+            title="Close chat"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
           {/* Header */}
-          <div className="flex items-center justify-between p-4 bg-[#252525] border-b border-[#2a2a2a]">
+          <div className="flex items-center p-4 bg-[#252525] border-b border-[#2a2a2a] pr-14">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#c4ff0e] rounded-full flex items-center justify-center">
                 <Bot className="w-5 h-5 text-black" />
@@ -162,20 +171,6 @@ const AISupportChat: React.FC = () => {
                   Online
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="p-2 hover:bg-[#333] rounded-lg transition-colors"
-              >
-                <Minimize2 className="w-4 h-4 text-gray-400" />
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-[#333] rounded-lg transition-colors"
-              >
-                <X className="w-4 h-4 text-gray-400" />
-              </button>
             </div>
           </div>
 

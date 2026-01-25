@@ -1117,91 +1117,128 @@ const SignDocumentPage: React.FC = () => {
     )
   }
 
+  // Mobile state
+  const [showMobileFields, setShowMobileFields] = useState(false)
+  const [mobileFieldToPlace, setMobileFieldToPlace] = useState<string | null>(null)
+
+  // Touch event handlers for mobile field placement
+  const handleTouchFieldPlace = useCallback((e: React.TouchEvent<HTMLDivElement>, pageNum: number) => {
+    if (!mobileFieldToPlace || !activeSigner) return
+
+    const touch = e.touches[0]
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (touch.clientX - rect.left) / zoom
+    const y = (touch.clientY - rect.top) / zoom
+
+    const fieldType = ALL_FIELD_TYPES.find(f => f.id === mobileFieldToPlace)
+    if (!fieldType) return
+
+    const newField: PlacedField = {
+      id: generateUUID(),
+      type: mobileFieldToPlace,
+      x: Math.max(0, x - 75),
+      y: Math.max(0, y - 20),
+      width: mobileFieldToPlace === 'signature' ? 180 : mobileFieldToPlace === 'checkbox' ? 30 : 140,
+      height: mobileFieldToPlace === 'signature' ? 50 : mobileFieldToPlace === 'checkbox' ? 30 : 36,
+      page: pageNum,
+      signerId: activeSigner.id,
+      signerColor: activeSigner.color,
+      mandatory: true,
+      placeholder: '',
+      tip: '',
+      label: fieldType.name,
+      value: undefined
+    }
+
+    setPlacedFields(prev => [...prev, newField])
+    setSelectedFieldId(newField.id)
+    setMobileFieldToPlace(null)
+    setShowMobileFields(false)
+  }, [mobileFieldToPlace, zoom, activeSigner])
+
   return (
     <div
       className={`h-screen flex flex-col overflow-hidden ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}
+      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
       onMouseMove={isDragging ? handleMouseMove : isResizing ? handleResizeMove : undefined}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Top Toolbar */}
-      <div className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} border-b px-4 py-3 flex items-center justify-between sticky top-0 z-50`}>
-        <div className="flex items-center gap-4">
-          <h1 className={`text-xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
-            <FileSignature className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-            {templateProps.name || 'New Template'}
+      {/* Top Toolbar - Responsive */}
+      <div className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} border-b px-2 md:px-4 py-2 md:py-3 flex items-center justify-between sticky top-0 z-50`}>
+        {/* Left side - Title */}
+        <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+          <h1 className={`text-sm md:text-xl font-bold flex items-center gap-1 md:gap-2 truncate ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+            <FileSignature className={`w-5 h-5 md:w-6 md:h-6 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+            <span className="truncate hidden sm:inline">{templateProps.name || 'New Template'}</span>
+            <span className="truncate sm:hidden">Sign</span>
           </h1>
-
-          {document && (
-            <div className={`flex items-center gap-1 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              <FileText className="w-4 h-4" />
-              <span>{document.name}</span>
-            </div>
-          )}
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Right side - Actions */}
+        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
+          {/* Desktop-only buttons */}
           <button
             onClick={() => setShowTemplateModal(true)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
+            className={`hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
           >
             <Settings className="w-4 h-4" />
-            <span className="text-sm font-medium">Template Properties</span>
+            <span className="text-sm font-medium">Properties</span>
           </button>
 
           <button
             onClick={() => setShowShareModal(true)}
             disabled={!document}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
+            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
           >
             <Share2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Share</span>
+            <span className="text-sm font-medium hidden lg:inline">Share</span>
           </button>
 
           <button
             onClick={generatePreview}
             disabled={!document || isGeneratingPreview || placedFields.filter(f => f.value).length === 0}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
-            title="Preview how document will look with signatures"
+            className={`hidden md:flex items-center gap-2 px-2 md:px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
+            title="Preview"
           >
             {isGeneratingPreview ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
-            <span className="text-sm font-medium">Preview</span>
+            <span className="text-sm font-medium hidden lg:inline">Preview</span>
           </button>
 
           <button
             onClick={handleDownload}
             disabled={!document || isDownloading || placedFields.filter(f => f.value).length === 0}
-            className="flex items-center gap-2 px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Download signed document"
+            className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Download"
           >
             {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            <span className="text-sm font-medium">Download</span>
+            <span className="text-sm font-medium hidden md:inline">Download</span>
           </button>
 
           <button
             onClick={() => setIsSaving(true)}
             disabled={!document || isSaving}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span className="text-sm font-medium">Save</span>
+            <span className="text-sm font-medium hidden lg:inline">Save</span>
           </button>
 
           <button
             onClick={() => setShowSendModal(true)}
             disabled={!document || placedFields.length === 0}
-            className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
+            className={`flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
           >
             <Send className="w-4 h-4" />
-            <span className="text-sm font-medium">Send</span>
+            <span className="text-sm font-medium hidden sm:inline">Send</span>
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Signers & Field Types */}
-        <div className={`w-80 flex flex-col overflow-hidden ${isDark ? 'bg-[#252525] border-r border-[#2a2a2a]' : 'bg-white border-r border-gray-200'}`}>
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Sidebar - Signers & Field Types (Hidden on mobile) */}
+        <div className={`hidden md:flex w-64 lg:w-80 flex-col overflow-hidden ${isDark ? 'bg-[#252525] border-r border-[#2a2a2a]' : 'bg-white border-r border-gray-200'}`}>
           <div className="flex-1 overflow-y-auto">
             {/* Signers List */}
             {signers.map((signer, idx) => (
@@ -1351,70 +1388,79 @@ const SignDocumentPage: React.FC = () => {
 
         {/* Center - Document Viewer */}
         <div className={`flex-1 flex flex-col overflow-hidden ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
-          {/* Toolbar */}
+          {/* Toolbar - Responsive */}
           {document && (
-            <div className={`px-4 py-2 flex items-center justify-center ${isDark ? 'bg-[#252525] border-b border-[#2a2a2a]' : 'bg-gray-50 border-b border-gray-200'}`}>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+            <div className={`px-2 md:px-4 py-2 flex items-center justify-between md:justify-center ${isDark ? 'bg-[#252525] border-b border-[#2a2a2a]' : 'bg-gray-50 border-b border-gray-200'}`}>
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="flex items-center gap-1 md:gap-2">
                   <button
                     onClick={() => setZoom(z => Math.max(0.25, z - 0.25))}
                     className={`p-1.5 rounded ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-200'}`}
                   >
-                    <ZoomOut className={`w-5 h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <ZoomOut className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
                   </button>
-                  <span className={`text-sm min-w-[50px] text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <span className={`text-xs md:text-sm min-w-[40px] md:min-w-[50px] text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                     {Math.round(zoom * 100)}%
                   </span>
                   <button
                     onClick={() => setZoom(z => Math.min(3, z + 0.25))}
                     className={`p-1.5 rounded ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-200'}`}
                   >
-                    <ZoomIn className={`w-5 h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <ZoomIn className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
                   </button>
                   <button
                     onClick={() => setZoom(1)}
-                    className={`p-1.5 rounded ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-200'}`}
+                    className={`p-1.5 rounded hidden md:block ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-200'}`}
                     title="Reset Zoom"
                   >
                     <RotateCcw className={`w-5 h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
                   </button>
                 </div>
 
-                <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                <div className={`hidden md:flex items-center gap-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                   <span>{totalPages} page{totalPages !== 1 ? 's' : ''}</span>
                   <span>•</span>
                   <span>{placedFields.length} fields</span>
                   <span>•</span>
                   <span>Scroll to view all</span>
                 </div>
+
+                {/* Mobile info */}
+                <div className={`md:hidden flex items-center gap-2 text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                  <span>{totalPages}p</span>
+                  <span>•</span>
+                  <span>{placedFields.length} fields</span>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Document Area */}
+          {/* Document Area - Mobile optimized */}
           <div
-            className="flex-1 overflow-hidden p-6 flex justify-center"
+            className="flex-1 overflow-auto p-2 md:p-6 flex justify-center"
+            style={{ WebkitOverflowScrolling: 'touch' }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDocumentDrop}
           >
             {!document ? (
-              <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center p-12 ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]/50' : 'bg-white border-gray-300 hover:border-[#4C00FF]/50'}`}>
+              <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center p-6 md:p-12 mb-16 md:mb-0 ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]/50' : 'bg-white border-gray-300 hover:border-[#4C00FF]/50'}`}>
                 <input
                   type="file"
                   accept=".pdf,.png,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-[#c4ff0e]/10' : 'bg-[#4C00FF]/10'}`}>
-                  <Upload className={`w-10 h-10 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-3 md:mb-4 ${isDark ? 'bg-[#c4ff0e]/10' : 'bg-[#4C00FF]/10'}`}>
+                  <Upload className={`w-8 h-8 md:w-10 md:h-10 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+                <h3 className={`text-lg md:text-xl font-semibold mb-2 text-center ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
                   Upload a PDF Template
                 </h3>
-                <p className={`text-center mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Drag and drop your document here, or click to browse
+                <p className={`text-center text-sm md:text-base mb-3 md:mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <span className="hidden md:inline">Drag and drop your document here, or click to browse</span>
+                  <span className="md:hidden">Tap to select a document</span>
                 </p>
-                <div className={`flex items-center gap-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <div className={`flex items-center gap-4 text-xs md:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   <span className="flex items-center gap-1">
                     <FileText className="w-4 h-4" /> PDF
                   </span>
@@ -1424,7 +1470,7 @@ const SignDocumentPage: React.FC = () => {
             ) : (
               <div
                 ref={documentContainerRef}
-                className={`relative shadow-xl max-h-full overflow-auto ${isDark ? 'bg-[#252525]/80' : 'bg-white'}`}
+                className={`relative shadow-xl max-h-full overflow-auto mb-20 md:mb-0 ${isDark ? 'bg-[#252525]/80' : 'bg-white'}`}
               >
                 {isPDF ? (
                   <PDFViewer
@@ -1433,21 +1479,25 @@ const SignDocumentPage: React.FC = () => {
                     continuousScroll={true}
                     onTotalPagesChange={setTotalPages}
                     onPageClick={(e, pageNum) => {
-                      if (draggedFieldType && activeSigner) {
+                      // Handle both desktop drag-drop and mobile tap-to-place
+                      const fieldTypeToPlace = draggedFieldType || mobileFieldToPlace
+                      if (fieldTypeToPlace && activeSigner) {
                         const rect = e.currentTarget.getBoundingClientRect()
                         const x = e.clientX - rect.left
                         const y = e.clientY - rect.top
 
-                        const fieldType = ALL_FIELD_TYPES.find(f => f.id === draggedFieldType)
+                        const fieldType = ALL_FIELD_TYPES.find(f => f.id === fieldTypeToPlace)
                         if (!fieldType) return
 
+                        // Slightly smaller sizes for mobile
+                        const isMobile = window.innerWidth < 768
                         const newField: PlacedField = {
                           id: generateUUID(),
-                          type: draggedFieldType,
-                          x: Math.max(0, x - 75),
-                          y: Math.max(0, y - 20),
-                          width: draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : 150,
-                          height: draggedFieldType === 'signature' ? 60 : draggedFieldType === 'checkbox' ? 30 : 40,
+                          type: fieldTypeToPlace,
+                          x: Math.max(0, x - (isMobile ? 60 : 75)),
+                          y: Math.max(0, y - (isMobile ? 15 : 20)),
+                          width: fieldTypeToPlace === 'signature' ? (isMobile ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobile ? 130 : 150),
+                          height: fieldTypeToPlace === 'signature' ? (isMobile ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobile ? 32 : 40),
                           page: pageNum,
                           signerId: activeSigner.id,
                           signerColor: activeSigner.color,
@@ -1461,6 +1511,7 @@ const SignDocumentPage: React.FC = () => {
                         setPlacedFields(prev => [...prev, newField])
                         setSelectedFieldId(newField.id)
                         setDraggedFieldType(null)
+                        setMobileFieldToPlace(null)
                         setShowPropertiesPanel(true)
                       }
                     }}
@@ -1811,9 +1862,17 @@ const SignDocumentPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Sidebar - Field Properties */}
+        {/* Right Sidebar - Field Properties (Desktop) / Bottom Sheet (Mobile) */}
         {showPropertiesPanel && selectedField && (
-          <div className={`w-72 flex flex-col overflow-hidden ${isDark ? 'bg-[#252525] border-l border-[#2a2a2a]' : 'bg-white border-l border-gray-200'}`}>
+          <div className={`
+            fixed md:relative inset-x-0 bottom-0 md:inset-auto
+            md:w-64 lg:w-72 flex flex-col
+            max-h-[60vh] md:max-h-none md:h-full
+            z-40 md:z-auto
+            rounded-t-2xl md:rounded-none
+            shadow-2xl md:shadow-none
+            ${isDark ? 'bg-[#252525] border-t md:border-t-0 md:border-l border-[#2a2a2a]' : 'bg-white border-t md:border-t-0 md:border-l border-gray-200'}
+          `}>
             <div className={`p-4 flex items-center justify-between ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
               <h2 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Field Properties</h2>
               <button
@@ -1990,6 +2049,182 @@ const SignDocumentPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Mobile Bottom Action Bar */}
+        <div
+          className={`md:hidden fixed bottom-0 left-0 right-0 z-30 ${isDark ? 'bg-[#252525] border-t border-[#2a2a2a]' : 'bg-white border-t border-gray-200'}`}
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+          {/* Mobile field placement indicator */}
+          {mobileFieldToPlace && (
+            <div className={`px-4 py-2 text-center text-sm ${isDark ? 'bg-[#c4ff0e]/20 text-[#c4ff0e]' : 'bg-[#4C00FF]/10 text-[#4C00FF]'}`}>
+              Tap on document to place {ALL_FIELD_TYPES.find(f => f.id === mobileFieldToPlace)?.name}
+              <button
+                onClick={() => setMobileFieldToPlace(null)}
+                className="ml-2 underline"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center justify-around p-2">
+            <button
+              onClick={() => setShowMobileFields(true)}
+              disabled={!document}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#4C00FF] hover:bg-gray-100'}`}
+            >
+              <Plus className="w-6 h-6" />
+              <span className="text-xs font-medium">Add Field</span>
+            </button>
+
+            <button
+              onClick={() => setShowTemplateModal(true)}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+            >
+              <Settings className="w-6 h-6" />
+              <span className="text-xs font-medium">Settings</span>
+            </button>
+
+            <button
+              onClick={generatePreview}
+              disabled={!document || isGeneratingPreview || placedFields.filter(f => f.value).length === 0}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+            >
+              {isGeneratingPreview ? <Loader2 className="w-6 h-6 animate-spin" /> : <Eye className="w-6 h-6" />}
+              <span className="text-xs font-medium">Preview</span>
+            </button>
+
+            <button
+              onClick={() => setShowSendModal(true)}
+              disabled={!document || placedFields.length === 0}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#4C00FF] hover:bg-gray-100'}`}
+            >
+              <Send className="w-6 h-6" />
+              <span className="text-xs font-medium">Send</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Fields Bottom Sheet */}
+        {showMobileFields && (
+          <div className="md:hidden fixed inset-0 z-50">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setShowMobileFields(false)}
+            />
+
+            {/* Sheet */}
+            <div
+              className={`absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-2xl ${isDark ? 'bg-[#252525]' : 'bg-white'}`}
+              style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            >
+              {/* Handle */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
+              </div>
+
+              {/* Header */}
+              <div className={`px-4 pb-3 flex items-center justify-between border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Add Field</h3>
+                <button
+                  onClick={() => setShowMobileFields(false)}
+                  className={`p-2 rounded-lg ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'}`}
+                >
+                  <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                </button>
+              </div>
+
+              {/* Signer Selection */}
+              <div className={`p-4 border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+                <p className={`text-xs font-medium uppercase tracking-wide mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Assign to</p>
+                <div className="flex flex-wrap gap-2">
+                  {signers.map((signer) => (
+                    <button
+                      key={signer.id}
+                      onClick={() => setActiveSignerId(signer.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                        activeSignerId === signer.id
+                          ? 'text-white'
+                          : isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-gray-100 text-gray-600'
+                      }`}
+                      style={activeSignerId === signer.id ? { backgroundColor: signer.color } : undefined}
+                    >
+                      {signer.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Field Types */}
+              <div className="p-4 space-y-4">
+                {/* Signature Fields */}
+                <div>
+                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${isDark ? 'text-purple-400' : 'text-[#4C00FF]'}`}>Signature</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SIGNATURE_FIELDS.map((field) => (
+                      <button
+                        key={field.id}
+                        onClick={() => {
+                          setMobileFieldToPlace(field.id)
+                          setShowMobileFields(false)
+                        }}
+                        className={`flex items-center gap-2 p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333]' : 'bg-gray-50 hover:bg-gray-100'}`}
+                        style={{ borderLeft: `3px solid ${activeSigner?.color || '#7C3AED'}` }}
+                      >
+                        <field.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{field.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Contact Fields */}
+                <div>
+                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${isDark ? 'text-purple-400' : 'text-[#4C00FF]'}`}>Contact Info</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {CONTACT_FIELDS.map((field) => (
+                      <button
+                        key={field.id}
+                        onClick={() => {
+                          setMobileFieldToPlace(field.id)
+                          setShowMobileFields(false)
+                        }}
+                        className={`flex items-center gap-2 p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333]' : 'bg-gray-50 hover:bg-gray-100'}`}
+                        style={{ borderLeft: `3px solid ${activeSigner?.color || '#7C3AED'}` }}
+                      >
+                        <field.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{field.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Other Fields */}
+                <div>
+                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${isDark ? 'text-purple-400' : 'text-[#4C00FF]'}`}>Other</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {OTHER_FIELDS.map((field) => (
+                      <button
+                        key={field.id}
+                        onClick={() => {
+                          setMobileFieldToPlace(field.id)
+                          setShowMobileFields(false)
+                        }}
+                        className={`flex items-center gap-2 p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333]' : 'bg-gray-50 hover:bg-gray-100'}`}
+                        style={{ borderLeft: `3px solid ${activeSigner?.color || '#7C3AED'}` }}
+                      >
+                        <field.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{field.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Success Message */}
@@ -2119,10 +2354,18 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Send Modal */}
       {showSendModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] p-4">
-          <div className={`rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto ${isDark ? 'bg-[#252525] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}>
-            <div className={`flex items-center justify-between p-5 ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
-              <h3 className={`text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+        <div className="fixed inset-0 bg-black/60 flex items-end md:items-center justify-center z-[200] md:p-4">
+          <div
+            className={`rounded-t-2xl md:rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto ${isDark ? 'bg-[#252525] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          >
+            {/* Mobile Handle */}
+            <div className="md:hidden flex justify-center pt-3 pb-1">
+              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
+            </div>
+
+            <div className={`flex items-center justify-between px-4 md:p-5 py-3 md:py-5 ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
+              <h3 className={`text-lg md:text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
                 <Send className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 Send for Signatures
               </h3>
@@ -2134,7 +2377,7 @@ const SignDocumentPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="px-4 md:p-5 py-4 space-y-4">
               <div className={`rounded-xl p-4 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
                 <div className="flex items-center gap-3">
                   <FileText className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
@@ -2444,16 +2687,22 @@ const SignDocumentPage: React.FC = () => {
         }
 
         return (
-          <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setSignatureModalFieldId(null)}>
+          <div className="fixed inset-0 z-[400] flex items-end md:items-center justify-center bg-black/50 md:p-4 overflow-y-auto" onClick={() => setSignatureModalFieldId(null)}>
             <div
-              className="w-[580px] max-h-[90vh] bg-white rounded-lg shadow-2xl overflow-y-auto my-auto"
+              className="w-full md:w-[580px] max-h-[90vh] bg-white rounded-t-2xl md:rounded-lg shadow-2xl overflow-y-auto"
+              style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Mobile Handle */}
+              <div className="md:hidden flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 bg-gray-300 rounded-full" />
+              </div>
+
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-gray-200">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-                  <p className="text-sm text-gray-500 mt-1">Confirm your name, initials, and signature.</p>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-900">{title}</h2>
+                  <p className="text-xs md:text-sm text-gray-500 mt-1">Confirm your name, initials, and signature.</p>
                 </div>
                 <button
                   onClick={() => setSignatureModalFieldId(null)}
@@ -2464,7 +2713,7 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               {/* Name Inputs */}
-              <div className="px-6 py-4 grid grid-cols-2 gap-4">
+              <div className="px-4 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Full Name <span className="text-red-500">*</span>
@@ -2496,17 +2745,17 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               {/* Tabs */}
-              <div className="px-6 border-b border-gray-200">
-                <div className="flex gap-6">
+              <div className="px-4 md:px-6 border-b border-gray-200 overflow-x-auto">
+                <div className="flex gap-4 md:gap-6 min-w-max">
                   {[
-                    { id: 'style', label: 'SELECT STYLE' },
+                    { id: 'style', label: 'STYLE' },
                     { id: 'draw', label: 'DRAW' },
                     { id: 'upload', label: 'UPLOAD' },
                   ].map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setSignatureTab(tab.id as any)}
-                      className={`py-3 text-sm font-medium border-b-2 transition-colors ${
+                      className={`py-3 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                         signatureTab === tab.id
                           ? 'text-blue-600 border-blue-600'
                           : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -2519,27 +2768,27 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               {/* Tab Content */}
-              <div className="px-6 py-4">
+              <div className="px-4 md:px-6 py-4">
                 {/* SELECT STYLE Tab */}
                 {signatureTab === 'style' && (
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-gray-500">PREVIEW</span>
+                      <span className="text-xs md:text-sm font-medium text-gray-500">PREVIEW</span>
                       <button
                         onClick={() => setSignatureStyle((prev) => (prev + 1) % signatureFonts.length)}
-                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
                         Change Style
                       </button>
                     </div>
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <div className="flex gap-8">
+                    <div className="border border-gray-200 rounded-lg p-3 md:p-4 bg-gray-50">
+                      <div className="flex flex-col md:flex-row gap-4 md:gap-8">
                         {/* Signature Preview */}
                         <div className="flex-1">
                           <div className="border-l-4 border-blue-200 pl-3">
                             <p className="text-xs text-gray-400 mb-1">Signed by:</p>
                             <p
-                              className="text-2xl text-gray-800"
+                              className="text-xl md:text-2xl text-gray-800 break-words"
                               style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style }}
                             >
                               {signatureFullName || 'Your Name'}
@@ -2547,11 +2796,11 @@ const SignDocumentPage: React.FC = () => {
                           </div>
                         </div>
                         {/* Initials Preview */}
-                        <div className="w-24">
+                        <div className="w-auto md:w-24">
                           <div className="border-l-4 border-blue-200 pl-3">
-                            <p className="text-xs text-gray-400 mb-1">DS</p>
+                            <p className="text-xs text-gray-400 mb-1">Initials</p>
                             <p
-                              className="text-2xl text-gray-800"
+                              className="text-xl md:text-2xl text-gray-800"
                               style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style }}
                             >
                               {signatureInitials || 'AB'}
@@ -2566,7 +2815,7 @@ const SignDocumentPage: React.FC = () => {
                 {/* DRAW Tab */}
                 {signatureTab === 'draw' && (
                   <div>
-                    <p className="text-sm text-gray-500 mb-3">Draw your signature below:</p>
+                    <p className="text-xs md:text-sm text-gray-500 mb-3">Draw your signature below:</p>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-white">
                       <SignatureCanvas
                         onSave={(data) => {
@@ -2579,7 +2828,6 @@ const SignDocumentPage: React.FC = () => {
                         initialSignature={modalField.value?.startsWith('data:image') ? modalField.value : undefined}
                         compact={false}
                         height={150}
-                        width={530}
                         showDoneButton={false}
                       />
                     </div>
@@ -2597,25 +2845,28 @@ const SignDocumentPage: React.FC = () => {
                       className="hidden"
                     />
                     <div
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-4 md:p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
                       onClick={() => signatureFileInputRef.current?.click()}
                     >
                       <div className="flex flex-col items-center">
-                        <Stamp className="w-16 h-16 text-gray-300 mb-4" />
-                        <p className="text-lg font-medium text-gray-600 mb-1">Drag & drop signature image here</p>
-                        <p className="text-sm text-gray-400">or use <span className="font-semibold">UPLOAD IMAGE</span> to browse and select</p>
+                        <Stamp className="w-12 h-12 md:w-16 md:h-16 text-gray-300 mb-3 md:mb-4" />
+                        <p className="text-sm md:text-lg font-medium text-gray-600 mb-1">
+                          <span className="hidden md:inline">Drag & drop signature image here</span>
+                          <span className="md:hidden">Tap to upload signature</span>
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-400 hidden md:block">or use <span className="font-semibold">UPLOAD IMAGE</span> to browse and select</p>
                       </div>
                     </div>
                     <button
                       onClick={() => signatureFileInputRef.current?.click()}
-                      className="mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="mt-3 md:mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 w-full md:w-auto"
                     >
                       UPLOAD IMAGE
                     </button>
                     {modalField.value?.startsWith('data:image') && (
-                      <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                      <div className="mt-3 md:mt-4 p-3 md:p-4 border border-gray-200 rounded-lg bg-gray-50">
                         <p className="text-xs text-gray-500 mb-2">Uploaded signature:</p>
-                        <img src={modalField.value} alt="Uploaded signature" className="max-h-20 object-contain" />
+                        <img src={modalField.value} alt="Uploaded signature" className="max-h-16 md:max-h-20 object-contain" />
                       </div>
                     )}
                   </div>
@@ -2623,14 +2874,14 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               {/* Legal Text */}
-              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-                <p className="text-xs text-blue-600">
-                  By selecting Adopt and Initial, I agree that this mark will be the electronic representation of my signature or initials whenever I use it. I also understand that recipients of electronic documents will be able to see my DocuSign ID, which will include my email address.
+              <div className="px-4 md:px-6 py-3 bg-gray-50 border-t border-gray-200">
+                <p className="text-[10px] md:text-xs text-blue-600 leading-relaxed">
+                  By selecting Adopt and Sign, I agree that this mark will be the electronic representation of my signature or initials whenever I use it.
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="px-6 py-4 flex gap-3 border-t border-gray-200">
+              <div className="px-4 md:px-6 py-4 flex flex-col-reverse md:flex-row gap-3 border-t border-gray-200">
                 <button
                   onClick={() => {
                     // Generate signature from style if using style tab
@@ -2642,13 +2893,13 @@ const SignDocumentPage: React.FC = () => {
                     setSelectedFieldId(signatureModalFieldId)
                   }}
                   disabled={!signatureFullName || !signatureInitials}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 md:flex-none px-6 py-3 md:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg md:rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Adopt and Initial
+                  Adopt and Sign
                 </button>
                 <button
                   onClick={() => setSignatureModalFieldId(null)}
-                  className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                  className="flex-1 md:flex-none px-6 py-3 md:py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg md:rounded-md hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>

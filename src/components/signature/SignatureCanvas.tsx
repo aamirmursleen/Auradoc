@@ -24,7 +24,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   onClear,
   onCancel,
   initialSignature,
-  width = 600,
+  width,
   height = 200,
   compact = false,
   showDoneButton = true,
@@ -37,7 +37,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
 
   const [isEmpty, setIsEmpty] = useState(!initialSignature)
   const [penColor, setPenColor] = useState('#1e293b')
-  const [canvasWidth, setCanvasWidth] = useState(width)
+  const [canvasWidth, setCanvasWidth] = useState(width || 300)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [mode, setMode] = useState<SignatureMode>('draw')
   const [uploadedImage, setUploadedImage] = useState<string | null>(initialSignature || null)
@@ -54,18 +54,24 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     { name: 'Navy', value: '#1e3a5f' },
   ]
 
-  // Responsive canvas sizing
+  // Responsive canvas sizing - fill container width on mobile
   useEffect(() => {
     const updateCanvasSize = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth - 4
-        setCanvasWidth(Math.min(containerWidth, width))
+        // If width is provided, use it as max; otherwise fill container
+        setCanvasWidth(width ? Math.min(containerWidth, width) : containerWidth)
       }
     }
 
     updateCanvasSize()
     window.addEventListener('resize', updateCanvasSize)
-    return () => window.removeEventListener('resize', updateCanvasSize)
+    // Also listen for orientation changes on mobile
+    window.addEventListener('orientationchange', () => setTimeout(updateCanvasSize, 100))
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize)
+      window.removeEventListener('orientationchange', updateCanvasSize)
+    }
   }, [width])
 
   // Cleanup camera on unmount
