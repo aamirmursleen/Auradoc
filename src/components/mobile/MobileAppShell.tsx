@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import NextImage from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/components/ThemeProvider'
 import { ChevronDown, FileSignature, PenTool, Shield, FileType, Minimize2, Image, Layers, Scissors, FileText, Droplets, Receipt, LayoutTemplate, LayoutDashboard } from 'lucide-react'
@@ -84,10 +85,14 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
             {/* Center - Logo */}
             <div style={{ flex: '0 0 auto' }}>
               <Link href="/" style={{ textDecoration: 'none' }}>
-                <span style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px' }}>
-                  <span style={{ color: '#4C00FF' }}>MAMA</span>
-                  <span style={{ color: '#26065D' }}>SIGN</span>
-                </span>
+                <NextImage
+                  src="/logo.png"
+                  alt="MamaSign"
+                  width={100}
+                  height={38}
+                  style={{ height: '38px', width: 'auto', filter: 'contrast(1.2) saturate(1.3)' }}
+                  priority
+                />
               </Link>
             </div>
 

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Mail, Phone, Twitter, Linkedin, Github } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -43,10 +44,14 @@ const Footer: React.FC = () => {
           {/* Brand Section - Full width on mobile */}
           <div className="col-span-2 lg:col-span-2">
             <Link href="/" className="inline-block group min-h-[44px] flex items-center">
-              <span className="text-xl sm:text-2xl md:text-3xl font-black italic tracking-tight group-hover:scale-105 transition-transform duration-300 inline-block">
-                <span className={isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}>MAMA</span>
-                <span className={isDark ? 'text-white' : 'text-[#26065D]'}>SIGN</span>
-              </span>
+              <Image
+                src="/logo.png"
+                alt="MamaSign"
+                width={160}
+                height={60}
+                className="h-14 sm:h-16 w-auto group-hover:scale-105 transition-transform duration-300"
+                style={{ filter: 'contrast(1.3) saturate(1.4)' }}
+              />
             </Link>
             <p className={`mt-4 sm:mt-6 max-w-md text-sm sm:text-base lg:text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
               Professional e-signature platform for businesses of all sizes.

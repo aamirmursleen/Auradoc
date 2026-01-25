@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import NextImage from 'next/image'
 import {
   ChevronDown,
   FileSignature,
@@ -113,10 +114,15 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16 px-6 lg:px-8">
           {/* Logo */}
           <button onClick={() => handleNavClick('/')} className="flex items-center group cursor-pointer flex-shrink-0">
-            <span className="text-xl md:text-2xl font-black italic tracking-tight transition-transform duration-300 group-hover:scale-105">
-              <span style={{ color: colors.primary }}>MAMA</span>
-              <span style={{ color: colors.text }}>SIGN</span>
-            </span>
+            <NextImage
+              src="/logo.png"
+              alt="MamaSign"
+              width={120}
+              height={45}
+              className="h-10 md:h-11 w-auto transition-transform duration-300 group-hover:scale-105"
+              style={{ filter: 'contrast(1.2) saturate(1.3)' }}
+              priority
+            />
           </button>
 
           {/* Desktop Navigation */}
