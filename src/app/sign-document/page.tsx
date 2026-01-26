@@ -77,6 +77,16 @@ const SignatureCanvas = dynamic(() => import('@/components/signature/SignatureCa
   )
 })
 
+// Dynamically import MobileSignDocument for mobile view
+const MobileSignDocument = dynamic(() => import('@/components/mobile/MobileSignDocument'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-[#4C00FF]" />
+    </div>
+  )
+})
+
 // Field Types - Signature Fields
 const SIGNATURE_FIELDS = [
   { id: 'signature', name: 'Signature', icon: PenTool },
@@ -157,6 +167,32 @@ const SignDocumentPage: React.FC = () => {
   const isDark = theme === 'dark'
   const { user } = useUser()
   const router = useRouter()
+
+  // Mobile detection - start with null to avoid hydration mismatch
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Show loading while detecting device
+  if (isMobile === null) {
+    return (
+      <div className={`h-screen flex items-center justify-center ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
+        <Loader2 className={`w-8 h-8 animate-spin ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+      </div>
+    )
+  }
+
+  // Render mobile component for mobile users
+  if (isMobile) {
+    return <MobileSignDocument isDark={isDark} />
+  }
 
   // Document state
   const [document, setDocument] = useState<File | null>(null)
@@ -1164,20 +1200,60 @@ const SignDocumentPage: React.FC = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Top Toolbar - Responsive */}
-      <div className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} border-b px-2 md:px-4 py-2 md:py-3 flex items-center justify-between sticky top-0 z-50`}>
-        {/* Left side - Title */}
-        <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-          <h1 className={`text-sm md:text-xl font-bold flex items-center gap-1 md:gap-2 truncate ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
-            <FileSignature className={`w-5 h-5 md:w-6 md:h-6 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-            <span className="truncate hidden sm:inline">{templateProps.name || 'New Template'}</span>
-            <span className="truncate sm:hidden">Sign</span>
-          </h1>
+      {/* Top Toolbar - Mobile: DocuSign-style */}
+      <div className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} border-b px-3 md:px-4 py-2 md:py-3 flex items-center justify-between sticky top-0 z-50`}>
+        {/* Mobile Header - When document exists */}
+        {document ? (
+          <>
+            {/* Left - Back & Title */}
+            <div className="md:hidden flex items-center gap-2 flex-1 min-w-0">
+              <button
+                onClick={() => setDocument(null)}
+                className={`p-1.5 -ml-1 rounded-lg ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <span className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                {document.name.length > 20 ? document.name.slice(0, 20) + '...' : document.name}
+              </span>
+            </div>
+            {/* Right - Finish & Menu */}
+            <div className="md:hidden flex items-center gap-1">
+              <button
+                onClick={() => setShowSendModal(true)}
+                disabled={placedFields.length === 0}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`}
+              >
+                Finish
+              </button>
+              <button
+                onClick={() => setShowTemplateModal(true)}
+                className={`p-2 rounded-lg ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
+          </>
+        ) : (
+          /* Mobile Header - No document */
+          <div className="md:hidden flex items-center gap-2">
+            <FileSignature className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Sign Document</span>
+          </div>
+        )}
+
+        {/* Desktop Header */}
+        <div className="hidden md:flex items-center gap-4 min-w-0">
+          <FileSignature className={`w-6 h-6 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+          <span className={`text-xl font-bold truncate ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+            {templateProps.name || 'New Template'}
+          </span>
         </div>
 
-        {/* Right side - Actions */}
-        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-          {/* Desktop-only buttons */}
+        {/* Desktop Right side - Actions */}
+        <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+
+          {/* Desktop buttons */}
           <button
             onClick={() => setShowTemplateModal(true)}
             className={`hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
@@ -1208,7 +1284,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={handleDownload}
             disabled={!document || isDownloading || placedFields.filter(f => f.value).length === 0}
-            className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hidden md:flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Download"
           >
             {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
@@ -1227,7 +1303,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={() => setShowSendModal(true)}
             disabled={!document || placedFields.length === 0}
-            className={`flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
+            className={`hidden md:flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
           >
             <Send className="w-4 h-4" />
             <span className="text-sm font-medium hidden sm:inline">Send</span>
@@ -1435,42 +1511,45 @@ const SignDocumentPage: React.FC = () => {
             </div>
           )}
 
-          {/* Document Area - Mobile optimized */}
+          {/* Document Area - Full screen on mobile */}
           <div
-            className="flex-1 overflow-auto p-2 md:p-6 flex justify-center"
+            className="flex-1 overflow-auto p-2 md:p-6 flex justify-center items-start"
             style={{ WebkitOverflowScrolling: 'touch' }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDocumentDrop}
           >
             {!document ? (
-              <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center p-6 md:p-12 mb-16 md:mb-0 ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]/50' : 'bg-white border-gray-300 hover:border-[#4C00FF]/50'}`}>
+              <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center p-8 md:p-12 my-auto mx-4 md:mx-0 active:scale-[0.99] ${isDark ? 'bg-[#252525] border-[#3a3a3a] hover:border-[#c4ff0e]/50 hover:bg-[#2a2a2a]' : 'bg-white border-gray-300 hover:border-[#4C00FF]/50 hover:bg-gray-50'}`}>
                 <input
                   type="file"
                   accept=".pdf,.png,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-3 md:mb-4 ${isDark ? 'bg-[#c4ff0e]/10' : 'bg-[#4C00FF]/10'}`}>
-                  <Upload className={`w-8 h-8 md:w-10 md:h-10 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-[#c4ff0e]/20' : 'bg-[#4C00FF]/10'}`}>
+                  <Upload className={`w-10 h-10 md:w-12 md:h-12 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
-                <h3 className={`text-lg md:text-xl font-semibold mb-2 text-center ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
-                  Upload a PDF Template
+                <h3 className={`text-xl md:text-2xl font-bold mb-2 text-center ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+                  Upload Document
                 </h3>
-                <p className={`text-center text-sm md:text-base mb-3 md:mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-center text-sm md:text-base mb-4 max-w-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   <span className="hidden md:inline">Drag and drop your document here, or click to browse</span>
-                  <span className="md:hidden">Tap to select a document</span>
+                  <span className="md:hidden">Tap here to select your PDF or image</span>
                 </p>
-                <div className={`flex items-center gap-4 text-xs md:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <span className="flex items-center gap-1">
-                    <FileText className="w-4 h-4" /> PDF
+                <div className={`flex items-center gap-3 text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">
+                    <FileText className="w-3 h-3" /> PDF
                   </span>
-                  <span>Max 25MB</span>
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">
+                    JPG, PNG
+                  </span>
+                  <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">Max 25MB</span>
                 </div>
               </label>
             ) : (
               <div
                 ref={documentContainerRef}
-                className={`relative shadow-xl max-h-full overflow-auto mb-20 md:mb-0 ${isDark ? 'bg-[#252525]/80' : 'bg-white'}`}
+                className={`relative max-h-full overflow-auto pb-20 md:pb-0 mx-auto shadow-lg ${isDark ? 'bg-[#252525]' : 'bg-white'}`}
               >
                 {isPDF ? (
                   <PDFViewer
@@ -2050,177 +2129,114 @@ const SignDocumentPage: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile Bottom Action Bar */}
-        <div
-          className={`md:hidden fixed bottom-0 left-0 right-0 z-30 ${isDark ? 'bg-[#252525] border-t border-[#2a2a2a]' : 'bg-white border-t border-gray-200'}`}
-          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-        >
-          {/* Mobile field placement indicator */}
-          {mobileFieldToPlace && (
-            <div className={`px-4 py-2 text-center text-sm ${isDark ? 'bg-[#c4ff0e]/20 text-[#c4ff0e]' : 'bg-[#4C00FF]/10 text-[#4C00FF]'}`}>
+        {/* Mobile Floating Fields Button - Right Side */}
+        {document && !showMobileFields && (
+          <button
+            onClick={() => setShowMobileFields(true)}
+            className={`md:hidden fixed right-3 z-40 flex items-center gap-1.5 px-3 py-2.5 rounded-full shadow-lg transition-all active:scale-95 ${isDark ? 'bg-[#333] text-white' : 'bg-white text-gray-700 shadow-md border border-gray-200'}`}
+            style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}
+          >
+            <PenTool className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+            <span className="text-sm font-medium">Fields</span>
+          </button>
+        )}
+
+        {/* Mobile field placement indicator - Top banner */}
+        {mobileFieldToPlace && (
+          <div
+            className={`md:hidden fixed top-14 left-0 right-0 z-40 px-4 py-3 flex items-center justify-between ${isDark ? 'bg-[#4C00FF]' : 'bg-[#4C00FF]'}`}
+          >
+            <span className="text-white text-sm font-medium">
               Tap on document to place {ALL_FIELD_TYPES.find(f => f.id === mobileFieldToPlace)?.name}
-              <button
-                onClick={() => setMobileFieldToPlace(null)}
-                className="ml-2 underline"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          <div className="flex items-center justify-around p-2">
+            </span>
             <button
-              onClick={() => setShowMobileFields(true)}
-              disabled={!document}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#4C00FF] hover:bg-gray-100'}`}
+              onClick={() => setMobileFieldToPlace(null)}
+              className="text-white/80 hover:text-white p-1"
             >
-              <Plus className="w-6 h-6" />
-              <span className="text-xs font-medium">Add Field</span>
-            </button>
-
-            <button
-              onClick={() => setShowTemplateModal(true)}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
-            >
-              <Settings className="w-6 h-6" />
-              <span className="text-xs font-medium">Settings</span>
-            </button>
-
-            <button
-              onClick={generatePreview}
-              disabled={!document || isGeneratingPreview || placedFields.filter(f => f.value).length === 0}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
-            >
-              {isGeneratingPreview ? <Loader2 className="w-6 h-6 animate-spin" /> : <Eye className="w-6 h-6" />}
-              <span className="text-xs font-medium">Preview</span>
-            </button>
-
-            <button
-              onClick={() => setShowSendModal(true)}
-              disabled={!document || placedFields.length === 0}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#4C00FF] hover:bg-gray-100'}`}
-            >
-              <Send className="w-6 h-6" />
-              <span className="text-xs font-medium">Send</span>
+              <X className="w-5 h-5" />
             </button>
           </div>
-        </div>
+        )}
 
-        {/* Mobile Fields Bottom Sheet */}
+        {/* Mobile Bottom Bar - Page info & Send */}
+        {document && (
+          <div
+            className={`md:hidden fixed bottom-0 left-0 right-0 z-20 ${isDark ? 'bg-[#1e1e1e] border-t border-[#2a2a2a]' : 'bg-gray-100 border-t border-gray-200'}`}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          >
+            <div className="flex items-center justify-between px-4 py-2">
+              <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                <span className="font-medium">{document.name.split('.')[0]}</span>
+                <span className="mx-2">•</span>
+                <span>{currentPage} of {totalPages}</span>
+              </div>
+              <button
+                onClick={() => setShowSendModal(true)}
+                disabled={placedFields.length === 0}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`}
+              >
+                <Mail className="w-4 h-4" />
+                Send
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Fields Popup - Small Compact Box */}
         {showMobileFields && (
           <div className="md:hidden fixed inset-0 z-50">
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setShowMobileFields(false)}
-            />
+            {/* Transparent backdrop */}
+            <div className="absolute inset-0" onClick={() => setShowMobileFields(false)} />
 
-            {/* Sheet */}
+            {/* Small popup - positioned above Fields button */}
             <div
-              className={`absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-2xl ${isDark ? 'bg-[#252525]' : 'bg-white'}`}
-              style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+              className={`absolute right-2 rounded-2xl shadow-2xl overflow-hidden ${isDark ? 'bg-[#1a1a1a]' : 'bg-white shadow-xl'}`}
+              style={{
+                bottom: 'calc(110px + env(safe-area-inset-bottom))',
+                width: '280px'
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* Handle */}
-              <div className="flex justify-center pt-3 pb-2">
-                <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
-              </div>
+              {/* Arrow pointing to button */}
+              <div
+                className={`absolute -bottom-2 right-8 w-4 h-4 rotate-45 ${isDark ? 'bg-[#1a1a1a]' : 'bg-white'}`}
+              />
 
-              {/* Header */}
-              <div className={`px-4 pb-3 flex items-center justify-between border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
-                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Add Field</h3>
-                <button
-                  onClick={() => setShowMobileFields(false)}
-                  className={`p-2 rounded-lg ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'}`}
-                >
-                  <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
-                </button>
-              </div>
-
-              {/* Signer Selection */}
-              <div className={`p-4 border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
-                <p className={`text-xs font-medium uppercase tracking-wide mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Assign to</p>
-                <div className="flex flex-wrap gap-2">
-                  {signers.map((signer) => (
-                    <button
-                      key={signer.id}
-                      onClick={() => setActiveSignerId(signer.id)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                        activeSignerId === signer.id
-                          ? 'text-white'
-                          : isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-gray-100 text-gray-600'
-                      }`}
-                      style={activeSignerId === signer.id ? { backgroundColor: signer.color } : undefined}
-                    >
-                      {signer.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Field Types */}
-              <div className="p-4 space-y-4">
-                {/* Signature Fields */}
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${isDark ? 'text-purple-400' : 'text-[#4C00FF]'}`}>Signature</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {SIGNATURE_FIELDS.map((field) => (
-                      <button
-                        key={field.id}
-                        onClick={() => {
-                          setMobileFieldToPlace(field.id)
-                          setShowMobileFields(false)
-                        }}
-                        className={`flex items-center gap-2 p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333]' : 'bg-gray-50 hover:bg-gray-100'}`}
-                        style={{ borderLeft: `3px solid ${activeSigner?.color || '#7C3AED'}` }}
-                      >
-                        <field.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{field.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Contact Fields */}
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${isDark ? 'text-purple-400' : 'text-[#4C00FF]'}`}>Contact Info</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {CONTACT_FIELDS.map((field) => (
-                      <button
-                        key={field.id}
-                        onClick={() => {
-                          setMobileFieldToPlace(field.id)
-                          setShowMobileFields(false)
-                        }}
-                        className={`flex items-center gap-2 p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333]' : 'bg-gray-50 hover:bg-gray-100'}`}
-                        style={{ borderLeft: `3px solid ${activeSigner?.color || '#7C3AED'}` }}
-                      >
-                        <field.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{field.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Other Fields */}
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${isDark ? 'text-purple-400' : 'text-[#4C00FF]'}`}>Other</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {OTHER_FIELDS.map((field) => (
-                      <button
-                        key={field.id}
-                        onClick={() => {
-                          setMobileFieldToPlace(field.id)
-                          setShowMobileFields(false)
-                        }}
-                        className={`flex items-center gap-2 p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333]' : 'bg-gray-50 hover:bg-gray-100'}`}
-                        style={{ borderLeft: `3px solid ${activeSigner?.color || '#7C3AED'}` }}
-                      >
-                        <field.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{field.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              {/* Grid - 4x3 */}
+              <div className="grid grid-cols-4">
+                {/* Row 1 */}
+                {SIGNATURE_FIELDS.map((field) => (
+                  <button
+                    key={field.id}
+                    onClick={() => { setMobileFieldToPlace(field.id); setShowMobileFields(false); }}
+                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-[#333]' : 'active:bg-gray-100'}`}
+                  >
+                    <field.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} strokeWidth={1.5} />
+                    <span className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                  </button>
+                ))}
+                {/* Row 2 */}
+                {CONTACT_FIELDS.slice(0, 4).map((field) => (
+                  <button
+                    key={field.id}
+                    onClick={() => { setMobileFieldToPlace(field.id); setShowMobileFields(false); }}
+                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-[#333]' : 'active:bg-gray-100'}`}
+                  >
+                    <field.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} strokeWidth={1.5} />
+                    <span className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                  </button>
+                ))}
+                {/* Row 3 */}
+                {[...CONTACT_FIELDS.slice(4), ...OTHER_FIELDS].map((field) => (
+                  <button
+                    key={field.id}
+                    onClick={() => { setMobileFieldToPlace(field.id); setShowMobileFields(false); }}
+                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-[#333]' : 'active:bg-gray-100'}`}
+                  >
+                    <field.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} strokeWidth={1.5} />
+                    <span className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>

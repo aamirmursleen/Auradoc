@@ -291,9 +291,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
                       draggable={false}
                     />
 
-                    {/* Fields overlay for this page */}
+                    {/* Fields overlay - NO pointer-events-none so fields can be touched/dragged */}
                     {renderFieldsForPage && (
-                      <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute inset-0 overflow-visible">
                         {renderFieldsForPage(pageNum, page.width * zoom, page.height * zoom)}
                       </div>
                     )}
