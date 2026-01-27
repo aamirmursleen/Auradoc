@@ -171,29 +171,6 @@ const SignDocumentPage: React.FC = () => {
   // Mobile detection - start with null to avoid hydration mismatch
   const [isMobile, setIsMobile] = useState<boolean | null>(null)
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Show loading while detecting device
-  if (isMobile === null) {
-    return (
-      <div className={`h-screen flex items-center justify-center ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
-        <Loader2 className={`w-8 h-8 animate-spin ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-      </div>
-    )
-  }
-
-  // Render mobile component for mobile users
-  if (isMobile) {
-    return <MobileSignDocument isDark={isDark} />
-  }
-
   // Document state
   const [document, setDocument] = useState<File | null>(null)
   const [documentPreview, setDocumentPreview] = useState<string | null>(null)
@@ -1190,6 +1167,31 @@ const SignDocumentPage: React.FC = () => {
     setMobileFieldToPlace(null)
     setShowMobileFields(false)
   }, [mobileFieldToPlace, zoom, activeSigner])
+
+  // Mobile detection effect - MUST BE AFTER ALL OTHER HOOKS
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // EARLY RETURNS - Must be after all hooks
+  // Show loading while detecting device
+  if (isMobile === null) {
+    return (
+      <div className={`h-screen flex items-center justify-center ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
+        <Loader2 className={`w-8 h-8 animate-spin ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+      </div>
+    )
+  }
+
+  // Render mobile component for mobile users
+  if (isMobile) {
+    return <MobileSignDocument isDark={isDark} />
+  }
 
   return (
     <div
