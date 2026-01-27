@@ -359,15 +359,14 @@ const SignDocumentPage: React.FC = () => {
     ))
   }
 
-  // File upload handler
+  // File upload handler - PDF only
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
-      const isValidType = validTypes.includes(file.type) || file.name.toLowerCase().match(/\.(pdf|png|jpg|jpeg)$/)
+      const isValidType = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
 
       if (!isValidType) {
-        setError('Please upload a PDF, PNG, or JPG file')
+        setError('Please upload a PDF file only')
         return
       }
 
@@ -1522,7 +1521,7 @@ const SignDocumentPage: React.FC = () => {
               <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center p-8 md:p-12 my-auto mx-4 md:mx-0 active:scale-[0.99] ${isDark ? 'bg-[#252525] border-[#3a3a3a] hover:border-[#c4ff0e]/50 hover:bg-[#2a2a2a]' : 'bg-white border-gray-300 hover:border-[#4C00FF]/50 hover:bg-gray-50'}`}>
                 <input
                   type="file"
-                  accept=".pdf,.png,.jpg,.jpeg"
+                  accept=".pdf,application/pdf"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -1533,15 +1532,12 @@ const SignDocumentPage: React.FC = () => {
                   Upload Document
                 </h3>
                 <p className={`text-center text-sm md:text-base mb-4 max-w-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <span className="hidden md:inline">Drag and drop your document here, or click to browse</span>
-                  <span className="md:hidden">Tap here to select your PDF or image</span>
+                  <span className="hidden md:inline">Drag and drop your PDF here, or click to browse</span>
+                  <span className="md:hidden">Tap here to select your PDF</span>
                 </p>
                 <div className={`flex items-center gap-3 text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">
-                    <FileText className="w-3 h-3" /> PDF
-                  </span>
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">
-                    JPG, PNG
+                    <FileText className="w-3 h-3" /> PDF Only
                   </span>
                   <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">Max 25MB</span>
                 </div>
