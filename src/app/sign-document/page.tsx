@@ -1935,6 +1935,54 @@ const SignDocumentPage: React.FC = () => {
                   <span>{placedFields.length} fields</span>
                 </div>
 
+                {/* Mobile Compact Signer Tabs */}
+                <div className={`md:hidden flex items-center gap-1 ml-2`}>
+                  {signers.map((signer, idx) => {
+                    const isActive = activeSignerId === signer.id
+                    const fieldCount = placedFields.filter(f => f.signerId === signer.id).length
+                    return (
+                      <button
+                        key={signer.id}
+                        onClick={() => {
+                          setActiveSignerId(signer.id)
+                          setExpandedSignerId(signer.id)
+                        }}
+                        className="relative flex items-center justify-center rounded-full transition-all"
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          backgroundColor: isActive ? signer.color : `${signer.color}30`,
+                          boxShadow: isActive ? `0 0 0 2px white, 0 0 0 3px ${signer.color}` : 'none',
+                        }}
+                        title={signer.name}
+                      >
+                        <span
+                          className="font-bold text-xs"
+                          style={{ color: isActive ? '#fff' : signer.color }}
+                        >
+                          {idx + 1}
+                        </span>
+                        {fieldCount > 0 && (
+                          <span
+                            className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
+                            style={{ backgroundColor: '#10B981' }}
+                          >
+                            {fieldCount}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                  {/* Add Signer button for mobile */}
+                  <button
+                    onClick={addSigner}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center ${isDark ? 'bg-[#2a2a2a] text-gray-400' : 'bg-gray-100 text-gray-500'}`}
+                    title="Add Signer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
                 {/* Upload New Document Button */}
                 <button
                   onClick={uploadNewDocument}

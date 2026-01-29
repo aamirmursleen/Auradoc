@@ -677,42 +677,68 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
               </div>
             </div>
 
-            {/* Signers Row - Click to select for field placement */}
+            {/* Compact Signer Tabs - Small circular badges */}
             {signers.length > 0 && (
-              <div className="flex items-center gap-2 mt-2 overflow-x-auto pb-1">
+              <div className="flex items-center gap-1.5 mt-2">
                 {signers.map((signer, idx) => {
                   const isActive = activeSignerId === signer.id
+                  const fieldCount = fields.filter(f => f.signerId === signer.id).length
                   return (
                     <button
                       key={signer.id}
                       onClick={() => setActiveSignerId(isActive ? null : signer.id)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all"
+                      className="relative flex items-center justify-center transition-all"
                       style={{
+                        width: isActive ? 'auto' : '32px',
+                        height: '32px',
+                        borderRadius: isActive ? '16px' : '50%',
                         backgroundColor: isActive ? signer.color.bg : signer.color.light,
-                        color: isActive ? '#fff' : signer.color.text,
-                        boxShadow: isActive ? `0 0 0 2px white, 0 0 0 4px ${signer.color.bg}` : 'none',
+                        boxShadow: isActive ? `0 2px 8px ${signer.color.bg}40` : 'none',
+                        paddingLeft: isActive ? '8px' : '0',
+                        paddingRight: isActive ? '8px' : '0',
                       }}
                     >
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
-                        style={{ backgroundColor: isActive ? 'rgba(255,255,255,0.3)' : signer.color.bg, color: '#fff' }}
-                      >
-                        {idx + 1}
-                      </div>
-                      <span className="truncate max-w-[60px]">{signer.name || `Signer ${idx + 1}`}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (activeSignerId === signer.id) setActiveSignerId(null)
-                          setSigners(s => s.filter(sg => sg.id !== signer.id))
+                      <span
+                        className="font-bold"
+                        style={{
+                          fontSize: '12px',
+                          color: isActive ? '#fff' : signer.color.text,
                         }}
-                        className="ml-0.5 opacity-60 hover:opacity-100"
                       >
-                        <X className="w-3 h-3" />
-                      </button>
+                        {isActive ? (signer.name || `S${idx + 1}`) : `S${idx + 1}`}
+                      </span>
+                      {/* Field count badge */}
+                      {fieldCount > 0 && !isActive && (
+                        <span
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+                          style={{ backgroundColor: signer.color.bg }}
+                        >
+                          {fieldCount}
+                        </span>
+                      )}
+                      {/* Close button when active */}
+                      {isActive && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveSignerId(null)
+                            setSigners(s => s.filter(sg => sg.id !== signer.id))
+                          }}
+                          className="ml-1.5 p-0.5 rounded-full bg-white/20"
+                        >
+                          <X className="w-3 h-3 text-white" />
+                        </button>
+                      )}
                     </button>
                   )
                 })}
+                {/* Compact Add Signer button */}
+                <button
+                  onClick={() => setShowAddSigner(true)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" />
+                </button>
               </div>
             )}
           </>
@@ -811,49 +837,42 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
         </div>
       )}
 
-      {/* Signer Selection Indicator */}
+      {/* Compact Signer Selection Indicator - Small pill at top of floating buttons */}
       {pdfFile && activeSignerId && !activeToolId && (() => {
         const activeSigner = signers.find(s => s.id === activeSignerId)
         const signerIndex = signers.findIndex(s => s.id === activeSignerId) + 1
         if (!activeSigner) return null
         return (
           <div
-            className="fixed left-3 right-3 z-30 flex items-center justify-between px-3 py-2 rounded-full shadow-lg"
-            style={{ bottom: 'calc(120px + env(safe-area-inset-bottom))', backgroundColor: activeSigner.color.light, border: `2px solid ${activeSigner.color.bg}` }}
+            className="fixed left-3 z-30 flex items-center gap-2 px-2.5 py-1.5 rounded-full shadow-md"
+            style={{ bottom: 'calc(110px + env(safe-area-inset-bottom))', backgroundColor: activeSigner.color.bg }}
           >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ backgroundColor: activeSigner.color.bg }}
-              >
-                {signerIndex}
-              </div>
-              <span className="text-sm font-medium" style={{ color: activeSigner.color.text }}>
-                Placing fields for Signer {signerIndex}
-              </span>
-            </div>
+            <span className="text-xs font-medium text-white">
+              S{signerIndex}: {activeSigner.name || 'Signer'}
+            </span>
             <button
               onClick={() => setActiveSignerId(null)}
-              className="p-1 rounded-full"
-              style={{ backgroundColor: activeSigner.color.bg + '20' }}
+              className="p-0.5 rounded-full bg-white/20"
             >
-              <X className="w-4 h-4" style={{ color: activeSigner.color.text }} />
+              <X className="w-3 h-3 text-white" />
             </button>
           </div>
         )
       })()}
 
-      {/* Floating Buttons - Fields & Add Signer */}
+      {/* Floating Buttons - Fields & Add Signer (only show Add if no signers yet) */}
       {pdfFile && !activeToolId && !showPalette && (
         <div className="fixed right-3 z-40 flex flex-col gap-2" style={{ bottom: 'calc(56px + env(safe-area-inset-bottom))' }}>
-          {/* Add Signer Button */}
-          <button
-            onClick={() => setShowAddSigner(true)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-[#333] text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
-          >
-            <UserPlus className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-            <span className="text-sm font-medium">Add Signer</span>
-          </button>
+          {/* Add Signer Button - Only show when no signers exist */}
+          {signers.length === 0 && (
+            <button
+              onClick={() => setShowAddSigner(true)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-[#333] text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
+            >
+              <UserPlus className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+              <span className="text-sm font-medium">Add Signer</span>
+            </button>
+          )}
 
           {/* Fields Button */}
           <button
