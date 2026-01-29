@@ -83,10 +83,12 @@ export async function POST(
       )
     }
 
-    // Update signer status
+    // Update signer status and store their field values + signature
     const signedAt = new Date().toISOString()
     signers[signerIndex].status = 'signed'
     signers[signerIndex].signedAt = signedAt
+    signers[signerIndex].signatureImage = signature && signature !== 'no-signature-field' ? signature : null
+    signers[signerIndex].fieldValues = fieldValues || {}
 
     console.log('📝 Updated signer in array:', {
       signerIndex,

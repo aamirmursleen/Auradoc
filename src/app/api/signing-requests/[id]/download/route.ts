@@ -9,7 +9,7 @@ export async function GET(
   try {
     const documentId = params.id
 
-    // Fetch signing request with document and fields
+    // Fetch signing request - contains everything we need
     const { data: signingRequest, error } = await supabaseAdmin
       .from('signing_requests')
       .select('*')
@@ -21,16 +21,6 @@ export async function GET(
         { success: false, message: 'Document not found' },
         { status: 404 }
       )
-    }
-
-    // Fetch all signature records for this document
-    const { data: signatureRecords, error: sigError } = await supabaseAdmin
-      .from('signature_records')
-      .select('*')
-      .eq('signing_request_id', documentId)
-
-    if (sigError) {
-      console.error('Error fetching signature records:', sigError)
     }
 
     // Get the original document
@@ -70,7 +60,6 @@ export async function GET(
       const arrayBuffer = await pdfResponse.arrayBuffer()
       pdfBytes = new Uint8Array(arrayBuffer)
     } else {
-      // Raw base64
       const binaryString = atob(documentUrl)
       pdfBytes = new Uint8Array(binaryString.length)
       for (let i = 0; i < binaryString.length; i++) {
@@ -82,51 +71,30 @@ export async function GET(
     const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true })
     const pages = pdfDoc.getPages()
 
-    // Get signature fields from signing request
     const signatureFields = signingRequest.signature_fields || []
     const signers = signingRequest.signers || []
 
-    console.log('📄 Download: signatureFields count:', signatureFields.length)
-    console.log('📄 Download: signers:', signers.map((s: any) => ({ email: s.email, order: s.order, status: s.status })))
-    console.log('📄 Download: signature_records count:', signatureRecords?.length || 0)
+    console.log('📄 Download: fields count:', signatureFields.length, 'signers:', signers.length)
 
-    // Build a map of signer email -> signature records
-    const signerRecordMap: Record<string, any> = {}
-    for (const record of (signatureRecords || [])) {
-      signerRecordMap[record.signer_email.toLowerCase()] = record
-      console.log('📄 Download: record for', record.signer_email, {
-        hasSignatureImage: !!record.signature_image,
-        hasFieldValues: !!record.field_values,
-        fieldValueKeys: record.field_values ? Object.keys(record.field_values) : []
-      })
+    // Build map: signerOrder -> signer data (including fieldValues and signatureImage)
+    const signerByOrder: Record<number, any> = {}
+    for (const signer of signers) {
+      signerByOrder[signer.order] = signer
+      console.log('📄 Signer:', signer.email, 'order:', signer.order, 'status:', signer.status,
+        'hasFieldValues:', !!signer.fieldValues, 'hasSignature:', !!signer.signatureImage)
     }
 
-    // Embed each field's value into the PDF
+    // Embed each field into the PDF
     for (const field of signatureFields) {
-      console.log('📄 Download: processing field', field.id, {
-        type: field.type,
-        signerOrder: field.signerOrder,
-        x: field.x, y: field.y, width: field.width, height: field.height,
-        page: field.page || field.pageNumber
-      })
-
-      // Find which signer this field belongs to
-      const signer = signers.find((s: any) => s.order === field.signerOrder)
-      if (!signer) {
-        console.log('📄 Download: no signer found for order', field.signerOrder)
+      const signer = signerByOrder[field.signerOrder]
+      if (!signer || signer.status !== 'signed') {
+        console.log('📄 Skip field', field.id, '- signer not signed')
         continue
       }
 
-      const record = signerRecordMap[signer.email.toLowerCase()]
-      if (!record) {
-        console.log('📄 Download: no signature record for', signer.email)
-        continue
-      }
+      const fieldValues = signer.fieldValues || {}
+      const signatureImage = signer.signatureImage
 
-      const fieldValues = record.field_values || {}
-      const signatureImage = record.signature_image
-
-      // Determine page
       const pageNum = field.page || field.pageNumber || 1
       const pageIndex = pageNum - 1
       if (pageIndex < 0 || pageIndex >= pages.length) continue
@@ -134,44 +102,29 @@ export async function GET(
       const page = pages[pageIndex]
       const { width: pageW, height: pageH } = page.getSize()
 
-      // Field coordinates stored in pixel space at scale=1
-      const fieldX = field.x
-      const fieldY = field.y
-      const fieldWidth = field.width
-      const fieldHeight = field.height
-
-      // Convert pixel coordinates to PDF coordinates
-      // Fields are in pixel space where page renders at its native PDF size
-      const xPct = fieldX / pageW
-      const yPct = fieldY / pageH
-      const wPct = fieldWidth / pageW
-      const hPct = fieldHeight / pageH
-
-      // Convert to actual PDF coordinates
-      const pdfX = xPct * pageW  // = fieldX (same coordinate space)
-      const pdfWidth = wPct * pageW  // = fieldWidth
-      const pdfHeight = hPct * pageH  // = fieldHeight
-      // Y-axis inversion: UI is top-down, PDF is bottom-up
-      const pdfY = pageH - ((yPct + hPct) * pageH)
+      // Field coords are stored in pixel space at scale=1
+      // which maps directly to PDF points for standard rendering
+      const pdfX = field.x
+      const pdfWidth = field.width
+      const pdfHeight = field.height
+      // Y-axis inversion: UI top-down -> PDF bottom-up
+      const pdfY = pageH - field.y - field.height
 
       const fieldType = field.type
       const value = fieldValues[field.id]
 
-      console.log('📄 Download: field', field.id, 'value:', value ? (value.length > 50 ? value.substring(0, 50) + '...' : value) : 'NO VALUE', 'signatureImage:', signatureImage ? 'YES' : 'NO')
+      console.log('📄 Field:', field.id, 'type:', fieldType, 'value:', value ? 'YES' : 'NO',
+        'coords:', { x: pdfX, y: pdfY, w: pdfWidth, h: pdfHeight })
 
       try {
-        if ((fieldType === 'signature' || fieldType === 'initials') && signatureImage && signatureImage !== 'no-signature-field') {
-          // Embed signature image
+        if ((fieldType === 'signature' || fieldType === 'initials') && signatureImage) {
           await embedImageIntoPdf(pdfDoc, page, signatureImage, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
         } else if (fieldType === 'checkbox' && value === 'checked') {
-          // Draw checkbox
           page.drawRectangle({
             x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight,
             color: rgb(0.086, 0.639, 0.290),
           })
-          // Checkmark
-          const cx = pdfX + pdfWidth / 2
-          const cy = pdfY + pdfHeight / 2
+          const cx = pdfX + pdfWidth / 2, cy = pdfY + pdfHeight / 2
           const sz = Math.min(pdfWidth, pdfHeight) * 0.6
           page.drawLine({ start: { x: cx - sz * 0.4, y: cy }, end: { x: cx - sz * 0.1, y: cy - sz * 0.3 }, thickness: 2, color: rgb(1, 1, 1) })
           page.drawLine({ start: { x: cx - sz * 0.1, y: cy - sz * 0.3 }, end: { x: cx + sz * 0.4, y: cy + sz * 0.3 }, thickness: 2, color: rgb(1, 1, 1) })
@@ -179,40 +132,28 @@ export async function GET(
           if (value.startsWith('data:image')) {
             await embedImageIntoPdf(pdfDoc, page, value, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
           } else {
-            // Text stamp
             const fontSize = Math.min(pdfHeight * 0.5, 16)
             page.drawText(value, {
-              x: pdfX + 4,
-              y: pdfY + (pdfHeight - fontSize) / 2,
-              size: fontSize,
-              color: rgb(0.863, 0.149, 0.149),
+              x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2,
+              size: fontSize, color: rgb(0.863, 0.149, 0.149),
             })
           }
         } else if (fieldType === 'strikethrough' && value) {
-          // Draw strikethrough line
           const lineY = pdfY + pdfHeight / 2
           const color = value.startsWith('#') ? hexToRgb(value) : rgb(0.863, 0.149, 0.149)
           page.drawLine({
-            start: { x: pdfX, y: lineY },
-            end: { x: pdfX + pdfWidth, y: lineY },
-            thickness: 3,
-            color,
+            start: { x: pdfX, y: lineY }, end: { x: pdfX + pdfWidth, y: lineY },
+            thickness: 3, color,
           })
         } else if (value && fieldType !== 'checkbox') {
-          // Text fields (text, name, email, date, etc.)
           let displayValue = value
-          if (fieldType === 'date' && value) {
-            try {
-              displayValue = new Date(value).toLocaleDateString()
-            } catch { displayValue = value }
+          if (fieldType === 'date') {
+            try { displayValue = new Date(value).toLocaleDateString() } catch { displayValue = value }
           }
           const fontSize = Math.min(field.fontSize || 14, pdfHeight * 0.7)
           page.drawText(displayValue, {
-            x: pdfX + 4,
-            y: pdfY + (pdfHeight - fontSize) / 2,
-            size: fontSize,
-            color: rgb(0, 0, 0),
-            maxWidth: pdfWidth - 8,
+            x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2,
+            size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 8,
           })
         }
       } catch (fieldError) {
@@ -223,7 +164,6 @@ export async function GET(
     // Save final PDF
     const finalPdfBytes = await pdfDoc.save()
 
-    // Return as downloadable PDF
     return new NextResponse(Buffer.from(finalPdfBytes), {
       headers: {
         'Content-Type': 'application/pdf',
@@ -240,11 +180,8 @@ export async function GET(
   }
 }
 
-// Helper: embed image into PDF
 async function embedImageIntoPdf(
-  pdfDoc: PDFDocument,
-  page: any,
-  imageDataUrl: string,
+  pdfDoc: PDFDocument, page: any, imageDataUrl: string,
   coords: { x: number; y: number; width: number; height: number }
 ) {
   const base64 = imageDataUrl.split(',')[1]
@@ -265,35 +202,25 @@ async function embedImageIntoPdf(
     try { image = await pdfDoc.embedPng(imageBytes) } catch { image = await pdfDoc.embedJpg(imageBytes) }
   }
 
-  // Maintain aspect ratio
   const imgAspect = image.width / image.height
   const boxAspect = coords.width / coords.height
   let drawW, drawH, drawX, drawY
 
   if (imgAspect > boxAspect) {
-    drawW = coords.width
-    drawH = coords.width / imgAspect
-    drawX = coords.x
-    drawY = coords.y + (coords.height - drawH) / 2
+    drawW = coords.width; drawH = coords.width / imgAspect
+    drawX = coords.x; drawY = coords.y + (coords.height - drawH) / 2
   } else {
-    drawH = coords.height
-    drawW = coords.height * imgAspect
-    drawX = coords.x + (coords.width - drawW) / 2
-    drawY = coords.y
+    drawH = coords.height; drawW = coords.height * imgAspect
+    drawX = coords.x + (coords.width - drawW) / 2; drawY = coords.y
   }
 
   page.drawImage(image, { x: drawX, y: drawY, width: drawW, height: drawH })
 }
 
-// Helper: convert hex color to pdf-lib rgb
 function hexToRgb(hex: string) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   if (result) {
-    return rgb(
-      parseInt(result[1], 16) / 255,
-      parseInt(result[2], 16) / 255,
-      parseInt(result[3], 16) / 255
-    )
+    return rgb(parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255)
   }
-  return rgb(0.863, 0.149, 0.149) // Default red
+  return rgb(0.863, 0.149, 0.149)
 }
