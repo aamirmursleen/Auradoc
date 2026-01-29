@@ -56,77 +56,59 @@ export default function EmailCapturePopup() {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop - click to close */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer"
+        className="absolute inset-0 bg-black/30 backdrop-blur-[2px] cursor-pointer"
         onClick={handleClose}
       />
 
-      {/* Modal - Compact Size */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-xs w-full overflow-hidden animate-in fade-in zoom-in duration-300">
-        {/* Close button - More visible */}
+      {/* Modal - Small & Centered */}
+      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-72 overflow-hidden animate-in fade-in zoom-in duration-200">
+        {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white rounded-full text-gray-500 hover:text-gray-700 z-10 shadow-sm transition-all"
+          className="absolute top-2 right-2 p-1 bg-black/10 hover:bg-black/20 rounded-full text-white z-10 transition-all"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* Compact header */}
-        <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-5 text-center text-white">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Gift className="w-5 h-5" />
-          </div>
-          <h2 className="text-lg font-bold mb-1">Get 90% Off!</h2>
-          <p className="text-purple-100 text-xs">
-            Limited time offer - Pro Plan
-          </p>
+        {/* Header - Compact */}
+        <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-4 py-4 text-center text-white">
+          <Gift className="w-6 h-6 mx-auto mb-1.5 opacity-90" />
+          <h2 className="text-base font-bold">90% Off Pro Plan!</h2>
         </div>
 
-        {/* Compact Content */}
-        <div className="p-4">
-          <p className="text-gray-600 dark:text-gray-300 text-center text-sm mb-4">
-            Use this exclusive discount code at checkout
-          </p>
-
-          {/* Discount Code Display */}
+        {/* Content - Compact */}
+        <div className="p-3">
+          {/* Discount Code */}
           <div
             onClick={handleCopyCode}
-            className="relative bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 border-2 border-dashed border-violet-300 dark:border-violet-600 rounded-lg p-4 text-center cursor-pointer hover:border-violet-500 transition-all group"
+            className="relative bg-violet-50 dark:bg-violet-900/30 border border-dashed border-violet-300 dark:border-violet-600 rounded-lg py-2.5 px-3 text-center cursor-pointer hover:border-violet-400 transition-all"
           >
-            <p className="text-2xl font-bold text-violet-600 dark:text-violet-400 tracking-wider">
+            <p className="text-xl font-bold text-violet-600 dark:text-violet-400 tracking-wide">
               {DISCOUNT_CODE}
             </p>
-            <div className="flex items-center justify-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1 mt-1">
               <Copy className="w-3 h-3" />
-              <span>{copied ? 'Copied!' : 'Click to copy'}</span>
-            </div>
-            {copied && (
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                Copied!
-              </div>
-            )}
+              {copied ? 'Copied!' : 'Tap to copy'}
+            </p>
           </div>
 
-          {/* Benefits */}
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-            <ul className="space-y-1.5">
-              {[
-                '90% off Pro Plan',
-                'Unlimited signatures',
-                'All PDF tools included',
-              ].map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                  <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+          {/* Benefits - Inline */}
+          <div className="flex flex-wrap gap-1.5 justify-center mt-3 text-[10px] text-gray-500">
+            <span className="flex items-center gap-1">
+              <CheckCircle className="w-3 h-3 text-green-500" />
+              Unlimited signs
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle className="w-3 h-3 text-green-500" />
+              All PDF tools
+            </span>
           </div>
 
           <button
             onClick={handleClose}
-            className="w-full mt-4 py-2.5 text-sm bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+            className="w-full mt-3 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-500 text-white font-medium rounded-lg hover:opacity-90 transition-all"
           >
-            Start Using MamaSign
+            Got it!
           </button>
         </div>
       </div>

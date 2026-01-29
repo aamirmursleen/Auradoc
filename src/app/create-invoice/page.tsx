@@ -198,8 +198,8 @@ const CreateInvoicePage: React.FC = () => {
     businessAddress: '',
     businessLogo: null,
     backgroundLogo: null,
-    logoX: 0,
-    logoY: 0,
+    logoX: 20,
+    logoY: 50,
     logoWidth: 120,
     logoHeight: 60,
     bgLogoX: 30,
@@ -335,12 +335,22 @@ const CreateInvoicePage: React.FC = () => {
     }
   }
 
-  // Logo drag handlers
-  const handleLogoDragStart = (e: React.MouseEvent, type: 'logo' | 'bgLogo') => {
+  // Logo drag handlers - supports both mouse and touch
+  const getEventPos = (e: React.MouseEvent | React.TouchEvent) => {
+    if ('touches' in e && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    } else if ('clientX' in e) {
+      return { x: e.clientX, y: e.clientY }
+    }
+    return { x: 0, y: 0 }
+  }
+
+  const handleLogoDragStart = (e: React.MouseEvent | React.TouchEvent, type: 'logo' | 'bgLogo') => {
     e.preventDefault()
     e.stopPropagation()
     setIsDraggingLogo(type)
-    setDragStart({ x: e.clientX, y: e.clientY })
+    const pos = getEventPos(e)
+    setDragStart(pos)
     if (type === 'logo') {
       setLogoStartPos({ x: invoiceData.logoX, y: invoiceData.logoY, width: invoiceData.logoWidth, height: invoiceData.logoHeight })
     } else {
@@ -348,11 +358,13 @@ const CreateInvoicePage: React.FC = () => {
     }
   }
 
-  const handleLogoResizeStart = (e: React.MouseEvent, type: 'logo' | 'bgLogo') => {
+  const handleLogoResizeStart = (e: React.MouseEvent | React.TouchEvent, type: 'logo' | 'bgLogo') => {
     e.preventDefault()
     e.stopPropagation()
     setIsResizingLogo(type)
-    setDragStart({ x: e.clientX, y: e.clientY })
+    setIsDraggingLogo(null)
+    const pos = getEventPos(e)
+    setDragStart(pos)
     if (type === 'logo') {
       setLogoStartPos({ x: invoiceData.logoX, y: invoiceData.logoY, width: invoiceData.logoWidth, height: invoiceData.logoHeight })
     } else {
@@ -360,11 +372,13 @@ const CreateInvoicePage: React.FC = () => {
     }
   }
 
-  const handleLogoMouseMove = (e: React.MouseEvent) => {
+  const handleLogoMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDraggingLogo && !isResizingLogo) return
 
-    const deltaX = e.clientX - dragStart.x
-    const deltaY = e.clientY - dragStart.y
+    e.preventDefault()
+    const pos = getEventPos(e)
+    const deltaX = pos.x - dragStart.x
+    const deltaY = pos.y - dragStart.y
 
     if (isDraggingLogo) {
       const newX = Math.max(0, logoStartPos.x + deltaX)
@@ -380,8 +394,8 @@ const CreateInvoicePage: React.FC = () => {
     }
 
     if (isResizingLogo) {
-      const newWidth = Math.max(40, logoStartPos.width + deltaX)
-      const newHeight = Math.max(30, logoStartPos.height + deltaY)
+      const newWidth = Math.max(60, logoStartPos.width + deltaX)
+      const newHeight = Math.max(40, logoStartPos.height + deltaY)
 
       if (isResizingLogo === 'logo') {
         handleInputChange('logoWidth', newWidth)
@@ -1120,51 +1134,57 @@ const CreateInvoicePage: React.FC = () => {
       {/* Preview Modal */}
       {showPreview && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-sm"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowPreview(false)
           }}
         >
-          <div className={`${isDark ? 'bg-[#1F1F1F]' : 'bg-white'} rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col`}>
-            {/* Modal Header */}
-            <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-[#2a2a2a] bg-[#1F1F1F]' : 'border-gray-200 bg-white'}`}>
-              <div className="flex items-center gap-3">
+          <div className={`${isDark ? 'bg-[#1F1F1F]' : 'bg-white'} rounded-none md:rounded-2xl shadow-2xl w-full h-full md:h-auto md:max-w-4xl md:max-h-[90vh] flex flex-col overflow-y-auto`}>
+            {/* Modal Header - Responsive */}
+            <div className={`flex items-center justify-between p-3 md:p-4 border-b ${isDark ? 'border-[#2a2a2a] bg-[#1F1F1F]' : 'border-gray-200 bg-white'}`}>
+              <div className="flex items-center gap-2 md:gap-3">
                 <button
                   onClick={() => setShowPreview(false)}
-                  className={`px-4 py-2 ${isDark ? 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors flex items-center gap-2 text-sm font-medium`}
+                  className={`p-2 md:px-4 md:py-2 ${isDark ? 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors flex items-center gap-1 md:gap-2 text-sm font-medium`}
                 >
                   <ChevronDown className="w-4 h-4 rotate-90" />
-                  Back to Edit
+                  <span className="hidden md:inline">Back to Edit</span>
                 </button>
-                <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Invoice Preview</h2>
+                <h2 className={`text-sm md:text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Invoice Preview</h2>
               </div>
-              <div className="flex items-center gap-2">
-                <button className={`px-4 py-2 ${isDark ? 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors flex items-center gap-2 text-sm font-medium`}>
+              <div className="flex items-center gap-1 md:gap-2">
+                <button className={`hidden md:flex px-4 py-2 ${isDark ? 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors items-center gap-2 text-sm font-medium`}>
                   <Printer className="w-4 h-4" />
                   Print
                 </button>
                 <button
                   onClick={handleDownloadPDF}
-                  className={`px-4 py-2 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} rounded-lg transition-all hover:shadow-lg flex items-center gap-2 text-sm font-medium`}
+                  className={`px-3 py-2 md:px-4 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} rounded-lg transition-all hover:shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium`}
                 >
                   <Download className="w-4 h-4" />
-                  Download PDF
+                  <span className="hidden sm:inline">Download</span> PDF
                 </button>
                 {/* Close Button */}
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="ml-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-colors"
+                  className="ml-1 md:ml-2 w-8 h-8 md:w-10 md:h-10 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-colors"
                   title="Close"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
             </div>
 
             {/* Invoice Preview Content */}
-            <div className={`flex-1 overflow-auto p-6 ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-100'} flex gap-4`}>
-              {/* Logo Adjustment Instructions Panel */}
-              <div className={`w-64 flex-shrink-0 ${isDark ? 'bg-[#252525]' : 'bg-white'} rounded-xl p-4 shadow-lg h-fit sticky top-0`}>
+            <div
+              className={`flex-1 overflow-auto p-2 md:p-6 ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-100'} flex flex-col md:flex-row gap-4`}
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain'
+              }}
+            >
+              {/* Logo Adjustment Instructions Panel - Hidden on mobile */}
+              <div className={`hidden md:block w-64 flex-shrink-0 ${isDark ? 'bg-[#252525]' : 'bg-white'} rounded-xl p-4 shadow-lg h-fit sticky top-0`}>
                 <h3 className={`text-sm font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Adjust Logos</h3>
 
                 {(invoiceData.businessLogo || invoiceData.backgroundLogo) ? (
@@ -1186,7 +1206,7 @@ const CreateInvoicePage: React.FC = () => {
                           <div>Size: {Math.round(invoiceData.logoWidth)} x {Math.round(invoiceData.logoHeight)}px</div>
                         </div>
                         <button
-                          onClick={() => { handleInputChange('logoX', 0); handleInputChange('logoY', 0); handleInputChange('logoWidth', 120); handleInputChange('logoHeight', 60) }}
+                          onClick={() => { handleInputChange('logoX', 20); handleInputChange('logoY', 50); handleInputChange('logoWidth', 120); handleInputChange('logoHeight', 60) }}
                           className={`mt-2 text-[10px] ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} hover:underline`}
                         >
                           Reset Position
@@ -1218,19 +1238,32 @@ const CreateInvoicePage: React.FC = () => {
               </div>
 
               {/* Invoice Paper */}
-              <div className="flex-1 flex justify-center">
+              <div className="flex-1 flex justify-center items-start pb-20 md:pb-4">
               <div
                 ref={invoicePreviewRef}
-                className="bg-white shadow-lg relative overflow-visible"
-                style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}
+                className="bg-white shadow-lg relative"
+                style={{
+                  width: '100%',
+                  maxWidth: '600px',
+                  minHeight: 'auto',
+                  padding: '16px'
+                }}
                 onMouseMove={handleLogoMouseMove}
                 onMouseUp={handleLogoMouseUp}
                 onMouseLeave={handleLogoMouseUp}
+                onTouchMove={handleLogoMouseMove}
+                onTouchEnd={handleLogoMouseUp}
               >
+                {/* Mobile Logo Instructions */}
+                {(invoiceData.businessLogo || invoiceData.backgroundLogo) && (
+                  <div className="md:hidden bg-blue-50 text-blue-700 text-xs p-2 rounded mb-3 text-center">
+                    Logo ko drag karo, green corner se resize karo
+                  </div>
+                )}
                 {/* Background Logo / Watermark - Draggable */}
                 {invoiceData.backgroundLogo && (
                   <div
-                    className="absolute cursor-move group"
+                    className="absolute cursor-move group touch-none"
                     style={{
                       left: `${invoiceData.bgLogoX}%`,
                       top: `${invoiceData.bgLogoY}%`,
@@ -1238,6 +1271,7 @@ const CreateInvoicePage: React.FC = () => {
                       zIndex: 1
                     }}
                     onMouseDown={(e) => handleLogoDragStart(e, 'bgLogo')}
+                    onTouchStart={(e) => handleLogoDragStart(e, 'bgLogo')}
                   >
                     <img
                       src={invoiceData.backgroundLogo}
@@ -1245,50 +1279,189 @@ const CreateInvoicePage: React.FC = () => {
                       className="w-full object-contain opacity-[0.08] pointer-events-none"
                       draggable={false}
                     />
-                    {/* Border on hover */}
-                    <div className="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-purple-400 rounded transition-colors" />
-                    {/* Resize handle */}
+                    {/* Border - always visible */}
+                    <div className="absolute inset-0 border-2 border-dashed border-purple-400 rounded transition-colors" />
+                    {/* Resize handle - always visible, bigger on mobile */}
                     <div
-                      className="absolute -bottom-2 -right-2 w-5 h-5 bg-purple-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                      onMouseDown={(e) => handleLogoResizeStart(e, 'bgLogo')}
-                    />
+                      className="absolute -bottom-3 -right-3 w-10 h-10 bg-purple-500 rounded-full cursor-se-resize shadow-lg flex items-center justify-center touch-none"
+                      onMouseDown={(e) => { e.stopPropagation(); handleLogoResizeStart(e, 'bgLogo') }}
+                      onTouchStart={(e) => { e.stopPropagation(); handleLogoResizeStart(e, 'bgLogo') }}
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 20h4m-4 0v-4m16 4h-4m4 0v-4" />
+                      </svg>
+                    </div>
                   </div>
                 )}
 
-                {/* Close Button on Invoice Paper Corner */}
+                {/* Close Button on Invoice Paper Corner - Hidden on mobile */}
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="absolute -top-3 -right-3 w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-xl transition-colors border-4 border-white z-10"
+                  className="hidden md:flex absolute -top-3 -right-3 w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full items-center justify-center shadow-xl transition-colors border-4 border-white z-10"
                   title="Close Preview"
                 >
                   <X className="w-6 h-6" />
                 </button>
 
-                {/* Draggable Business Logo */}
+                {/* Draggable Business Logo - Like Signature Fields */}
                 {invoiceData.businessLogo && (
                   <div
-                    className="absolute cursor-move group z-20"
+                    className="absolute z-30 touch-none"
                     style={{
-                      left: invoiceData.logoX,
-                      top: invoiceData.logoY,
-                      width: invoiceData.logoWidth,
-                      height: invoiceData.logoHeight
+                      left: `${invoiceData.logoX}px`,
+                      top: `${invoiceData.logoY}px`,
+                      width: `${Math.max(60, invoiceData.logoWidth)}px`,
+                      height: `${Math.max(30, invoiceData.logoHeight)}px`,
                     }}
-                    onMouseDown={(e) => handleLogoDragStart(e, 'logo')}
                   >
-                    <img
-                      src={invoiceData.businessLogo}
-                      alt="Logo"
-                      className="w-full h-full object-contain pointer-events-none"
-                      draggable={false}
-                    />
-                    {/* Border on hover */}
-                    <div className="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-blue-500 rounded transition-colors" />
-                    {/* Resize handle */}
+                    {/* Logo Container - Touch to Drag */}
                     <div
-                      className="absolute -bottom-2 -right-2 w-5 h-5 bg-blue-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                      onMouseDown={(e) => handleLogoResizeStart(e, 'logo')}
-                    />
+                      className="w-full h-full border-2 border-dashed border-blue-500 rounded bg-white/90 relative"
+                      style={{ touchAction: 'none' }}
+                      onTouchStart={(e) => {
+                        // Check if touch is on resize handle
+                        const target = e.target as HTMLElement
+                        if (target.closest('.resize-handle')) return
+
+                        e.preventDefault()
+                        const touch = e.touches[0]
+                        const startX = touch.clientX
+                        const startY = touch.clientY
+                        const logoStartX = invoiceData.logoX
+                        const logoStartY = invoiceData.logoY
+
+                        const handleMove = (evt: TouchEvent) => {
+                          evt.preventDefault()
+                          const t = evt.touches[0]
+                          const dx = t.clientX - startX
+                          const dy = t.clientY - startY
+                          setInvoiceData(p => ({
+                            ...p,
+                            logoX: Math.max(0, Math.min(500, logoStartX + dx)),
+                            logoY: Math.max(0, Math.min(700, logoStartY + dy))
+                          }))
+                        }
+
+                        const handleEnd = () => {
+                          window.removeEventListener('touchmove', handleMove)
+                          window.removeEventListener('touchend', handleEnd)
+                        }
+
+                        window.addEventListener('touchmove', handleMove, { passive: false })
+                        window.addEventListener('touchend', handleEnd)
+                      }}
+                      onMouseDown={(e) => {
+                        const target = e.target as HTMLElement
+                        if (target.closest('.resize-handle')) return
+
+                        e.preventDefault()
+                        const startX = e.clientX
+                        const startY = e.clientY
+                        const logoStartX = invoiceData.logoX
+                        const logoStartY = invoiceData.logoY
+
+                        const handleMove = (evt: MouseEvent) => {
+                          const dx = evt.clientX - startX
+                          const dy = evt.clientY - startY
+                          setInvoiceData(p => ({
+                            ...p,
+                            logoX: Math.max(0, Math.min(500, logoStartX + dx)),
+                            logoY: Math.max(0, Math.min(700, logoStartY + dy))
+                          }))
+                        }
+
+                        const handleEnd = () => {
+                          window.removeEventListener('mousemove', handleMove)
+                          window.removeEventListener('mouseup', handleEnd)
+                        }
+
+                        window.addEventListener('mousemove', handleMove)
+                        window.addEventListener('mouseup', handleEnd)
+                      }}
+                    >
+                      {/* Logo Image */}
+                      <img
+                        src={invoiceData.businessLogo}
+                        alt="Logo"
+                        className="w-full h-full object-contain pointer-events-none select-none p-1"
+                        draggable={false}
+                      />
+
+                      {/* Move Icon - Top Left */}
+                      <div className="absolute -top-3 -left-3 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                      </div>
+
+                      {/* Resize Handle - Bottom Right Corner */}
+                      <div
+                        className="resize-handle absolute -bottom-4 -right-4 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-lg cursor-se-resize"
+                        style={{ touchAction: 'none' }}
+                        onTouchStart={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          const touch = e.touches[0]
+                          const startX = touch.clientX
+                          const startY = touch.clientY
+                          const startWidth = invoiceData.logoWidth
+                          const startHeight = invoiceData.logoHeight
+
+                          const handleMove = (evt: TouchEvent) => {
+                            evt.preventDefault()
+                            const t = evt.touches[0]
+                            const dx = t.clientX - startX
+                            const dy = t.clientY - startY
+                            // Maintain aspect ratio - use larger delta
+                            const delta = Math.max(dx, dy)
+                            setInvoiceData(p => ({
+                              ...p,
+                              logoWidth: Math.max(50, Math.min(300, startWidth + delta)),
+                              logoHeight: Math.max(25, Math.min(150, startHeight + delta * 0.5))
+                            }))
+                          }
+
+                          const handleEnd = () => {
+                            window.removeEventListener('touchmove', handleMove)
+                            window.removeEventListener('touchend', handleEnd)
+                          }
+
+                          window.addEventListener('touchmove', handleMove, { passive: false })
+                          window.addEventListener('touchend', handleEnd)
+                        }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          const startX = e.clientX
+                          const startY = e.clientY
+                          const startWidth = invoiceData.logoWidth
+                          const startHeight = invoiceData.logoHeight
+
+                          const handleMove = (evt: MouseEvent) => {
+                            const dx = evt.clientX - startX
+                            const dy = evt.clientY - startY
+                            const delta = Math.max(dx, dy)
+                            setInvoiceData(p => ({
+                              ...p,
+                              logoWidth: Math.max(50, Math.min(300, startWidth + delta)),
+                              logoHeight: Math.max(25, Math.min(150, startHeight + delta * 0.5))
+                            }))
+                          }
+
+                          const handleEnd = () => {
+                            window.removeEventListener('mousemove', handleMove)
+                            window.removeEventListener('mouseup', handleEnd)
+                          }
+
+                          window.addEventListener('mousemove', handleMove)
+                          window.addEventListener('mouseup', handleEnd)
+                        }}
+                      >
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 )}
 

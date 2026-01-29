@@ -750,18 +750,17 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
         )}
       </div>
 
-      {/* Active Tool Banner */}
+      {/* Active Tool Banner - Just bold text, no background */}
       {activeToolId && (() => {
         const activeSigner = activeSignerId ? signers.find(s => s.id === activeSignerId) : null
-        const bannerColor = activeSigner?.color.bg || '#4C00FF'
-        const signerLabel = activeSigner ? `Signer ${signers.findIndex(s => s.id === activeSignerId) + 1}` : null
+        const signerName = activeSigner?.name || `Signer ${signers.findIndex(s => s.id === activeSignerId) + 1}`
+        const textColor = activeSigner?.color.bg || '#4C00FF'
         return (
-          <div className="flex items-center justify-between px-4 py-2" style={{ backgroundColor: bannerColor }}>
-            <span className="text-white text-sm">
-              Tap to place {FIELD_TYPES.find(f => f.id === activeToolId)?.name}
-              {signerLabel && <span className="opacity-80"> for {signerLabel}</span>}
+          <div className="flex items-center justify-between px-3 py-1">
+            <span className="text-xs font-bold" style={{ color: textColor }}>
+              Tap to place {FIELD_TYPES.find(f => f.id === activeToolId)?.name} for {signerName}
             </span>
-            <button onClick={() => setActiveToolId(null)} className="text-white/80"><X className="w-5 h-5" /></button>
+            <button onClick={() => setActiveToolId(null)} className="p-0.5" style={{ color: textColor }}><X className="w-4 h-4" /></button>
           </div>
         )
       })()}

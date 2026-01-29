@@ -441,41 +441,54 @@ export default function WatermarkPDFPage() {
 
   const presetTexts = ['CONFIDENTIAL', 'DRAFT', 'SAMPLE', 'COPY', 'DO NOT COPY', 'PRIVATE', 'APPROVED', 'VOID']
 
-  // Watermark drag handlers for custom positioning
-  const handleWatermarkDragStart = (e: React.MouseEvent, containerRect: DOMRect) => {
+  // Watermark drag handlers for custom positioning (supports both mouse and touch)
+  const getEventPosition = (e: React.MouseEvent | React.TouchEvent) => {
+    if ('touches' in e && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    } else if ('clientX' in e) {
+      return { x: e.clientX, y: e.clientY }
+    }
+    return { x: 0, y: 0 }
+  }
+
+  const handleWatermarkDragStart = (e: React.MouseEvent | React.TouchEvent, containerRect: DOMRect) => {
     e.preventDefault()
     e.stopPropagation()
     setIsDraggingWatermark(true)
     setIsResizingWatermark(false)
-    setDragStartPos({ x: e.clientX, y: e.clientY })
+    const pos = getEventPosition(e)
+    setDragStartPos(pos)
     setPosition('custom')
   }
 
-  const handleWatermarkResizeStart = (e: React.MouseEvent) => {
+  const handleWatermarkResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsResizingWatermark(true)
     setIsDraggingWatermark(false)
-    setDragStartPos({ x: e.clientX, y: e.clientY })
+    const pos = getEventPosition(e)
+    setDragStartPos(pos)
     setStartFontSize(fontSize)
     setPosition('custom')
   }
 
-  const handleWatermarkMouseMove = (e: React.MouseEvent, containerRect: DOMRect) => {
+  const handleWatermarkMouseMove = (e: React.MouseEvent | React.TouchEvent, containerRect: DOMRect) => {
+    const pos = getEventPosition(e)
+
     if (isDraggingWatermark) {
-      const deltaX = e.clientX - dragStartPos.x
-      const deltaY = e.clientY - dragStartPos.y
+      const deltaX = pos.x - dragStartPos.x
+      const deltaY = pos.y - dragStartPos.y
 
       const newX = Math.max(5, Math.min(95, customX + (deltaX / containerRect.width) * 100))
       const newY = Math.max(5, Math.min(95, customY + (deltaY / containerRect.height) * 100))
 
       setCustomX(newX)
       setCustomY(newY)
-      setDragStartPos({ x: e.clientX, y: e.clientY })
+      setDragStartPos(pos)
     }
 
     if (isResizingWatermark) {
-      const deltaX = e.clientX - dragStartPos.x
+      const deltaX = pos.x - dragStartPos.x
       const newSize = Math.max(20, Math.min(150, startFontSize + deltaX * 0.5))
       setFontSize(Math.round(newSize))
     }
@@ -958,8 +971,15 @@ export default function WatermarkPDFPage() {
                                 handleWatermarkMouseMove(e, rect)
                               }
                             }}
+                            onTouchMove={(e) => {
+                              if (position === 'custom' && (isDraggingWatermark || isResizingWatermark)) {
+                                const rect = e.currentTarget.getBoundingClientRect()
+                                handleWatermarkMouseMove(e, rect)
+                              }
+                            }}
                             onMouseUp={handleWatermarkDragEnd}
                             onMouseLeave={handleWatermarkDragEnd}
+                            onTouchEnd={handleWatermarkDragEnd}
                           >
                             {/* Page number badge */}
                             <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-20">
@@ -973,7 +993,7 @@ export default function WatermarkPDFPage() {
                             {/* Draggable & Resizable Watermark Overlay - for custom position & text mode */}
                             {watermarkType === 'text' && position === 'custom' && (
                               <div
-                                className="absolute cursor-move select-none z-10 group"
+                                className="absolute cursor-move select-none z-10 group touch-none"
                                 style={{
                                   left: `${customX}%`,
                                   top: `${customY}%`,
@@ -993,16 +1013,28 @@ export default function WatermarkPDFPage() {
                                   const rect = e.currentTarget.parentElement?.getBoundingClientRect()
                                   if (rect) handleWatermarkDragStart(e, rect)
                                 }}
+                                onTouchStart={(e) => {
+                                  const rect = e.currentTarget.parentElement?.getBoundingClientRect()
+                                  if (rect) handleWatermarkDragStart(e, rect)
+                                }}
                               >
                                 {watermarkText}
-                                {/* Resize handle - bottom right corner */}
+                                {/* Resize handle - bottom right corner - LARGER for mobile */}
                                 <div
-                                  className="absolute -bottom-3 -right-3 w-6 h-6 bg-blue-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors"
-                                  onMouseDown={handleWatermarkResizeStart}
+                                  className="absolute -bottom-5 -right-5 w-12 h-12 bg-blue-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg active:bg-blue-600 transition-colors"
+                                  style={{ touchAction: 'none' }}
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation()
+                                    handleWatermarkResizeStart(e)
+                                  }}
+                                  onTouchStart={(e) => {
+                                    e.stopPropagation()
+                                    handleWatermarkResizeStart(e)
+                                  }}
                                   title="Drag to resize"
                                 >
-                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 20h4m-4 0v-4m16 4h-4m4 0v-4" />
                                   </svg>
                                 </div>
                                 {/* Info tooltip */}

@@ -19,8 +19,6 @@ import {
   Trash2,
   Sparkles,
   Send,
-  Mic,
-  Globe,
   FileText,
   Loader2,
   Check,
@@ -725,15 +723,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                   rows={4}
                 />
 
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
-                      <Globe className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
-                      <Mic className="w-4 h-4" />
-                    </button>
-                  </div>
+                <div className="flex items-center justify-end mt-3 pt-3 border-t border-gray-100">
                   <button
                     onClick={handleAiGenerate}
                     disabled={isGenerating}
@@ -745,8 +735,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                   >
                     {isGenerating ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Generating...
+                        <Loader2 className="w-4 h-4" style={{ animation: 'spin 1s linear infinite' }} />
+                        <span className="animate-pulse">Generating...</span>
                       </>
                     ) : (
                       <>
