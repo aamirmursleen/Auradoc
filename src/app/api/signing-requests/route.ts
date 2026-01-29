@@ -77,17 +77,28 @@ export async function POST(req: NextRequest) {
     const selfSigner = signersWithTokens.find((s: { is_self?: boolean }) => s.is_self)
     const nonSelfSigners = signersWithTokens.filter((s: { is_self?: boolean }) => !s.is_self)
 
-    // Helper function for delay (prevents spam filter triggers)
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+    // Generate self-signing link FIRST (so we can return immediately)
+    // Use short URL format: /s/TOKEN
+    const selfSigningLink = selfSigner
+      ? APP_URL + '/s/' + selfSigner.token
+      : null
 
-    // Send email to ALL non-self signers (parallel signing)
-    // Add delay between emails to prevent spam filters
-    for (let i = 0; i < nonSelfSigners.length; i++) {
-      const signer = nonSelfSigners[i]
-      const signingLink = APP_URL + '/sign/' + signingRequestId + '?token=' + signer.token + '&email=' + encodeURIComponent(signer.email)
+    // INSTANT RESPONSE - Return immediately, send emails in background
+    // This makes the UI show "Document sent!" within 1 second
+    const response = NextResponse.json({
+      success: true,
+      message: 'Document sent for signing',
+      documentId: signingRequestId,
+      signerCount: signers.length,
+      selfSigningLink
+    })
 
-      try {
-        const emailResult = await sendSigningInvite({
+    // Fire-and-forget: Send ALL emails in background (don't block response)
+    // Use short URL format: /s/TOKEN
+    Promise.all(
+      nonSelfSigners.map((signer: any) => {
+        const signingLink = APP_URL + '/s/' + signer.token
+        return sendSigningInvite({
           to: signer.email,
           signerName: signer.name,
           senderName: senderName,
@@ -96,33 +107,15 @@ export async function POST(req: NextRequest) {
           signingLink: signingLink,
           message: message,
           expiresAt: dueDate
+        }).catch((err: any) => {
+          console.error('Failed to send email to', signer.email, ':', err)
         })
-
-        if (!emailResult.success) {
-          console.error('Email send failed for', signer.email, ':', emailResult.error)
-        }
-
-        // Add 2 second delay between emails to prevent spam filters
-        if (i < nonSelfSigners.length - 1) {
-          await delay(2000)
-        }
-      } catch (emailError) {
-        console.error('Failed to send email to', signer.email, ':', emailError)
-      }
-    }
-
-    // Generate self-signing link if user added themselves as signer
-    const selfSigningLink = selfSigner
-      ? APP_URL + '/sign/' + signingRequestId + '?token=' + selfSigner.token + '&email=' + encodeURIComponent(selfSigner.email)
-      : null
-
-    return NextResponse.json({
-      success: true,
-      message: 'Document sent for signing',
-      documentId: signingRequestId,
-      signerCount: signers.length,
-      selfSigningLink
+      })
+    ).then(() => {
+      console.log('All emails sent for signing request:', signingRequestId)
     })
+
+    return response
 
   } catch (error) {
     console.error('Error creating signing request:', error)

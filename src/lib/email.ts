@@ -18,6 +18,7 @@ export interface Signer {
   order: number
   status: 'pending' | 'sent' | 'opened' | 'signed'
   signedAt?: string
+  token?: string
 }
 
 export interface DocumentEmailData {
@@ -230,7 +231,10 @@ export async function sendSigningRequest(data: DocumentEmailData, signerIndex: n
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const signUrl = `${APP_URL}/sign/${data.documentId}?email=${encodeURIComponent(signer.email)}`
+  // Use short URL if token is available, otherwise fall back to full URL
+  const signUrl = signer.token
+    ? `${APP_URL}/s/${signer.token}`
+    : `${APP_URL}/sign/${data.documentId}?email=${encodeURIComponent(signer.email)}`
 
   const html = getOdooStyleTemplate({
     recipientName: signer.name,
@@ -580,7 +584,10 @@ export async function sendSigningReminder(
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const signUrl = `${APP_URL}/sign/${data.documentId}?email=${encodeURIComponent(signer.email)}`
+  // Use short URL if token is available, otherwise fall back to full URL
+  const signUrl = signer.token
+    ? `${APP_URL}/s/${signer.token}`
+    : `${APP_URL}/sign/${data.documentId}?email=${encodeURIComponent(signer.email)}`
   const isUrgent = reminderNumber >= 3
 
   const html = `

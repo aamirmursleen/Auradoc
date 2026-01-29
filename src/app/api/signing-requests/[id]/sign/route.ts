@@ -9,17 +9,17 @@ export async function POST(
   try {
     const documentId = params.id
     const body = await req.json()
-    const { signerEmail, token, signature, signedFields } = body
+    const { signerEmail, token, signature, signedFields, fieldValues } = body
 
     // Capture IP and User Agent for audit trail
     const forwardedFor = req.headers.get('x-forwarded-for')
     const ipAddress = forwardedFor ? forwardedFor.split(',')[0].trim() : req.headers.get('x-real-ip') || 'unknown'
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
-    console.log('📝 Sign request received:', { documentId, signerEmail, hasSignature: !!signature })
+    console.log('📝 Sign request received:', { documentId, signerEmail, hasSignature: !!signature, signedFieldsCount: signedFields?.length })
 
-    if (!documentId || !signerEmail || !signature) {
-      console.error('❌ Missing required fields:', { documentId, signerEmail, hasSignature: !!signature })
+    if (!documentId || !signerEmail) {
+      console.error('❌ Missing required fields:', { documentId, signerEmail })
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
@@ -102,13 +102,14 @@ export async function POST(
         signing_request_id: documentId,
         signer_email: signerEmail,
         signer_name: signers[signerIndex].name,
-        signature_image: signature,
-        signature_type: 'draw', // Could be 'draw', 'type', or 'upload'
+        signature_image: signature && signature !== 'no-signature-field' ? signature : null,
+        signature_type: signature && signature !== 'no-signature-field' ? 'draw' : 'fields_only',
         ip_address: ipAddress,
         user_agent: userAgent,
         consent_given: true,
         consent_text: 'I agree to sign this document electronically',
-        signed_at: signedAt
+        signed_at: signedAt,
+        field_values: fieldValues || null
       })
 
     if (recordError) {
@@ -265,11 +266,12 @@ export async function POST(
             documentName: signingRequest.document_name,
             senderName: signingRequest.sender_name,
             senderEmail: signingRequest.sender_email,
-            signers: signers.map((s: { name: string; email: string; order: number; status: string }) => ({
+            signers: signers.map((s: { name: string; email: string; order: number; status: string; token?: string }) => ({
               name: s.name,
               email: s.email,
               order: s.order,
-              status: s.status as 'pending' | 'sent' | 'opened' | 'signed'
+              status: s.status as 'pending' | 'sent' | 'opened' | 'signed',
+              token: s.token
             }))
           },
           nextSignerIndex
