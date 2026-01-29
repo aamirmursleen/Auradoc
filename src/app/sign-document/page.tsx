@@ -1368,15 +1368,47 @@ const SignDocumentPage: React.FC = () => {
     setError(null)
 
     try {
-      // Convert document to base64
-      let documentData = ''
+      // Step 1: Upload document to Supabase Storage via signed URL
+      // This bypasses Vercel's 4.5MB body limit completely
+      let documentUrl = ''
       if (document) {
-        const reader = new FileReader()
-        documentData = await new Promise((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string)
-          reader.onerror = reject
-          reader.readAsDataURL(document)
-        })
+        try {
+          // Get signed upload URL from our API
+          const uploadUrlResult = await apiPost('/api/upload-url', {
+            fileName: document.name || 'document.pdf',
+            contentType: document.type || 'application/pdf'
+          })
+
+          if (uploadUrlResult.success && uploadUrlResult.data?.signedUrl) {
+            // Upload directly to Supabase Storage (no Vercel limit!)
+            const uploadRes = await fetch(uploadUrlResult.data.signedUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': document.type || 'application/pdf' },
+              body: document
+            })
+
+            if (uploadRes.ok) {
+              documentUrl = uploadUrlResult.data.publicUrl
+            } else {
+              throw new Error('Upload failed')
+            }
+          } else {
+            throw new Error(uploadUrlResult.error || 'Failed to get upload URL')
+          }
+        } catch (uploadErr) {
+          // Fallback: use base64 for small files (<3MB)
+          console.warn('Storage upload failed, trying base64 fallback:', uploadErr)
+          if (document.size < 3 * 1024 * 1024) {
+            const reader = new FileReader()
+            documentUrl = await new Promise((resolve, reject) => {
+              reader.onload = () => resolve(reader.result as string)
+              reader.onerror = reject
+              reader.readAsDataURL(document)
+            })
+          } else {
+            throw new Error('File too large. Please try with a smaller file or try again.')
+          }
+        }
       }
 
       // Prepare signature fields data
@@ -1394,10 +1426,10 @@ const SignDocumentPage: React.FC = () => {
         fontSize: field.fontSize
       }))
 
-      // Send to API using safe helper (prevents JSON parse errors)
+      // Send to API - only URL, not full document data (prevents "Request too large")
       const result = await apiPost('/api/signing-requests', {
         documentName: templateProps.name || document?.name || 'Untitled Document',
-        documentData,
+        documentData: documentUrl,
         signers: signers.map(s => ({
           name: s.name,
           email: s.email,
@@ -3197,84 +3229,80 @@ const SignDocumentPage: React.FC = () => {
       {showSendModal && (
         <div className="fixed inset-0 bg-black/60 flex items-end md:items-center justify-center z-[200] md:p-4">
           <div
-            className={`rounded-t-2xl md:rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto ${isDark ? 'bg-[#252525] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}
+            className={`rounded-t-2xl md:rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-auto ${isDark ? 'bg-[#252525] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             {/* Mobile Handle */}
-            <div className="md:hidden flex justify-center pt-3 pb-1">
+            <div className="md:hidden flex justify-center pt-2 pb-1">
               <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
             </div>
 
-            <div className={`flex items-center justify-between px-4 md:p-5 py-3 md:py-5 ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
-              <h3 className={`text-lg md:text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
-                <Send className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+            <div className={`flex items-center justify-between px-4 py-2.5 ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
+              <h3 className={`text-base font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+                <Send className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 Send for Signatures
               </h3>
               <button
                 onClick={() => setShowSendModal(false)}
-                className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'}`}
+                className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'}`}
               >
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
               </button>
             </div>
 
-            <div className="px-4 md:p-5 py-4 space-y-4">
-              <div className={`rounded-xl p-4 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
-                <div className="flex items-center gap-3">
-                  <FileText className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                  <div>
-                    <p className={`font-medium ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{templateProps.name || 'Untitled Template'}</p>
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{placedFields.length} fields configured</p>
-                  </div>
+            <div className="px-4 py-3 space-y-3">
+              {/* Document Info - Compact */}
+              <div className={`rounded-lg p-2.5 flex items-center gap-2.5 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
+                <FileText className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className="min-w-0">
+                  <p className={`font-medium text-sm truncate ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{templateProps.name || 'Untitled Template'}</p>
+                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{placedFields.length} fields</p>
                 </div>
               </div>
 
               {/* Your Name (Sender) */}
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Your Name</label>
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Your Name</label>
                 <input
                   type="text"
-                  placeholder="Enter your name (shown in email)..."
+                  placeholder="Enter your name..."
                   value={senderName}
                   onChange={(e) => setSenderName(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-white focus:ring-[#c4ff0e]/50' : 'bg-gray-50 border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-white focus:ring-[#c4ff0e]/50' : 'bg-gray-50 border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
                 />
-                <p className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>This name will appear as the sender in the email</p>
               </div>
 
-              {/* Signers with their names and emails */}
+              {/* Signers - Compact */}
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Signers</label>
-                <div className="space-y-3">
+                <label className={`block text-xs font-medium mb-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Signers</label>
+                <div className="space-y-2 max-h-[30vh] overflow-auto">
                   {signers.map((signer, idx) => {
                     const signerFields = placedFields.filter(f => f.signerId === signer.id)
                     return (
-                      <div key={signer.id} className={`p-3 rounded-lg space-y-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-50'}`}>
+                      <div key={signer.id} className={`p-2 rounded-lg space-y-1.5 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-50'}`}>
                         <div className="flex items-center gap-2">
                           <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
                             style={{ backgroundColor: signer.color }}
                           >
                             {idx + 1}
                           </div>
-                          <div className="flex-1">
-                            <input
-                              type="text"
-                              placeholder="Signer name..."
-                              value={signer.name}
-                              onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
-                              className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
-                            />
-                          </div>
-                          <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{signerFields.length} fields</span>
+                          <input
+                            type="text"
+                            placeholder="Name..."
+                            value={signer.name}
+                            onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
+                            className={`flex-1 px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                          />
+                          <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{signerFields.length} fields</span>
                         </div>
-                        <div className="pl-10">
+                        <div className="pl-8">
                           <input
                             type="email"
-                            placeholder="Email address..."
+                            placeholder="Email..."
                             value={signer.email}
                             onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                            className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                            className={`w-full px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
                           />
                         </div>
                       </div>
@@ -3284,48 +3312,48 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Email Subject</label>
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Email Subject</label>
                 <input
                   type="text"
                   value={emailSubject || `Please sign: ${templateProps.name}`}
                   onChange={(e) => setEmailSubject(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-white focus:ring-[#c4ff0e]/50' : 'bg-gray-50 border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-white focus:ring-[#c4ff0e]/50' : 'bg-gray-50 border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Message (optional)</label>
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Message (optional)</label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   placeholder="Add a personal message..."
                   value={emailMessage}
                   onChange={(e) => setEmailMessage(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 resize-none ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-white focus:ring-[#c4ff0e]/50' : 'bg-gray-50 border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 resize-none ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-white focus:ring-[#c4ff0e]/50' : 'bg-gray-50 border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
                 />
               </div>
             </div>
 
-            <div className={`flex items-center justify-end gap-3 p-5 rounded-b-2xl ${isDark ? 'border-t border-[#2a2a2a] bg-[#252525]' : 'border-t border-gray-200 bg-white'}`}>
+            <div className={`flex items-center justify-end gap-2 px-4 py-3 rounded-b-2xl ${isDark ? 'border-t border-[#2a2a2a] bg-[#252525]' : 'border-t border-gray-200 bg-white'}`}>
               <button
                 onClick={() => setShowSendModal(false)}
                 disabled={isSending}
-                className={`px-4 py-2 font-medium rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendForSigning}
                 disabled={isSending}
-                className={`px-6 py-2 font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 disabled:opacity-50 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
+                className={`px-5 py-1.5 text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
               >
                 {isSending ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
+                    <Send className="w-3.5 h-3.5" />
                     Send
                   </>
                 )}

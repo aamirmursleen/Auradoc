@@ -10,7 +10,15 @@ export async function POST(req: NextRequest) {
     const { userId } = await auth()
     const user = await currentUser()
 
-    const body = await req.json()
+    let body
+    try {
+      body = await req.json()
+    } catch (e) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid request data. If file is large, please try again.' },
+        { status: 400 }
+      )
+    }
     const { documentName, documentData, signers, signatureFields, message, dueDate, senderName: providedSenderName } = body
 
     // Use provided sender name, or fallback to Clerk user name, or default
