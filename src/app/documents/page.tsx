@@ -275,64 +275,47 @@ const DocumentsPage: React.FC = () => {
     }
   }
 
-  // Download signed document
+  // Download signed document (with signatures embedded)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const handleDownloadSignedDocument = async (req: SigningRequest) => {
     try {
-      // Get the document URL from signing request
-      const documentUrl = req.document_url
+      setDownloadingId(req.id)
 
-      if (!documentUrl) {
-        addToast({
-          type: 'document_declined',
-          title: 'Download Failed',
-          message: 'Document not available for download',
-          duration: 5000
-        })
-        return
+      // Fetch the signed PDF from the download API
+      const response = await fetch(`/api/signing-requests/${req.id}/download`)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Download failed' }))
+        throw new Error(errorData.message || 'Failed to download')
       }
 
-      // If it's a base64 data URL, convert and download
-      if (documentUrl.startsWith('data:')) {
-        const link = document.createElement('a')
-        link.href = documentUrl
-        link.download = `${req.document_name.replace(/\.[^/.]+$/, '')}_signed.pdf`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+      // Download the PDF blob
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${req.document_name.replace(/\.[^/.]+$/, '')}_signed.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
 
-        addToast({
-          type: 'document_completed',
-          title: 'Download Started',
-          message: `Downloading "${req.document_name}"`,
-          duration: 3000
-        })
-      } else if (documentUrl.startsWith('http')) {
-        // For HTTP URLs, open in new tab or fetch and download
-        window.open(documentUrl, '_blank')
-      } else {
-        // Assume raw base64, convert to data URL
-        const link = document.createElement('a')
-        link.href = `data:application/pdf;base64,${documentUrl}`
-        link.download = `${req.document_name.replace(/\.[^/.]+$/, '')}_signed.pdf`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-
-        addToast({
-          type: 'document_completed',
-          title: 'Download Started',
-          message: `Downloading "${req.document_name}"`,
-          duration: 3000
-        })
-      }
+      addToast({
+        type: 'document_completed',
+        title: 'Download Started',
+        message: `Downloading signed "${req.document_name}"`,
+        duration: 3000
+      })
     } catch (error) {
       console.error('Error downloading document:', error)
       addToast({
         type: 'document_declined',
         title: 'Download Failed',
-        message: 'Could not download the document',
+        message: error instanceof Error ? error.message : 'Could not download the document',
         duration: 5000
       })
+    } finally {
+      setDownloadingId(null)
     }
   }
 
@@ -832,16 +815,32 @@ const DocumentsPage: React.FC = () => {
                                 e.stopPropagation()
                                 handleDownloadSignedDocument(req)
                               }}
-                              className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors"
+                              disabled={downloadingId === req.id}
+                              className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors disabled:opacity-50"
                             >
-                              <Download className="w-4 h-4" />
-                              Download Signed Document
+                              {downloadingId === req.id ? (
+                                <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
+                              ) : (
+                                <><Download className="w-4 h-4" />Download Signed Document</>
+                              )}
                             </button>
                           )}
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              navigator.clipboard.writeText(`${window.location.origin}/sign/${req.id}`)
+                              // Copy short URL for the first pending signer, or first signer
+                              const pendingSigner = req.signers.find(s => s.status === 'pending') || req.signers[0]
+                              const signerToken = (pendingSigner as any)?.token
+                              const link = signerToken
+                                ? `${window.location.origin}/s/${signerToken}`
+                                : `${window.location.origin}/sign/${req.id}?email=${encodeURIComponent(pendingSigner?.email || '')}`
+                              navigator.clipboard.writeText(link)
+                              addToast({
+                                type: 'document_completed',
+                                title: 'Link Copied',
+                                message: 'Signing link copied to clipboard',
+                                duration: 2000
+                              })
                             }}
                             className="px-4 py-2 bg-[#252525] text-white rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#2a2a2a] transition-colors"
                           >
