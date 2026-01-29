@@ -42,6 +42,7 @@ import {
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { incrementSignCount } from '@/lib/usageLimit'
+import { apiPost } from '@/lib/api'
 import { useTheme } from '@/components/ThemeProvider'
 import {
   generateFinalPdf,
@@ -1393,31 +1394,27 @@ const SignDocumentPage: React.FC = () => {
         fontSize: field.fontSize
       }))
 
-      // Send to API
-      const response = await fetch('/api/signing-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          documentName: templateProps.name || document?.name || 'Untitled Document',
-          documentData,
-          signers: signers.map(s => ({
-            name: s.name,
-            email: s.email,
-            order: s.order,
-            is_self: s.is_self || false
-          })),
-          signatureFields,
-          message: emailMessage || undefined,
-          subject: emailSubject || undefined,
-          senderName: senderName.trim() || undefined
-        })
+      // Send to API using safe helper (prevents JSON parse errors)
+      const result = await apiPost('/api/signing-requests', {
+        documentName: templateProps.name || document?.name || 'Untitled Document',
+        documentData,
+        signers: signers.map(s => ({
+          name: s.name,
+          email: s.email,
+          order: s.order,
+          is_self: s.is_self || false
+        })),
+        signatureFields,
+        message: emailMessage || undefined,
+        subject: emailSubject || undefined,
+        senderName: senderName.trim() || undefined
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to send document')
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to send document')
       }
+
+      const data = result.data
 
       setSendSuccess(true)
 

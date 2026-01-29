@@ -21,6 +21,7 @@ import { DocumentField, FieldType, Signer, FIELD_CONFIGS, SIGNER_COLORS } from '
 import FieldPalette from '@/components/signing/FieldPalette'
 import SignerManager from '@/components/signing/SignerManager'
 import DraggableFieldOnDocument from '@/components/signing/DraggableFieldOnDocument'
+import { apiPost, apiGet, safeFetch } from '@/lib/api'
 
 // Set PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
@@ -78,19 +79,19 @@ const DocumentEditorInner: React.FC = () => {
   useEffect(() => {
     const fetchDocument = async () => {
       try {
-        const response = await fetch(`/api/signing/documents/${documentId}`)
-        const data = await response.json()
+        // Use safe API helper (prevents JSON parse errors)
+        const result = await apiGet(`/api/signing/documents/${documentId}`)
 
-        if (!data.success) {
-          throw new Error(data.error)
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load document')
         }
 
-        setDocument(data.document)
-        setFields(data.document.fields || [])
-        setSigners(data.document.signers || [])
+        setDocument(result.data.document)
+        setFields(result.data.document.fields || [])
+        setSigners(result.data.document.signers || [])
 
-        if (data.document.signers?.length > 0) {
-          setSelectedSignerId(data.document.signers[0].id)
+        if (result.data.document.signers?.length > 0) {
+          setSelectedSignerId(result.data.document.signers[0].id)
         }
       } catch (err: any) {
         setError(err.message || 'Failed to load document')
@@ -325,28 +326,23 @@ const DocumentEditorInner: React.FC = () => {
     const config = FIELD_CONFIGS[fieldType]
 
     try {
-      const response = await fetch('/api/signing/fields', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          document_id: documentId,
-          signer_id: selectedSignerId,
-          field_type: fieldType,
-          page_number: pageNum || 1,
-          x: x ?? 10,
-          y: y ?? 10,
-          width: config.defaultWidth,
-          height: config.defaultHeight,
-          required: true,
-        }),
+      const result = await apiPost('/api/signing/fields', {
+        document_id: documentId,
+        signer_id: selectedSignerId,
+        field_type: fieldType,
+        page_number: pageNum || 1,
+        x: x ?? 10,
+        y: y ?? 10,
+        width: config.defaultWidth,
+        height: config.defaultHeight,
+        required: true,
       })
 
-      const data = await response.json()
-      if (data.success) {
-        setFields(prev => [...prev, data.field])
-        setSelectedFieldId(data.field.id)
+      if (result.success && result.data?.field) {
+        setFields(prev => [...prev, result.data.field])
+        setSelectedFieldId(result.data.field.id)
       } else {
-        throw new Error(data.error)
+        throw new Error(result.error || 'Failed to add field')
       }
     } catch (err: any) {
       console.error('Error adding field:', err)
@@ -357,15 +353,9 @@ const DocumentEditorInner: React.FC = () => {
   // Update field
   const handleUpdateField = async (fieldId: string, updates: Partial<DocumentField>) => {
     try {
-      const response = await fetch(`/api/signing/fields/${fieldId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        setFields(prev => prev.map(f => f.id === fieldId ? data.field : f))
+      const result = await apiPost(`/api/signing/fields/${fieldId}`, updates)
+      if (result.success && result.data?.field) {
+        setFields(prev => prev.map(f => f.id === fieldId ? result.data.field : f))
       }
     } catch (err) {
       console.error('Error updating field:', err)
@@ -375,12 +365,8 @@ const DocumentEditorInner: React.FC = () => {
   // Delete field
   const handleDeleteField = async (fieldId: string) => {
     try {
-      const response = await fetch(`/api/signing/fields/${fieldId}`, {
-        method: 'DELETE',
-      })
-
-      const data = await response.json()
-      if (data.success) {
+      const result = await safeFetch(`/api/signing/fields/${fieldId}`, { method: 'DELETE' })
+      if (result.success) {
         setFields(prev => prev.filter(f => f.id !== fieldId))
         setSelectedFieldId(null)
       }
@@ -392,23 +378,18 @@ const DocumentEditorInner: React.FC = () => {
   // Add signer
   const handleAddSigner = async (name: string, email: string, isSelf?: boolean) => {
     try {
-      const response = await fetch('/api/signing/signers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          document_id: documentId,
-          name,
-          email,
-          is_self: isSelf || false,
-        }),
+      const result = await apiPost('/api/signing/signers', {
+        document_id: documentId,
+        name,
+        email,
+        is_self: isSelf || false,
       })
 
-      const data = await response.json()
-      if (data.success) {
-        setSigners(prev => [...prev, data.signer])
-        setSelectedSignerId(data.signer.id)
+      if (result.success && result.data?.signer) {
+        setSigners(prev => [...prev, result.data.signer])
+        setSelectedSignerId(result.data.signer.id)
       } else {
-        throw new Error(data.error)
+        throw new Error(result.error || 'Failed to add signer')
       }
     } catch (err: any) {
       console.error('Error adding signer:', err)
@@ -419,15 +400,9 @@ const DocumentEditorInner: React.FC = () => {
   // Update signer
   const handleUpdateSigner = async (signerId: string, updates: Partial<Signer>) => {
     try {
-      const response = await fetch(`/api/signing/signers/${signerId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        setSigners(prev => prev.map(s => s.id === signerId ? data.signer : s))
+      const result = await apiPost(`/api/signing/signers/${signerId}`, updates)
+      if (result.success && result.data?.signer) {
+        setSigners(prev => prev.map(s => s.id === signerId ? result.data.signer : s))
       }
     } catch (err) {
       console.error('Error updating signer:', err)
@@ -437,12 +412,8 @@ const DocumentEditorInner: React.FC = () => {
   // Remove signer
   const handleRemoveSigner = async (signerId: string) => {
     try {
-      const response = await fetch(`/api/signing/signers/${signerId}`, {
-        method: 'DELETE',
-      })
-
-      const data = await response.json()
-      if (data.success) {
+      const result = await safeFetch(`/api/signing/signers/${signerId}`, { method: 'DELETE' })
+      if (result.success) {
         setSigners(prev => prev.filter(s => s.id !== signerId))
         setFields(prev => prev.filter(f => f.signer_id !== signerId))
         if (selectedSignerId === signerId) {
@@ -468,18 +439,14 @@ const DocumentEditorInner: React.FC = () => {
 
     setSending(true)
     try {
-      const response = await fetch('/api/signing/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ document_id: documentId }),
-      })
+      // Use safe API helper (prevents JSON parse errors)
+      const result = await apiPost('/api/signing/send', { document_id: documentId })
 
-      const data = await response.json()
-      if (data.success) {
+      if (result.success) {
         alert('Document sent for signing!')
         router.push('/documents')
       } else {
-        throw new Error(data.error)
+        throw new Error(result.error || 'Failed to send')
       }
     } catch (err: any) {
       console.error('Error sending document:', err)

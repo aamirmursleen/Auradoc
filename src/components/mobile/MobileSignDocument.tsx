@@ -41,6 +41,7 @@ import {
   Send
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { apiPost } from '@/lib/api'
 
 // Dynamically import PDF viewer
 const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
@@ -1297,39 +1298,22 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                     alert('Please add at least one recipient')
                     return
                   }
-                  try {
-                    // Call API to send email
-                    const response = await fetch('/api/send-signature-request', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        recipients,
-                        subject: emailSubject,
-                        message: emailMessage,
-                        documentName: pdfFile?.name,
-                        fields: fields.length,
-                      }),
-                    })
 
-                    // Handle response
-                    const contentType = response.headers.get('content-type')
-                    if (contentType && contentType.includes('application/json')) {
-                      const data = await response.json()
-                      if (response.ok && data.success) {
-                        alert('Email sent successfully!')
-                        setShowEmailModal(false)
-                        setEmailTo('')
-                      } else {
-                        alert(data.error || 'Failed to send email')
-                      }
-                    } else {
-                      // Non-JSON response (server error)
-                      console.error('Server returned non-JSON response:', response.status)
-                      alert('Server error. Please try again later.')
-                    }
-                  } catch (error) {
-                    console.error('Email send error:', error)
-                    alert('Failed to send email. Please try again.')
+                  // Use safe API helper - prevents JSON parse errors
+                  const result = await apiPost('/api/send-signature-request', {
+                    recipients,
+                    subject: emailSubject,
+                    message: emailMessage,
+                    documentName: pdfFile?.name,
+                    fields: fields.length,
+                  })
+
+                  if (result.success) {
+                    alert('Email sent successfully!')
+                    setShowEmailModal(false)
+                    setEmailTo('')
+                  } else {
+                    alert(result.error || 'Failed to send email')
                   }
                 }}
                 disabled={signers.length === 0 && !emailTo.trim()}
