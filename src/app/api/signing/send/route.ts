@@ -11,6 +11,14 @@ const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
 
 export async function POST(req: NextRequest) {
   try {
+    // Check if Resend API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        { success: false, error: 'Email service not configured. Please contact support.' },
+        { status: 500 }
+      )
+    }
+
     const { userId } = await auth()
     const user = await currentUser()
 
@@ -21,7 +29,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const body = await req.json()
+    let body
+    try {
+      body = await req.json()
+    } catch (e) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request data' },
+        { status: 400 }
+      )
+    }
     const { document_id } = body
 
     if (!document_id) {

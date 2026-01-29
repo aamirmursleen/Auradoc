@@ -1310,15 +1310,25 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                         fields: fields.length,
                       }),
                     })
-                    if (response.ok) {
-                      alert('Email sent successfully!')
-                      setShowEmailModal(false)
-                      setEmailTo('')
-                    } else {
+
+                    // Handle response
+                    const contentType = response.headers.get('content-type')
+                    if (contentType && contentType.includes('application/json')) {
                       const data = await response.json()
-                      alert(data.error || 'Failed to send email')
+                      if (response.ok && data.success) {
+                        alert('Email sent successfully!')
+                        setShowEmailModal(false)
+                        setEmailTo('')
+                      } else {
+                        alert(data.error || 'Failed to send email')
+                      }
+                    } else {
+                      // Non-JSON response (server error)
+                      console.error('Server returned non-JSON response:', response.status)
+                      alert('Server error. Please try again later.')
                     }
                   } catch (error) {
+                    console.error('Email send error:', error)
                     alert('Failed to send email. Please try again.')
                   }
                 }}
