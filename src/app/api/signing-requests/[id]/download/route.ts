@@ -86,20 +86,42 @@ export async function GET(
     const signatureFields = signingRequest.signature_fields || []
     const signers = signingRequest.signers || []
 
+    console.log('📄 Download: signatureFields count:', signatureFields.length)
+    console.log('📄 Download: signers:', signers.map((s: any) => ({ email: s.email, order: s.order, status: s.status })))
+    console.log('📄 Download: signature_records count:', signatureRecords?.length || 0)
+
     // Build a map of signer email -> signature records
     const signerRecordMap: Record<string, any> = {}
     for (const record of (signatureRecords || [])) {
       signerRecordMap[record.signer_email.toLowerCase()] = record
+      console.log('📄 Download: record for', record.signer_email, {
+        hasSignatureImage: !!record.signature_image,
+        hasFieldValues: !!record.field_values,
+        fieldValueKeys: record.field_values ? Object.keys(record.field_values) : []
+      })
     }
 
     // Embed each field's value into the PDF
     for (const field of signatureFields) {
+      console.log('📄 Download: processing field', field.id, {
+        type: field.type,
+        signerOrder: field.signerOrder,
+        x: field.x, y: field.y, width: field.width, height: field.height,
+        page: field.page || field.pageNumber
+      })
+
       // Find which signer this field belongs to
       const signer = signers.find((s: any) => s.order === field.signerOrder)
-      if (!signer) continue
+      if (!signer) {
+        console.log('📄 Download: no signer found for order', field.signerOrder)
+        continue
+      }
 
       const record = signerRecordMap[signer.email.toLowerCase()]
-      if (!record) continue // Signer hasn't signed yet
+      if (!record) {
+        console.log('📄 Download: no signature record for', signer.email)
+        continue
+      }
 
       const fieldValues = record.field_values || {}
       const signatureImage = record.signature_image
@@ -112,45 +134,30 @@ export async function GET(
       const page = pages[pageIndex]
       const { width: pageW, height: pageH } = page.getSize()
 
-      // Field coordinates are stored in pixel space relative to zoom=1
-      // We need to convert to percentage of page, then to PDF points
-      // The signing page renders at a base scale, fields store x,y,width,height in pixels
-      // We need the page dimensions that were used when fields were placed
-
-      // Get field position in PDF points
+      // Field coordinates stored in pixel space at scale=1
       const fieldX = field.x
       const fieldY = field.y
       const fieldWidth = field.width
       const fieldHeight = field.height
 
-      // The fields are stored in pixel coordinates at scale=1
-      // PDF page at scale=1 renders at its native size
-      // For standard A4: 595 x 842 points
-      // We need to map pixel coords to PDF coords
-
-      // Calculate the scale factor between pixel coords and PDF points
-      // The sign page renders PDF at a renderScale of 1.5, then displays at viewport scale
-      // But fields are stored in the coordinate space BEFORE the renderScale
-      // Fields x,y are relative to the displayed page dimensions at zoom=1
-
-      // Convert pixel coordinates to percentages based on typical page size
-      const basePageWidth = 595  // Standard PDF width in points
-      const basePageHeight = 842 // Standard A4 height in points
-
-      const xPct = fieldX / basePageWidth
-      const yPct = fieldY / basePageHeight
-      const wPct = fieldWidth / basePageWidth
-      const hPct = fieldHeight / basePageHeight
+      // Convert pixel coordinates to PDF coordinates
+      // Fields are in pixel space where page renders at its native PDF size
+      const xPct = fieldX / pageW
+      const yPct = fieldY / pageH
+      const wPct = fieldWidth / pageW
+      const hPct = fieldHeight / pageH
 
       // Convert to actual PDF coordinates
-      const pdfX = xPct * pageW
-      const pdfWidth = wPct * pageW
-      const pdfHeight = hPct * pageH
+      const pdfX = xPct * pageW  // = fieldX (same coordinate space)
+      const pdfWidth = wPct * pageW  // = fieldWidth
+      const pdfHeight = hPct * pageH  // = fieldHeight
       // Y-axis inversion: UI is top-down, PDF is bottom-up
       const pdfY = pageH - ((yPct + hPct) * pageH)
 
       const fieldType = field.type
       const value = fieldValues[field.id]
+
+      console.log('📄 Download: field', field.id, 'value:', value ? (value.length > 50 ? value.substring(0, 50) + '...' : value) : 'NO VALUE', 'signatureImage:', signatureImage ? 'YES' : 'NO')
 
       try {
         if ((fieldType === 'signature' || fieldType === 'initials') && signatureImage && signatureImage !== 'no-signature-field') {

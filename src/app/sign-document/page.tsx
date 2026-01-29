@@ -190,6 +190,7 @@ const SignDocumentPage: React.FC = () => {
   const [document, setDocument] = useState<File | null>(null)
   const [documentPreview, setDocumentPreview] = useState<string | null>(null)
   const [documentDataUrl, setDocumentDataUrl] = useState<string | null>(null) // For persistence
+  const [preUploadedUrl, setPreUploadedUrl] = useState<string | null>(null) // Pre-uploaded to Supabase
   const [documentName, setDocumentName] = useState<string>('') // Store filename
   const [pdfPageImage, setPdfPageImage] = useState<string | null>(null)
   const [totalPages, setTotalPages] = useState(1)
@@ -211,6 +212,33 @@ const SignDocumentPage: React.FC = () => {
       setExpandedSignerId(signers[0].id)
     }
   }, [signers, activeSignerId])
+
+  // Pre-upload document to Supabase Storage in background (makes Send instant)
+  useEffect(() => {
+    if (!document || preUploadedUrl) return
+    const preUpload = async () => {
+      try {
+        const uploadUrlResult = await apiPost('/api/upload-url', {
+          fileName: document.name || 'document.pdf',
+          contentType: document.type || 'application/pdf'
+        })
+        if (uploadUrlResult.success && uploadUrlResult.data?.signedUrl) {
+          const uploadRes = await fetch(uploadUrlResult.data.signedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': document.type || 'application/pdf' },
+            body: document
+          })
+          if (uploadRes.ok) {
+            setPreUploadedUrl(uploadUrlResult.data.publicUrl)
+            console.log('Document pre-uploaded successfully')
+          }
+        }
+      } catch (err) {
+        console.warn('Pre-upload failed, will upload on send:', err)
+      }
+    }
+    preUpload()
+  }, [document])
 
   // Field state
   const [placedFields, setPlacedFields] = useState<PlacedField[]>([])
@@ -1368,25 +1396,22 @@ const SignDocumentPage: React.FC = () => {
     setError(null)
 
     try {
-      // Step 1: Upload document to Supabase Storage via signed URL
-      // This bypasses Vercel's 4.5MB body limit completely
-      let documentUrl = ''
-      if (document) {
+      // Use pre-uploaded URL if available (instant!), otherwise upload now
+      let documentUrl = preUploadedUrl || ''
+
+      if (!documentUrl && document) {
         try {
-          // Get signed upload URL from our API
           const uploadUrlResult = await apiPost('/api/upload-url', {
             fileName: document.name || 'document.pdf',
             contentType: document.type || 'application/pdf'
           })
 
           if (uploadUrlResult.success && uploadUrlResult.data?.signedUrl) {
-            // Upload directly to Supabase Storage (no Vercel limit!)
             const uploadRes = await fetch(uploadUrlResult.data.signedUrl, {
               method: 'PUT',
               headers: { 'Content-Type': document.type || 'application/pdf' },
               body: document
             })
-
             if (uploadRes.ok) {
               documentUrl = uploadUrlResult.data.publicUrl
             } else {
@@ -3229,8 +3254,8 @@ const SignDocumentPage: React.FC = () => {
       {showSendModal && (
         <div className="fixed inset-0 bg-black/60 flex items-end md:items-center justify-center z-[200] md:p-4">
           <div
-            className={`rounded-t-2xl md:rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-auto ${isDark ? 'bg-[#252525] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            className={`rounded-t-2xl md:rounded-2xl shadow-2xl w-full max-h-[80vh] overflow-auto ${isDark ? 'bg-[#252525] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)', maxWidth: '480px' }}
           >
             {/* Mobile Handle */}
             <div className="md:hidden flex justify-center pt-2 pb-1">
