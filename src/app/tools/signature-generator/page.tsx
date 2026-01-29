@@ -117,20 +117,30 @@ export default function SignatureGeneratorPage() {
   }
 
   const clearCanvas = () => {
+    // Clear typed name first (works for both modes)
+    setTypedName('')
+    setHasSignature(false)
+
+    // Clear canvas if available (for draw mode)
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    // Reset transform and clear entire canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, canvas.width / 2, canvas.height / 2)
-    setHasSignature(false)
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Restore scale for drawing
+    ctx.scale(2, 2)
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+    ctx.strokeStyle = selectedColor
+    ctx.lineWidth = 2
   }
 
-  const downloadSignature = () => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
+  const downloadSignature = async () => {
     // Create a new canvas for download
     const downloadCanvas = document.createElement('canvas')
     downloadCanvas.width = 600
@@ -143,6 +153,13 @@ export default function SignatureGeneratorPage() {
     ctx.fillRect(0, 0, 600, 200)
 
     if (mode === 'type' && typedName) {
+      // Wait for fonts to be ready
+      try {
+        await document.fonts.ready
+      } catch (e) {
+        console.log('Font loading error:', e)
+      }
+
       // Draw typed signature
       ctx.font = `60px "${selectedFont}", cursive`
       ctx.fillStyle = selectedColor
@@ -150,7 +167,12 @@ export default function SignatureGeneratorPage() {
       ctx.textBaseline = 'middle'
       ctx.fillText(typedName, 300, 100)
     } else if (mode === 'draw' && hasSignature) {
-      // Draw the canvas content
+      const canvas = canvasRef.current
+      if (!canvas) {
+        alert('Canvas not found!')
+        return
+      }
+      // Draw the canvas content - source is scaled 2x so use full dimensions
       ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 600, 200)
     } else {
       alert('Please create a signature first!')

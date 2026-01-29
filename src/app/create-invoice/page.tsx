@@ -48,6 +48,16 @@ interface InvoiceData {
   businessAddress: string
   businessLogo: string | null
   backgroundLogo: string | null
+  // Logo position and size (in percentage of container)
+  logoX: number
+  logoY: number
+  logoWidth: number
+  logoHeight: number
+  // Background logo position and size
+  bgLogoX: number
+  bgLogoY: number
+  bgLogoWidth: number
+  bgLogoHeight: number
 
   // Client Info
   clientName: string
@@ -188,6 +198,14 @@ const CreateInvoicePage: React.FC = () => {
     businessAddress: '',
     businessLogo: null,
     backgroundLogo: null,
+    logoX: 0,
+    logoY: 0,
+    logoWidth: 120,
+    logoHeight: 60,
+    bgLogoX: 30,
+    bgLogoY: 30,
+    bgLogoWidth: 40,
+    bgLogoHeight: 40,
 
     clientName: '',
     clientEmail: '',
@@ -240,6 +258,13 @@ const CreateInvoicePage: React.FC = () => {
     const taxAmount = subtotal * (item.tax / 100)
     return subtotal + taxAmount
   }
+
+  // Logo drag/resize states
+  const [isDraggingLogo, setIsDraggingLogo] = useState<'logo' | 'bgLogo' | null>(null)
+  const [isResizingLogo, setIsResizingLogo] = useState<'logo' | 'bgLogo' | null>(null)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [logoStartPos, setLogoStartPos] = useState({ x: 0, y: 0, width: 0, height: 0 })
+  const invoicePreviewRef = useRef<HTMLDivElement>(null)
 
   const subtotal = invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
   const totalTax = invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.tax / 100)), 0)
@@ -308,6 +333,69 @@ const CreateInvoicePage: React.FC = () => {
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  // Logo drag handlers
+  const handleLogoDragStart = (e: React.MouseEvent, type: 'logo' | 'bgLogo') => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingLogo(type)
+    setDragStart({ x: e.clientX, y: e.clientY })
+    if (type === 'logo') {
+      setLogoStartPos({ x: invoiceData.logoX, y: invoiceData.logoY, width: invoiceData.logoWidth, height: invoiceData.logoHeight })
+    } else {
+      setLogoStartPos({ x: invoiceData.bgLogoX, y: invoiceData.bgLogoY, width: invoiceData.bgLogoWidth, height: invoiceData.bgLogoHeight })
+    }
+  }
+
+  const handleLogoResizeStart = (e: React.MouseEvent, type: 'logo' | 'bgLogo') => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsResizingLogo(type)
+    setDragStart({ x: e.clientX, y: e.clientY })
+    if (type === 'logo') {
+      setLogoStartPos({ x: invoiceData.logoX, y: invoiceData.logoY, width: invoiceData.logoWidth, height: invoiceData.logoHeight })
+    } else {
+      setLogoStartPos({ x: invoiceData.bgLogoX, y: invoiceData.bgLogoY, width: invoiceData.bgLogoWidth, height: invoiceData.bgLogoHeight })
+    }
+  }
+
+  const handleLogoMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingLogo && !isResizingLogo) return
+
+    const deltaX = e.clientX - dragStart.x
+    const deltaY = e.clientY - dragStart.y
+
+    if (isDraggingLogo) {
+      const newX = Math.max(0, logoStartPos.x + deltaX)
+      const newY = Math.max(0, logoStartPos.y + deltaY)
+
+      if (isDraggingLogo === 'logo') {
+        handleInputChange('logoX', newX)
+        handleInputChange('logoY', newY)
+      } else {
+        handleInputChange('bgLogoX', newX)
+        handleInputChange('bgLogoY', newY)
+      }
+    }
+
+    if (isResizingLogo) {
+      const newWidth = Math.max(40, logoStartPos.width + deltaX)
+      const newHeight = Math.max(30, logoStartPos.height + deltaY)
+
+      if (isResizingLogo === 'logo') {
+        handleInputChange('logoWidth', newWidth)
+        handleInputChange('logoHeight', newHeight)
+      } else {
+        handleInputChange('bgLogoWidth', newWidth)
+        handleInputChange('bgLogoHeight', newHeight)
+      }
+    }
+  }
+
+  const handleLogoMouseUp = () => {
+    setIsDraggingLogo(null)
+    setIsResizingLogo(null)
   }
 
   const selectedCurrency = currencies.find(c => c.code === invoiceData.currency) || currencies[0]
@@ -992,7 +1080,7 @@ const CreateInvoicePage: React.FC = () => {
                     className={`py-4 ${isDark ? 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a] border-[#2a2a2a]' : 'bg-white text-gray-500 hover:bg-gray-100 border-gray-200'} font-semibold rounded-xl transition-all flex items-center justify-center gap-2 border`}
                   >
                     <Eye className="w-5 h-5" />
-                    Preview Invoice
+                    Preview & Adjust
                   </button>
                   <button
                     onClick={handleDownloadPDF}
@@ -1074,15 +1162,95 @@ const CreateInvoicePage: React.FC = () => {
             </div>
 
             {/* Invoice Preview Content */}
-            <div className={`flex-1 overflow-auto p-6 ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-100'}`}>
-              <div className="bg-white shadow-lg mx-auto relative overflow-hidden" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
-                {/* Background Logo / Watermark */}
+            <div className={`flex-1 overflow-auto p-6 ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-100'} flex gap-4`}>
+              {/* Logo Adjustment Instructions Panel */}
+              <div className={`w-64 flex-shrink-0 ${isDark ? 'bg-[#252525]' : 'bg-white'} rounded-xl p-4 shadow-lg h-fit sticky top-0`}>
+                <h3 className={`text-sm font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Adjust Logos</h3>
+
+                {(invoiceData.businessLogo || invoiceData.backgroundLogo) ? (
+                  <div className="space-y-4">
+                    <div className={`p-3 rounded-lg ${isDark ? 'bg-[#1e1e1e]' : 'bg-blue-50'}`}>
+                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-blue-700'} mb-2`}>
+                        <strong>Drag</strong> the logo to move it anywhere
+                      </p>
+                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-blue-700'}`}>
+                        <strong>Drag the corner</strong> to resize
+                      </p>
+                    </div>
+
+                    {invoiceData.businessLogo && (
+                      <div className={`p-3 rounded-lg border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'}`}>
+                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Your Logo</label>
+                        <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'} space-y-1`}>
+                          <div>Position: {Math.round(invoiceData.logoX)}px, {Math.round(invoiceData.logoY)}px</div>
+                          <div>Size: {Math.round(invoiceData.logoWidth)} x {Math.round(invoiceData.logoHeight)}px</div>
+                        </div>
+                        <button
+                          onClick={() => { handleInputChange('logoX', 0); handleInputChange('logoY', 0); handleInputChange('logoWidth', 120); handleInputChange('logoHeight', 60) }}
+                          className={`mt-2 text-[10px] ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} hover:underline`}
+                        >
+                          Reset Position
+                        </button>
+                      </div>
+                    )}
+
+                    {invoiceData.backgroundLogo && (
+                      <div className={`p-3 rounded-lg border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'}`}>
+                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Background Watermark</label>
+                        <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'} space-y-1`}>
+                          <div>Position: {Math.round(invoiceData.bgLogoX)}%, {Math.round(invoiceData.bgLogoY)}%</div>
+                          <div>Size: {Math.round(invoiceData.bgLogoWidth)}%</div>
+                        </div>
+                        <button
+                          onClick={() => { handleInputChange('bgLogoX', 30); handleInputChange('bgLogoY', 30); handleInputChange('bgLogoWidth', 40); handleInputChange('bgLogoHeight', 40) }}
+                          className={`mt-2 text-[10px] ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} hover:underline`}
+                        >
+                          Reset Position
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} text-center py-4`}>
+                    Upload logos in the form to adjust them here
+                  </p>
+                )}
+              </div>
+
+              {/* Invoice Paper */}
+              <div className="flex-1 flex justify-center">
+              <div
+                ref={invoicePreviewRef}
+                className="bg-white shadow-lg relative overflow-visible"
+                style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}
+                onMouseMove={handleLogoMouseMove}
+                onMouseUp={handleLogoMouseUp}
+                onMouseLeave={handleLogoMouseUp}
+              >
+                {/* Background Logo / Watermark - Draggable */}
                 {invoiceData.backgroundLogo && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div
+                    className="absolute cursor-move group"
+                    style={{
+                      left: `${invoiceData.bgLogoX}%`,
+                      top: `${invoiceData.bgLogoY}%`,
+                      width: `${invoiceData.bgLogoWidth}%`,
+                      zIndex: 1
+                    }}
+                    onMouseDown={(e) => handleLogoDragStart(e, 'bgLogo')}
+                  >
                     <img
                       src={invoiceData.backgroundLogo}
                       alt="Watermark"
-                      className="w-[60%] h-auto opacity-[0.08]"
+                      className="w-full object-contain opacity-[0.08] pointer-events-none"
+                      draggable={false}
+                    />
+                    {/* Border on hover */}
+                    <div className="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-purple-400 rounded transition-colors" />
+                    {/* Resize handle */}
+                    <div
+                      className="absolute -bottom-2 -right-2 w-5 h-5 bg-purple-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                      onMouseDown={(e) => handleLogoResizeStart(e, 'bgLogo')}
                     />
                   </div>
                 )}
@@ -1096,12 +1264,38 @@ const CreateInvoicePage: React.FC = () => {
                   <X className="w-6 h-6" />
                 </button>
 
+                {/* Draggable Business Logo */}
+                {invoiceData.businessLogo && (
+                  <div
+                    className="absolute cursor-move group z-20"
+                    style={{
+                      left: invoiceData.logoX,
+                      top: invoiceData.logoY,
+                      width: invoiceData.logoWidth,
+                      height: invoiceData.logoHeight
+                    }}
+                    onMouseDown={(e) => handleLogoDragStart(e, 'logo')}
+                  >
+                    <img
+                      src={invoiceData.businessLogo}
+                      alt="Logo"
+                      className="w-full h-full object-contain pointer-events-none"
+                      draggable={false}
+                    />
+                    {/* Border on hover */}
+                    <div className="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-blue-500 rounded transition-colors" />
+                    {/* Resize handle */}
+                    <div
+                      className="absolute -bottom-2 -right-2 w-5 h-5 bg-blue-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                      onMouseDown={(e) => handleLogoResizeStart(e, 'logo')}
+                    />
+                  </div>
+                )}
+
                 {/* Invoice Header */}
-                <div className="flex justify-between items-start mb-8">
+                <div className="flex items-start mb-8 justify-between">
                   <div>
-                    {invoiceData.businessLogo ? (
-                      <img src={invoiceData.businessLogo} alt="Logo" className="h-16 object-contain mb-4" />
-                    ) : (
+                    {!invoiceData.businessLogo && (
                       <div
                         className="text-2xl font-bold mb-4"
                         style={{ color: selectedTemplateData?.colors.primary }}
@@ -1109,7 +1303,7 @@ const CreateInvoicePage: React.FC = () => {
                         {invoiceData.businessName || 'Your Company'}
                       </div>
                     )}
-                    {invoiceData.businessLogo && invoiceData.businessName && (
+                    {invoiceData.businessName && (
                       <div className="text-lg font-semibold text-gray-900">{invoiceData.businessName}</div>
                     )}
                     <div className="text-sm text-gray-700 mt-2 space-y-0.5">
@@ -1263,6 +1457,7 @@ const CreateInvoicePage: React.FC = () => {
                 <div className="mt-12 pt-6 border-t border-gray-200/50 text-center">
                   <div className="text-sm text-gray-600">Thank you for your business!</div>
                 </div>
+              </div>
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 interface PDFViewerProps {
   file: File
   zoom: number
-  onPageClick?: (e: React.MouseEvent<HTMLDivElement>, pageNumber: number) => void
+  onPageClick?: (e: React.MouseEvent<HTMLDivElement>, pageNumber: number, pageBaseWidth: number, pageBaseHeight: number) => void
   signatureOverlay?: React.ReactNode
   onPageRendered?: (imageUrl: string) => void
   continuousScroll?: boolean
@@ -126,10 +126,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         }).promise
 
         const imageUrl = canvas.toDataURL('image/png')
+        const pageWidth = viewport.width / scale
+        const pageHeight = viewport.height / scale
+        console.log(`PDFViewer page ${i}: naturalWidth=${pageWidth}, naturalHeight=${pageHeight}, viewportWidth=${viewport.width}, scale=${scale}`)
         pages.push({
           url: imageUrl,
-          width: viewport.width / scale,
-          height: viewport.height / scale
+          width: pageWidth,
+          height: pageHeight
         })
       } catch (err) {
         console.error(`Error rendering page ${i}:`, err)
@@ -228,7 +231,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>, pageNum?: number) => {
     if (onPageClick) {
-      onPageClick(e, pageNum || currentPage)
+      // Pass page dimensions for coordinate calculations
+      onPageClick(e, pageNum || currentPage, pageSize.width, pageSize.height)
     }
   }
 
@@ -275,7 +279,12 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
                       width: page.width * zoom,
                       height: page.height * zoom,
                     }}
-                    onClick={(e) => handleClick(e, pageNum)}
+                    onClick={(e) => {
+                      // Pass exact page dimensions to ensure consistent coordinate calculations
+                      if (onPageClick) {
+                        onPageClick(e, pageNum, page.width, page.height)
+                      }
+                    }}
                   >
                     {/* Page number label */}
                     <div className="absolute -top-6 left-0 text-xs text-gray-500 font-medium">

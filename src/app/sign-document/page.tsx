@@ -43,6 +43,12 @@ import {
 import { useUser } from '@clerk/nextjs'
 import { incrementSignCount } from '@/lib/usageLimit'
 import { useTheme } from '@/components/ThemeProvider'
+import {
+  generateFinalPdf,
+  convertPlacedFieldToSignatureField,
+  type SignatureField,
+  type PlacedFieldInput
+} from '@/lib/pdf-generator'
 
 // UUID generator with fallback for browsers that don't support crypto.randomUUID
 const generateUUID = (): string => {
@@ -152,6 +158,14 @@ interface PlacedField {
   value?: string // For storing user input (text, signature image, etc.)
   fontSize?: number // Font size for text fields
   options?: string[] // For selection field dropdown options
+  // Percentage-based positioning for accurate preview/download
+  xPercent?: number
+  yPercent?: number
+  widthPercent?: number
+  heightPercent?: number
+  // Store page dimensions at placement time for consistent calculations
+  pageBaseWidth?: number
+  pageBaseHeight?: number
 }
 
 interface TemplateProperties {
@@ -174,9 +188,13 @@ const SignDocumentPage: React.FC = () => {
   // Document state
   const [document, setDocument] = useState<File | null>(null)
   const [documentPreview, setDocumentPreview] = useState<string | null>(null)
+  const [documentDataUrl, setDocumentDataUrl] = useState<string | null>(null) // For persistence
+  const [documentName, setDocumentName] = useState<string>('') // Store filename
   const [pdfPageImage, setPdfPageImage] = useState<string | null>(null)
   const [totalPages, setTotalPages] = useState(1)
   const [currentPage, setCurrentPage] = useState(1)
+  const [imageDimensions, setImageDimensions] = useState<{width: number; height: number} | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Signers state
   const [signers, setSigners] = useState<Signer[]>([
@@ -244,25 +262,125 @@ const SignDocumentPage: React.FC = () => {
   // Refs
   const documentContainerRef = useRef<HTMLDivElement>(null)
   const dragStartPos = useRef({ x: 0, y: 0 })
-  const fieldStartPos = useRef({ x: 0, y: 0 })
+  const fieldStartPos = useRef<{ x: number; y: number; xPercent?: number; yPercent?: number }>({ x: 0, y: 0 })
   const resizeStartSize = useRef({ width: 0, height: 0 })
 
   const isPDF = document?.type === 'application/pdf' || document?.name.toLowerCase().endsWith('.pdf')
   const selectedField = placedFields.find(f => f.id === selectedFieldId)
   const activeSigner = signers.find(s => s.id === activeSignerId)
 
-  // Generate document preview for images
+  // Generate document preview for images and capture dimensions
   useEffect(() => {
     if (document && !isPDF) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        setDocumentPreview(e.target?.result as string)
+        const dataUrl = e.target?.result as string
+        setDocumentPreview(dataUrl)
+
+        // Load image to get dimensions
+        const img = new window.Image()
+        img.onload = () => {
+          setImageDimensions({ width: img.width, height: img.height })
+        }
+        img.src = dataUrl
       }
       reader.readAsDataURL(document)
     } else {
       setDocumentPreview(null)
+      setImageDimensions(null)
     }
   }, [document, isPDF])
+
+  // Save document to localStorage when it changes
+  useEffect(() => {
+    if (document && typeof window !== 'undefined') {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string
+        setDocumentDataUrl(dataUrl)
+        setDocumentName(document.name)
+        try {
+          localStorage.setItem('signDocument_dataUrl', dataUrl)
+          localStorage.setItem('signDocument_name', document.name)
+          localStorage.setItem('signDocument_type', document.type)
+        } catch (err) {
+          console.warn('Could not save document to localStorage:', err)
+        }
+      }
+      reader.readAsDataURL(document)
+    }
+  }, [document])
+
+  // Save placed fields to localStorage when they change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && placedFields.length > 0) {
+      try {
+        localStorage.setItem('signDocument_fields', JSON.stringify(placedFields))
+      } catch (err) {
+        console.warn('Could not save fields to localStorage:', err)
+      }
+    }
+  }, [placedFields])
+
+  // Load document and fields from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedDataUrl = localStorage.getItem('signDocument_dataUrl')
+        const savedName = localStorage.getItem('signDocument_name')
+        const savedType = localStorage.getItem('signDocument_type')
+        const savedFields = localStorage.getItem('signDocument_fields')
+
+        if (savedDataUrl && savedName && savedType) {
+          // Convert data URL back to File
+          fetch(savedDataUrl)
+            .then(res => res.blob())
+            .then(blob => {
+              const file = new File([blob], savedName, { type: savedType })
+              setDocument(file)
+              setDocumentDataUrl(savedDataUrl)
+              setDocumentName(savedName)
+            })
+            .catch(err => {
+              console.warn('Could not restore document:', err)
+              clearSavedDocument()
+            })
+        }
+
+        if (savedFields) {
+          const fields = JSON.parse(savedFields)
+          setPlacedFields(fields)
+        }
+      } catch (err) {
+        console.warn('Could not load saved document:', err)
+      }
+    }
+  }, [])
+
+  // Clear saved document from localStorage
+  const clearSavedDocument = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('signDocument_dataUrl')
+      localStorage.removeItem('signDocument_name')
+      localStorage.removeItem('signDocument_type')
+      localStorage.removeItem('signDocument_fields')
+    }
+  }
+
+  // Upload new document (clear current and reset)
+  const uploadNewDocument = () => {
+    setDocument(null)
+    setDocumentPreview(null)
+    setDocumentDataUrl(null)
+    setDocumentName('')
+    setPlacedFields([])
+    setSelectedFieldId(null)
+    setPdfPageImage(null)
+    setTotalPages(1)
+    setCurrentPage(1)
+    setImageDimensions(null)
+    clearSavedDocument()
+  }
 
   // Add new signer
   const addSigner = () => {
@@ -336,14 +454,18 @@ const SignDocumentPage: React.FC = () => {
     ))
   }
 
-  // File upload handler - PDF only
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // File upload handler - PDF and images
+  // Images (PNG/JPG) are automatically converted to PDF for consistent positioning
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const isValidType = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+      const isPdfType = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+      const isImageType = file.type.startsWith('image/') &&
+        (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/jpg' ||
+         file.name.toLowerCase().endsWith('.png') || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg'))
 
-      if (!isValidType) {
-        setError('Please upload a PDF file only')
+      if (!isPdfType && !isImageType) {
+        setError('Please upload a PDF, PNG, JPG, or JPEG file')
         return
       }
 
@@ -352,33 +474,149 @@ const SignDocumentPage: React.FC = () => {
         return
       }
 
-      setDocument(file)
-      setTemplateProps(prev => ({ ...prev, name: file.name.replace(/\.[^/.]+$/, '') }))
       setError(null)
       setPlacedFields([])
       setSelectedFieldId(null)
+
+      // If it's an image, convert to PDF for consistent positioning
+      if (isImageType) {
+        try {
+          setIsLoading(true)
+
+          // Load the image
+          const imageDataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = reject
+            reader.readAsDataURL(file)
+          })
+
+          // Get image dimensions
+          const img = new window.Image()
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve()
+            img.onerror = reject
+            img.src = imageDataUrl
+          })
+
+          // Import jsPDF dynamically
+          const { jsPDF } = await import('jspdf')
+
+          // Create PDF with image dimensions (in mm, assuming 96 DPI)
+          // A4 is 210x297mm, but we'll use the actual image aspect ratio
+          const imgWidth = img.width
+          const imgHeight = img.height
+
+          // Convert pixels to mm (assuming 96 DPI: 1 inch = 25.4mm, 96 pixels = 1 inch)
+          const pxToMm = 25.4 / 96
+          const pdfWidth = imgWidth * pxToMm
+          const pdfHeight = imgHeight * pxToMm
+
+          // Create PDF with custom page size matching the image
+          const pdf = new jsPDF({
+            orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: [pdfWidth, pdfHeight]
+          })
+
+          // Add the image to fill the entire page
+          pdf.addImage(imageDataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight)
+
+          // Convert to Blob and then to File
+          const pdfBlob = pdf.output('blob')
+          const pdfFile = new File([pdfBlob], file.name.replace(/\.[^/.]+$/, '.pdf'), {
+            type: 'application/pdf'
+          })
+
+          setDocument(pdfFile)
+          setTemplateProps(prev => ({ ...prev, name: file.name.replace(/\.[^/.]+$/, '') }))
+          setTotalPages(1)
+          setCurrentPage(1)
+          setIsLoading(false)
+        } catch (err) {
+          console.error('Error converting image to PDF:', err)
+          setError('Failed to process image. Please try again.')
+          setIsLoading(false)
+        }
+      } else {
+        // It's already a PDF
+        setDocument(file)
+        setTemplateProps(prev => ({ ...prev, name: file.name.replace(/\.[^/.]+$/, '') }))
+        setTotalPages(1)
+        setCurrentPage(1)
+      }
     }
   }
 
   // Handle dropping a field type onto the document
   const handleDocumentDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
-    if (!draggedFieldType || !documentContainerRef.current || !activeSigner) return
-
-    const rect = documentContainerRef.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / zoom
-    const y = (e.clientY - rect.top) / zoom
+    if (!draggedFieldType || !activeSigner) return
 
     const fieldType = ALL_FIELD_TYPES.find(f => f.id === draggedFieldType)
     if (!fieldType) return
 
+    // Calculate field dimensions based on type
+    const fieldWidth = draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : 150
+    const fieldHeight = draggedFieldType === 'signature' ? 60 : draggedFieldType === 'checkbox' ? 30 : 40
+
+    let x: number, y: number
+    let xPercent: number | undefined
+    let yPercent: number | undefined
+    let widthPercent: number | undefined
+    let heightPercent: number | undefined
+    let pageBaseWidth: number | undefined
+    let pageBaseHeight: number | undefined
+
+    // For IMAGES: Get position relative to the CONTAINER element
+    // (not the img, as img may have different rendered size)
+    if (!isPDF && imageDimensions) {
+      const imageContainer = window.document.querySelector('[data-image-container="true"]') as HTMLElement
+      if (!imageContainer) return
+
+      const containerRect = imageContainer.getBoundingClientRect()
+
+      // Drop position relative to the CONTAINER
+      const dropX = e.clientX - containerRect.left
+      const dropY = e.clientY - containerRect.top
+
+      // The container has explicit dimensions: imageDimensions * zoom
+      // So calculate percentage based on container dimensions
+      const expectedWidth = imageDimensions.width * zoom
+      const expectedHeight = imageDimensions.height * zoom
+
+      // Calculate percentage of where user dropped
+      const xPct = dropX / expectedWidth
+      const yPct = dropY / expectedHeight
+
+      // Field dimensions as percentages of base image
+      pageBaseWidth = imageDimensions.width
+      pageBaseHeight = imageDimensions.height
+      widthPercent = fieldWidth / pageBaseWidth
+      heightPercent = fieldHeight / pageBaseHeight
+
+      // Store percentage (clamped, centered on drop)
+      xPercent = Math.max(0, Math.min(1 - widthPercent, xPct - widthPercent / 2))
+      yPercent = Math.max(0, Math.min(1 - heightPercent, yPct - heightPercent / 2))
+
+      // Base coordinates
+      x = xPercent * pageBaseWidth + fieldWidth / 2
+      y = yPercent * pageBaseHeight + fieldHeight / 2
+    } else {
+      // For PDFs: use documentContainerRef
+      if (!documentContainerRef.current) return
+      const rect = documentContainerRef.current.getBoundingClientRect()
+      x = (e.clientX - rect.left) / zoom
+      y = (e.clientY - rect.top) / zoom
+    }
+
     const newField: PlacedField = {
       id: generateUUID(),
       type: draggedFieldType,
-      x: Math.max(0, x - 75),
-      y: Math.max(0, y - 20),
-      width: draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : 150,
-      height: draggedFieldType === 'signature' ? 60 : draggedFieldType === 'checkbox' ? 30 : 40,
+      x: Math.max(0, x - fieldWidth / 2),
+      y: Math.max(0, y - fieldHeight / 2),
+      width: fieldWidth,
+      height: fieldHeight,
       page: currentPage,
       signerId: activeSigner.id,
       signerColor: activeSigner.color,
@@ -386,14 +624,20 @@ const SignDocumentPage: React.FC = () => {
       placeholder: '',
       tip: '',
       label: fieldType.name,
-      value: undefined
+      value: undefined,
+      xPercent,
+      yPercent,
+      widthPercent,
+      heightPercent,
+      pageBaseWidth,
+      pageBaseHeight
     }
 
     setPlacedFields(prev => [...prev, newField])
     setSelectedFieldId(newField.id)
     setDraggedFieldType(null)
     setShowPropertiesPanel(true)
-  }, [draggedFieldType, zoom, currentPage, activeSigner])
+  }, [draggedFieldType, zoom, currentPage, activeSigner, imageDimensions, isPDF])
 
   // Handle field drag start from sidebar
   const handleFieldDragStart = (fieldType: string) => {
@@ -411,7 +655,13 @@ const SignDocumentPage: React.FC = () => {
     setSelectedFieldId(fieldId)
     setIsDragging(true)
     dragStartPos.current = { x: e.clientX, y: e.clientY }
-    fieldStartPos.current = { x: field.x, y: field.y }
+    // Store both pixel positions and percentages for drag calculation
+    fieldStartPos.current = {
+      x: field.x,
+      y: field.y,
+      xPercent: field.xPercent,
+      yPercent: field.yPercent
+    }
     setShowPropertiesPanel(true)
   }, [placedFields])
 
@@ -419,19 +669,62 @@ const SignDocumentPage: React.FC = () => {
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging || !selectedFieldId) return
 
-    const deltaX = (e.clientX - dragStartPos.current.x) / zoom
-    const deltaY = (e.clientY - dragStartPos.current.y) / zoom
+    setPlacedFields(prev => prev.map(field => {
+      if (field.id !== selectedFieldId) return field
 
-    setPlacedFields(prev => prev.map(field =>
-      field.id === selectedFieldId
-        ? {
-            ...field,
-            x: Math.max(0, fieldStartPos.current.x + deltaX),
-            y: Math.max(0, fieldStartPos.current.y + deltaY)
-          }
-        : field
-    ))
-  }, [isDragging, selectedFieldId, zoom])
+      // For images: calculate delta as percentage (same approach as placement)
+      if (!isPDF && imageDimensions) {
+        // Use actual rendered dimensions for consistent percentage calculation
+        // The container dimensions should match imageDimensions * zoom
+        const containerWidth = imageDimensions.width * zoom
+        const containerHeight = imageDimensions.height * zoom
+
+        // Calculate movement as percentage of container
+        // Using styled dimensions for delta is fine since movement is relative
+        const deltaPctX = (e.clientX - dragStartPos.current.x) / containerWidth
+        const deltaPctY = (e.clientY - dragStartPos.current.y) / containerHeight
+
+        // Use stored start percentages, or calculate from position
+        const startXPct = fieldStartPos.current.xPercent ?? (fieldStartPos.current.x / imageDimensions.width)
+        const startYPct = fieldStartPos.current.yPercent ?? (fieldStartPos.current.y / imageDimensions.height)
+        const widthPct = field.widthPercent ?? (field.width / imageDimensions.width)
+        const heightPct = field.heightPercent ?? (field.height / imageDimensions.height)
+
+        const newXPct = Math.max(0, Math.min(1 - widthPct, startXPct + deltaPctX))
+        const newYPct = Math.max(0, Math.min(1 - heightPct, startYPct + deltaPctY))
+
+        return {
+          ...field,
+          // Update both pixel values (for compatibility) and percentages
+          x: newXPct * imageDimensions.width,
+          y: newYPct * imageDimensions.height,
+          xPercent: newXPct,
+          yPercent: newYPct
+        }
+      }
+
+      // PDF: use zoom-based calculation and UPDATE PERCENTAGES
+      const deltaX = (e.clientX - dragStartPos.current.x) / zoom
+      const deltaY = (e.clientY - dragStartPos.current.y) / zoom
+
+      const newX = Math.max(0, fieldStartPos.current.x + deltaX)
+      const newY = Math.max(0, fieldStartPos.current.y + deltaY)
+
+      // IMPORTANT: Also update percentages so preview positioning stays accurate
+      // Use the stored pageBaseWidth/Height from when the field was created
+      const baseWidth = field.pageBaseWidth || 612 // fallback to US Letter width
+      const baseHeight = field.pageBaseHeight || 792 // fallback to US Letter height
+
+      return {
+        ...field,
+        x: newX,
+        y: newY,
+        // Update percentages to match new position
+        xPercent: newX / baseWidth,
+        yPercent: newY / baseHeight
+      }
+    }))
+  }, [isDragging, selectedFieldId, zoom, isPDF, imageDimensions])
 
   // Handle resize start
   const handleResizeStart = useCallback((e: React.MouseEvent, fieldId: string, direction: string = 'se') => {
@@ -484,11 +777,58 @@ const SignDocumentPage: React.FC = () => {
     }))
   }, [isResizing, selectedFieldId, zoom, resizeDirection])
 
-  // Handle mouse up
+  // Handle mouse up - recalculate percentages after drag/resize
   const handleMouseUp = useCallback(() => {
+    if ((isDragging || isResizing) && selectedFieldId) {
+      // Recalculate percentage values for the moved/resized field
+      setPlacedFields(prev => prev.map(field => {
+        if (field.id !== selectedFieldId) return field
+
+        // Determine the base dimensions to use for percentage calculation
+        // Use pageBaseWidth/Height if set, otherwise fall back to imageDimensions (for images)
+        let baseWidth = field.pageBaseWidth
+        let baseHeight = field.pageBaseHeight
+
+        if (!baseWidth || !baseHeight) {
+          // For images without pageBase set, use imageDimensions
+          if (!isPDF && imageDimensions) {
+            baseWidth = imageDimensions.width
+            baseHeight = imageDimensions.height
+          } else {
+            // Can't calculate percentages without base dimensions
+            return field
+          }
+        }
+
+        const newXPercent = Math.max(0, field.x / baseWidth)
+        const newYPercent = Math.max(0, field.y / baseHeight)
+        const newWidthPercent = field.width / baseWidth
+        const newHeightPercent = field.height / baseHeight
+
+        console.log('Field drag/resize complete - recalculating percentages:', {
+          fieldId: field.id,
+          fieldX: field.x,
+          fieldY: field.y,
+          baseWidth,
+          baseHeight,
+          newYPercent: `${(newYPercent * 100).toFixed(2)}%`,
+        })
+
+        return {
+          ...field,
+          xPercent: newXPercent,
+          yPercent: newYPercent,
+          widthPercent: newWidthPercent,
+          heightPercent: newHeightPercent,
+          // Also update pageBaseWidth/Height if they weren't set
+          pageBaseWidth: baseWidth,
+          pageBaseHeight: baseHeight
+        }
+      }))
+    }
     setIsDragging(false)
     setIsResizing(false)
-  }, [])
+  }, [isDragging, isResizing, selectedFieldId, isPDF, imageDimensions])
 
   // Update field property
   const updateFieldProperty = (property: keyof PlacedField, value: any) => {
@@ -631,7 +971,8 @@ const SignDocumentPage: React.FC = () => {
     setPdfPageImage(imageUrl)
   }, [])
 
-  // Generate preview with signatures overlaid
+  // Generate preview with signatures overlaid using pdf-lib
+  // This generates the SAME PDF that will be downloaded, ensuring consistency
   const generatePreview = useCallback(async () => {
     if (!document) return
 
@@ -639,11 +980,85 @@ const SignDocumentPage: React.FC = () => {
     setPreviewImages([])
 
     try {
-      // Import pdfjs
+      // Check if document is an image (non-PDF)
+      if (!isPDF && documentPreview && imageDimensions) {
+        // Handle image preview - SAME LOGIC AS PDF
+        const previewScale = 2
+        const canvas = window.document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) throw new Error('No canvas context')
+
+        canvas.width = imageDimensions.width * previewScale
+        canvas.height = imageDimensions.height * previewScale
+
+        const img = new window.Image()
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            resolve()
+          }
+          img.onerror = reject
+          img.src = documentPreview
+        })
+
+        // Overlay fields - coordinates are in BASE space (relative to imageDimensions)
+        // Just multiply by previewScale (same as PDF approach)
+        const fieldsOnPage = placedFields.filter(f => f.page === 1 && f.value)
+
+        for (const field of fieldsOnPage) {
+          // Use yPercent directly - it's the percentage from TOP (0 = top, 1 = bottom)
+          const yPct = field.yPercent ?? (field.y / imageDimensions.height)
+          const xPct = field.xPercent ?? (field.x / imageDimensions.width)
+          const wPct = field.widthPercent ?? (field.width / imageDimensions.width)
+          const hPct = field.heightPercent ?? (field.height / imageDimensions.height)
+
+          // Canvas position = percentage * canvas size
+          const x = xPct * canvas.width
+          const y = yPct * canvas.height
+          const width = wPct * canvas.width
+          const height = hPct * canvas.height
+
+
+
+          if (field.type === 'signature' || field.type === 'initials' || (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
+            const fieldImg = new window.Image()
+            fieldImg.crossOrigin = 'anonymous'
+            await new Promise<void>((resolve) => {
+              fieldImg.onload = () => {
+                ctx.drawImage(fieldImg, x, y, width, height)
+                resolve()
+              }
+              fieldImg.onerror = () => resolve()
+              fieldImg.src = field.value!
+            })
+          } else if (field.type === 'checkbox' && field.value === 'checked') {
+            ctx.fillStyle = '#16a34a'
+            ctx.fillRect(x, y, width, height)
+            ctx.fillStyle = 'white'
+            ctx.font = `${height * 0.7}px Arial`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText('✓', x + width / 2, y + height / 2)
+          } else if (field.value) {
+            ctx.fillStyle = '#000000'
+            const fontSize = Math.min((field.fontSize || 14) * previewScale, height * 0.8)
+            const fontWeight = field.type === 'title' ? 'bold ' : ''
+            ctx.font = `${fontWeight}${fontSize}px Arial`
+            ctx.textAlign = 'left'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(field.value, x + 4, y + height / 2, width - 8)
+          }
+        }
+
+        setPreviewImages([canvas.toDataURL('image/png')])
+        setShowPreviewModal(true)
+        return
+      }
+
+      // Handle PDF preview - SIMPLE CANVAS APPROACH (more reliable)
       const pdfjsLib = await import('pdfjs-dist')
       pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
-      // Load PDF
       const arrayBuffer = await document.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({
         data: arrayBuffer,
@@ -653,22 +1068,29 @@ const SignDocumentPage: React.FC = () => {
       }).promise
 
       const images: string[] = []
+      const previewScale = 2
 
-      // First get the base page dimensions (at scale 1)
-      const firstPage = await pdf.getPage(1)
-      const baseViewport = firstPage.getViewport({ scale: 1 })
-
-      // Field coordinates are stored relative to the displayed page size (original * zoom)
-      // Use current zoom value (default 1) instead of hardcoded 1.5
-      const viewerWidth = baseViewport.width * zoom
-      const viewerHeight = baseViewport.height * zoom
+      // Debug: Check fields
+      const fieldsWithValue = placedFields.filter(f => f.value)
+      console.log('Preview Debug:', {
+        totalFields: placedFields.length,
+        fieldsWithValue: fieldsWithValue.length,
+        fieldDetails: placedFields.map(f => ({
+          id: f.id,
+          type: f.type,
+          hasValue: !!f.value,
+          x: f.x,
+          y: f.y,
+          pageBaseWidth: f.pageBaseWidth,
+          pageBaseHeight: f.pageBaseHeight
+        }))
+      })
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum)
-        const previewScale = 2 // High quality for preview
         const viewport = page.getViewport({ scale: previewScale })
+        const baseViewport = page.getViewport({ scale: 1 })
 
-        // Create canvas
         const canvas = window.document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         if (!ctx) continue
@@ -676,67 +1098,68 @@ const SignDocumentPage: React.FC = () => {
         canvas.width = viewport.width
         canvas.height = viewport.height
 
-        // Reset transforms and clear canvas
         ctx.setTransform(1, 0, 0, 1, 0, 0)
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-        // Fill with white background
         ctx.fillStyle = '#ffffff'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        // Render PDF page
         await page.render({
           canvasContext: ctx,
           viewport: viewport,
           background: 'white'
         }).promise
 
-        // Overlay fields for this page
-        const fieldsOnPage = placedFields.filter(f => f.page === pageNum)
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
 
-        // Calculate scale factor from viewer coordinates to preview coordinates
-        const scaleX = viewport.width / viewerWidth
-        const scaleY = viewport.height / viewerHeight
+        // Draw fields on this page using percentage-based positioning
+        // This is more robust as it accounts for any coordinate system differences
+        const fieldsOnPage = placedFields.filter(f => f.page === pageNum && f.value)
 
         for (const field of fieldsOnPage) {
-          if (!field.value) continue
+          // Use PERCENTAGE-based positioning for accuracy
+          // The percentages were calculated relative to the page dimensions at placement time
+          const x = (field.xPercent ?? (field.x / (field.pageBaseWidth || baseViewport.width))) * canvas.width
+          const y = (field.yPercent ?? (field.y / (field.pageBaseHeight || baseViewport.height))) * canvas.height
+          const width = (field.widthPercent ?? (field.width / (field.pageBaseWidth || baseViewport.width))) * canvas.width
+          const height = (field.heightPercent ?? (field.height / (field.pageBaseHeight || baseViewport.height))) * canvas.height
 
-          // Field positions are in pixels relative to the viewer display
-          // Convert to preview canvas coordinates
-          const x = field.x * scaleX
-          const y = field.y * scaleY
-          const width = field.width * scaleX
-          const height = field.height * scaleY
+          console.log(`Drawing field ${field.type} at:`, {
+            fieldX: field.x, fieldY: field.y,
+            xPercent: field.xPercent, yPercent: field.yPercent,
+            canvasWidth: canvas.width, canvasHeight: canvas.height,
+            x, y, width, height
+          })
 
-          if (field.type === 'signature' || field.type === 'initials') {
-            // Draw signature image
+          if (field.type === 'signature' || field.type === 'initials' ||
+              (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
             const img = new window.Image()
-            img.crossOrigin = 'anonymous'
             await new Promise<void>((resolve) => {
               img.onload = () => {
                 ctx.drawImage(img, x, y, width, height)
                 resolve()
               }
-              img.onerror = () => resolve()
+              img.onerror = () => {
+                ctx.fillStyle = 'rgba(255,0,0,0.3)'
+                ctx.fillRect(x, y, width, height)
+                resolve()
+              }
               img.src = field.value!
             })
-          } else if (field.type === 'checkbox') {
-            if (field.value === 'checked') {
-              ctx.fillStyle = '#7C3AED'
-              ctx.fillRect(x, y, width, height)
-              ctx.fillStyle = 'white'
-              ctx.font = `${height * 0.7}px Arial`
-              ctx.textAlign = 'center'
-              ctx.textBaseline = 'middle'
-              ctx.fillText('✓', x + width / 2, y + height / 2)
-            }
-          } else {
-            // Text fields
-            ctx.fillStyle = '#1e293b'
-            ctx.font = `${Math.min(height * 0.6, 24)}px Arial`
+          } else if (field.type === 'checkbox' && field.value === 'checked') {
+            ctx.fillStyle = '#16a34a'
+            ctx.fillRect(x, y, width, height)
+            ctx.fillStyle = 'white'
+            ctx.font = `${height * 0.7}px Arial`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText('✓', x + width / 2, y + height / 2)
+          } else if (field.value) {
+            ctx.fillStyle = '#000000'
+            const fontSize = Math.min((field.fontSize || 14) * previewScale, height * 0.8)
+            const fontWeight = field.type === 'title' ? 'bold ' : ''
+            ctx.font = `${fontWeight}${fontSize}px Arial`
             ctx.textAlign = 'left'
             ctx.textBaseline = 'middle'
-            ctx.fillText(field.value || '', x + 4, y + height / 2, width - 8)
+            ctx.fillText(field.value, x + 4, y + height / 2, width - 8)
           }
         }
 
@@ -751,179 +1174,178 @@ const SignDocumentPage: React.FC = () => {
     } finally {
       setIsGeneratingPreview(false)
     }
-  }, [document, placedFields, zoom])
+  }, [document, placedFields, isPDF, documentPreview, imageDimensions])
 
-  // Download signed document
+  // Download signed document using pdf-lib (same as preview for consistency)
   const handleDownload = useCallback(async () => {
     if (!document) return
 
     setIsDownloading(true)
 
     try {
-      const pdfjsLib = await import('pdfjs-dist')
-      const { jsPDF } = await import('jspdf')
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
-
-      const arrayBuffer = await document.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({
-        data: arrayBuffer,
-        cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
-        cMapPacked: true,
-        standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
-      }).promise
-
-      // Get base dimensions for scaling
-      const firstPage = await pdf.getPage(1)
-      const baseViewport = firstPage.getViewport({ scale: 1 })
-      const viewerWidth = baseViewport.width * zoom
-      const viewerHeight = baseViewport.height * zoom
-
-      // Helper function to render fields on a canvas
-      const renderFieldsOnCanvas = async (ctx: CanvasRenderingContext2D, pageNum: number, scaleX: number, scaleY: number) => {
-        const fieldsOnPage = placedFields.filter(f => f.page === pageNum)
-        for (const field of fieldsOnPage) {
-          if (!field.value) continue
-
-          const x = field.x * scaleX
-          const y = field.y * scaleY
-          const width = field.width * scaleX
-          const height = field.height * scaleY
-
-          if (field.type === 'signature' || field.type === 'initials' || (field.type === 'stamp' && field.value.startsWith('data:image'))) {
-            const img = new window.Image()
-            img.crossOrigin = 'anonymous'
-            await new Promise<void>((resolve) => {
-              img.onload = () => {
-                ctx.drawImage(img, x, y, width, height)
-                resolve()
-              }
-              img.onerror = () => resolve()
-              img.src = field.value!
-            })
-          } else if (field.type === 'checkbox') {
-            if (field.value === 'checked') {
-              ctx.fillStyle = '#16a34a'
-              ctx.fillRect(x, y, width, height)
-              ctx.fillStyle = 'white'
-              ctx.font = `${height * 0.7}px Arial`
-              ctx.textAlign = 'center'
-              ctx.textBaseline = 'middle'
-              ctx.fillText('✓', x + width / 2, y + height / 2)
-            }
-          } else if (field.type === 'stamp' && !field.value.startsWith('data:image')) {
-            // Text stamp
-            ctx.save()
-            ctx.translate(x + width / 2, y + height / 2)
-            ctx.rotate(-12 * Math.PI / 180)
-            ctx.strokeStyle = '#dc2626'
-            ctx.lineWidth = 2
-            ctx.font = `bold ${Math.min(height * 0.5, 16)}px Arial`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            ctx.strokeText(field.value, 0, 0)
-            ctx.fillStyle = '#dc2626'
-            ctx.fillText(field.value, 0, 0)
-            ctx.restore()
-          } else {
-            // Text fields (name, email, date, etc.)
-            ctx.fillStyle = '#000000'
-            const fontSize = field.fontSize || 14
-            ctx.font = `${Math.min(fontSize * scaleX, height * 0.8)}px Arial`
-            ctx.textAlign = 'left'
-            ctx.textBaseline = 'middle'
-            ctx.fillText(field.value || '', x + 4, y + height / 2, width - 8)
-          }
-        }
-      }
-
-      // Single page - download as PNG
-      if (pdf.numPages === 1) {
-        const page = await pdf.getPage(1)
+      // Handle image download (non-PDF) - SAME LOGIC AS PDF/PREVIEW
+      if (!isPDF && documentPreview && imageDimensions) {
         const previewScale = 2
-        const viewport = page.getViewport({ scale: previewScale })
-
         const canvas = window.document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         if (!ctx) throw new Error('No canvas context')
 
-        canvas.width = viewport.width
-        canvas.height = viewport.height
+        canvas.width = imageDimensions.width * previewScale
+        canvas.height = imageDimensions.height * previewScale
 
-        // Reset transforms and fill white background
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        const img = new window.Image()
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            resolve()
+          }
+          img.onerror = reject
+          img.src = documentPreview
+        })
 
-        await page.render({ canvasContext: ctx, viewport, background: 'white' }).promise
+        // Overlay fields - USE PERCENTAGES (same as preview)
+        const fieldsOnPage = placedFields.filter(f => f.page === 1 && f.value)
+        for (const field of fieldsOnPage) {
+          // USE PERCENTAGES for positioning (like PDF does)
+          let xPct: number, yPct: number, wPct: number, hPct: number
 
-        const scaleX = viewport.width / viewerWidth
-        const scaleY = viewport.height / viewerHeight
+          if (field.xPercent !== undefined && field.yPercent !== undefined) {
+            xPct = field.xPercent
+            yPct = field.yPercent
+            wPct = field.widthPercent || field.width / imageDimensions.width
+            hPct = field.heightPercent || field.height / imageDimensions.height
+          } else if (field.pageBaseWidth && field.pageBaseHeight) {
+            xPct = field.x / field.pageBaseWidth
+            yPct = field.y / field.pageBaseHeight
+            wPct = field.width / field.pageBaseWidth
+            hPct = field.height / field.pageBaseHeight
+          } else {
+            xPct = field.x / imageDimensions.width
+            yPct = field.y / imageDimensions.height
+            wPct = field.width / imageDimensions.width
+            hPct = field.height / imageDimensions.height
+          }
 
-        await renderFieldsOnCanvas(ctx, 1, scaleX, scaleY)
+          const x = xPct * canvas.width
+          const y = yPct * canvas.height
+          const width = wPct * canvas.width
+          const height = hPct * canvas.height
+
+          if (field.type === 'signature' || field.type === 'initials' || (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
+            const fieldImg = new window.Image()
+            fieldImg.crossOrigin = 'anonymous'
+            await new Promise<void>((resolve) => {
+              fieldImg.onload = () => {
+                ctx.drawImage(fieldImg, x, y, width, height)
+                resolve()
+              }
+              fieldImg.onerror = () => resolve()
+              fieldImg.src = field.value!
+            })
+          } else if (field.type === 'checkbox' && field.value === 'checked') {
+            ctx.fillStyle = '#16a34a'
+            ctx.fillRect(x, y, width, height)
+            ctx.fillStyle = 'white'
+            ctx.font = `${height * 0.7}px Arial`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText('✓', x + width / 2, y + height / 2)
+          } else if (field.value) {
+            ctx.fillStyle = '#000000'
+            const fontSize = Math.min((field.fontSize || 14) * previewScale, height * 0.8)
+            const fontWeight = field.type === 'title' ? 'bold ' : ''
+            ctx.font = `${fontWeight}${fontSize}px Arial`
+            ctx.textAlign = 'left'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(field.value, x + 4, y + height / 2, width - 8)
+          }
+        }
 
         const link = window.document.createElement('a')
         link.download = `${templateProps.name || 'signed-document'}.png`
         link.href = canvas.toDataURL('image/png')
         link.click()
-      } else {
-        // Multiple pages - create PDF with all pages
-        const previewScale = 2
-        const firstViewport = firstPage.getViewport({ scale: previewScale })
+        setIsDownloading(false)
+        return
+      }
 
-        // Create jsPDF with first page dimensions
-        const pdfDoc = new jsPDF({
-          orientation: firstViewport.width > firstViewport.height ? 'landscape' : 'portrait',
-          unit: 'px',
-          format: [firstViewport.width, firstViewport.height]
-        })
+      // Handle PDF download using pdf-lib (same logic as preview for consistency)
+      const pdfBytes = await document.arrayBuffer()
 
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-          const page = await pdf.getPage(pageNum)
-          const viewport = page.getViewport({ scale: previewScale })
+      // Get actual PDF dimensions from pdf-lib
+      const { PDFDocument } = await import('pdf-lib')
+      const tempPdfDoc = await PDFDocument.load(pdfBytes)
+      const pdfPages = tempPdfDoc.getPages()
 
-          const canvas = window.document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
-          if (!ctx) continue
+      const actualPdfDimensions: { [pageNum: number]: { width: number; height: number } } = {}
+      pdfPages.forEach((page, index) => {
+        const { width, height } = page.getSize()
+        actualPdfDimensions[index + 1] = { width, height }
+      })
 
-          canvas.width = viewport.width
-          canvas.height = viewport.height
+      // Convert PlacedFields to SignatureFields using actual PDF dimensions
+      const signatureFields: SignatureField[] = placedFields
+        .filter(f => f.value)
+        .map(field => {
+          const actualDims = actualPdfDimensions[field.page]
+          if (!actualDims) return null
 
-          // Reset transforms and fill white background
-          ctx.setTransform(1, 0, 0, 1, 0, 0)
-          ctx.clearRect(0, 0, canvas.width, canvas.height)
-          ctx.fillStyle = '#ffffff'
-          ctx.fillRect(0, 0, canvas.width, canvas.height)
+          // PREFER stored percentages (they're calculated correctly during placement)
+          // Only fall back to x/y calculation if percentages aren't available
+          let xPct: number | undefined = field.xPercent
+          let yPct: number | undefined = field.yPercent
+          let wPct: number | undefined = field.widthPercent
+          let hPct: number | undefined = field.heightPercent
 
-          await page.render({ canvasContext: ctx, viewport, background: 'white' }).promise
-
-          // Get page-specific dimensions for field scaling
-          const pageBaseViewport = page.getViewport({ scale: 1 })
-          const pageViewerWidth = pageBaseViewport.width * zoom
-          const pageViewerHeight = pageBaseViewport.height * zoom
-          const scaleX = viewport.width / pageViewerWidth
-          const scaleY = viewport.height / pageViewerHeight
-
-          await renderFieldsOnCanvas(ctx, pageNum, scaleX, scaleY)
-
-          const imgData = canvas.toDataURL('image/png')
-
-          if (pageNum > 1) {
-            pdfDoc.addPage([viewport.width, viewport.height])
+          // Only recalculate from x/y if percentages are not available
+          if (xPct === undefined || yPct === undefined) {
+            if (field.pageBaseWidth && field.pageBaseHeight) {
+              xPct = field.x / field.pageBaseWidth
+              yPct = field.y / field.pageBaseHeight
+              wPct = field.width / field.pageBaseWidth
+              hPct = field.height / field.pageBaseHeight
+            } else {
+              return null
+            }
           }
 
-          pdfDoc.addImage(imgData, 'PNG', 0, 0, viewport.width, viewport.height)
-        }
+          return {
+            id: field.id,
+            type: field.type,
+            pageNumber: field.page,
+            xPct: xPct!,
+            yPct: yPct!,
+            wPct: wPct!,
+            hPct: hPct!,
+            value: field.value,
+            fontSize: field.fontSize,
+          } as SignatureField
+        })
+        .filter((f): f is SignatureField => f !== null)
 
-        pdfDoc.save(`${templateProps.name || 'signed-document'}.pdf`)
-      }
+      console.log('Download: Fields ready for pdf-lib:', signatureFields.length)
+
+      // Generate the final PDF with signatures embedded using pdf-lib
+      const { pdfBytes: finalPdfBytes } = await generateFinalPdf(
+        new Uint8Array(pdfBytes),
+        signatureFields
+      )
+
+      // Create download link - convert Uint8Array to ArrayBuffer for Blob
+      const blob = new Blob([new Uint8Array(finalPdfBytes)], { type: 'application/pdf' })
+      const url = URL.createObjectURL(blob)
+      const link = window.document.createElement('a')
+      link.href = url
+      link.download = `${templateProps.name || 'signed-document'}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Error downloading:', err)
       setError('Failed to download document')
     } finally {
       setIsDownloading(false)
     }
-  }, [document, placedFields, templateProps.name, zoom])
+  }, [document, placedFields, templateProps.name, isPDF, documentPreview, imageDimensions])
 
   // Send document for signing
   const handleSendForSigning = async () => {
@@ -1042,10 +1464,10 @@ const SignDocumentPage: React.FC = () => {
               ${isSelected ? 'border-primary-500 shadow-lg ring-2 ring-primary-200' : 'border-dashed hover:border-primary-400'}
             `}
             style={{
-              left: field.x,
-              top: field.y,
-              width: field.width,
-              height: field.height,
+              left: field.x * zoom,
+              top: field.y * zoom,
+              width: field.width * zoom,
+              height: field.height * zoom,
               backgroundColor: `${field.signerColor}15`,
               borderColor: isSelected ? undefined : field.signerColor,
               zIndex: isSelected ? 100 : 50
@@ -1145,13 +1567,17 @@ const SignDocumentPage: React.FC = () => {
     const fieldType = ALL_FIELD_TYPES.find(f => f.id === mobileFieldToPlace)
     if (!fieldType) return
 
+    // Calculate field dimensions based on type
+    const fieldWidth = mobileFieldToPlace === 'signature' ? 180 : mobileFieldToPlace === 'checkbox' ? 30 : 140
+    const fieldHeight = mobileFieldToPlace === 'signature' ? 50 : mobileFieldToPlace === 'checkbox' ? 30 : 36
+
     const newField: PlacedField = {
       id: generateUUID(),
       type: mobileFieldToPlace,
-      x: Math.max(0, x - 75),
-      y: Math.max(0, y - 20),
-      width: mobileFieldToPlace === 'signature' ? 180 : mobileFieldToPlace === 'checkbox' ? 30 : 140,
-      height: mobileFieldToPlace === 'signature' ? 50 : mobileFieldToPlace === 'checkbox' ? 30 : 36,
+      x: Math.max(0, x - fieldWidth / 2),
+      y: Math.max(0, y - fieldHeight / 2),
+      width: fieldWidth,
+      height: fieldHeight,
       page: pageNum,
       signerId: activeSigner.id,
       signerColor: activeSigner.color,
@@ -1508,6 +1934,21 @@ const SignDocumentPage: React.FC = () => {
                   <span>•</span>
                   <span>{placedFields.length} fields</span>
                 </div>
+
+                {/* Upload New Document Button */}
+                <button
+                  onClick={uploadNewDocument}
+                  className={`ml-2 md:ml-4 px-2 md:px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs md:text-sm font-medium transition-colors ${
+                    isDark
+                      ? 'bg-[#2a2a2a] hover:bg-[#333] text-gray-300 border border-[#3a3a3a]'
+                      : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-300'
+                  }`}
+                  title="Upload New Document"
+                >
+                  <Upload className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="hidden md:inline">New Document</span>
+                  <span className="md:hidden">New</span>
+                </button>
               </div>
             </div>
           )}
@@ -1519,11 +1960,21 @@ const SignDocumentPage: React.FC = () => {
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDocumentDrop}
           >
-            {!document ? (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center my-auto">
+                <Loader2 className={`w-12 h-12 animate-spin mb-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <p className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                  Converting image to PDF...
+                </p>
+                <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  This ensures perfect field positioning
+                </p>
+              </div>
+            ) : !document ? (
               <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center p-8 md:p-12 my-auto mx-4 md:mx-0 active:scale-[0.99] ${isDark ? 'bg-[#252525] border-[#3a3a3a] hover:border-[#c4ff0e]/50 hover:bg-[#2a2a2a]' : 'bg-white border-gray-300 hover:border-[#4C00FF]/50 hover:bg-gray-50'}`}>
                 <input
                   type="file"
-                  accept=".pdf,application/pdf"
+                  accept=".pdf,application/pdf,image/png,image/jpeg,.png,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -1534,12 +1985,12 @@ const SignDocumentPage: React.FC = () => {
                   Upload Document
                 </h3>
                 <p className={`text-center text-sm md:text-base mb-4 max-w-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <span className="hidden md:inline">Drag and drop your PDF here, or click to browse</span>
-                  <span className="md:hidden">Tap here to select your PDF</span>
+                  <span className="hidden md:inline">Drag and drop your document here, or click to browse</span>
+                  <span className="md:hidden">Tap here to select your document</span>
                 </p>
                 <div className={`flex items-center gap-3 text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">
-                    <FileText className="w-3 h-3" /> PDF Only
+                    <FileText className="w-3 h-3" /> PDF, PNG, JPG
                   </span>
                   <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-[#2a2a2a]">Max 25MB</span>
                 </div>
@@ -1555,26 +2006,58 @@ const SignDocumentPage: React.FC = () => {
                     zoom={zoom}
                     continuousScroll={true}
                     onTotalPagesChange={setTotalPages}
-                    onPageClick={(e, pageNum) => {
+                    onPageClick={(e, pageNum, pdfPageWidth, pdfPageHeight) => {
                       // Handle both desktop drag-drop and mobile tap-to-place
                       const fieldTypeToPlace = draggedFieldType || mobileFieldToPlace
                       if (fieldTypeToPlace && activeSigner) {
                         const rect = e.currentTarget.getBoundingClientRect()
-                        const x = e.clientX - rect.left
-                        const y = e.clientY - rect.top
+                        // Store coordinates in BASE (unzoomed) space for consistent positioning
+                        const x = (e.clientX - rect.left) / zoom
+                        const y = (e.clientY - rect.top) / zoom
 
                         const fieldType = ALL_FIELD_TYPES.find(f => f.id === fieldTypeToPlace)
                         if (!fieldType) return
 
-                        // Slightly smaller sizes for mobile
-                        const isMobile = window.innerWidth < 768
+                        // Calculate field dimensions based on type and device (in base space)
+                        const isMobileDevice = window.innerWidth < 768
+                        const fieldWidth = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 130 : 150)
+                        const fieldHeight = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 32 : 40)
+
+                        // USE EXACT PAGE DIMENSIONS from PDFViewer (not calculated from rect)
+                        // This ensures coordinates match exactly between display and preview
+                        const pageBaseWidth = pdfPageWidth
+                        const pageBaseHeight = pdfPageHeight
+
+                        // Debug: Log placement coordinates
+                        console.log('Placing field:', {
+                          type: fieldTypeToPlace,
+                          clickX: e.clientX,
+                          clickY: e.clientY,
+                          rectWidth: rect.width,
+                          rectHeight: rect.height,
+                          pdfPageWidth,
+                          pdfPageHeight,
+                          zoom,
+                          rawX: x,
+                          rawY: y,
+                          fieldX: Math.max(0, x - fieldWidth / 2),
+                          fieldY: Math.max(0, y - fieldHeight / 2),
+                          fieldWidth,
+                          fieldHeight,
+                          pageNum
+                        })
+
+                        // Calculate percentage using EXACT PDF page dimensions
+                        const xPercent = Math.max(0, x - fieldWidth / 2) / pageBaseWidth
+                        const yPercent = Math.max(0, y - fieldHeight / 2) / pageBaseHeight
+
                         const newField: PlacedField = {
                           id: generateUUID(),
                           type: fieldTypeToPlace,
-                          x: Math.max(0, x - (isMobile ? 60 : 75)),
-                          y: Math.max(0, y - (isMobile ? 15 : 20)),
-                          width: fieldTypeToPlace === 'signature' ? (isMobile ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobile ? 130 : 150),
-                          height: fieldTypeToPlace === 'signature' ? (isMobile ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobile ? 32 : 40),
+                          x: Math.max(0, x - fieldWidth / 2),
+                          y: Math.max(0, y - fieldHeight / 2),
+                          width: fieldWidth,
+                          height: fieldHeight,
                           page: pageNum,
                           signerId: activeSigner.id,
                           signerColor: activeSigner.color,
@@ -1582,7 +2065,15 @@ const SignDocumentPage: React.FC = () => {
                           placeholder: '',
                           tip: '',
                           label: fieldType.name,
-                          value: undefined
+                          value: undefined,
+                          // Store percentage position for preview
+                          xPercent: Math.max(0, xPercent),
+                          yPercent: Math.max(0, yPercent),
+                          widthPercent: fieldWidth / pageBaseWidth,
+                          heightPercent: fieldHeight / pageBaseHeight,
+                          // Store page dimensions for recalculating percentages on drag
+                          pageBaseWidth,
+                          pageBaseHeight
                         }
 
                         setPlacedFields(prev => [...prev, newField])
@@ -1616,77 +2107,89 @@ const SignDocumentPage: React.FC = () => {
                         return (
                           <div
                             key={field.id}
-                            className={`pointer-events-auto absolute transition-all group
+                            className={`pointer-events-auto absolute transition-all group cursor-move
                               ${isEditing ? 'z-[200]' : ''}
                             `}
                             style={{
-                              left: field.x,
-                              top: field.y,
-                              width: field.width,
-                              height: field.height,
-                              zIndex: isEditing ? 200 : (isSelected ? 100 : 50)
+                              left: field.x * zoom,
+                              top: field.y * zoom,
+                              width: field.width * zoom,
+                              height: field.height * zoom,
+                              zIndex: isEditing ? 200 : (isSelected ? 100 : 50),
+                              border: hasValue ? 'none' : `2px ${isSelected ? 'solid' : 'dashed'} ${field.signerColor}`,
+                              backgroundColor: hasValue ? 'transparent' : `${field.signerColor}10`,
+                              borderRadius: '6px'
+                            }}
+                            onMouseDown={(e) => {
+                              if (!isEditing) handleFieldMouseDown(e, field.id)
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (!isEditing) {
+                                setSelectedFieldId(field.id)
+                                setShowPropertiesPanel(true)
+                              }
+                            }}
+                            onDoubleClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedFieldId(field.id)
+                              if (field.type === 'signature' || field.type === 'initials') {
+                                setSignatureModalFieldId(field.id)
+                              } else if (field.type === 'stamp') {
+                                setStampModalFieldId(field.id)
+                              } else {
+                                setEditingFieldId(field.id)
+                              }
                             }}
                           >
-                            {/* Yellow Left Border - Drag Handle */}
-                            <div
-                              className="absolute left-0 top-0 bottom-0 w-2 cursor-move rounded-l"
-                              style={{ backgroundColor: '#D4A017' }}
-                              onMouseDown={(e) => {
-                                if (!isEditing) handleFieldMouseDown(e, field.id)
-                              }}
-                              title="Drag to move"
-                            />
-
-                            {/* Main Field Content */}
-                            <div
-                              className={`absolute left-2 top-0 right-0 bottom-0 border-2 rounded-r cursor-pointer
-                                ${isSelected ? 'border-gray-400' : 'border-gray-300'}
-                              `}
-                              style={{
-                                backgroundColor: hasValue || isSelected ? '#FFF9C4' : '#FFFDE7'
-                              }}
-                              onMouseDown={(e) => {
-                                if (!isEditing) handleFieldMouseDown(e, field.id)
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                if (!isEditing) {
-                                  setSelectedFieldId(field.id)
-                                  setShowPropertiesPanel(true)
-                                }
-                              }}
-                              onDoubleClick={(e) => {
-                                e.stopPropagation()
-                                setSelectedFieldId(field.id)
-                                // Open modal for signature/initials/stamp, inline for others
-                                if (field.type === 'signature' || field.type === 'initials') {
-                                  setSignatureModalFieldId(field.id)
-                                } else if (field.type === 'stamp') {
-                                  setStampModalFieldId(field.id)
-                                } else {
-                                  setEditingFieldId(field.id)
-                                }
-                              }}
-                            >
+                            {/* Field Content - NO offset, fills entire field */}
+                            <div className="w-full h-full relative">
                             {/* Editing Mode - Skip for signature types */}
                             {isEditing && !isSignatureType ? (
-                              <div className="w-full h-full rounded-md" style={{ backgroundColor: '#ffffff', overflow: 'hidden' }}>
-
-                                {/* Text Editor - Direct inline editing with size control */}
+                              <>
+                                {/* Text Editor - Floating popup above the field */}
                                 {isTextType && (
-                                  <div className="w-full h-full flex flex-col bg-white" onClick={(e) => e.stopPropagation()}>
-                                    {/* Size Control */}
-                                    <div className="flex items-center gap-1 px-2 py-1 border-b border-gray-200 bg-gray-50">
-                                      <span className="text-[10px] text-gray-500">Size:</span>
-                                      {[10, 12, 14, 16, 18, 20, 24].map((size) => (
-                                        <button
-                                          key={size}
-                                          onClick={() => updateFieldFontSize(field.id, size)}
-                                          className={`px-1.5 py-0.5 text-[10px] rounded ${field.fontSize === size ? 'bg-[#4C00FF] text-white font-bold' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
-                                        >
-                                          {size}
-                                        </button>
-                                      ))}
+                                  <div
+                                    className="absolute z-[300] flex flex-col bg-white shadow-2xl rounded-lg border border-gray-300"
+                                    style={{
+                                      bottom: '100%',
+                                      left: '0',
+                                      marginBottom: '8px',
+                                      minWidth: '320px',
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {/* Size Control Header */}
+                                    <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
+                                      <span className="text-sm font-bold text-gray-700 mr-2">Size:</span>
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        {(field.type === 'title' ? [
+                                          { label: 'H1', size: 32 },
+                                          { label: 'H2', size: 24 },
+                                          { label: 'H3', size: 20 },
+                                          { label: 'H4', size: 16 },
+                                        ] : [
+                                          { label: '10', size: 10 },
+                                          { label: '12', size: 12 },
+                                          { label: '14', size: 14 },
+                                          { label: '16', size: 16 },
+                                          { label: '18', size: 18 },
+                                          { label: '20', size: 20 },
+                                          { label: '24', size: 24 },
+                                        ]).map((item) => (
+                                          <button
+                                            key={item.size}
+                                            onClick={() => updateFieldFontSize(field.id, item.size)}
+                                            className={`px-2.5 py-1.5 text-sm font-semibold rounded-md transition-all ${
+                                              field.fontSize === item.size
+                                                ? 'bg-[#4C00FF] text-white shadow-md'
+                                                : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-[#4C00FF]/10 hover:border-[#4C00FF]'
+                                            }`}
+                                          >
+                                            {item.label}
+                                          </button>
+                                        ))}
+                                      </div>
                                     </div>
                                     {/* Input */}
                                     <input
@@ -1694,15 +2197,17 @@ const SignDocumentPage: React.FC = () => {
                                       value={field.value || ''}
                                       onChange={(e) => updateFieldValue(field.id, e.target.value)}
                                       placeholder={field.placeholder || `Type ${field.label}...`}
-                                      className="flex-1 w-full px-2 border-none outline-none"
-                                      style={{ color: '#000000', backgroundColor: '#ffffff', fontSize: `${field.fontSize || 14}px` }}
+                                      className="w-full px-3 py-3 border-none outline-none"
+                                      style={{ color: '#000000', backgroundColor: '#ffffff', fontSize: `${Math.max(field.fontSize || 14, 14)}px`, fontWeight: field.type === 'title' ? '600' : '400' }}
                                       autoFocus
                                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditingFieldId(null) }}
                                     />
                                     {/* Done button */}
-                                    <div className="px-2 py-1 border-t border-gray-200 bg-gray-50 flex justify-end">
-                                      <button onClick={() => setEditingFieldId(null)} className="px-3 py-1 bg-[#4C00FF] text-white text-xs font-medium rounded">Done</button>
+                                    <div className="px-3 py-2 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
+                                      <button onClick={() => setEditingFieldId(null)} className="px-5 py-2 bg-[#4C00FF] text-white text-sm font-semibold rounded-md hover:bg-[#3d00cc] transition-colors shadow-sm">Done</button>
                                     </div>
+                                    {/* Arrow pointing down to field */}
+                                    <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r border-b border-gray-300 transform rotate-45"></div>
                                   </div>
                                 )}
 
@@ -1821,57 +2326,63 @@ const SignDocumentPage: React.FC = () => {
                                     <button onClick={() => { setEditingFieldId(null); setStampImage(null); setShowStampCamera(false) }} className="mt-2 py-1 bg-gray-300 text-gray-700 rounded text-xs">Cancel</button>
                                   </div>
                                 )}
-                              </div>
+                              </>
                             ) : (
-                              /* Display Mode */
+                              /* Display Mode - NO padding, fills entire field */
                               <>
-                                {/* Show saved value or placeholder */}
-                                <div className="w-full h-full flex items-center p-1 overflow-hidden">
-                                  {hasValue ? (
-                                    <>
-                                      {/* Signature/Initials Display */}
-                                      {isSignatureType && field.value && (
-                                        <div className="w-full h-full flex flex-col">
-                                          <span className="text-[10px] text-gray-500">Signed by:</span>
-                                          <img
-                                            src={field.value}
-                                            alt="Signature"
-                                            className="max-w-full max-h-full object-contain flex-1"
-                                          />
-                                        </div>
-                                      )}
-                                      {/* Text Fields Display */}
-                                      {isTextType && (
-                                        <span style={{ color: '#000000', fontSize: `${field.fontSize || 14}px` }}>{field.value}</span>
-                                      )}
-                                      {/* Checkbox Display */}
-                                      {isCheckboxType && field.value === 'checked' && (
-                                        <CheckSquare className="w-5 h-5 text-green-600" />
-                                      )}
-                                      {/* Date Display */}
-                                      {isDateType && field.value && (
+                                {hasValue ? (
+                                  <>
+                                    {/* Signature/Initials Display - FILLS ENTIRE FIELD */}
+                                    {isSignatureType && field.value && (
+                                      <img
+                                        src={field.value}
+                                        alt="Signature"
+                                        className="w-full h-full object-contain"
+                                        style={{ display: 'block' }}
+                                      />
+                                    )}
+                                    {/* Text Fields Display */}
+                                    {isTextType && (
+                                      <div className="w-full h-full flex items-center px-2">
+                                        <span style={{
+                                          color: '#000000',
+                                          fontSize: `${field.fontSize || 14}px`,
+                                          fontWeight: field.type === 'title' ? '600' : '400'
+                                        }}>{field.value}</span>
+                                      </div>
+                                    )}
+                                    {/* Checkbox Display */}
+                                    {isCheckboxType && field.value === 'checked' && (
+                                      <div className="w-full h-full flex items-center justify-center bg-green-500 rounded">
+                                        <CheckSquare className="w-5 h-5 text-white" />
+                                      </div>
+                                    )}
+                                    {/* Date Display */}
+                                    {isDateType && field.value && (
+                                      <div className="w-full h-full flex items-center px-2">
                                         <span style={{ color: '#000000', fontSize: `${field.fontSize || 14}px`, fontWeight: '500' }}>
                                           {new Date(field.value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                                         </span>
-                                      )}
-                                      {/* Stamp Display */}
-                                      {field.type === 'stamp' && field.value && (
-                                        field.value.startsWith('data:image') ? (
-                                          <img src={field.value} alt="Stamp" className="max-w-full max-h-full object-contain" />
-                                        ) : (
+                                      </div>
+                                    )}
+                                    {/* Stamp Display */}
+                                    {field.type === 'stamp' && field.value && (
+                                      field.value.startsWith('data:image') ? (
+                                        <img src={field.value} alt="Stamp" className="w-full h-full object-contain" />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
                                           <span className="text-red-600 font-bold border border-red-600 px-1 rounded transform -rotate-12 text-xs">{field.value}</span>
-                                        )
-                                      )}
-                                    </>
-                                  ) : (
-                                    /* Empty Field Placeholder */
-                                    <div className="flex items-center justify-center gap-2 text-gray-600">
-                                      <FieldIcon className="w-4 h-4" />
-                                      <span className="text-sm font-medium">{field.label}</span>
-                                    </div>
-                                  )}
-                                </div>
-
+                                        </div>
+                                      )
+                                    )}
+                                  </>
+                                ) : (
+                                  /* Empty Field Placeholder - Purple theme like first image */
+                                  <div className="w-full h-full flex flex-col items-center justify-center" style={{ color: field.signerColor }}>
+                                    <FieldIcon className="w-5 h-5 mb-1" />
+                                    <span className="text-xs font-medium">{field.label}</span>
+                                  </div>
+                                )}
                               </>
                             )}
                             </div>
@@ -1923,15 +2434,286 @@ const SignDocumentPage: React.FC = () => {
                       })
                     }}
                   />
-                ) : documentPreview && (
-                  <div className="relative">
+                ) : documentPreview && imageDimensions && (
+                  <div
+                    className="relative"
+                    data-image-container="true"
+                    style={{
+                      width: imageDimensions.width * zoom,
+                      height: imageDimensions.height * zoom
+                    }}
+                    onClick={(e) => {
+                      // Handle field placement on click for images
+                      const fieldTypeToPlace = draggedFieldType || mobileFieldToPlace
+
+                      if (fieldTypeToPlace && activeSigner && imageDimensions) {
+                        const fieldType = ALL_FIELD_TYPES.find(f => f.id === fieldTypeToPlace)
+                        if (!fieldType) return
+
+                        // Calculate field dimensions based on type and device
+                        const isMobileDevice = window.innerWidth < 768
+                        const fieldWidth = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 130 : 150)
+                        const fieldHeight = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 32 : 40)
+
+                        // Get container's bounding rect
+                        const rect = e.currentTarget.getBoundingClientRect()
+
+                        // Click position relative to the container
+                        const clickX = e.clientX - rect.left
+                        const clickY = e.clientY - rect.top
+
+                        // Container has explicit dimensions: imageDimensions * zoom
+                        // Use these expected dimensions for percentage calculation
+                        const expectedWidth = imageDimensions.width * zoom
+                        const expectedHeight = imageDimensions.height * zoom
+
+                        // Calculate percentage of where user clicked
+                        const xPct = clickX / expectedWidth
+                        const yPct = clickY / expectedHeight
+
+                        // Field dimensions as percentages
+                        const pageBaseWidth = imageDimensions.width
+                        const pageBaseHeight = imageDimensions.height
+                        const widthPercent = fieldWidth / pageBaseWidth
+                        const heightPercent = fieldHeight / pageBaseHeight
+
+                        // Store percentage (clamped, centered on click)
+                        const xPercent = Math.max(0, Math.min(1 - widthPercent, xPct - widthPercent / 2))
+                        const yPercent = Math.max(0, Math.min(1 - heightPercent, yPct - heightPercent / 2))
+
+                        const newField: PlacedField = {
+                          id: generateUUID(),
+                          type: fieldTypeToPlace,
+                          // Store BASE coordinates (calculated from percentage)
+                          x: xPercent * pageBaseWidth,
+                          y: yPercent * pageBaseHeight,
+                          width: fieldWidth,
+                          height: fieldHeight,
+                          page: 1,
+                          signerId: activeSigner.id,
+                          signerColor: activeSigner.color,
+                          mandatory: true,
+                          placeholder: '',
+                          tip: '',
+                          label: fieldType.name,
+                          value: undefined,
+                          // Store percentage position for preview
+                          xPercent,
+                          yPercent,
+                          widthPercent,
+                          heightPercent,
+                          // Store page dimensions for recalculating percentages on drag
+                          pageBaseWidth,
+                          pageBaseHeight
+                        }
+
+                        setPlacedFields(prev => [...prev, newField])
+                        setSelectedFieldId(newField.id)
+                        setDraggedFieldType(null)
+                        setMobileFieldToPlace(null)
+                        setShowPropertiesPanel(true)
+                      }
+                    }}
+                  >
                     <img
                       src={documentPreview}
                       alt="Document"
                       className="max-w-none"
+                      style={{
+                        width: imageDimensions.width * zoom,
+                        height: imageDimensions.height * zoom
+                      }}
                       draggable={false}
                     />
-                    {FieldsOverlay}
+                    {/* Fields overlay for images */}
+                    {placedFields.filter(f => f.page === 1).map((field, index) => {
+                      const FieldIcon = getFieldIcon(field.type)
+                      const isSelected = field.id === selectedFieldId
+                      const isEditing = field.id === editingFieldId
+                      const fieldSigner = signers.find(s => s.id === field.signerId)
+                      const hasValue = !!field.value
+                      const isSignatureType = field.type === 'signature' || field.type === 'initials'
+
+                      // Use the container's actual style dimensions for display
+                      // This MUST match what we use for placement (container style dimensions)
+                      const displayedWidth = imageDimensions.width * zoom
+                      const displayedHeight = imageDimensions.height * zoom
+
+                      let displayX: number, displayY: number, displayW: number, displayH: number
+                      if (field.xPercent !== undefined && field.yPercent !== undefined) {
+                        // Use percentages to calculate position relative to container
+                        displayX = field.xPercent * displayedWidth
+                        displayY = field.yPercent * displayedHeight
+                        displayW = (field.widthPercent || field.width / imageDimensions.width) * displayedWidth
+                        displayH = (field.heightPercent || field.height / imageDimensions.height) * displayedHeight
+                      } else {
+                        // Fallback to old method
+                        displayX = field.x * zoom
+                        displayY = field.y * zoom
+                        displayW = field.width * zoom
+                        displayH = field.height * zoom
+                      }
+
+                      return (
+                        <div
+                          key={field.id}
+                          className={`absolute cursor-move transition-all group
+                            ${isSelected ? 'ring-2 ring-offset-2' : 'hover:ring-1 hover:ring-offset-1'}
+                          `}
+                          style={{
+                            left: displayX,
+                            top: displayY,
+                            width: displayW,
+                            height: displayH,
+                            backgroundColor: hasValue ? 'transparent' : `${field.signerColor}15`,
+                            borderWidth: hasValue ? 0 : 2,
+                            borderStyle: isSelected ? 'solid' : 'dashed',
+                            borderColor: field.signerColor,
+                            borderRadius: '0.375rem',
+                            // @ts-ignore - CSS custom property for Tailwind ring color
+                            '--tw-ring-color': field.signerColor,
+                            zIndex: isSelected ? 100 : 50
+                          } as React.CSSProperties}
+                          onMouseDown={(e) => handleFieldMouseDown(e, field.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (isSignatureType && !hasValue) {
+                              setSignatureModalFieldId(field.id)
+                              setSignatureTab('style')
+                            } else if (field.type === 'stamp' && !hasValue) {
+                              setStampModalFieldId(field.id)
+                            } else if (field.type === 'checkbox') {
+                              setPlacedFields(prev => prev.map(f =>
+                                f.id === field.id ? { ...f, value: f.value === 'checked' ? undefined : 'checked' } : f
+                              ))
+                            } else if (!isSignatureType && field.type !== 'stamp' && field.type !== 'checkbox') {
+                              setEditingFieldId(field.id)
+                            }
+                            setSelectedFieldId(field.id)
+                            setShowPropertiesPanel(true)
+                          }}
+                        >
+                          {hasValue ? (
+                            <>
+                              {(field.type === 'signature' || field.type === 'initials') && (
+                                <img
+                                  src={field.value}
+                                  alt={field.type}
+                                  className="w-full h-full object-contain"
+                                  draggable={false}
+                                />
+                              )}
+                              {field.type === 'stamp' && field.value?.startsWith('data:image') && (
+                                <img
+                                  src={field.value}
+                                  alt="Stamp"
+                                  className="w-full h-full object-contain"
+                                  draggable={false}
+                                />
+                              )}
+                              {field.type === 'checkbox' && field.value === 'checked' && (
+                                <div className="w-full h-full bg-green-500 rounded flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              )}
+                              {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && (
+                                <div className="w-full h-full flex items-center px-2" style={{ fontSize: (field.fontSize || 14) * zoom }}>
+                                  <span className="truncate text-gray-800">{field.value}</span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              {isEditing && !isSignatureType && field.type !== 'checkbox' && field.type !== 'stamp' ? (
+                                <input
+                                  type="text"
+                                  autoFocus
+                                  className="w-full h-full px-2 text-sm bg-white border-0 outline-none"
+                                  style={{ fontSize: (field.fontSize || 14) * zoom }}
+                                  placeholder={field.placeholder || field.label}
+                                  onBlur={(e) => {
+                                    const value = e.target.value.trim()
+                                    if (value) {
+                                      setPlacedFields(prev => prev.map(f =>
+                                        f.id === field.id ? { ...f, value } : f
+                                      ))
+                                    }
+                                    setEditingFieldId(null)
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const value = (e.target as HTMLInputElement).value.trim()
+                                      if (value) {
+                                        setPlacedFields(prev => prev.map(f =>
+                                          f.id === field.id ? { ...f, value } : f
+                                        ))
+                                      }
+                                      setEditingFieldId(null)
+                                    }
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center p-1 overflow-hidden">
+                                  <div className="flex items-center gap-1 text-xs font-medium" style={{ color: field.signerColor }}>
+                                    <FieldIcon className="w-4 h-4 flex-shrink-0" style={{ transform: `scale(${Math.min(zoom, 1.5)})` }} />
+                                    <span className="truncate" style={{ fontSize: 12 * Math.min(zoom, 1.5) }}>{field.label}</span>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          {/* Signer indicator */}
+                          {!hasValue && (
+                            <div
+                              className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[10px] font-medium text-white whitespace-nowrap"
+                              style={{ backgroundColor: field.signerColor, transform: `translateX(-50%) scale(${Math.min(zoom, 1.5)})` }}
+                            >
+                              {fieldSigner?.name || 'Signer'}
+                            </div>
+                          )}
+
+                          {/* Mandatory indicator */}
+                          {field.mandatory && !hasValue && (
+                            <div
+                              className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"
+                              title="Required"
+                              style={{ transform: `scale(${Math.min(zoom, 1.5)})` }}
+                            />
+                          )}
+
+                          {/* Resize handle */}
+                          {isSelected && (
+                            <>
+                              <div
+                                className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-br-md cursor-se-resize ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}
+                                onMouseDown={(e) => handleResizeStart(e, field.id, 'se')}
+                              />
+                            </>
+                          )}
+
+                          {/* Red X Delete Button */}
+                          {isSelected && (
+                            <button
+                              className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setPlacedFields(prev => prev.filter(f => f.id !== field.id))
+                                if (selectedFieldId === field.id) {
+                                  setSelectedFieldId(null)
+                                  setShowPropertiesPanel(false)
+                                }
+                              }}
+                            >
+                              <X className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -2726,11 +3508,11 @@ const SignDocumentPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Name Inputs */}
+              {/* Name Inputs - Optional */}
               <div className="px-4 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name <span className="text-red-500">*</span>
+                    Full Name <span className="text-gray-400 text-xs">(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -2745,7 +3527,7 @@ const SignDocumentPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Initials <span className="text-red-500">*</span>
+                    Initials <span className="text-gray-400 text-xs">(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -2898,7 +3680,7 @@ const SignDocumentPage: React.FC = () => {
               <div className="px-4 md:px-6 py-4 flex flex-col-reverse md:flex-row gap-3 border-t border-gray-200">
                 <button
                   onClick={() => {
-                    // Generate signature from style if using style tab
+                    // Generate signature from style if using style tab and has name
                     if (signatureTab === 'style' && signatureFullName) {
                       const signatureData = generateStyledSignature(signatureFullName, signatureInitials, signatureStyle)
                       updateFieldValue(signatureModalFieldId, signatureData)
@@ -2906,7 +3688,7 @@ const SignDocumentPage: React.FC = () => {
                     setSignatureModalFieldId(null)
                     setSelectedFieldId(signatureModalFieldId)
                   }}
-                  disabled={!signatureFullName || !signatureInitials}
+                  disabled={signatureTab === 'style' && !signatureFullName && !modalField.value}
                   className="flex-1 md:flex-none px-6 py-3 md:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg md:rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Adopt and Sign

@@ -39,7 +39,15 @@ export default function WatermarkPDFPage() {
   const [opacity, setOpacity] = useState(0.3)
   const [rotation, setRotation] = useState(-45)
   const [color, setColor] = useState('#ff0000')
-  const [position, setPosition] = useState<'center' | 'tile' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('center')
+  const [position, setPosition] = useState<'center' | 'tile' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'custom'>('center')
+
+  // Custom position for draggable watermark (percentage based)
+  const [customX, setCustomX] = useState(50) // percentage from left
+  const [customY, setCustomY] = useState(50) // percentage from top
+  const [isDraggingWatermark, setIsDraggingWatermark] = useState(false)
+  const [isResizingWatermark, setIsResizingWatermark] = useState(false)
+  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 })
+  const [startFontSize, setStartFontSize] = useState(60)
 
   // Image Watermark options
   const [watermarkImage, setWatermarkImage] = useState<string | null>(null)
@@ -285,6 +293,23 @@ export default function WatermarkPDFPage() {
                 })
               }
             }
+          } else if (position === 'custom') {
+            // Custom position from drag (percentage-based)
+            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+            // Convert percentage to PDF coordinates
+            // Note: PDF coordinates have origin at bottom-left
+            const x = (customX / 100) * width - textWidth / 2
+            const y = height - (customY / 100) * height - fontSize / 2
+
+            page.drawText(watermarkText, {
+              x: Math.max(0, x),
+              y: Math.max(0, Math.min(height - fontSize, y)),
+              size: fontSize,
+              font,
+              color: rgb(r, g, b),
+              opacity: opacity,
+              rotate: degrees(rotation),
+            })
           } else {
             // Corner positions
             const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
@@ -415,6 +440,51 @@ export default function WatermarkPDFPage() {
   }
 
   const presetTexts = ['CONFIDENTIAL', 'DRAFT', 'SAMPLE', 'COPY', 'DO NOT COPY', 'PRIVATE', 'APPROVED', 'VOID']
+
+  // Watermark drag handlers for custom positioning
+  const handleWatermarkDragStart = (e: React.MouseEvent, containerRect: DOMRect) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingWatermark(true)
+    setIsResizingWatermark(false)
+    setDragStartPos({ x: e.clientX, y: e.clientY })
+    setPosition('custom')
+  }
+
+  const handleWatermarkResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsResizingWatermark(true)
+    setIsDraggingWatermark(false)
+    setDragStartPos({ x: e.clientX, y: e.clientY })
+    setStartFontSize(fontSize)
+    setPosition('custom')
+  }
+
+  const handleWatermarkMouseMove = (e: React.MouseEvent, containerRect: DOMRect) => {
+    if (isDraggingWatermark) {
+      const deltaX = e.clientX - dragStartPos.x
+      const deltaY = e.clientY - dragStartPos.y
+
+      const newX = Math.max(5, Math.min(95, customX + (deltaX / containerRect.width) * 100))
+      const newY = Math.max(5, Math.min(95, customY + (deltaY / containerRect.height) * 100))
+
+      setCustomX(newX)
+      setCustomY(newY)
+      setDragStartPos({ x: e.clientX, y: e.clientY })
+    }
+
+    if (isResizingWatermark) {
+      const deltaX = e.clientX - dragStartPos.x
+      const newSize = Math.max(20, Math.min(150, startFontSize + deltaX * 0.5))
+      setFontSize(Math.round(newSize))
+    }
+  }
+
+  const handleWatermarkDragEnd = () => {
+    setIsDraggingWatermark(false)
+    setIsResizingWatermark(false)
+  }
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
@@ -609,7 +679,7 @@ export default function WatermarkPDFPage() {
                       <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
                         Position
                       </label>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2 mb-2">
                         {[
                           { id: 'top-left', label: '↖' },
                           { id: 'center', label: '⊕' },
@@ -631,6 +701,22 @@ export default function WatermarkPDFPage() {
                           </button>
                         ))}
                       </div>
+                      {/* Custom drag option */}
+                      <button
+                        onClick={() => setPosition('custom')}
+                        className={`w-full px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                          position === 'custom'
+                            ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
+                            : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
+                        }`}
+                      >
+                        ✋ Drag to Position (Custom)
+                      </button>
+                      {position === 'custom' && (
+                        <p className={`text-xs mt-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                          Drag the watermark text on the preview to position it
+                        </p>
+                      )}
                     </div>
 
                     {/* Font Size */}
@@ -863,9 +949,20 @@ export default function WatermarkPDFPage() {
                       {/* All Pages Display - Continuous Scroll */}
                       <div className="overflow-y-auto p-4 space-y-4" style={{ maxHeight: '600px' }}>
                         {previewPages.map((pageImg, index) => (
-                          <div key={index} className="relative">
+                          <div
+                            key={index}
+                            className="relative"
+                            onMouseMove={(e) => {
+                              if (position === 'custom' && (isDraggingWatermark || isResizingWatermark)) {
+                                const rect = e.currentTarget.getBoundingClientRect()
+                                handleWatermarkMouseMove(e, rect)
+                              }
+                            }}
+                            onMouseUp={handleWatermarkDragEnd}
+                            onMouseLeave={handleWatermarkDragEnd}
+                          >
                             {/* Page number badge */}
-                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
+                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-20">
                               Page {index + 1}
                             </div>
                             <img
@@ -873,6 +970,47 @@ export default function WatermarkPDFPage() {
                               alt={`Page ${index + 1}`}
                               className={`w-full object-contain shadow-xl rounded border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'}`}
                             />
+                            {/* Draggable & Resizable Watermark Overlay - for custom position & text mode */}
+                            {watermarkType === 'text' && position === 'custom' && (
+                              <div
+                                className="absolute cursor-move select-none z-10 group"
+                                style={{
+                                  left: `${customX}%`,
+                                  top: `${customY}%`,
+                                  transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+                                  fontSize: `${fontSize * 0.5}px`,
+                                  color: color,
+                                  opacity: Math.max(opacity, 0.5), // Make it more visible for dragging
+                                  fontWeight: 'bold',
+                                  textShadow: '0 0 10px rgba(255,255,255,0.8)',
+                                  whiteSpace: 'nowrap',
+                                  border: '2px dashed rgba(0,100,255,0.5)',
+                                  padding: '8px 16px',
+                                  borderRadius: '4px',
+                                  backgroundColor: 'rgba(255,255,255,0.1)'
+                                }}
+                                onMouseDown={(e) => {
+                                  const rect = e.currentTarget.parentElement?.getBoundingClientRect()
+                                  if (rect) handleWatermarkDragStart(e, rect)
+                                }}
+                              >
+                                {watermarkText}
+                                {/* Resize handle - bottom right corner */}
+                                <div
+                                  className="absolute -bottom-3 -right-3 w-6 h-6 bg-blue-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors"
+                                  onMouseDown={handleWatermarkResizeStart}
+                                  title="Drag to resize"
+                                >
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                  </svg>
+                                </div>
+                                {/* Info tooltip */}
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                  Drag to move • Corner to resize
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
