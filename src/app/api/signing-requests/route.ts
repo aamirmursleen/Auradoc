@@ -93,27 +93,26 @@ export async function POST(req: NextRequest) {
       selfSigningLink
     })
 
-    // Fire-and-forget: Send ALL emails in background (don't block response)
-    // Use short URL format: /s/TOKEN
-    Promise.all(
-      nonSelfSigners.map((signer: any) => {
-        const signingLink = APP_URL + '/s/' + signer.token
-        return sendSigningInvite({
-          to: signer.email,
-          signerName: signer.name,
-          senderName: senderName,
-          senderEmail: senderEmail,
-          documentName: documentName,
-          signingLink: signingLink,
-          message: message,
-          expiresAt: dueDate
-        }).catch((err: any) => {
-          console.error('Failed to send email to', signer.email, ':', err)
-        })
+    // Send email only to the FIRST non-self signer (sequential signing)
+    // Next signers will get their email after the previous signer completes
+    if (nonSelfSigners.length > 0) {
+      const firstSigner = nonSelfSigners.sort((a: any, b: any) => a.order - b.order)[0]
+      const signingLink = APP_URL + '/s/' + firstSigner.token
+      sendSigningInvite({
+        to: firstSigner.email,
+        signerName: firstSigner.name,
+        senderName: senderName,
+        senderEmail: senderEmail,
+        documentName: documentName,
+        signingLink: signingLink,
+        message: message,
+        expiresAt: dueDate
+      }).then(() => {
+        console.log('Email sent to first signer:', firstSigner.email)
+      }).catch((err: any) => {
+        console.error('Failed to send email to', firstSigner.email, ':', err)
       })
-    ).then(() => {
-      console.log('All emails sent for signing request:', signingRequestId)
-    })
+    }
 
     return response
 
