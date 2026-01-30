@@ -43,7 +43,7 @@ const products = {
   ],
   business: [
     { name: 'Create Invoice', href: '/create-invoice', icon: Receipt, description: 'Professional invoices' },
-    { name: 'Resume Templates', href: '/templates', icon: LayoutTemplate, description: 'ATS-friendly resumes' },
+    { name: 'Resume Templates', href: '/resume-templates', icon: LayoutTemplate, description: 'ATS-friendly resumes' },
   ],
 }
 

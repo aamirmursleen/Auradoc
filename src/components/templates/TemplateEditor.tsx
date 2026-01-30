@@ -64,6 +64,14 @@ const sampleData: Record<string, string> = {
   totalAmount: '0',
   paymentTerms: '50% upfront, 50% on completion',
   currentDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+  // Additional fields for resume templates
+  languages: 'English (Native), Spanish (Conversational)',
+  certifications: 'AWS Solutions Architect, PMP Certified',
+  portfolio: 'portfolio.example.com',
+  interests: 'Open Source, Machine Learning, Hiking',
+  references: 'Available upon request',
+  achievements: 'Led team of 15 engineers to deliver flagship product on time and under budget',
+  about: 'Passionate professional dedicated to delivering high-quality work and continuous improvement.',
 }
 
 const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onComplete }) => {
