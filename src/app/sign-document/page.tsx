@@ -1344,94 +1344,46 @@ const SignDocumentPage: React.FC = () => {
     setIsDownloading(true)
 
     try {
-      // Handle image download (non-PDF) - SAME LOGIC AS PDF/PREVIEW
+      let pdfBytes: ArrayBuffer
+
+      // For images (PNG/JPG), convert to PDF first using pdf-lib
       if (!isPDF && documentPreview && imageDimensions) {
-        const previewScale = 2
-        const canvas = window.document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        if (!ctx) throw new Error('No canvas context')
+        const { PDFDocument: PDFDoc } = await import('pdf-lib')
+        const imgPdfDoc = await PDFDoc.create()
 
-        canvas.width = imageDimensions.width * previewScale
-        canvas.height = imageDimensions.height * previewScale
+        // Fetch image bytes from data URL
+        const imgResponse = await fetch(documentPreview)
+        const imgBytes = new Uint8Array(await imgResponse.arrayBuffer())
 
-        const img = new window.Image()
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-            resolve()
-          }
-          img.onerror = reject
-          img.src = documentPreview
-        })
-
-        // Overlay fields - USE PERCENTAGES (same as preview)
-        const fieldsOnPage = placedFields.filter(f => f.page === 1 && f.value)
-        for (const field of fieldsOnPage) {
-          // USE PERCENTAGES for positioning (like PDF does)
-          let xPct: number, yPct: number, wPct: number, hPct: number
-
-          if (field.xPercent !== undefined && field.yPercent !== undefined) {
-            xPct = field.xPercent
-            yPct = field.yPercent
-            wPct = field.widthPercent || field.width / imageDimensions.width
-            hPct = field.heightPercent || field.height / imageDimensions.height
-          } else if (field.pageBaseWidth && field.pageBaseHeight) {
-            xPct = field.x / field.pageBaseWidth
-            yPct = field.y / field.pageBaseHeight
-            wPct = field.width / field.pageBaseWidth
-            hPct = field.height / field.pageBaseHeight
-          } else {
-            xPct = field.x / imageDimensions.width
-            yPct = field.y / imageDimensions.height
-            wPct = field.width / imageDimensions.width
-            hPct = field.height / imageDimensions.height
-          }
-
-          const x = xPct * canvas.width
-          const y = yPct * canvas.height
-          const width = wPct * canvas.width
-          const height = hPct * canvas.height
-
-          if (field.type === 'signature' || field.type === 'initials' || (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
-            const fieldImg = new window.Image()
-            fieldImg.crossOrigin = 'anonymous'
-            await new Promise<void>((resolve) => {
-              fieldImg.onload = () => {
-                ctx.drawImage(fieldImg, x, y, width, height)
-                resolve()
-              }
-              fieldImg.onerror = () => resolve()
-              fieldImg.src = field.value!
-            })
-          } else if (field.type === 'checkbox' && field.value === 'checked') {
-            ctx.fillStyle = '#16a34a'
-            ctx.fillRect(x, y, width, height)
-            ctx.fillStyle = 'white'
-            ctx.font = `${height * 0.7}px Arial`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            ctx.fillText('✓', x + width / 2, y + height / 2)
-          } else if (field.value) {
-            ctx.fillStyle = '#000000'
-            const fontSize = Math.min((field.fontSize || 14) * previewScale, height * 0.8)
-            const fontWeight = field.type === 'title' ? 'bold ' : ''
-            ctx.font = `${fontWeight}${fontSize}px Arial`
-            ctx.textAlign = 'left'
-            ctx.textBaseline = 'middle'
-            ctx.fillText(field.value, x + 4, y + height / 2, width - 8)
+        // Embed image based on type
+        let embeddedImg
+        const docType = document.type || ''
+        if (docType.includes('png') || documentPreview.includes('data:image/png')) {
+          embeddedImg = await imgPdfDoc.embedPng(imgBytes)
+        } else {
+          try {
+            embeddedImg = await imgPdfDoc.embedJpg(imgBytes)
+          } catch {
+            embeddedImg = await imgPdfDoc.embedPng(imgBytes)
           }
         }
 
-        const link = window.document.createElement('a')
-        link.download = `${templateProps.name || 'signed-document'}.png`
-        link.href = canvas.toDataURL('image/png')
-        link.click()
-        setIsDownloading(false)
-        return
-      }
+        // Create a page sized to the image (using image's native dimensions)
+        const page = imgPdfDoc.addPage([embeddedImg.width, embeddedImg.height])
+        page.drawImage(embeddedImg, {
+          x: 0,
+          y: 0,
+          width: embeddedImg.width,
+          height: embeddedImg.height,
+        })
 
-      // Handle PDF download using pdf-lib (same logic as preview for consistency)
-      const pdfBytes = await document.arrayBuffer()
+        // Save as PDF bytes - this becomes the "original PDF" for field embedding
+        const imgPdfBytes = await imgPdfDoc.save()
+        pdfBytes = imgPdfBytes.buffer as ArrayBuffer
+      } else {
+        // Native PDF - read directly
+        pdfBytes = await document.arrayBuffer()
+      }
 
       // Get actual PDF dimensions from pdf-lib
       const { PDFDocument } = await import('pdf-lib')
