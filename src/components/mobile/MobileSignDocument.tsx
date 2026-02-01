@@ -13,11 +13,14 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import {
-  PenTool,
+  PenLine,
   FileSignature,
-  Calendar,
+  Fingerprint,
+  CalendarCheck,
   User,
-  AtSign,
+  CircleUserRound,
+  UserRound,
+  Users,
   Building2,
   Type,
   CheckSquare,
@@ -38,7 +41,9 @@ import {
   Download,
   Mail,
   UserPlus,
-  Send
+  Send,
+  Briefcase,
+  AlignLeft
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { apiPost } from '@/lib/api'
@@ -55,17 +60,17 @@ const PDFViewer = dynamic(() => import('@/components/signature/PDFViewer'), {
 
 // Field type definitions
 const FIELD_TYPES = [
-  { id: 'signature', name: 'Signature', icon: PenTool, inputType: 'signature' },
-  { id: 'initials', name: 'Initial', icon: FileSignature, inputType: 'signature' },
-  { id: 'stamp', name: 'Stamp', icon: Stamp, inputType: 'signature' }, // Stamp like signature - draw/upload
-  { id: 'date', name: 'Date', icon: Calendar, inputType: 'date' },
-  { id: 'name', name: 'Name', icon: User, inputType: 'text' },
-  { id: 'firstName', name: 'First Name', icon: User, inputType: 'text' },
-  { id: 'lastName', name: 'Last Name', icon: User, inputType: 'text' },
-  { id: 'email', name: 'Email', icon: AtSign, inputType: 'email' },
+  { id: 'signature', name: 'Signature', icon: PenLine, inputType: 'signature' },
+  { id: 'initials', name: 'Initial', icon: Fingerprint, inputType: 'signature' },
+  { id: 'stamp', name: 'Stamp', icon: Stamp, inputType: 'signature' },
+  { id: 'date', name: 'Date', icon: CalendarCheck, inputType: 'date' },
+  { id: 'name', name: 'Name', icon: CircleUserRound, inputType: 'text' },
+  { id: 'firstName', name: 'First Name', icon: UserRound, inputType: 'text' },
+  { id: 'lastName', name: 'Last Name', icon: Users, inputType: 'text' },
+  { id: 'email', name: 'Email', icon: Mail, inputType: 'email' },
   { id: 'company', name: 'Company', icon: Building2, inputType: 'text' },
-  { id: 'title', name: 'Title', icon: Type, inputType: 'text' },
-  { id: 'text', name: 'Text', icon: Type, inputType: 'text' },
+  { id: 'title', name: 'Title', icon: Briefcase, inputType: 'text' },
+  { id: 'text', name: 'Text', icon: AlignLeft, inputType: 'text' },
   { id: 'checkbox', name: 'Checkbox', icon: CheckSquare, inputType: 'checkbox' },
 ]
 
@@ -879,7 +884,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             onClick={() => setShowPalette(true)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-[#333] text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
           >
-            <PenTool className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+            <PenLine className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
             <span className="text-sm font-medium">Fields</span>
           </button>
         </div>
@@ -964,7 +969,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   {/* Tabs */}
                   <div className={`flex rounded-lg p-1 mb-4 ${isDark ? 'bg-[#252525]' : 'bg-gray-100'}`}>
                     {[
-                      { id: 'draw', label: 'Draw', icon: PenTool },
+                      { id: 'draw', label: 'Draw', icon: PenLine },
                       { id: 'camera', label: 'Camera', icon: Camera },
                       { id: 'upload', label: 'Upload', icon: Image },
                     ].map((tab) => (

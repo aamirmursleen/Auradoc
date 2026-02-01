@@ -5,14 +5,14 @@ import Link from 'next/link'
 import NextImage from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/components/ThemeProvider'
-import { ChevronDown, FileSignature, PenTool, Shield, FileType, Minimize2, Image, Layers, Scissors, FileText, Droplets, Receipt, LayoutTemplate, LayoutDashboard } from 'lucide-react'
+import { ChevronDown, FileSignature, PenLine, Shield, FileType, Minimize2, Image, Layers, Scissors, FileText, Droplets, Receipt, LayoutTemplate, LayoutDashboard } from 'lucide-react'
 import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
 
 // Product categories for mobile menu
 const products = {
   signing: [
     { name: 'Sign Documents', href: '/sign-document', icon: FileSignature },
-    { name: 'Signature Generator', href: '/tools/signature-generator', icon: PenTool },
+    { name: 'Signature Generator', href: '/tools/signature-generator', icon: PenLine },
   ],
   documents: [
     { name: 'Verify PDFs', href: '/verify', icon: Shield },

@@ -6,13 +6,16 @@ import dynamic from 'next/dynamic'
 import {
   FileSignature,
   Upload,
-  PenTool,
+  PenLine,
   Type,
-  AtSign,
   Building2,
-  Calendar,
+  CalendarCheck,
   CheckSquare,
   User,
+  CircleUserRound,
+  UserRound,
+  Users,
+  Fingerprint,
   ZoomIn,
   ZoomOut,
   RotateCcw,
@@ -38,7 +41,9 @@ import {
   Mail,
   Eye,
   Download,
-  Camera
+  Camera,
+  Briefcase,
+  AlignLeft
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { incrementSignCount } from '@/lib/usageLimit'
@@ -96,25 +101,25 @@ const MobileSignDocument = dynamic(() => import('@/components/mobile/MobileSignD
 
 // Field Types - Signature Fields
 const SIGNATURE_FIELDS = [
-  { id: 'signature', name: 'Signature', icon: PenTool },
-  { id: 'initials', name: 'Initial', icon: FileSignature },
+  { id: 'signature', name: 'Signature', icon: PenLine },
+  { id: 'initials', name: 'Initial', icon: Fingerprint },
   { id: 'stamp', name: 'Stamp', icon: Stamp },
-  { id: 'date', name: 'Date Signed', icon: Calendar },
+  { id: 'date', name: 'Date Signed', icon: CalendarCheck },
 ]
 
 // Field Types - Contact/Identity Fields
 const CONTACT_FIELDS = [
-  { id: 'name', name: 'Name', icon: User },
-  { id: 'firstName', name: 'First Name', icon: User },
-  { id: 'lastName', name: 'Last Name', icon: User },
-  { id: 'email', name: 'Email Address', icon: AtSign },
+  { id: 'name', name: 'Name', icon: CircleUserRound },
+  { id: 'firstName', name: 'First Name', icon: UserRound },
+  { id: 'lastName', name: 'Last Name', icon: Users },
+  { id: 'email', name: 'Email Address', icon: Mail },
   { id: 'company', name: 'Company', icon: Building2 },
-  { id: 'title', name: 'Title', icon: Type },
+  { id: 'title', name: 'Title', icon: Briefcase },
 ]
 
 // Field Types - Other Fields
 const OTHER_FIELDS = [
-  { id: 'text', name: 'Text', icon: Type },
+  { id: 'text', name: 'Text', icon: AlignLeft },
   { id: 'checkbox', name: 'Checkbox', icon: CheckSquare },
 ]
 
@@ -264,6 +269,9 @@ const SignDocumentPage: React.FC = () => {
   const [showTemplateModal, setShowTemplateModal] = useState(false)
   const [showSendModal, setShowSendModal] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [isGeneratingShare, setIsGeneratingShare] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [previewImages, setPreviewImages] = useState<string[]>([])
@@ -273,6 +281,8 @@ const SignDocumentPage: React.FC = () => {
   const [resizeDirection, setResizeDirection] = useState<string>('se')
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [draftId, setDraftId] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [sendSuccess, setSendSuccess] = useState(false)
   const [emailSubject, setEmailSubject] = useState('')
@@ -380,6 +390,21 @@ const SignDocumentPage: React.FC = () => {
           const fields = JSON.parse(savedFields)
           setPlacedFields(fields)
         }
+
+        const savedTemplateProps = localStorage.getItem('signDocument_templateProps')
+        if (savedTemplateProps) {
+          setTemplateProps(JSON.parse(savedTemplateProps))
+        }
+
+        const savedSigners = localStorage.getItem('signDocument_signers')
+        if (savedSigners) {
+          setSigners(JSON.parse(savedSigners))
+        }
+
+        const savedDraftId = localStorage.getItem('signDocument_draftId')
+        if (savedDraftId) {
+          setDraftId(savedDraftId)
+        }
       } catch (err) {
         console.warn('Could not load saved document:', err)
       }
@@ -393,6 +418,113 @@ const SignDocumentPage: React.FC = () => {
       localStorage.removeItem('signDocument_name')
       localStorage.removeItem('signDocument_type')
       localStorage.removeItem('signDocument_fields')
+      localStorage.removeItem('signDocument_templateProps')
+      localStorage.removeItem('signDocument_signers')
+      localStorage.removeItem('signDocument_draftId')
+    }
+    setDraftId(null)
+  }
+
+  // Handle Save button click - save draft to Supabase database
+  const handleSave = async () => {
+    if (!document) return
+    setIsSaving(true)
+    setSaveSuccess(false)
+    setError(null)
+    try {
+      // Use pre-uploaded URL if available, otherwise fallback to base64
+      let docUrl = preUploadedUrl || ''
+      if (!docUrl && documentDataUrl) {
+        docUrl = documentDataUrl
+      }
+
+      const result = await apiPost('/api/save-draft', {
+        draftId: draftId,
+        documentName: templateProps.name || document.name || 'Untitled Document',
+        documentUrl: docUrl,
+        signers: signers.map(s => ({
+          id: s.id,
+          name: s.name,
+          email: s.email,
+          color: s.color,
+          order: s.order,
+          is_self: s.is_self || false
+        })),
+        signatureFields: placedFields,
+        templateProps: templateProps
+      })
+
+      if (result.success && result.data?.draftId) {
+        setDraftId(result.data.draftId)
+        // Also save draftId to localStorage for page reload recovery
+        localStorage.setItem('signDocument_draftId', result.data.draftId)
+        setSaveSuccess(true)
+        setTimeout(() => setSaveSuccess(false), 2000)
+      } else {
+        setError(result.error || 'Failed to save document')
+      }
+    } catch (err) {
+      console.warn('Could not save document:', err)
+      setError('Failed to save document. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Handle Share - save document and generate share URL
+  const handleShare = async () => {
+    if (!document) return
+    setIsGeneratingShare(true)
+    setShareUrl(null)
+    setShareCopied(false)
+    try {
+      let docUrl = preUploadedUrl || ''
+      if (!docUrl && documentDataUrl) {
+        docUrl = documentDataUrl
+      }
+
+      const result = await apiPost('/api/share-document', {
+        documentName: templateProps.name || document.name || 'Untitled Document',
+        documentUrl: docUrl,
+        signers: signers.map(s => ({
+          name: s.name,
+          email: s.email,
+          order: s.order,
+          is_self: s.is_self || false
+        })),
+        signatureFields: placedFields,
+        templateProps: templateProps
+      })
+
+      if (result.success && result.data?.shareUrl) {
+        setShareUrl(result.data.shareUrl)
+      } else {
+        setError(result.error || 'Failed to generate share link')
+      }
+    } catch (err) {
+      console.warn('Could not generate share link:', err)
+      setError('Failed to generate share link')
+    } finally {
+      setIsGeneratingShare(false)
+    }
+  }
+
+  const copyShareUrl = async () => {
+    if (!shareUrl) return
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    } catch {
+      // Fallback for older browsers
+      const textArea = window.document.createElement('textarea')
+      textArea.value = shareUrl
+      window.document.body.appendChild(textArea)
+      textArea.select()
+      window.document.execCommand('copy')
+      window.document.body.removeChild(textArea)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
     }
   }
 
@@ -1744,7 +1876,7 @@ const SignDocumentPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setShowShareModal(true)}
+            onClick={() => { setShowShareModal(true); handleShare(); }}
             disabled={!document}
             className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
           >
@@ -1773,12 +1905,12 @@ const SignDocumentPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setIsSaving(true)}
+            onClick={handleSave}
             disabled={!document || isSaving}
-            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
+            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 ${saveSuccess ? 'text-green-500' : isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
           >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span className="text-sm font-medium hidden lg:inline">Save</span>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : saveSuccess ? <CheckSquare className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+            <span className="text-sm font-medium hidden lg:inline">{saveSuccess ? 'Saved!' : 'Save'}</span>
           </button>
 
           <button
@@ -1974,13 +2106,18 @@ const SignDocumentPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className={`hidden md:flex items-center gap-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                  <span>{totalPages} page{totalPages !== 1 ? 's' : ''}</span>
-                  <span>•</span>
-                  <span>{placedFields.length} fields</span>
-                  <span>•</span>
-                  <span>Scroll to view all</span>
-                </div>
+                <button
+                  onClick={uploadNewDocument}
+                  className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    isDark
+                      ? 'bg-[#2a2a2a] hover:bg-[#333] text-gray-300 border border-[#3a3a3a]'
+                      : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-300'
+                  }`}
+                  title="Upload New Document"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>New Document</span>
+                </button>
 
                 {/* Mobile info */}
                 <div className={`md:hidden flex items-center gap-2 text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
@@ -2037,20 +2174,6 @@ const SignDocumentPage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Upload New Document Button */}
-                <button
-                  onClick={uploadNewDocument}
-                  className={`ml-2 md:ml-4 px-2 md:px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs md:text-sm font-medium transition-colors ${
-                    isDark
-                      ? 'bg-[#2a2a2a] hover:bg-[#333] text-gray-300 border border-[#3a3a3a]'
-                      : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-300'
-                  }`}
-                  title="Upload New Document"
-                >
-                  <Upload className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                  <span className="hidden md:inline">New Document</span>
-                  <span className="md:hidden">New</span>
-                </button>
               </div>
             </div>
           )}
@@ -3018,7 +3141,7 @@ const SignDocumentPage: React.FC = () => {
             className={`md:hidden fixed right-3 z-40 flex items-center gap-1.5 px-3 py-2.5 rounded-full shadow-lg transition-all active:scale-95 ${isDark ? 'bg-[#333] text-white' : 'bg-white text-gray-700 shadow-md border border-gray-200'}`}
             style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}
           >
-            <PenTool className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+            <PenLine className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
             <span className="text-sm font-medium">Fields</span>
           </button>
         )}
@@ -3240,7 +3363,14 @@ const SignDocumentPage: React.FC = () => {
                 Cancel
               </button>
               <button
-                onClick={() => setShowTemplateModal(false)}
+                onClick={() => {
+                  try {
+                    localStorage.setItem('signDocument_templateProps', JSON.stringify(templateProps))
+                  } catch (err) {
+                    console.warn('Could not save template properties:', err)
+                  }
+                  setShowTemplateModal(false)
+                }}
                 className={`px-6 py-2 font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
               >
                 Save Properties
@@ -3395,7 +3525,7 @@ const SignDocumentPage: React.FC = () => {
             <div className={`flex items-center justify-between p-5 ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
               <h3 className={`text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
                 <Share2 className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                Share Template
+                Share Document
               </h3>
               <button
                 onClick={() => setShowShareModal(false)}
@@ -3406,27 +3536,75 @@ const SignDocumentPage: React.FC = () => {
             </div>
 
             <div className="p-5 space-y-4">
-              <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Create a public link that anyone can use to sign this document.
-              </p>
+              {isGeneratingShare && (
+                <div className="flex items-center justify-center gap-2 py-6">
+                  <Loader2 className={`w-5 h-5 animate-spin ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                  <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Generating share link...</span>
+                </div>
+              )}
 
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value="https://mamasign.com/sign/abc123"
-                  readOnly
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-600'}`}
-                />
-                <button className={`px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}>
-                  <Copy className="w-4 h-4" />
-                </button>
-              </div>
+              {!isGeneratingShare && !shareUrl && (
+                <div className={`text-center py-4`}>
+                  <AlertCircle className={`w-8 h-8 mx-auto mb-2 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Failed to generate share link. Please try again.</p>
+                  <button
+                    onClick={handleShare}
+                    className={`mt-3 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${isDark ? 'bg-[#2a2a2a] text-white hover:bg-[#333]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
 
-              <div className={`rounded-lg p-3 ${isDark ? 'bg-yellow-900/30 border border-yellow-500/30' : 'bg-yellow-50 border border-yellow-200'}`}>
-                <p className={`text-sm ${isDark ? 'text-yellow-400' : 'text-yellow-700'}`}>
-                  Anyone with this link can sign the document. Share carefully.
-                </p>
-              </div>
+              {shareUrl && (
+                <>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Anyone with this link can sign the document.
+                  </p>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={shareUrl}
+                      readOnly
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a] text-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-600'}`}
+                    />
+                    <button
+                      onClick={copyShareUrl}
+                      className={`px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${shareCopied ? 'bg-green-500 text-white' : isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
+                    >
+                      {shareCopied ? <CheckSquare className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+
+                  <div>
+                    <p className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Share via</p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Please sign this document: ${shareUrl}`)}`, '_blank')}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-[#25D366] hover:bg-[#1da851] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        WhatsApp
+                      </button>
+                      <button
+                        onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'width=600,height=400')}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-[#1877F2] hover:bg-[#0d65d9] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        Facebook
+                      </button>
+                      <button
+                        onClick={() => window.open(`mailto:?subject=${encodeURIComponent(`Please sign: ${templateProps.name || 'Document'}`)}&body=${encodeURIComponent(`Please sign this document using the link below:\n\n${shareUrl}`)}`, '_self')}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md ${isDark ? 'bg-[#2a2a2a] text-white hover:bg-[#333]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      >
+                        <Mail className="w-4 h-4" />
+                        Email
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className={`flex items-center justify-end gap-3 p-5 rounded-b-2xl ${isDark ? 'border-t border-[#2a2a2a] bg-[#252525]' : 'border-t border-gray-200 bg-white'}`}>
