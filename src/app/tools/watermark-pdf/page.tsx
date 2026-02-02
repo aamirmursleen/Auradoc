@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { Droplets, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock, Eye, Type, Image, Trash2 } from 'lucide-react'
+import { Droplets, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock, Type, Image, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib'
 import * as pdfjsLib from 'pdfjs-dist'
@@ -937,27 +937,15 @@ export default function WatermarkPDFPage() {
 
               {/* Right Panel - Preview */}
               <div className={`lg:col-span-2 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-xl p-4`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} flex items-center gap-2`}>
-                    <Eye className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                    Preview
-                    {previewLoading && <Loader2 className="w-4 h-4 animate-spin opacity-60" />}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    {pdfBlob && (
-                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
-                        Watermark Applied
-                      </span>
-                    )}
-                    <button
-                      onClick={downloadPDF}
-                      disabled={processing || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 ${isDark ? 'bg-[#c4ff0e] hover:bg-[#d4ff3e] text-black' : 'bg-[#4C00FF] hover:bg-[#3a00cc] text-white'} font-medium rounded-lg text-sm transition-colors disabled:opacity-50`}
-                    >
-                      {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                      Download
-                    </button>
-                  </div>
+                <div className="flex items-center justify-end mb-4">
+                  <button
+                    onClick={downloadPDF}
+                    disabled={processing || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 ${isDark ? 'bg-[#c4ff0e] hover:bg-[#d4ff3e] text-black' : 'bg-[#4C00FF] hover:bg-[#3a00cc] text-white'} font-medium rounded-lg text-sm transition-colors disabled:opacity-50`}
+                  >
+                    {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    Download
+                  </button>
                 </div>
 
                 <div className={`${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'} rounded-lg overflow-hidden`} style={{ minHeight: '500px' }}>
