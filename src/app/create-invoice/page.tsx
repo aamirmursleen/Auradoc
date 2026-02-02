@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { incrementInvoiceCount } from '@/lib/usageLimit'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import {
   FileText,
   Upload,
@@ -25,7 +27,8 @@ import {
   Mail,
   MessageCircle,
   Link2,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -304,13 +307,44 @@ const CreateInvoicePage: React.FC = () => {
   }
 
   // Handle PDF download and increment usage count
-  const handleDownloadPDF = () => {
-    // Increment invoice count when generating/downloading
-    if (user?.id) {
-      incrementInvoiceCount(user.id)
+  const [downloadingPDF, setDownloadingPDF] = useState(false)
+
+  const handleDownloadPDF = async () => {
+    const el = invoicePreviewRef.current
+    if (!el || downloadingPDF) return
+
+    setDownloadingPDF(true)
+    try {
+      if (user?.id) {
+        incrementInvoiceCount(user.id)
+      }
+
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      })
+
+      const imgData = canvas.toDataURL('image/png')
+      const imgWidth = canvas.width
+      const imgHeight = canvas.height
+
+      const pdfWidth = 210
+      const pdfHeight = (imgHeight * pdfWidth) / imgWidth
+
+      const pdf = new jsPDF({
+        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: pdfHeight <= 297 ? 'a4' : [pdfWidth, pdfHeight],
+      })
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(`Invoice_${invoiceData.invoiceNumber || 'draft'}.pdf`)
+    } catch (err) {
+      console.error('PDF download error:', err)
+    } finally {
+      setDownloadingPDF(false)
     }
-    // TODO: Add actual PDF generation logic here
-    window.print()
   }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1098,10 +1132,11 @@ const CreateInvoicePage: React.FC = () => {
                   </button>
                   <button
                     onClick={handleDownloadPDF}
-                    className={`py-4 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2`}
+                    disabled={downloadingPDF}
+                    className={`py-4 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60`}
                   >
-                    <Download className="w-5 h-5" />
-                    Generate PDF
+                    {downloadingPDF ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                    {downloadingPDF ? 'Downloading...' : 'Download PDF'}
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
