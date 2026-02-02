@@ -193,9 +193,14 @@ export async function generateFinalPdf(
   // Save the modified PDF
   const pdfBytes = await pdfDoc.save()
 
-  // Create data URL for preview
-  const base64 = btoa(String.fromCharCode(...pdfBytes))
-  const pdfDataUrl = `data:application/pdf;base64,${base64}`
+  // Create data URL for preview (chunked to avoid stack overflow on large files)
+  let binary = ''
+  const chunkSize = 8192
+  for (let i = 0; i < pdfBytes.length; i += chunkSize) {
+    const chunk = pdfBytes.subarray(i, Math.min(i + chunkSize, pdfBytes.length))
+    binary += String.fromCharCode.apply(null, Array.from(chunk))
+  }
+  const pdfDataUrl = `data:application/pdf;base64,${btoa(binary)}`
 
   return { pdfBytes, pdfDataUrl }
 }

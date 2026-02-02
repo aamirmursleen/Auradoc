@@ -741,10 +741,9 @@ const SignDocumentPage: React.FC = () => {
       const dropX = e.clientX - containerRect.left
       const dropY = e.clientY - containerRect.top
 
-      // The container has explicit dimensions: imageDimensions * zoom
-      // So calculate percentage based on container dimensions
-      const expectedWidth = imageDimensions.width * zoom
-      const expectedHeight = imageDimensions.height * zoom
+      // Use ACTUAL rendered container dimensions (robust against CSS constraints)
+      const expectedWidth = containerRect.width
+      const expectedHeight = containerRect.height
 
       // Calculate percentage of where user dropped
       const xPct = dropX / expectedWidth
@@ -769,6 +768,14 @@ const SignDocumentPage: React.FC = () => {
       const rect = documentContainerRef.current.getBoundingClientRect()
       x = (e.clientX - rect.left) / zoom
       y = (e.clientY - rect.top) / zoom
+
+      // Set percentage values for PDFs too (using US Letter as default base)
+      pageBaseWidth = 612
+      pageBaseHeight = 792
+      widthPercent = fieldWidth / pageBaseWidth
+      heightPercent = fieldHeight / pageBaseHeight
+      xPercent = Math.max(0, (x - fieldWidth / 2)) / pageBaseWidth
+      yPercent = Math.max(0, (y - fieldHeight / 2)) / pageBaseHeight
     }
 
     const newField: PlacedField = {
@@ -835,13 +842,13 @@ const SignDocumentPage: React.FC = () => {
 
       // For images: calculate delta as percentage (same approach as placement)
       if (!isPDF && imageDimensions) {
-        // Use actual rendered dimensions for consistent percentage calculation
-        // The container dimensions should match imageDimensions * zoom
-        const containerWidth = imageDimensions.width * zoom
-        const containerHeight = imageDimensions.height * zoom
+        // Use ACTUAL rendered container dimensions (robust against CSS constraints)
+        const imageContainer = window.document.querySelector('[data-image-container="true"]') as HTMLElement
+        const containerRect = imageContainer?.getBoundingClientRect()
+        const containerWidth = containerRect?.width || imageDimensions.width * zoom
+        const containerHeight = containerRect?.height || imageDimensions.height * zoom
 
-        // Calculate movement as percentage of container
-        // Using styled dimensions for delta is fine since movement is relative
+        // Calculate movement as percentage of actual container
         const deltaPctX = (e.clientX - dragStartPos.current.x) / containerWidth
         const deltaPctY = (e.clientY - dragStartPos.current.y) / containerHeight
 
@@ -934,9 +941,24 @@ const SignDocumentPage: React.FC = () => {
         newY = fieldStartPos.current.y + deltaY
       }
 
-      return { ...field, width: newWidth, height: newHeight, x: newX, y: newY }
+      // Also update percentages in real-time during resize
+      // (needed for CSS percentage-based field display to show correct size)
+      const baseWidth = (!isPDF && imageDimensions) ? imageDimensions.width : (field.pageBaseWidth || 612)
+      const baseHeight = (!isPDF && imageDimensions) ? imageDimensions.height : (field.pageBaseHeight || 792)
+
+      return {
+        ...field,
+        width: newWidth,
+        height: newHeight,
+        x: newX,
+        y: newY,
+        widthPercent: newWidth / baseWidth,
+        heightPercent: newHeight / baseHeight,
+        xPercent: newX / baseWidth,
+        yPercent: newY / baseHeight,
+      }
     }))
-  }, [isResizing, selectedFieldId, zoom, resizeDirection])
+  }, [isResizing, selectedFieldId, zoom, resizeDirection, isPDF, imageDimensions])
 
   // Handle mouse up - recalculate percentages after drag/resize
   const handleMouseUp = useCallback(() => {
@@ -956,8 +978,9 @@ const SignDocumentPage: React.FC = () => {
             baseWidth = imageDimensions.width
             baseHeight = imageDimensions.height
           } else {
-            // Can't calculate percentages without base dimensions
-            return field
+            // For PDFs, use US Letter as fallback
+            baseWidth = 612
+            baseHeight = 792
           }
         }
 
@@ -1132,8 +1155,8 @@ const SignDocumentPage: React.FC = () => {
     setPdfPageImage(imageUrl)
   }, [])
 
-  // Generate preview with signatures overlaid using pdf-lib
-  // This generates the SAME PDF that will be downloaded, ensuring consistency
+  // Generate preview using the EXACT same pipeline as download
+  // This guarantees preview matches the downloaded PDF pixel-for-pixel
   const generatePreview = useCallback(async () => {
     if (!document) return
 
@@ -1141,194 +1164,94 @@ const SignDocumentPage: React.FC = () => {
     setPreviewImages([])
 
     try {
-      // Check if document is an image (non-PDF)
+      // For IMAGE documents: use HTML rendering in the modal (same rendering as editor = pixel-perfect match)
       if (!isPDF && documentPreview && imageDimensions) {
-        // Handle image preview - SAME LOGIC AS PDF
-        const previewScale = 2
-        const canvas = window.document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        if (!ctx) throw new Error('No canvas context')
-
-        canvas.width = imageDimensions.width * previewScale
-        canvas.height = imageDimensions.height * previewScale
-
-        const img = new window.Image()
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-            resolve()
-          }
-          img.onerror = reject
-          img.src = documentPreview
-        })
-
-        // Overlay fields - coordinates are in BASE space (relative to imageDimensions)
-        // Just multiply by previewScale (same as PDF approach)
-        const fieldsOnPage = placedFields.filter(f => f.page === 1 && f.value)
-
-        for (const field of fieldsOnPage) {
-          // Use yPercent directly - it's the percentage from TOP (0 = top, 1 = bottom)
-          const yPct = field.yPercent ?? (field.y / imageDimensions.height)
-          const xPct = field.xPercent ?? (field.x / imageDimensions.width)
-          const wPct = field.widthPercent ?? (field.width / imageDimensions.width)
-          const hPct = field.heightPercent ?? (field.height / imageDimensions.height)
-
-          // Canvas position = percentage * canvas size
-          const x = xPct * canvas.width
-          const y = yPct * canvas.height
-          const width = wPct * canvas.width
-          const height = hPct * canvas.height
-
-
-
-          if (field.type === 'signature' || field.type === 'initials' || (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
-            const fieldImg = new window.Image()
-            fieldImg.crossOrigin = 'anonymous'
-            await new Promise<void>((resolve) => {
-              fieldImg.onload = () => {
-                ctx.drawImage(fieldImg, x, y, width, height)
-                resolve()
-              }
-              fieldImg.onerror = () => resolve()
-              fieldImg.src = field.value!
-            })
-          } else if (field.type === 'checkbox' && field.value === 'checked') {
-            ctx.fillStyle = '#16a34a'
-            ctx.fillRect(x, y, width, height)
-            ctx.fillStyle = 'white'
-            ctx.font = `${height * 0.7}px Arial`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            ctx.fillText('✓', x + width / 2, y + height / 2)
-          } else if (field.value) {
-            ctx.fillStyle = '#000000'
-            const fontSize = Math.min((field.fontSize || 14) * previewScale, height * 0.8)
-            const fontWeight = field.type === 'title' ? 'bold ' : ''
-            ctx.font = `${fontWeight}${fontSize}px Arial`
-            ctx.textAlign = 'left'
-            ctx.textBaseline = 'middle'
-            ctx.fillText(field.value, x + 4, y + height / 2, width - 8)
-          }
-        }
-
-        setPreviewImages([canvas.toDataURL('image/png')])
+        // No canvas needed - the preview modal renders HTML directly
         setShowPreviewModal(true)
-        return
-      }
+      } else {
+        // For PDF documents: use the pdf-lib pipeline
+        const ab = await document.arrayBuffer()
+        const pdfData = new Uint8Array(ab)
 
-      // Handle PDF preview - SIMPLE CANVAS APPROACH (more reliable)
-      const pdfjsLib = await import('pdfjs-dist')
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+        // Build SignatureFields from placed fields
+        const signatureFields: SignatureField[] = placedFields
+          .filter(f => f.value)
+          .map(field => {
+            let xPct: number | undefined = field.xPercent
+            let yPct: number | undefined = field.yPercent
+            let wPct: number | undefined = field.widthPercent
+            let hPct: number | undefined = field.heightPercent
 
-      const arrayBuffer = await document.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({
-        data: arrayBuffer,
-        cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
-        cMapPacked: true,
-        standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`,
-      }).promise
+            const baseW = field.pageBaseWidth || 612
+            const baseH = field.pageBaseHeight || 792
 
-      const images: string[] = []
-      const previewScale = 2
+            if (xPct === undefined || yPct === undefined) {
+              if (baseW && baseH) {
+                xPct = field.x / baseW
+                yPct = field.y / baseH
+              } else {
+                return null
+              }
+            }
 
-      // Debug: Check fields
-      const fieldsWithValue = placedFields.filter(f => f.value)
-      console.log('Preview Debug:', {
-        totalFields: placedFields.length,
-        fieldsWithValue: fieldsWithValue.length,
-        fieldDetails: placedFields.map(f => ({
-          id: f.id,
-          type: f.type,
-          hasValue: !!f.value,
-          x: f.x,
-          y: f.y,
-          pageBaseWidth: f.pageBaseWidth,
-          pageBaseHeight: f.pageBaseHeight
-        }))
-      })
+            if (wPct === undefined || wPct === null || isNaN(wPct)) {
+              wPct = field.width / baseW
+            }
+            if (hPct === undefined || hPct === null || isNaN(hPct)) {
+              hPct = field.height / baseH
+            }
 
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum)
-        const viewport = page.getViewport({ scale: previewScale })
-        const baseViewport = page.getViewport({ scale: 1 })
-
-        const canvas = window.document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        if (!ctx) continue
-
-        canvas.width = viewport.width
-        canvas.height = viewport.height
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        await page.render({
-          canvasContext: ctx,
-          viewport: viewport,
-          background: 'white'
-        }).promise
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
-
-        // Draw fields on this page using percentage-based positioning
-        // This is more robust as it accounts for any coordinate system differences
-        const fieldsOnPage = placedFields.filter(f => f.page === pageNum && f.value)
-
-        for (const field of fieldsOnPage) {
-          // Use PERCENTAGE-based positioning for accuracy
-          // The percentages were calculated relative to the page dimensions at placement time
-          const x = (field.xPercent ?? (field.x / (field.pageBaseWidth || baseViewport.width))) * canvas.width
-          const y = (field.yPercent ?? (field.y / (field.pageBaseHeight || baseViewport.height))) * canvas.height
-          const width = (field.widthPercent ?? (field.width / (field.pageBaseWidth || baseViewport.width))) * canvas.width
-          const height = (field.heightPercent ?? (field.height / (field.pageBaseHeight || baseViewport.height))) * canvas.height
-
-          console.log(`Drawing field ${field.type} at:`, {
-            fieldX: field.x, fieldY: field.y,
-            xPercent: field.xPercent, yPercent: field.yPercent,
-            canvasWidth: canvas.width, canvasHeight: canvas.height,
-            x, y, width, height
+            return {
+              id: field.id,
+              type: field.type,
+              pageNumber: field.page,
+              xPct,
+              yPct,
+              wPct,
+              hPct,
+              value: field.value,
+              fontSize: field.fontSize,
+            } as SignatureField
           })
+          .filter((f): f is SignatureField => f !== null)
 
-          if (field.type === 'signature' || field.type === 'initials' ||
-              (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
-            const img = new window.Image()
-            await new Promise<void>((resolve) => {
-              img.onload = () => {
-                ctx.drawImage(img, x, y, width, height)
-                resolve()
-              }
-              img.onerror = () => {
-                ctx.fillStyle = 'rgba(255,0,0,0.3)'
-                ctx.fillRect(x, y, width, height)
-                resolve()
-              }
-              img.src = field.value!
-            })
-          } else if (field.type === 'checkbox' && field.value === 'checked') {
-            ctx.fillStyle = '#16a34a'
-            ctx.fillRect(x, y, width, height)
-            ctx.fillStyle = 'white'
-            ctx.font = `${height * 0.7}px Arial`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            ctx.fillText('✓', x + width / 2, y + height / 2)
-          } else if (field.value) {
-            ctx.fillStyle = '#000000'
-            const fontSize = Math.min((field.fontSize || 14) * previewScale, height * 0.8)
-            const fontWeight = field.type === 'title' ? 'bold ' : ''
-            ctx.font = `${fontWeight}${fontSize}px Arial`
-            ctx.textAlign = 'left'
-            ctx.textBaseline = 'middle'
-            ctx.fillText(field.value, x + 4, y + height / 2, width - 8)
-          }
+        const { pdfBytes: finalPdfBytes } = await generateFinalPdf(pdfData, signatureFields)
+
+        // Render using pdf.js
+        const pdfjsLib = await import('pdfjs-dist')
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+
+        const finalPdf = await pdfjsLib.getDocument({ data: finalPdfBytes }).promise
+        const images: string[] = []
+        const previewScale = 2
+
+        for (let pageNum = 1; pageNum <= finalPdf.numPages; pageNum++) {
+          const page = await finalPdf.getPage(pageNum)
+          const viewport = page.getViewport({ scale: previewScale })
+
+          const canvas = window.document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (!ctx) continue
+
+          canvas.width = viewport.width
+          canvas.height = viewport.height
+
+          ctx.setTransform(1, 0, 0, 1, 0, 0)
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+          await page.render({
+            canvasContext: ctx,
+            viewport: viewport,
+            background: 'white'
+          }).promise
+
+          images.push(canvas.toDataURL('image/png'))
         }
 
-        images.push(canvas.toDataURL('image/png'))
+        setPreviewImages(images)
+        setShowPreviewModal(true)
       }
-
-      setPreviewImages(images)
-      setShowPreviewModal(true)
     } catch (err) {
       console.error('Error generating preview:', err)
       setError('Failed to generate preview')
@@ -1344,7 +1267,7 @@ const SignDocumentPage: React.FC = () => {
     setIsDownloading(true)
 
     try {
-      let pdfBytes: ArrayBuffer
+      let pdfData: Uint8Array
 
       // For images (PNG/JPG), convert to PDF first using pdf-lib
       if (!isPDF && documentPreview && imageDimensions) {
@@ -1368,41 +1291,51 @@ const SignDocumentPage: React.FC = () => {
           }
         }
 
-        // Create a page sized to the image (using image's native dimensions)
-        const page = imgPdfDoc.addPage([embeddedImg.width, embeddedImg.height])
+        // DPI normalization: Browser renders images at 96 CSS pixels/inch,
+        // PDF uses 72 points/inch. Convert to get correct physical page size.
+        const DPI_RATIO = 72 / 96
+        const pageW = imageDimensions.width * DPI_RATIO
+        const pageH = imageDimensions.height * DPI_RATIO
+
+        // Check if embedded image dimensions differ (e.g., EXIF rotation)
+        const dimMismatch = embeddedImg.width !== imageDimensions.width || embeddedImg.height !== imageDimensions.height
+        if (dimMismatch) {
+          console.warn('Image dimension mismatch (possible EXIF rotation)! Browser:',
+            `${imageDimensions.width}x${imageDimensions.height}`,
+            'Raw:', `${embeddedImg.width}x${embeddedImg.height}`,
+            '- image will be drawn to fill page (browser orientation)')
+        }
+
+        console.log('Image→PDF conversion:', {
+          imageDimensions: `${imageDimensions.width}x${imageDimensions.height}`,
+          embeddedImgSize: `${embeddedImg.width}x${embeddedImg.height}`,
+          pdfPagePt: `${pageW.toFixed(1)}x${pageH.toFixed(1)}`,
+          dpiRatio: DPI_RATIO,
+          dimMismatch
+        })
+
+        // Create PDF page at DPI-normalized dimensions
+        // Image fills the entire page - percentages map correctly regardless of page size
+        const page = imgPdfDoc.addPage([pageW, pageH])
         page.drawImage(embeddedImg, {
           x: 0,
           y: 0,
-          width: embeddedImg.width,
-          height: embeddedImg.height,
+          width: pageW,
+          height: pageH,
         })
 
-        // Save as PDF bytes - this becomes the "original PDF" for field embedding
-        const imgPdfBytes = await imgPdfDoc.save()
-        pdfBytes = imgPdfBytes.buffer as ArrayBuffer
+        // Save as Uint8Array directly (avoid .buffer which can include extra bytes)
+        pdfData = await imgPdfDoc.save()
       } else {
         // Native PDF - read directly
-        pdfBytes = await document.arrayBuffer()
+        const ab = await document.arrayBuffer()
+        pdfData = new Uint8Array(ab)
       }
 
-      // Get actual PDF dimensions from pdf-lib
-      const { PDFDocument } = await import('pdf-lib')
-      const tempPdfDoc = await PDFDocument.load(pdfBytes)
-      const pdfPages = tempPdfDoc.getPages()
-
-      const actualPdfDimensions: { [pageNum: number]: { width: number; height: number } } = {}
-      pdfPages.forEach((page, index) => {
-        const { width, height } = page.getSize()
-        actualPdfDimensions[index + 1] = { width, height }
-      })
-
-      // Convert PlacedFields to SignatureFields using actual PDF dimensions
+      // Convert PlacedFields to SignatureFields using stored percentages
       const signatureFields: SignatureField[] = placedFields
         .filter(f => f.value)
         .map(field => {
-          const actualDims = actualPdfDimensions[field.page]
-          if (!actualDims) return null
-
           // PREFER stored percentages (they're calculated correctly during placement)
           // Only fall back to x/y calculation if percentages aren't available
           let xPct: number | undefined = field.xPercent
@@ -1410,26 +1343,46 @@ const SignDocumentPage: React.FC = () => {
           let wPct: number | undefined = field.widthPercent
           let hPct: number | undefined = field.heightPercent
 
+          // Determine base dimensions for percentage calculation
+          const baseW = field.pageBaseWidth || ((!isPDF && imageDimensions) ? imageDimensions.width : 612)
+          const baseH = field.pageBaseHeight || ((!isPDF && imageDimensions) ? imageDimensions.height : 792)
+
           // Only recalculate from x/y if percentages are not available
           if (xPct === undefined || yPct === undefined) {
-            if (field.pageBaseWidth && field.pageBaseHeight) {
-              xPct = field.x / field.pageBaseWidth
-              yPct = field.y / field.pageBaseHeight
-              wPct = field.width / field.pageBaseWidth
-              hPct = field.height / field.pageBaseHeight
+            if (baseW && baseH) {
+              xPct = field.x / baseW
+              yPct = field.y / baseH
             } else {
               return null
             }
           }
 
+          // Always ensure wPct/hPct are defined (they may be undefined even when xPct/yPct are set)
+          if (wPct === undefined || wPct === null || isNaN(wPct)) {
+            wPct = field.width / baseW
+          }
+          if (hPct === undefined || hPct === null || isNaN(hPct)) {
+            hPct = field.height / baseH
+          }
+
+          console.log(`Download field ${field.id} (${field.type}):`, {
+            xPct: xPct.toFixed(4),
+            yPct: yPct.toFixed(4),
+            wPct: wPct.toFixed(4),
+            hPct: hPct.toFixed(4),
+            page: field.page,
+            hasValue: !!field.value,
+            valueType: field.value?.substring(0, 30)
+          })
+
           return {
             id: field.id,
             type: field.type,
             pageNumber: field.page,
-            xPct: xPct!,
-            yPct: yPct!,
-            wPct: wPct!,
-            hPct: hPct!,
+            xPct,
+            yPct,
+            wPct,
+            hPct,
             value: field.value,
             fontSize: field.fontSize,
           } as SignatureField
@@ -1440,7 +1393,7 @@ const SignDocumentPage: React.FC = () => {
 
       // Generate the final PDF with signatures embedded using pdf-lib
       const { pdfBytes: finalPdfBytes } = await generateFinalPdf(
-        new Uint8Array(pdfBytes),
+        pdfData,
         signatureFields
       )
 
@@ -2188,9 +2141,14 @@ const SignDocumentPage: React.FC = () => {
                       const fieldTypeToPlace = draggedFieldType || mobileFieldToPlace
                       if (fieldTypeToPlace && activeSigner) {
                         const rect = e.currentTarget.getBoundingClientRect()
-                        // Store coordinates in BASE (unzoomed) space for consistent positioning
-                        const x = (e.clientX - rect.left) / zoom
-                        const y = (e.clientY - rect.top) / zoom
+                        // Use ACTUAL rendered dimensions for robust coordinate calculation
+                        // This handles CSS constraints (max-width) that may cause container
+                        // to be smaller than pdfPageWidth * zoom
+                        const clickXPct = (e.clientX - rect.left) / rect.width
+                        const clickYPct = (e.clientY - rect.top) / rect.height
+                        // Convert percentage to base PDF points
+                        const x = clickXPct * pdfPageWidth
+                        const y = clickYPct * pdfPageHeight
 
                         const fieldType = ALL_FIELD_TYPES.find(f => f.id === fieldTypeToPlace)
                         if (!fieldType) return
@@ -2200,33 +2158,12 @@ const SignDocumentPage: React.FC = () => {
                         const fieldWidth = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 130 : 150)
                         const fieldHeight = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 32 : 40)
 
-                        // USE EXACT PAGE DIMENSIONS from PDFViewer (not calculated from rect)
-                        // This ensures coordinates match exactly between display and preview
                         const pageBaseWidth = pdfPageWidth
                         const pageBaseHeight = pdfPageHeight
 
-                        // Debug: Log placement coordinates
-                        console.log('Placing field:', {
-                          type: fieldTypeToPlace,
-                          clickX: e.clientX,
-                          clickY: e.clientY,
-                          rectWidth: rect.width,
-                          rectHeight: rect.height,
-                          pdfPageWidth,
-                          pdfPageHeight,
-                          zoom,
-                          rawX: x,
-                          rawY: y,
-                          fieldX: Math.max(0, x - fieldWidth / 2),
-                          fieldY: Math.max(0, y - fieldHeight / 2),
-                          fieldWidth,
-                          fieldHeight,
-                          pageNum
-                        })
-
-                        // Calculate percentage using EXACT PDF page dimensions
-                        const xPercent = Math.max(0, x - fieldWidth / 2) / pageBaseWidth
-                        const yPercent = Math.max(0, y - fieldHeight / 2) / pageBaseHeight
+                        // Calculate percentage using PDF page dimensions
+                        const xPercent = Math.max(0, (x - fieldWidth / 2) / pageBaseWidth)
+                        const yPercent = Math.max(0, (y - fieldHeight / 2) / pageBaseHeight)
 
                         const newField: PlacedField = {
                           id: generateUUID(),
@@ -2288,10 +2225,22 @@ const SignDocumentPage: React.FC = () => {
                               ${isEditing ? 'z-[200]' : ''}
                             `}
                             style={{
-                              left: field.x * zoom,
-                              top: field.y * zoom,
-                              width: field.width * zoom,
-                              height: field.height * zoom,
+                              // CSS percentage positioning: robust against CSS constraints
+                              // pageWidth/pageHeight = page.width * zoom / page.height * zoom
+                              // field.x is in base (unzoomed) PDF points
+                              // Percentage = field.x / pageBaseWidth = field.x / (pageWidth / zoom)
+                              left: field.xPercent !== undefined
+                                ? `${field.xPercent * 100}%`
+                                : `${(field.x / (pageWidth / zoom)) * 100}%`,
+                              top: field.yPercent !== undefined
+                                ? `${field.yPercent * 100}%`
+                                : `${(field.y / (pageHeight / zoom)) * 100}%`,
+                              width: field.widthPercent
+                                ? `${field.widthPercent * 100}%`
+                                : `${(field.width / (pageWidth / zoom)) * 100}%`,
+                              height: field.heightPercent
+                                ? `${field.heightPercent * 100}%`
+                                : `${(field.height / (pageHeight / zoom)) * 100}%`,
                               zIndex: isEditing ? 200 : (isSelected ? 100 : 50),
                               border: hasValue ? 'none' : `2px ${isSelected ? 'solid' : 'dashed'} ${field.signerColor}`,
                               backgroundColor: hasValue ? 'transparent' : `${field.signerColor}10`,
@@ -2639,14 +2588,11 @@ const SignDocumentPage: React.FC = () => {
                         const clickX = e.clientX - rect.left
                         const clickY = e.clientY - rect.top
 
-                        // Container has explicit dimensions: imageDimensions * zoom
-                        // Use these expected dimensions for percentage calculation
-                        const expectedWidth = imageDimensions.width * zoom
-                        const expectedHeight = imageDimensions.height * zoom
-
-                        // Calculate percentage of where user clicked
-                        const xPct = clickX / expectedWidth
-                        const yPct = clickY / expectedHeight
+                        // Use ACTUAL rendered container dimensions (from getBoundingClientRect)
+                        // This is robust against CSS constraints (max-width, height:auto, etc.)
+                        // that might cause actual size to differ from styled size
+                        const xPct = clickX / rect.width
+                        const yPct = clickY / rect.height
 
                         // Field dimensions as percentages
                         const pageBaseWidth = imageDimensions.width
@@ -2711,25 +2657,19 @@ const SignDocumentPage: React.FC = () => {
                       const hasValue = !!field.value
                       const isSignatureType = field.type === 'signature' || field.type === 'initials'
 
-                      // Use the container's actual style dimensions for display
-                      // This MUST match what we use for placement (container style dimensions)
-                      const displayedWidth = imageDimensions.width * zoom
-                      const displayedHeight = imageDimensions.height * zoom
+                      // CSS percentage positioning: robust against CSS constraints
+                      // Instead of calculating pixel positions (which can mismatch if CSS
+                      // constrains the container), use percentages that are always relative
+                      // to the container's ACTUAL rendered dimensions.
+                      const displayLeft = field.xPercent !== undefined
+                        ? `${field.xPercent * 100}%`
+                        : `${(field.x / imageDimensions.width) * 100}%`
+                      const displayTop = field.yPercent !== undefined
+                        ? `${field.yPercent * 100}%`
+                        : `${(field.y / imageDimensions.height) * 100}%`
+                      const displayWidth = `${((field.widthPercent || field.width / imageDimensions.width) * 100)}%`
+                      const displayHeight = `${((field.heightPercent || field.height / imageDimensions.height) * 100)}%`
 
-                      let displayX: number, displayY: number, displayW: number, displayH: number
-                      if (field.xPercent !== undefined && field.yPercent !== undefined) {
-                        // Use percentages to calculate position relative to container
-                        displayX = field.xPercent * displayedWidth
-                        displayY = field.yPercent * displayedHeight
-                        displayW = (field.widthPercent || field.width / imageDimensions.width) * displayedWidth
-                        displayH = (field.heightPercent || field.height / imageDimensions.height) * displayedHeight
-                      } else {
-                        // Fallback to old method
-                        displayX = field.x * zoom
-                        displayY = field.y * zoom
-                        displayW = field.width * zoom
-                        displayH = field.height * zoom
-                      }
 
                       return (
                         <div
@@ -2738,10 +2678,10 @@ const SignDocumentPage: React.FC = () => {
                             ${isSelected ? 'ring-2 ring-offset-2' : 'hover:ring-1 hover:ring-offset-1'}
                           `}
                           style={{
-                            left: displayX,
-                            top: displayY,
-                            width: displayW,
-                            height: displayH,
+                            left: displayLeft,
+                            top: displayTop,
+                            width: displayWidth,
+                            height: displayHeight,
                             backgroundColor: hasValue ? 'transparent' : `${field.signerColor}15`,
                             borderWidth: hasValue ? 0 : 2,
                             borderStyle: isSelected ? 'solid' : 'dashed',
@@ -3607,37 +3547,117 @@ const SignDocumentPage: React.FC = () => {
 
             <div className={`flex-1 overflow-auto p-6 ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-200'}`}>
               <div className="flex flex-col items-center gap-6">
-                {previewImages.map((img, idx) => (
-                  <div key={idx} className="relative">
+                {/* IMAGE documents: HTML rendering (same as editor = pixel-perfect) */}
+                {!isPDF && documentPreview && imageDimensions ? (
+                  <div className="relative" data-sign-preview="true">
                     <div className={`absolute -top-6 left-0 text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Page {idx + 1} of {previewImages.length}
+                      Page 1 of 1
                     </div>
-                    <img
-                      src={img}
-                      alt={`Page ${idx + 1}`}
-                      className={`shadow-xl max-w-full ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}
-                      style={{ maxHeight: '80vh' }}
-                    />
-                    <button
-                      onClick={() => {
-                        const link = window.document.createElement('a')
-                        link.download = `${templateProps.name || 'signed-document'}-page-${idx + 1}.png`
-                        link.href = img
-                        link.click()
+                    <div
+                      className="relative shadow-xl bg-white"
+                      style={{
+                        width: imageDimensions.width,
+                        height: imageDimensions.height,
                       }}
-                      className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-2 bg-black/70 text-white rounded-lg hover:bg-black/80 transition-colors"
                     >
-                      <Download className="w-4 h-4" />
-                      <span className="text-sm">Download Page</span>
-                    </button>
+                      <img
+                        src={documentPreview}
+                        alt="Document"
+                        style={{
+                          width: imageDimensions.width,
+                          height: imageDimensions.height,
+                          display: 'block',
+                        }}
+                        draggable={false}
+                      />
+                      {/* Render fields - CSS percentage positioning (matches editor) */}
+                      {placedFields.filter(f => f.value && f.page === 1).map(field => {
+                        const pLeft = field.xPercent !== undefined
+                          ? `${field.xPercent * 100}%`
+                          : `${(field.x / imageDimensions.width) * 100}%`
+                        const pTop = field.yPercent !== undefined
+                          ? `${field.yPercent * 100}%`
+                          : `${(field.y / imageDimensions.height) * 100}%`
+                        const pWidth = `${((field.widthPercent || field.width / imageDimensions.width) * 100)}%`
+                        const pHeight = `${((field.heightPercent || field.height / imageDimensions.height) * 100)}%`
+
+                        return (
+                          <div
+                            key={field.id}
+                            style={{
+                              position: 'absolute',
+                              left: pLeft,
+                              top: pTop,
+                              width: pWidth,
+                              height: pHeight,
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            {(field.type === 'signature' || field.type === 'initials') && field.value && (
+                              <img
+                                src={field.value}
+                                alt={field.type}
+                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                draggable={false}
+                              />
+                            )}
+                            {field.type === 'stamp' && field.value?.startsWith('data:image') && (
+                              <img
+                                src={field.value}
+                                alt="Stamp"
+                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                draggable={false}
+                              />
+                            )}
+                            {field.type === 'checkbox' && field.value === 'checked' && (
+                              <div className="w-full h-full bg-green-500 rounded flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                            )}
+                            {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && field.value && (
+                              <span className="text-black" style={{ fontSize: field.fontSize || 14 }}>{field.value}</span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
-                ))}
+                ) : (
+                  /* PDF documents: rendered canvas images */
+                  previewImages.map((img, idx) => (
+                    <div key={idx} className="relative">
+                      <div className={`absolute -top-6 left-0 text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Page {idx + 1} of {previewImages.length}
+                      </div>
+                      <img
+                        src={img}
+                        alt={`Page ${idx + 1}`}
+                        className={`shadow-xl max-w-full ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}
+                        style={{ maxHeight: '80vh' }}
+                      />
+                      <button
+                        onClick={() => {
+                          const link = window.document.createElement('a')
+                          link.download = `${templateProps.name || 'signed-document'}-page-${idx + 1}.png`
+                          link.href = img
+                          link.click()
+                        }}
+                        className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-2 bg-black/70 text-white rounded-lg hover:bg-black/80 transition-colors"
+                      >
+                        <Download className="w-4 h-4" />
+                        <span className="text-sm">Download Page</span>
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
             <div className={`p-4 flex justify-between items-center ${isDark ? 'border-t border-[#2a2a2a] bg-[#252525]' : 'border-t border-gray-200 bg-gray-50'}`}>
               <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                {previewImages.length} page{previewImages.length !== 1 ? 's' : ''} • Right-click to save individual pages
+                {isPDF ? previewImages.length : 1} page{(isPDF ? previewImages.length : 1) !== 1 ? 's' : ''} • Right-click to save individual pages
               </p>
               <button
                 onClick={() => setShowPreviewModal(false)}

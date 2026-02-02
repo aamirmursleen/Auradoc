@@ -828,6 +828,57 @@ object {
   display: block;
 }
 
+/* ========================================
+   SIGN EDITOR OVERRIDE - Prevent global responsive rules
+   from breaking the coordinate system. The sign editor needs
+   exact pixel dimensions for field placement to work correctly.
+   Without this, the global * { max-width: 100% } and
+   img { height: auto } rules distort the editor layout,
+   causing field positions to not match between editor and preview.
+======================================== */
+[data-image-container] {
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+/* Document image: override ALL global img constraints.
+   Global CSS sets img { max-width: 100% !important; height: auto !important; }
+   Both must be neutralized for the editor's coordinate system to work. */
+[data-image-container] > img {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Signature/stamp images inside field overlays:
+   must respect height:100% for correct object-contain centering.
+   Without this, global img { height: auto !important } overrides it. */
+[data-image-container] div img {
+  height: 100% !important;
+  max-width: none !important;
+}
+
+/* Preview modal: ALL elements must be free from global constraints
+   to match editor rendering exactly */
+[data-sign-preview],
+[data-sign-preview] * {
+  max-width: none !important;
+}
+
+[data-sign-preview] div[style] img {
+  height: 100% !important;
+}
+
+/* PDF page containers: prevent global CSS from distorting layout */
+[data-pdf-page] {
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+[data-pdf-page] > img {
+  max-width: none !important;
+  max-height: none !important;
+}
+
 picture {
   display: block;
   max-width: 100%;
