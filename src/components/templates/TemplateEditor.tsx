@@ -25,6 +25,8 @@ import {
   ChevronDown
 } from 'lucide-react'
 import { DocumentTemplate, categoryLabels, TemplateField } from '@/data/templates'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 interface TemplateEditorProps {
   template: DocumentTemplate
@@ -507,63 +509,41 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
     }
   }
 
-  const [showDownloadOptions, setShowDownloadOptions] = useState(false)
-  const downloadRef = useRef<HTMLDivElement>(null)
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (downloadRef.current && !downloadRef.current.contains(event.target as Node)) {
-        setShowDownloadOptions(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
   // Handle download
-  const handleDownload = (format: 'pdf' | 'html' | 'print' = 'pdf') => {
-    setShowDownloadOptions(false)
+  const [downloading, setDownloading] = useState(false)
 
-    const fullHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>${template.name}</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 40px; font-family: Arial, sans-serif; background: white; }
-    @media print {
-      body { padding: 20px; }
-      @page { margin: 0.5in; }
-    }
-  </style>
-</head>
-<body>${documentHtml}</body>
-</html>`
+  const handleDownload = async () => {
+    const editorEl = editorRef.current
+    if (!editorEl || downloading) return
 
-    if (format === 'print' || format === 'pdf') {
-      // Open in new window for print/PDF
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(fullHtml)
-        printWindow.document.close()
-        printWindow.focus()
+    setDownloading(true)
+    try {
+      const canvas = await html2canvas(editorEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      })
 
-        // Wait for content to load then print
-        setTimeout(() => {
-          printWindow.print()
-        }, 500)
-      }
-    } else if (format === 'html') {
-      // Download as HTML file
-      const blob = new Blob([fullHtml], { type: 'text/html' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${template.name.replace(/\s+/g, '_')}.html`
-      link.click()
-      URL.revokeObjectURL(url)
+      const imgData = canvas.toDataURL('image/png')
+      const imgWidth = canvas.width
+      const imgHeight = canvas.height
+
+      // A4 dimensions in mm
+      const pdfWidth = 210
+      const pdfHeight = (imgHeight * pdfWidth) / imgWidth
+
+      const pdf = new jsPDF({
+        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: pdfHeight <= 297 ? 'a4' : [pdfWidth, pdfHeight],
+      })
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(`${template.name.replace(/\s+/g, '_')}.pdf`)
+    } catch (err) {
+      console.error('PDF download error:', err)
+    } finally {
+      setDownloading(false)
     }
   }
 
@@ -631,11 +611,12 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => handleDownload('pdf')}
-            className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2 font-medium shadow-md hover:shadow-lg"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2 font-medium shadow-md hover:shadow-lg disabled:opacity-60"
           >
-            <Download className="w-4 h-4" />
-            Download
+            {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {downloading ? 'Downloading...' : 'Download'}
           </button>
         </div>
       </div>
