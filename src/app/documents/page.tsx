@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
@@ -277,9 +277,24 @@ const DocumentsPage: React.FC = () => {
 
   // Download signed document (with signatures embedded)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
-  const handleDownloadSignedDocument = async (req: SigningRequest) => {
+  const [downloadDropdownId, setDownloadDropdownId] = useState<string | null>(null)
+  const downloadDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (downloadDropdownRef.current && !downloadDropdownRef.current.contains(e.target as Node)) {
+        setDownloadDropdownId(null)
+      }
+    }
+    window.document.addEventListener('mousedown', handleClickOutside)
+    return () => window.document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleDownloadSignedDocument = async (req: SigningRequest, format: 'pdf' | 'png' | 'jpg' = 'pdf') => {
     try {
       setDownloadingId(req.id)
+      setDownloadDropdownId(null)
 
       // Fetch the signed PDF from the download API
       const response = await fetch(`/api/signing-requests/${req.id}/download`)
@@ -289,21 +304,59 @@ const DocumentsPage: React.FC = () => {
         throw new Error(errorData.message || 'Failed to download')
       }
 
-      // Download the PDF blob
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${req.document_name.replace(/\.[^/.]+$/, '')}_signed.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      const pdfBlob = await response.blob()
+      const baseName = req.document_name.replace(/\.[^/.]+$/, '') + '_signed'
+
+      if (format === 'pdf') {
+        const url = URL.createObjectURL(pdfBlob)
+        const link = window.document.createElement('a')
+        link.href = url
+        link.download = `${baseName}.pdf`
+        window.document.body.appendChild(link)
+        link.click()
+        window.document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      } else {
+        // Convert PDF pages to images
+        const pdfjsLib = await import('pdfjs-dist')
+        if (typeof window !== 'undefined') {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+        }
+
+        const arrayBuffer = await pdfBlob.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+        const scale = 2
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i)
+          const viewport = page.getViewport({ scale })
+
+          const canvas = window.document.createElement('canvas')
+          const context = canvas.getContext('2d')!
+          canvas.width = viewport.width
+          canvas.height = viewport.height
+
+          context.fillStyle = '#ffffff'
+          context.fillRect(0, 0, canvas.width, canvas.height)
+
+          await page.render({ canvasContext: context, viewport }).promise
+
+          const mimeType = format === 'png' ? 'image/png' : 'image/jpeg'
+          const quality = format === 'jpg' ? 0.95 : undefined
+          const dataUrl = canvas.toDataURL(mimeType, quality)
+
+          const link = window.document.createElement('a')
+          link.href = dataUrl
+          const suffix = pdf.numPages > 1 ? `_page${i}` : ''
+          link.download = `${baseName}${suffix}.${format}`
+          link.click()
+        }
+      }
 
       addToast({
         type: 'document_completed',
         title: 'Download Started',
-        message: `Downloading signed "${req.document_name}"`,
+        message: `Downloading signed "${req.document_name}" as ${format.toUpperCase()}`,
         duration: 3000
       })
     } catch (error) {
@@ -810,20 +863,47 @@ const DocumentsPage: React.FC = () => {
                         {/* Actions */}
                         <div className="flex items-center gap-3 mt-4 pt-4 border-t border-[#2a2a2a]">
                           {req.status === 'completed' && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDownloadSignedDocument(req)
-                              }}
-                              disabled={downloadingId === req.id}
-                              className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors disabled:opacity-50"
-                            >
-                              {downloadingId === req.id ? (
-                                <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
-                              ) : (
-                                <><Download className="w-4 h-4" />Download Signed Document</>
+                            <div className="relative" ref={downloadDropdownId === req.id ? downloadDropdownRef : undefined}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setDownloadDropdownId(downloadDropdownId === req.id ? null : req.id)
+                                }}
+                                disabled={downloadingId === req.id}
+                                className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-[#b3e60d] transition-colors disabled:opacity-50"
+                              >
+                                {downloadingId === req.id ? (
+                                  <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
+                                ) : (
+                                  <><Download className="w-4 h-4" />Download<ChevronDown className="w-3 h-3" /></>
+                                )}
+                              </button>
+                              {downloadDropdownId === req.id && (
+                                <div className="absolute bottom-full left-0 mb-1 w-44 bg-[#252525] border border-[#3a3a3a] rounded-xl shadow-xl py-1 z-50">
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleDownloadSignedDocument(req, 'pdf') }}
+                                    className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-[#2a2a2a] text-gray-300 transition-colors"
+                                  >
+                                    <span className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center text-xs font-bold text-red-400">PDF</span>
+                                    Download PDF
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleDownloadSignedDocument(req, 'png') }}
+                                    className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-[#2a2a2a] text-gray-300 transition-colors"
+                                  >
+                                    <span className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-xs font-bold text-blue-400">PNG</span>
+                                    Download PNG
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleDownloadSignedDocument(req, 'jpg') }}
+                                    className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-[#2a2a2a] text-gray-300 transition-colors"
+                                  >
+                                    <span className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-xs font-bold text-green-400">JPG</span>
+                                    Download JPG
+                                  </button>
+                                </div>
                               )}
-                            </button>
+                            </div>
                           )}
                           <button
                             onClick={(e) => {
