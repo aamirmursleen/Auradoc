@@ -1369,7 +1369,7 @@ const SignDocumentPage: React.FC = () => {
       const baseName = templateProps.name || 'signed-document'
 
       if (format === 'pdf') {
-        const blob = new Blob([finalPdfBytes], { type: 'application/pdf' })
+        const blob = new Blob([finalPdfBytes as BlobPart], { type: 'application/pdf' })
         const url = URL.createObjectURL(blob)
         const link = window.document.createElement('a')
         link.href = url
