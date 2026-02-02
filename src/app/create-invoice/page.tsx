@@ -310,11 +310,26 @@ const CreateInvoicePage: React.FC = () => {
   const [downloadingPDF, setDownloadingPDF] = useState(false)
 
   const handleDownloadPDF = async () => {
-    const el = invoicePreviewRef.current
-    if (!el || downloadingPDF) return
+    if (downloadingPDF) return
 
     setDownloadingPDF(true)
+
+    // If preview modal is not open, open it so the ref element exists
+    const wasPreviewOpen = showPreview
+    if (!showPreview) {
+      setShowPreview(true)
+    }
+
+    // Wait for the DOM to render the preview element
+    await new Promise(resolve => setTimeout(resolve, 300))
+
     try {
+      const el = invoicePreviewRef.current
+      if (!el) {
+        console.error('Invoice preview element not found')
+        return
+      }
+
       if (user?.id) {
         incrementInvoiceCount(user.id)
       }
@@ -343,6 +358,10 @@ const CreateInvoicePage: React.FC = () => {
     } catch (err) {
       console.error('PDF download error:', err)
     } finally {
+      // Close preview if it wasn't open before
+      if (!wasPreviewOpen) {
+        setShowPreview(false)
+      }
       setDownloadingPDF(false)
     }
   }
