@@ -56,6 +56,9 @@ export default function WatermarkPDFPage() {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  // Watermark layer: 'front' (over content) or 'back' (behind content)
+  const [watermarkLayer, setWatermarkLayer] = useState<'front' | 'back'>('front')
+
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -101,41 +104,6 @@ export default function WatermarkPDFPage() {
       reader.readAsDataURL(file)
     }
   }
-
-  // Auto-generate watermarked preview whenever settings change (debounced)
-  const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    if (!file) return
-
-    // Clear previous timeout
-    if (previewTimeoutRef.current) {
-      clearTimeout(previewTimeoutRef.current)
-    }
-
-    // Check if we have valid watermark settings
-    const hasValidWatermark =
-      (watermarkType === 'text' && watermarkText.trim()) ||
-      (watermarkType === 'image' && watermarkImage)
-
-    if (!hasValidWatermark) {
-      // No valid watermark — show original preview
-      loadPdfPreview(file)
-      return
-    }
-
-    // Debounce: wait 400ms after last change before generating
-    previewTimeoutRef.current = setTimeout(() => {
-      generatePreview()
-    }, 400)
-
-    return () => {
-      if (previewTimeoutRef.current) {
-        clearTimeout(previewTimeoutRef.current)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, watermarkType, watermarkText, fontSize, opacity, rotation, color, position, customX, customY, pageSelection, selectedPages, watermarkImage, imageOpacity, imageScale])
 
   // Parse page selection string like "1,3,5" or "1-5" or "1,3-5,7"
   const parsePageSelection = (input: string, totalPages: number): number[] => {
@@ -424,23 +392,15 @@ export default function WatermarkPDFPage() {
     await loadPdfPreview(file)
   }
 
-  // Download watermarked PDF
+  // Download watermarked PDF - always generates fresh from current settings
   const downloadPDF = async () => {
     if (!file) return
 
     setProcessing(true)
     try {
-      let blob = pdfBlob
-
-      if (!blob) {
-        const pdfBytes = await applyWatermark()
-        if (pdfBytes) {
-          blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
-          setPdfBlob(blob)
-        }
-      }
-
-      if (blob) {
+      const pdfBytes = await applyWatermark()
+      if (pdfBytes) {
+        const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
@@ -688,6 +648,38 @@ export default function WatermarkPDFPage() {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Watermark Layer - Background/Foreground */}
+                <div className={`${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-xl p-4`}>
+                  <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-3`}>
+                    Watermark Layer
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setWatermarkLayer('front')}
+                      className={`flex-1 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                        watermarkLayer === 'front'
+                          ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
+                          : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
+                      }`}
+                    >
+                      Foreground
+                    </button>
+                    <button
+                      onClick={() => setWatermarkLayer('back')}
+                      className={`flex-1 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                        watermarkLayer === 'back'
+                          ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
+                          : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
+                      }`}
+                    >
+                      Background
+                    </button>
+                  </div>
+                  <p className={`text-xs mt-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                    {watermarkLayer === 'front' ? 'Watermark appears over the document content' : 'Watermark appears behind the document content'}
+                  </p>
                 </div>
 
                 {/* Text Watermark Settings */}
@@ -969,11 +961,11 @@ export default function WatermarkPDFPage() {
                 </div>
 
                 <div className={`${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'} rounded-lg overflow-hidden`} style={{ minHeight: '500px' }}>
-                  {previewLoading ? (
+                  {previewLoading && previewPages.length === 0 ? (
                     <div className="flex items-center justify-center h-[500px]">
                       <div className="text-center">
                         <Loader2 className={`w-10 h-10 animate-spin ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} mx-auto mb-4`} />
-                        <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading preview...</p>
+                        <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading document...</p>
                       </div>
                     </div>
                   ) : previewPages.length > 0 ? (
@@ -985,92 +977,174 @@ export default function WatermarkPDFPage() {
                         </span>
                       </div>
 
-                      {/* All Pages Display - Continuous Scroll */}
+                      {/* All Pages Display with LIVE CSS watermark overlay */}
                       <div className="overflow-y-auto p-4 space-y-4" style={{ maxHeight: '600px' }}>
-                        {previewPages.map((pageImg, index) => (
-                          <div
-                            key={index}
-                            className="relative"
-                            onMouseMove={(e) => {
-                              if (position === 'custom' && (isDraggingWatermark || isResizingWatermark)) {
-                                const rect = e.currentTarget.getBoundingClientRect()
-                                handleWatermarkMouseMove(e, rect)
+                        {previewPages.map((pageImg, index) => {
+                          const pageNum = index + 1
+                          // Determine if this page gets a watermark
+                          const showWatermark = pageSelection === 'all'
+                            || parsePageSelection(selectedPages, totalPages).includes(pageNum)
+                          // Check valid watermark config
+                          const hasValidWatermark = showWatermark && (
+                            (watermarkType === 'text' && watermarkText.trim()) ||
+                            (watermarkType === 'image' && watermarkImage)
+                          )
+
+                          // Build CSS watermark overlay style for text
+                          const getTextOverlayStyle = (): React.CSSProperties => {
+                            const base: React.CSSProperties = {
+                              position: 'absolute',
+                              fontSize: `${fontSize * 0.5}px`,
+                              color: color,
+                              opacity: opacity,
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap',
+                              pointerEvents: position === 'custom' ? 'auto' : 'none',
+                              zIndex: watermarkLayer === 'front' ? 10 : 1,
+                              fontFamily: 'Helvetica, Arial, sans-serif',
+                              letterSpacing: '2px',
+                            }
+                            if (position === 'center') {
+                              return { ...base, left: '50%', top: '50%', transform: `translate(-50%, -50%) rotate(${rotation}deg)` }
+                            } else if (position === 'top-left') {
+                              return { ...base, left: '30px', top: '30px', transform: `rotate(0deg)` }
+                            } else if (position === 'top-right') {
+                              return { ...base, right: '30px', top: '30px', transform: `rotate(0deg)` }
+                            } else if (position === 'bottom-left') {
+                              return { ...base, left: '30px', bottom: '30px', transform: `rotate(0deg)` }
+                            } else if (position === 'bottom-right') {
+                              return { ...base, right: '30px', bottom: '30px', transform: `rotate(0deg)` }
+                            } else if (position === 'custom') {
+                              return { ...base, left: `${customX}%`, top: `${customY}%`, transform: `translate(-50%, -50%) rotate(${rotation}deg)`, cursor: 'move' }
+                            }
+                            return base
+                          }
+
+                          // Tile overlay: generate repeated text
+                          const renderTileOverlay = () => {
+                            const items = []
+                            for (let row = 0; row < 6; row++) {
+                              for (let col = 0; col < 4; col++) {
+                                items.push(
+                                  <span
+                                    key={`${row}-${col}`}
+                                    style={{
+                                      position: 'absolute',
+                                      left: `${col * 28 - 5}%`,
+                                      top: `${row * 20 - 5}%`,
+                                      fontSize: `${fontSize * 0.4}px`,
+                                      color: color,
+                                      opacity: opacity,
+                                      fontWeight: 'bold',
+                                      whiteSpace: 'nowrap',
+                                      transform: `rotate(${rotation}deg)`,
+                                      pointerEvents: 'none',
+                                      fontFamily: 'Helvetica, Arial, sans-serif',
+                                      letterSpacing: '2px',
+                                    }}
+                                  >
+                                    {watermarkText}
+                                  </span>
+                                )
                               }
-                            }}
-                            onTouchMove={(e) => {
-                              if (position === 'custom' && (isDraggingWatermark || isResizingWatermark)) {
-                                const rect = e.currentTarget.getBoundingClientRect()
-                                handleWatermarkMouseMove(e, rect)
-                              }
-                            }}
-                            onMouseUp={handleWatermarkDragEnd}
-                            onMouseLeave={handleWatermarkDragEnd}
-                            onTouchEnd={handleWatermarkDragEnd}
-                          >
-                            {/* Page number badge */}
-                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-20">
-                              Page {index + 1}
-                            </div>
-                            <img
-                              src={pageImg}
-                              alt={`Page ${index + 1}`}
-                              className={`w-full object-contain shadow-xl rounded border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'}`}
-                            />
-                            {/* Draggable & Resizable Watermark Overlay - for custom position & text mode */}
-                            {watermarkType === 'text' && position === 'custom' && (
-                              <div
-                                className="absolute cursor-move select-none z-10 group touch-none"
-                                style={{
-                                  left: `${customX}%`,
-                                  top: `${customY}%`,
-                                  transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-                                  fontSize: `${fontSize * 0.5}px`,
-                                  color: color,
-                                  opacity: Math.max(opacity, 0.5), // Make it more visible for dragging
-                                  fontWeight: 'bold',
-                                  textShadow: '0 0 10px rgba(255,255,255,0.8)',
-                                  whiteSpace: 'nowrap',
-                                  border: '2px dashed rgba(0,100,255,0.5)',
-                                  padding: '8px 16px',
-                                  borderRadius: '4px',
-                                  backgroundColor: 'rgba(255,255,255,0.1)'
-                                }}
-                                onMouseDown={(e) => {
-                                  const rect = e.currentTarget.parentElement?.getBoundingClientRect()
-                                  if (rect) handleWatermarkDragStart(e, rect)
-                                }}
-                                onTouchStart={(e) => {
-                                  const rect = e.currentTarget.parentElement?.getBoundingClientRect()
-                                  if (rect) handleWatermarkDragStart(e, rect)
-                                }}
-                              >
-                                {watermarkText}
-                                {/* Resize handle - bottom right corner - LARGER for mobile */}
-                                <div
-                                  className="absolute -bottom-5 -right-5 w-12 h-12 bg-blue-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg active:bg-blue-600 transition-colors"
-                                  style={{ touchAction: 'none' }}
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation()
-                                    handleWatermarkResizeStart(e)
-                                  }}
-                                  onTouchStart={(e) => {
-                                    e.stopPropagation()
-                                    handleWatermarkResizeStart(e)
-                                  }}
-                                  title="Drag to resize"
-                                >
-                                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 20h4m-4 0v-4m16 4h-4m4 0v-4" />
-                                  </svg>
-                                </div>
-                                {/* Info tooltip */}
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                  Drag to move • Corner to resize
-                                </div>
+                            }
+                            return items
+                          }
+
+                          return (
+                            <div
+                              key={index}
+                              className="relative overflow-hidden"
+                              onMouseMove={(e) => {
+                                if (position === 'custom' && (isDraggingWatermark || isResizingWatermark)) {
+                                  const rect = e.currentTarget.getBoundingClientRect()
+                                  handleWatermarkMouseMove(e, rect)
+                                }
+                              }}
+                              onTouchMove={(e) => {
+                                if (position === 'custom' && (isDraggingWatermark || isResizingWatermark)) {
+                                  const rect = e.currentTarget.getBoundingClientRect()
+                                  handleWatermarkMouseMove(e, rect)
+                                }
+                              }}
+                              onMouseUp={handleWatermarkDragEnd}
+                              onMouseLeave={handleWatermarkDragEnd}
+                              onTouchEnd={handleWatermarkDragEnd}
+                            >
+                              {/* Page number badge */}
+                              <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-20">
+                                Page {pageNum}
                               </div>
-                            )}
-                          </div>
-                        ))}
+
+                              {/* Document image */}
+                              <img
+                                src={pageImg}
+                                alt={`Page ${pageNum}`}
+                                className={`w-full object-contain shadow-xl rounded border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'}`}
+                                style={{ position: 'relative', zIndex: watermarkLayer === 'back' ? 10 : 1 }}
+                              />
+
+                              {/* LIVE CSS Watermark Overlay - instant, no loading */}
+                              {hasValidWatermark && watermarkType === 'text' && position === 'tile' && (
+                                <div className="absolute inset-0 overflow-hidden" style={{ zIndex: watermarkLayer === 'front' ? 10 : 1, pointerEvents: 'none' }}>
+                                  {renderTileOverlay()}
+                                </div>
+                              )}
+
+                              {hasValidWatermark && watermarkType === 'text' && position !== 'tile' && (
+                                <div
+                                  className={`select-none ${position === 'custom' ? 'group touch-none' : ''}`}
+                                  style={getTextOverlayStyle()}
+                                  onMouseDown={position === 'custom' ? (e) => {
+                                    const rect = e.currentTarget.parentElement?.getBoundingClientRect()
+                                    if (rect) handleWatermarkDragStart(e, rect)
+                                  } : undefined}
+                                  onTouchStart={position === 'custom' ? (e) => {
+                                    const rect = e.currentTarget.parentElement?.getBoundingClientRect()
+                                    if (rect) handleWatermarkDragStart(e, rect)
+                                  } : undefined}
+                                >
+                                  {watermarkText}
+                                  {/* Resize handle for custom position */}
+                                  {position === 'custom' && (
+                                    <>
+                                      <div
+                                        className="absolute -bottom-5 -right-5 w-10 h-10 bg-blue-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg active:bg-blue-600 transition-colors"
+                                        style={{ touchAction: 'none' }}
+                                        onMouseDown={(e) => { e.stopPropagation(); handleWatermarkResizeStart(e) }}
+                                        onTouchStart={(e) => { e.stopPropagation(); handleWatermarkResizeStart(e) }}
+                                        title="Drag to resize"
+                                      >
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 20h4m-4 0v-4m16 4h-4m4 0v-4" />
+                                        </svg>
+                                      </div>
+                                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                        Drag to move • Corner to resize
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Image watermark overlay */}
+                              {hasValidWatermark && watermarkType === 'image' && watermarkImage && (
+                                <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: watermarkLayer === 'front' ? 10 : 1, pointerEvents: 'none' }}>
+                                  <img
+                                    src={watermarkImage}
+                                    alt="Watermark"
+                                    style={{
+                                      maxWidth: `${imageScale * 100}%`,
+                                      maxHeight: `${imageScale * 100}%`,
+                                      opacity: imageOpacity,
+                                    }}
+                                    draggable={false}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   ) : (
