@@ -102,6 +102,41 @@ export default function WatermarkPDFPage() {
     }
   }
 
+  // Auto-generate watermarked preview whenever settings change (debounced)
+  const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (!file) return
+
+    // Clear previous timeout
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current)
+    }
+
+    // Check if we have valid watermark settings
+    const hasValidWatermark =
+      (watermarkType === 'text' && watermarkText.trim()) ||
+      (watermarkType === 'image' && watermarkImage)
+
+    if (!hasValidWatermark) {
+      // No valid watermark — show original preview
+      loadPdfPreview(file)
+      return
+    }
+
+    // Debounce: wait 400ms after last change before generating
+    previewTimeoutRef.current = setTimeout(() => {
+      generatePreview()
+    }, 400)
+
+    return () => {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, watermarkType, watermarkText, fontSize, opacity, rotation, color, position, customX, customY, pageSelection, selectedPages, watermarkImage, imageOpacity, imageScale])
+
   // Parse page selection string like "1,3,5" or "1-5" or "1,3-5,7"
   const parsePageSelection = (input: string, totalPages: number): number[] => {
     if (!input.trim()) return []
@@ -879,24 +914,6 @@ export default function WatermarkPDFPage() {
                 {/* Action Buttons */}
                 <div className="space-y-2">
                   <button
-                    onClick={generatePreview}
-                    disabled={previewLoading || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
-                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 ${isDark ? 'bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white' : 'bg-gray-200 hover:bg-gray-300 text-[#26065D]'} font-medium rounded-lg transition-colors disabled:opacity-50`}
-                  >
-                    {previewLoading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-5 h-5" />
-                        Preview Your File
-                      </>
-                    )}
-                  </button>
-
-                  <button
                     onClick={downloadPDF}
                     disabled={processing || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
                     className={`w-full flex items-center justify-center gap-2 px-4 py-3 ${isDark ? 'bg-[#c4ff0e] hover:bg-[#d4ff3e] text-black' : 'bg-[#4C00FF] hover:bg-[#3a00cc] text-white'} font-medium rounded-lg transition-colors disabled:opacity-50`}
@@ -932,6 +949,7 @@ export default function WatermarkPDFPage() {
                   <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} flex items-center gap-2`}>
                     <Eye className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                     Preview
+                    {previewLoading && <Loader2 className="w-4 h-4 animate-spin opacity-60" />}
                   </h3>
                   <div className="flex items-center gap-2">
                     {pdfBlob && (
@@ -939,6 +957,14 @@ export default function WatermarkPDFPage() {
                         Watermark Applied
                       </span>
                     )}
+                    <button
+                      onClick={downloadPDF}
+                      disabled={processing || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 ${isDark ? 'bg-[#c4ff0e] hover:bg-[#d4ff3e] text-black' : 'bg-[#4C00FF] hover:bg-[#3a00cc] text-white'} font-medium rounded-lg text-sm transition-colors disabled:opacity-50`}
+                    >
+                      {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                      Download
+                    </button>
                   </div>
                 </div>
 
@@ -1057,12 +1083,6 @@ export default function WatermarkPDFPage() {
                   )}
                 </div>
 
-                {pdfBlob && (
-                  <div className="mt-4 flex items-center justify-center gap-2 text-green-400">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Watermark applied! Click "Download Your File" to save.</span>
-                  </div>
-                )}
               </div>
             </div>
           )}
