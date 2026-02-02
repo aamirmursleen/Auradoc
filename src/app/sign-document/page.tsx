@@ -274,6 +274,8 @@ const SignDocumentPage: React.FC = () => {
   const [shareCopied, setShareCopied] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [showDownloadDropdown, setShowDownloadDropdown] = useState(false)
+  const downloadDropdownRef = useRef<HTMLDivElement>(null)
   const [previewImages, setPreviewImages] = useState<string[]>([])
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
@@ -309,6 +311,17 @@ const SignDocumentPage: React.FC = () => {
   const activeSigner = signers.find(s => s.id === activeSignerId)
 
   // Generate document preview for images and capture dimensions
+  // Close download dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (downloadDropdownRef.current && !downloadDropdownRef.current.contains(e.target as Node)) {
+        setShowDownloadDropdown(false)
+      }
+    }
+    window.document.addEventListener('mousedown', handleClickOutside)
+    return () => window.document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   useEffect(() => {
     if (document && !isPDF) {
       const reader = new FileReader()
@@ -1260,158 +1273,147 @@ const SignDocumentPage: React.FC = () => {
     }
   }, [document, placedFields, isPDF, documentPreview, imageDimensions])
 
-  // Download signed document using pdf-lib (same as preview for consistency)
-  const handleDownload = useCallback(async () => {
+  // Build signed PDF bytes (shared by all download formats)
+  const buildSignedPdf = useCallback(async (): Promise<Uint8Array | null> => {
+    if (!document) return null
+
+    let pdfData: Uint8Array
+
+    // For images (PNG/JPG), convert to PDF first using pdf-lib
+    if (!isPDF && documentPreview && imageDimensions) {
+      const { PDFDocument: PDFDoc } = await import('pdf-lib')
+      const imgPdfDoc = await PDFDoc.create()
+
+      const imgResponse = await fetch(documentPreview)
+      const imgBytes = new Uint8Array(await imgResponse.arrayBuffer())
+
+      let embeddedImg
+      const docType = document.type || ''
+      if (docType.includes('png') || documentPreview.includes('data:image/png')) {
+        embeddedImg = await imgPdfDoc.embedPng(imgBytes)
+      } else {
+        try {
+          embeddedImg = await imgPdfDoc.embedJpg(imgBytes)
+        } catch {
+          embeddedImg = await imgPdfDoc.embedPng(imgBytes)
+        }
+      }
+
+      const DPI_RATIO = 72 / 96
+      const pageW = imageDimensions.width * DPI_RATIO
+      const pageH = imageDimensions.height * DPI_RATIO
+
+      const page = imgPdfDoc.addPage([pageW, pageH])
+      page.drawImage(embeddedImg, { x: 0, y: 0, width: pageW, height: pageH })
+
+      pdfData = await imgPdfDoc.save()
+    } else {
+      const ab = await document.arrayBuffer()
+      pdfData = new Uint8Array(ab)
+    }
+
+    // Convert PlacedFields to SignatureFields
+    const signatureFields: SignatureField[] = placedFields
+      .filter(f => f.value)
+      .map(field => {
+        let xPct: number | undefined = field.xPercent
+        let yPct: number | undefined = field.yPercent
+        let wPct: number | undefined = field.widthPercent
+        let hPct: number | undefined = field.heightPercent
+
+        const baseW = field.pageBaseWidth || ((!isPDF && imageDimensions) ? imageDimensions.width : 612)
+        const baseH = field.pageBaseHeight || ((!isPDF && imageDimensions) ? imageDimensions.height : 792)
+
+        if (xPct === undefined || yPct === undefined) {
+          if (baseW && baseH) {
+            xPct = field.x / baseW
+            yPct = field.y / baseH
+          } else {
+            return null
+          }
+        }
+
+        if (wPct === undefined || wPct === null || isNaN(wPct)) {
+          wPct = field.width / baseW
+        }
+        if (hPct === undefined || hPct === null || isNaN(hPct)) {
+          hPct = field.height / baseH
+        }
+
+        return {
+          id: field.id,
+          type: field.type,
+          pageNumber: field.page,
+          xPct, yPct, wPct, hPct,
+          value: field.value,
+          fontSize: field.fontSize,
+        } as SignatureField
+      })
+      .filter((f): f is SignatureField => f !== null)
+
+    const { pdfBytes: finalPdfBytes } = await generateFinalPdf(pdfData, signatureFields)
+    return new Uint8Array(finalPdfBytes)
+  }, [document, placedFields, isPDF, documentPreview, imageDimensions])
+
+  // Download signed document in specified format
+  const handleDownload = useCallback(async (format: 'pdf' | 'jpg' | 'png' = 'pdf') => {
     if (!document) return
 
     setIsDownloading(true)
+    setShowDownloadDropdown(false)
 
     try {
-      let pdfData: Uint8Array
+      const finalPdfBytes = await buildSignedPdf()
+      if (!finalPdfBytes) throw new Error('Failed to build PDF')
 
-      // For images (PNG/JPG), convert to PDF first using pdf-lib
-      if (!isPDF && documentPreview && imageDimensions) {
-        const { PDFDocument: PDFDoc } = await import('pdf-lib')
-        const imgPdfDoc = await PDFDoc.create()
+      const baseName = templateProps.name || 'signed-document'
 
-        // Fetch image bytes from data URL
-        const imgResponse = await fetch(documentPreview)
-        const imgBytes = new Uint8Array(await imgResponse.arrayBuffer())
-
-        // Embed image based on type
-        let embeddedImg
-        const docType = document.type || ''
-        if (docType.includes('png') || documentPreview.includes('data:image/png')) {
-          embeddedImg = await imgPdfDoc.embedPng(imgBytes)
-        } else {
-          try {
-            embeddedImg = await imgPdfDoc.embedJpg(imgBytes)
-          } catch {
-            embeddedImg = await imgPdfDoc.embedPng(imgBytes)
-          }
-        }
-
-        // DPI normalization: Browser renders images at 96 CSS pixels/inch,
-        // PDF uses 72 points/inch. Convert to get correct physical page size.
-        const DPI_RATIO = 72 / 96
-        const pageW = imageDimensions.width * DPI_RATIO
-        const pageH = imageDimensions.height * DPI_RATIO
-
-        // Check if embedded image dimensions differ (e.g., EXIF rotation)
-        const dimMismatch = embeddedImg.width !== imageDimensions.width || embeddedImg.height !== imageDimensions.height
-        if (dimMismatch) {
-          console.warn('Image dimension mismatch (possible EXIF rotation)! Browser:',
-            `${imageDimensions.width}x${imageDimensions.height}`,
-            'Raw:', `${embeddedImg.width}x${embeddedImg.height}`,
-            '- image will be drawn to fill page (browser orientation)')
-        }
-
-        console.log('Image→PDF conversion:', {
-          imageDimensions: `${imageDimensions.width}x${imageDimensions.height}`,
-          embeddedImgSize: `${embeddedImg.width}x${embeddedImg.height}`,
-          pdfPagePt: `${pageW.toFixed(1)}x${pageH.toFixed(1)}`,
-          dpiRatio: DPI_RATIO,
-          dimMismatch
-        })
-
-        // Create PDF page at DPI-normalized dimensions
-        // Image fills the entire page - percentages map correctly regardless of page size
-        const page = imgPdfDoc.addPage([pageW, pageH])
-        page.drawImage(embeddedImg, {
-          x: 0,
-          y: 0,
-          width: pageW,
-          height: pageH,
-        })
-
-        // Save as Uint8Array directly (avoid .buffer which can include extra bytes)
-        pdfData = await imgPdfDoc.save()
+      if (format === 'pdf') {
+        const blob = new Blob([finalPdfBytes], { type: 'application/pdf' })
+        const url = URL.createObjectURL(blob)
+        const link = window.document.createElement('a')
+        link.href = url
+        link.download = `${baseName}.pdf`
+        link.click()
+        URL.revokeObjectURL(url)
       } else {
-        // Native PDF - read directly
-        const ab = await document.arrayBuffer()
-        pdfData = new Uint8Array(ab)
+        // Convert PDF pages to images using pdfjs-dist
+        const pdfjsLib = await import('pdfjs-dist')
+        const pdf = await pdfjsLib.getDocument({ data: finalPdfBytes }).promise
+        const scale = 2
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i)
+          const viewport = page.getViewport({ scale })
+
+          const canvas = window.document.createElement('canvas')
+          const context = canvas.getContext('2d')!
+          canvas.width = viewport.width
+          canvas.height = viewport.height
+
+          context.fillStyle = '#ffffff'
+          context.fillRect(0, 0, canvas.width, canvas.height)
+
+          await page.render({ canvasContext: context, viewport }).promise
+
+          const mimeType = format === 'png' ? 'image/png' : 'image/jpeg'
+          const quality = format === 'jpg' ? 0.95 : undefined
+          const dataUrl = canvas.toDataURL(mimeType, quality)
+
+          const link = window.document.createElement('a')
+          link.href = dataUrl
+          const suffix = pdf.numPages > 1 ? `_page${i}` : ''
+          link.download = `${baseName}${suffix}.${format}`
+          link.click()
+        }
       }
-
-      // Convert PlacedFields to SignatureFields using stored percentages
-      const signatureFields: SignatureField[] = placedFields
-        .filter(f => f.value)
-        .map(field => {
-          // PREFER stored percentages (they're calculated correctly during placement)
-          // Only fall back to x/y calculation if percentages aren't available
-          let xPct: number | undefined = field.xPercent
-          let yPct: number | undefined = field.yPercent
-          let wPct: number | undefined = field.widthPercent
-          let hPct: number | undefined = field.heightPercent
-
-          // Determine base dimensions for percentage calculation
-          const baseW = field.pageBaseWidth || ((!isPDF && imageDimensions) ? imageDimensions.width : 612)
-          const baseH = field.pageBaseHeight || ((!isPDF && imageDimensions) ? imageDimensions.height : 792)
-
-          // Only recalculate from x/y if percentages are not available
-          if (xPct === undefined || yPct === undefined) {
-            if (baseW && baseH) {
-              xPct = field.x / baseW
-              yPct = field.y / baseH
-            } else {
-              return null
-            }
-          }
-
-          // Always ensure wPct/hPct are defined (they may be undefined even when xPct/yPct are set)
-          if (wPct === undefined || wPct === null || isNaN(wPct)) {
-            wPct = field.width / baseW
-          }
-          if (hPct === undefined || hPct === null || isNaN(hPct)) {
-            hPct = field.height / baseH
-          }
-
-          console.log(`Download field ${field.id} (${field.type}):`, {
-            xPct: xPct.toFixed(4),
-            yPct: yPct.toFixed(4),
-            wPct: wPct.toFixed(4),
-            hPct: hPct.toFixed(4),
-            page: field.page,
-            hasValue: !!field.value,
-            valueType: field.value?.substring(0, 30)
-          })
-
-          return {
-            id: field.id,
-            type: field.type,
-            pageNumber: field.page,
-            xPct,
-            yPct,
-            wPct,
-            hPct,
-            value: field.value,
-            fontSize: field.fontSize,
-          } as SignatureField
-        })
-        .filter((f): f is SignatureField => f !== null)
-
-      console.log('Download: Fields ready for pdf-lib:', signatureFields.length)
-
-      // Generate the final PDF with signatures embedded using pdf-lib
-      const { pdfBytes: finalPdfBytes } = await generateFinalPdf(
-        pdfData,
-        signatureFields
-      )
-
-      // Create download link - convert Uint8Array to ArrayBuffer for Blob
-      const blob = new Blob([new Uint8Array(finalPdfBytes)], { type: 'application/pdf' })
-      const url = URL.createObjectURL(blob)
-      const link = window.document.createElement('a')
-      link.href = url
-      link.download = `${templateProps.name || 'signed-document'}.pdf`
-      link.click()
-      URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Error downloading:', err)
       setError('Failed to download document')
     } finally {
       setIsDownloading(false)
     }
-  }, [document, placedFields, templateProps.name, isPDF, documentPreview, imageDimensions])
+  }, [document, buildSignedPdf, templateProps.name])
 
   // Send document for signing
   const handleSendForSigning = async () => {
@@ -1799,15 +1801,43 @@ const SignDocumentPage: React.FC = () => {
             <span className="text-sm font-medium hidden lg:inline">Preview</span>
           </button>
 
-          <button
-            onClick={handleDownload}
-            disabled={!document || isDownloading || placedFields.filter(f => f.value).length === 0}
-            className="hidden md:flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Download"
-          >
-            {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            <span className="text-sm font-medium hidden md:inline">Download</span>
-          </button>
+          <div className="relative hidden md:block" ref={downloadDropdownRef}>
+            <button
+              onClick={() => setShowDownloadDropdown(!showDownloadDropdown)}
+              disabled={!document || isDownloading || placedFields.filter(f => f.value).length === 0}
+              className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Download"
+            >
+              {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              <span className="text-sm font-medium hidden md:inline">Download</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            {showDownloadDropdown && (
+              <div className={`absolute top-full right-0 mt-1 w-40 ${isDark ? 'bg-[#252525] border-[#3a3a3a]' : 'bg-white border-gray-200'} border rounded-xl shadow-xl py-1 z-50`}>
+                <button
+                  onClick={() => handleDownload('pdf')}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-[#2a2a2a] text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
+                >
+                  <span className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-xs font-bold text-red-600">PDF</span>
+                  Download PDF
+                </button>
+                <button
+                  onClick={() => handleDownload('png')}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-[#2a2a2a] text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
+                >
+                  <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-xs font-bold text-blue-600">PNG</span>
+                  Download PNG
+                </button>
+                <button
+                  onClick={() => handleDownload('jpg')}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-[#2a2a2a] text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
+                >
+                  <span className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-xs font-bold text-green-600">JPG</span>
+                  Download JPG
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={handleSave}
