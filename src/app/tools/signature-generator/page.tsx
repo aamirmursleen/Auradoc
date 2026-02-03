@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { PenTool, Download, Trash2, Type, Palette, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useTheme } from '@/components/ThemeProvider'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SignatureGeneratorPage() {
   const { theme } = useTheme()
@@ -192,6 +193,13 @@ export default function SignatureGeneratorPage() {
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       {/* Hero Section */}
       <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Home', href: '/' },
+            { label: 'PDF Tools', href: '/tools' },
+            { label: 'Signature Generator' },
+          ]} />
+        </div>
         <div className="max-w-4xl mx-auto text-center">
           <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} px-4 py-2 rounded-full text-sm font-medium mb-6`}>
             <PenTool className="w-4 h-4" />

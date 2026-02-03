@@ -44,7 +44,7 @@ const ContactPage: React.FC = () => {
       title: 'Live Chat',
       description: 'Chat with our support team in real-time',
       action: 'Start Chat',
-      availability: 'Available 24/7',
+      availability: 'Business hours',
     },
     {
       icon: Mail,
@@ -55,22 +55,22 @@ const ContactPage: React.FC = () => {
     },
     {
       icon: Phone,
-      title: 'Phone Support',
-      description: 'Speak directly with our support team',
-      action: '+1 (555) 123-4567',
+      title: 'Request a Call',
+      description: 'Submit a request and we\'ll call you back',
+      action: 'Use form below',
       availability: 'Mon-Fri, 9AM-6PM EST',
     },
   ]
 
-  const offices = [
-    { city: 'San Francisco', country: 'United States', address: '100 Market Street, Suite 300', type: 'Headquarters' },
-    { city: 'London', country: 'United Kingdom', address: '10 Finsbury Square', type: 'EMEA Office' },
-    { city: 'Singapore', country: 'Singapore', address: '1 Raffles Place', type: 'APAC Office' },
+  const supportChannels = [
+    { region: 'Americas', timezone: 'EST (UTC-5)', hours: 'Mon-Fri, 9AM-6PM' },
+    { region: 'Europe', timezone: 'GMT (UTC+0)', hours: 'Mon-Fri, 9AM-6PM' },
+    { region: 'Asia-Pacific', timezone: 'SGT (UTC+8)', hours: 'Mon-Fri, 9AM-6PM' },
   ]
 
   const faqs = [
     { question: 'How do I reset my password?', link: '/help/password-reset' },
-    { question: 'Can I cancel my subscription?', link: '/help/cancel-subscription' },
+    { question: 'How does the lifetime plan work?', link: '/help/lifetime-plan' },
     { question: 'How do I add team members?', link: '/help/team-members' },
     { question: 'Are e-signatures legally binding?', link: '/help/legal-validity' },
   ]
@@ -303,28 +303,27 @@ const ContactPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Office Locations */}
+      {/* Support Hours */}
       <section className="py-20 bg-[#1F1F1F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Our Offices
+              Global Support
             </h2>
             <p className="text-xl text-gray-300">
-              Visit us at one of our global locations
+              We provide support across multiple time zones
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {offices.map((office, index) => (
+            {supportChannels.map((channel, index) => (
               <div key={index} className="p-8 bg-[#2a2a2a] backdrop-blur-xl rounded-2xl border border-[#3a3a3a]">
                 <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-4">
-                  <MapPin className="w-6 h-6 text-black" />
+                  <Clock className="w-6 h-6 text-black" />
                 </div>
-                <span className="text-sm text-[#c4ff0e] font-medium">{office.type}</span>
-                <h3 className="text-xl font-semibold text-white mt-1 mb-2">{office.city}</h3>
-                <p className="text-gray-300 mb-1">{office.address}</p>
-                <p className="text-gray-400">{office.country}</p>
+                <span className="text-sm text-[#c4ff0e] font-medium">{channel.timezone}</span>
+                <h3 className="text-xl font-semibold text-white mt-1 mb-2">{channel.region}</h3>
+                <p className="text-gray-300">{channel.hours}</p>
               </div>
             ))}
           </div>

@@ -1,6 +1,13 @@
 // Comprehensive PDF Modification Detection Library
 // Analyzes PDFs to detect edits, modifications, and tampering
 
+import * as pdfjsLib from 'pdfjs-dist'
+
+// Set PDF.js worker (same as PDFViewer)
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+}
+
 export interface PDFModification {
   type: 'METADATA_CHANGE' | 'INCREMENTAL_UPDATE' | 'EDITING_SOFTWARE' | 'ANNOTATION' | 'FORM_FIELD' | 'CONTENT_STREAM' | 'REDACTION' | 'DIGITAL_SIGNATURE' | 'EMBEDDED_FILE' | 'PAGE_MODIFICATION' | 'XMP_METADATA' | 'FONT_CHANGE' | 'IMAGE_MODIFICATION'
   severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO'
@@ -365,11 +372,64 @@ export async function analyzePDF(file: File): Promise<PDFAnalysisResult> {
   const uint8Array = new Uint8Array(buffer)
   const text = new TextDecoder('utf-8', { fatal: false }).decode(uint8Array)
 
-  // Extract metadata
-  const metadata = extractMetadata(text)
+  // Extract metadata using regex (fallback - works for uncompressed metadata)
+  const regexMetadata = extractMetadata(text)
+
+  // Use pdfjs-dist for reliable metadata extraction (handles compressed streams)
+  let pdjsPageCount = 0
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: buffer.slice(0) }).promise
+    const pdfMeta = await pdf.getMetadata()
+    pdjsPageCount = pdf.numPages
+
+    // Merge pdfjs metadata (takes priority over regex for compressed PDFs)
+    const info = pdfMeta?.info as Record<string, any> | undefined
+    if (info) {
+      if (info.Title && !regexMetadata.title) regexMetadata.title = info.Title
+      if (info.Author && !regexMetadata.author) regexMetadata.author = info.Author
+      if (info.Subject && !regexMetadata.subject) regexMetadata.subject = info.Subject
+      if (info.Keywords && !regexMetadata.keywords) regexMetadata.keywords = info.Keywords
+      if (info.Creator) regexMetadata.creator = info.Creator // Always prefer pdfjs
+      if (info.Producer) regexMetadata.producer = info.Producer // Always prefer pdfjs
+      if (info.CreationDate && !regexMetadata.creationDate) regexMetadata.creationDate = info.CreationDate
+      if (info.ModDate && !regexMetadata.modificationDate) regexMetadata.modificationDate = info.ModDate
+      if (info.Trapped && !regexMetadata.trapped) regexMetadata.trapped = info.Trapped
+    }
+
+    // Also check XMP metadata from pdfjs
+    const pdfMetaStr = pdfMeta?.metadata?.getAll() as Record<string, string> | undefined
+    if (pdfMetaStr) {
+      // XMP metadata may have dc:creator, xmp:CreatorTool, pdf:Producer, etc.
+      for (const [key, value] of Object.entries(pdfMetaStr)) {
+        if (key.includes('creator') || key.includes('CreatorTool')) {
+          if (!regexMetadata.creator) regexMetadata.creator = value
+        }
+        if (key.includes('producer') || key.includes('Producer')) {
+          if (!regexMetadata.producer) regexMetadata.producer = value
+        }
+        if (key.includes('ModifyDate') || key.includes('ModDate')) {
+          if (!regexMetadata.modificationDate) regexMetadata.modificationDate = value
+        }
+        if (key.includes('CreateDate') || key.includes('CreationDate')) {
+          if (!regexMetadata.creationDate) regexMetadata.creationDate = value
+        }
+      }
+    }
+
+    pdf.destroy()
+  } catch (pdfjsError) {
+    console.warn('pdfjs metadata extraction failed, using regex fallback:', pdfjsError)
+  }
+
+  const metadata = regexMetadata
 
   // Analyze structure
   const structureInfo = analyzeStructure(text, file.size)
+
+  // Override page count with pdfjs (more accurate)
+  if (pdjsPageCount > 0) {
+    structureInfo.pageCount = pdjsPageCount
+  }
 
   // Detect editing software
   const { software, possibleEditors } = detectEditingSoftware(metadata)

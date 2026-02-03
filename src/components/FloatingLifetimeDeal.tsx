@@ -62,7 +62,7 @@ const FloatingLifetimeDeal: React.FC = () => {
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className={`absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-lg z-10 transition-colors active:scale-95 ${isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-200 hover:bg-gray-300'}`}
+          className={`absolute -top-3 -right-3 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-lg z-10 transition-colors active:scale-95 ${isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-200 hover:bg-gray-300'}`}
           aria-label="Dismiss"
         >
           <X className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />

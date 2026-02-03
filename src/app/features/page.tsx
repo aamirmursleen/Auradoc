@@ -347,26 +347,15 @@ const FeaturesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Testimonial */}
+      {/* Value Proposition */}
       <section className="py-16 bg-[#1F1F1F] border-y border-[#3a3a3a]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center mb-4">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
-            ))}
-          </div>
-          <blockquote className="text-xl md:text-2xl text-gray-300 italic mb-6">
-            "MamaSign has completely transformed how we handle documents. The e-signature feature is incredibly easy to use, and the PDF tools save us hours every week!"
-          </blockquote>
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-12 h-12 bg-[#c4ff0e] rounded-full flex items-center justify-center text-black font-bold">
-              SJ
-            </div>
-            <div className="text-left">
-              <p className="font-semibold text-white">Sarah Johnson</p>
-              <p className="text-sm text-gray-400">Operations Director, TechFlow Solutions</p>
-            </div>
-          </div>
+          <p className="text-xl md:text-2xl text-gray-300 mb-6">
+            E-signatures, PDF tools, invoices, and templates &mdash; everything you need to manage documents, in one platform.
+          </p>
+          <p className="text-lg text-gray-400">
+            Pay once, use forever. No subscriptions, no hidden fees.
+          </p>
         </div>
       </section>
 

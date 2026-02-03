@@ -55,8 +55,8 @@ const PricingPage: React.FC = () => {
     'Priority 24/7 support',
     'Lifetime updates & new features',
     'No monthly or annual fees',
-    '256-bit encryption security',
-    'GDPR & SOC 2 compliant',
+    'AES-256 encryption security',
+    'GDPR compliant',
     'Mobile-friendly access',
   ]
 
@@ -85,7 +85,7 @@ const PricingPage: React.FC = () => {
     },
     {
       question: 'Is my data secure?',
-      answer: 'Yes. We use 256-bit AES encryption, are SOC 2 Type II certified, and comply with GDPR, HIPAA, and other major security standards. Your documents are encrypted both at rest and in transit.',
+      answer: 'Yes. We use AES-256 encryption at rest and TLS encryption in transit. Our infrastructure is hosted on SOC 2 certified platforms, and we are GDPR compliant. Your documents are protected at every stage.',
     },
     {
       question: 'What if I\'m not satisfied?',
@@ -325,22 +325,12 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Trusted By Section */}
+      {/* Social Proof Section */}
       <section className="py-12 bg-[#1e1e1e] border-y border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h3 className="text-2xl md:text-3xl font-bold text-center text-white mb-8">
-            Trusted by 50,000+ Users
-          </h3>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {trustedBrands.map((brand, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-center w-24 h-16 md:w-32 md:h-20 bg-[#252525] rounded-xl shadow-sm border border-[#3a3a3a]"
-              >
-                <span className="text-gray-400 font-semibold text-sm">{brand}</span>
-              </div>
-            ))}
-          </div>
+          <p className="text-lg md:text-xl text-center text-gray-400">
+            Used by thousands of businesses, freelancers, and professionals worldwide
+          </p>
         </div>
       </section>
 
@@ -361,7 +351,7 @@ const PricingPage: React.FC = () => {
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full">
                   <Shield className="w-5 h-5 text-black" />
-                  <span className="text-black font-medium">256-bit Encryption</span>
+                  <span className="text-black font-medium">AES-256 Encrypted</span>
                 </div>
                 <div className="flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full">
                   <Clock className="w-5 h-5 text-black" />
@@ -369,7 +359,7 @@ const PricingPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full">
                   <Award className="w-5 h-5 text-black" />
-                  <span className="text-black font-medium">SOC 2 Certified</span>
+                  <span className="text-black font-medium">Secure Infrastructure</span>
                 </div>
               </div>
             </div>

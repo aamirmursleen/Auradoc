@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { rateLimit } from '@/lib/rate-limit'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,6 +13,9 @@ interface TemplateField {
 }
 
 export async function POST(req: NextRequest) {
+  const rateLimited = rateLimit(req, { limit: 5, windowSeconds: 60 })
+  if (rateLimited) return rateLimited
+
   try {
     const { prompt, category, fields } = await req.json()
 

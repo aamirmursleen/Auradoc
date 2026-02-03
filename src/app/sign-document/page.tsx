@@ -731,7 +731,7 @@ const SignDocumentPage: React.FC = () => {
     if (!fieldType) return
 
     // Calculate field dimensions based on type
-    const fieldWidth = draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : 150
+    const fieldWidth = draggedFieldType === 'signature' ? 200 : draggedFieldType === 'checkbox' ? 30 : draggedFieldType === 'email' ? 250 : 150
     const fieldHeight = draggedFieldType === 'signature' ? 60 : draggedFieldType === 'checkbox' ? 30 : 40
 
     let x: number, y: number
@@ -776,19 +776,38 @@ const SignDocumentPage: React.FC = () => {
       x = xPercent * pageBaseWidth + fieldWidth / 2
       y = yPercent * pageBaseHeight + fieldHeight / 2
     } else {
-      // For PDFs: use documentContainerRef
-      if (!documentContainerRef.current) return
-      const rect = documentContainerRef.current.getBoundingClientRect()
-      x = (e.clientX - rect.left) / zoom
-      y = (e.clientY - rect.top) / zoom
+      // For PDFs: find the actual page element at drop position for accurate coordinates
+      const pageElement = (e.target as HTMLElement).closest('[data-pdf-page="true"]') as HTMLElement
+      if (pageElement) {
+        const pageRect = pageElement.getBoundingClientRect()
+        // Use actual rendered page dimensions (same approach as onPageClick)
+        const dropXPct = (e.clientX - pageRect.left) / pageRect.width
+        const dropYPct = (e.clientY - pageRect.top) / pageRect.height
 
-      // Set percentage values for PDFs too (using US Letter as default base)
-      pageBaseWidth = 612
-      pageBaseHeight = 792
-      widthPercent = fieldWidth / pageBaseWidth
-      heightPercent = fieldHeight / pageBaseHeight
-      xPercent = Math.max(0, (x - fieldWidth / 2)) / pageBaseWidth
-      yPercent = Math.max(0, (y - fieldHeight / 2)) / pageBaseHeight
+        pageBaseWidth = pageRect.width / zoom
+        pageBaseHeight = pageRect.height / zoom
+        widthPercent = fieldWidth / pageBaseWidth
+        heightPercent = fieldHeight / pageBaseHeight
+
+        xPercent = Math.max(0, Math.min(1 - widthPercent, dropXPct - widthPercent / 2))
+        yPercent = Math.max(0, Math.min(1 - heightPercent, dropYPct - heightPercent / 2))
+
+        x = xPercent * pageBaseWidth + fieldWidth / 2
+        y = yPercent * pageBaseHeight + fieldHeight / 2
+      } else {
+        // Fallback: use documentContainerRef
+        if (!documentContainerRef.current) return
+        const rect = documentContainerRef.current.getBoundingClientRect()
+        x = (e.clientX - rect.left) / zoom
+        y = (e.clientY - rect.top) / zoom
+
+        pageBaseWidth = 612
+        pageBaseHeight = 792
+        widthPercent = fieldWidth / pageBaseWidth
+        heightPercent = fieldHeight / pageBaseHeight
+        xPercent = Math.max(0, (x - fieldWidth / 2)) / pageBaseWidth
+        yPercent = Math.max(0, (y - fieldHeight / 2)) / pageBaseHeight
+      }
     }
 
     const newField: PlacedField = {
@@ -1061,11 +1080,26 @@ const SignDocumentPage: React.FC = () => {
     setSelectedFieldId(newField.id)
   }
 
-  // Update field value (for inline editing)
+  // Update field value (for inline editing) - auto-expand width for text fields
   const updateFieldValue = (fieldId: string, value: string) => {
-    setPlacedFields(prev => prev.map(field =>
-      field.id === fieldId ? { ...field, value } : field
-    ))
+    setPlacedFields(prev => prev.map(field => {
+      if (field.id !== fieldId) return field
+      const updated = { ...field, value }
+
+      // Auto-expand width for text-type fields if content is wider than field
+      const isTextType = ['text', 'name', 'firstName', 'lastName', 'email', 'company', 'title'].includes(field.type)
+      if (isTextType && value) {
+        const fontSize = field.fontSize || 14
+        const estimatedWidth = value.length * fontSize * 0.62 + 16
+        if (estimatedWidth > field.width) {
+          updated.width = estimatedWidth
+          const baseW = field.pageBaseWidth || 612
+          updated.widthPercent = estimatedWidth / baseW
+        }
+      }
+
+      return updated
+    }))
   }
 
   // Update field font size
@@ -1483,6 +1517,13 @@ const SignDocumentPage: React.FC = () => {
         y: field.y,
         width: field.width,
         height: field.height,
+        // Percentage-based coordinates for accurate PDF alignment
+        xPercent: field.xPercent,
+        yPercent: field.yPercent,
+        widthPercent: field.widthPercent,
+        heightPercent: field.heightPercent,
+        pageBaseWidth: field.pageBaseWidth,
+        pageBaseHeight: field.pageBaseHeight,
         type: field.type,
         label: field.label,
         mandatory: field.mandatory,
@@ -2499,11 +2540,12 @@ const SignDocumentPage: React.FC = () => {
                                     )}
                                     {/* Text Fields Display */}
                                     {isTextType && (
-                                      <div className="w-full h-full flex items-center px-2">
+                                      <div className="w-full h-full flex items-center px-2" style={{ overflow: 'hidden' }}>
                                         <span style={{
                                           color: '#000000',
                                           fontSize: `${field.fontSize || 14}px`,
-                                          fontWeight: field.type === 'title' ? '600' : '400'
+                                          fontWeight: field.type === 'title' ? '600' : '400',
+                                          whiteSpace: 'nowrap'
                                         }}>{field.value}</span>
                                       </div>
                                     )}
@@ -2766,8 +2808,8 @@ const SignDocumentPage: React.FC = () => {
                                 </div>
                               )}
                               {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && (
-                                <div className="w-full h-full flex items-center px-2" style={{ fontSize: (field.fontSize || 14) * zoom }}>
-                                  <span className="truncate text-gray-800">{field.value}</span>
+                                <div className="w-full h-full flex items-center px-2" style={{ fontSize: (field.fontSize || 14) * zoom, overflow: 'hidden' }}>
+                                  <span className="text-gray-800" style={{ whiteSpace: 'nowrap' }}>{field.value}</span>
                                 </div>
                               )}
                             </>
@@ -3724,8 +3766,7 @@ const SignDocumentPage: React.FC = () => {
           const ctx = canvas.getContext('2d')
           if (!ctx) return ''
 
-          ctx.fillStyle = 'white'
-          ctx.fillRect(0, 0, canvas.width, canvas.height)
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
 
           const font = signatureFonts[fontIndex] || signatureFonts[0]
           ctx.fillStyle = '#1a1a1a'
@@ -3734,7 +3775,7 @@ const SignDocumentPage: React.FC = () => {
           ctx.textBaseline = 'middle'
 
           const text = isInitials ? initials : name
-          ctx.fillText(text, 20, 45)
+          ctx.fillText(text, 20, 40)
 
           return canvas.toDataURL('image/png')
         }

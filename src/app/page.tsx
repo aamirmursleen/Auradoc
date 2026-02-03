@@ -341,9 +341,9 @@ const HomePage: React.FC = () => {
   ]
 
   const trustBadges = [
-    { icon: Lock, label: '256-bit SSL Encryption' },
+    { icon: Lock, label: 'AES-256 Encrypted' },
     { icon: Shield, label: 'GDPR Compliant' },
-    { icon: Award, label: 'SOC 2 Certified' },
+    { icon: Award, label: 'Secure Infrastructure' },
     { icon: Globe, label: 'Available Worldwide' },
   ]
 
@@ -496,7 +496,7 @@ const HomePage: React.FC = () => {
       {/* Mobile App View - SaaS App UX */}
       <MobileAppShell>
         {/* Hero Section for Mobile */}
-        <HeroSection />
+        <HeroSection variant="mobile" />
         {/* Mobile Dashboard Content */}
         <MobileHomeDashboard />
       </MobileAppShell>
@@ -504,7 +504,7 @@ const HomePage: React.FC = () => {
       {/* Desktop Marketing View */}
       <div className={`hidden md:block overflow-hidden ${isDark ? 'bg-[#1F1F1F]' : 'bg-white'}`}>
       {/* Hero Section */}
-      <HeroSection />
+      <HeroSection variant="desktop" />
 
       {/* Trust Badges */}
       <section className={`py-6 border-y ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-100'}`}>
@@ -946,7 +946,7 @@ const HomePage: React.FC = () => {
                 <Lock className={`w-8 h-8 ${isDark ? 'text-black' : 'text-white'}`} />
               </div>
               <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Bank-Level Security</h3>
-              <p className={isDark ? 'text-gray-400' : 'text-[#6B7280]'}>256-bit encryption, SOC 2 compliance, and GDPR ready. Your documents are safe with us.</p>
+              <p className={isDark ? 'text-gray-400' : 'text-[#6B7280]'}>AES-256 encryption at rest, TLS in transit, and GDPR-ready infrastructure. Your documents are safe with us.</p>
             </div>
             <div className={`text-center p-6 rounded-2xl border transition-shadow ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a] hover:shadow-lg hover:shadow-[#c4ff0e]/10' : 'bg-white border-gray-200 hover:shadow-lg hover:shadow-[#4C00FF]/10'}`}>
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ${isDark ? 'bg-[#c4ff0e] shadow-[#c4ff0e]/30' : 'bg-[#4C00FF] shadow-[#4C00FF]/30'}`}>

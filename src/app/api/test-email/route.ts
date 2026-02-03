@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { rateLimit } from '@/lib/rate-limit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
+  const rateLimited = rateLimit(req, { limit: 3, windowSeconds: 60 })
+  if (rateLimited) return rateLimited
+
   try {
     const body = await req.json()
     const { to, subject, message } = body

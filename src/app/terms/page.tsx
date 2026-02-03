@@ -64,15 +64,15 @@ We reserve the right to modify, suspend, or discontinue any part of the Service 
       id: 'payments',
       title: 'Payments and Billing',
       icon: CreditCard,
-      content: `Some features of the Service require payment. By subscribing to a paid plan, you agree to:
+      content: `Some features of the Service require payment. By purchasing a paid plan, you agree to:
 
-Billing: You will be billed in advance on a recurring basis (monthly or annually) depending on the plan selected. Your subscription will automatically renew unless canceled before the renewal date.
+Billing: MamaSign offers a one-time lifetime payment option. When you purchase a lifetime plan, you pay once and receive access to the Service indefinitely. No recurring charges will be applied for lifetime plans.
 
-Payment Methods: You authorize us to charge your payment method for all fees incurred. You are responsible for providing valid payment information and keeping it current.
+Payment Methods: You authorize us to charge your payment method for the purchase price. You are responsible for providing valid payment information.
 
-Price Changes: We may change our prices at any time. Price changes will take effect at the start of the next billing period. We will provide notice of any price changes.
+Price Changes: We may change our prices for new purchases at any time. Price changes do not affect existing lifetime plan holders.
 
-Refunds: Subscription fees are non-refundable except as required by law. If you cancel your subscription, you will continue to have access until the end of your current billing period.
+Refunds: We offer a 30-day money-back guarantee from the date of purchase. After 30 days, payments are non-refundable except as required by law.
 
 Taxes: All fees are exclusive of applicable taxes, which you are responsible for paying.`,
     },

@@ -3,8 +3,8 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { FileType, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Clock } from 'lucide-react'
 import Link from 'next/link'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
 import { useTheme } from '@/components/ThemeProvider'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 // We'll use pdfjs-dist for text extraction
 let pdfjsLib: any = null
@@ -91,7 +91,8 @@ export default function PDFToWordPage() {
   }
 
   const createWordDocument = async (pages: string[]): Promise<Blob> => {
-    const children: Paragraph[] = []
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx')
+    const children: InstanceType<typeof Paragraph>[] = []
 
     pages.forEach((pageText, index) => {
       // Add page header
@@ -213,6 +214,13 @@ export default function PDFToWordPage() {
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       {/* Hero Section */}
       <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Home', href: '/' },
+            { label: 'PDF Tools', href: '/tools' },
+            { label: 'PDF to Word' },
+          ]} />
+        </div>
         <div className="max-w-4xl mx-auto text-center">
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${isDark ? 'bg-[#2a2a2a] text-[#c4ff0e]' : 'bg-[#EDE5FF] text-[#4C00FF]'}`}>
             <FileType className="w-4 h-4" />

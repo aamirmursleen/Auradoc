@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
@@ -148,6 +149,9 @@ NEVER:
 - Be rude or impatient`
 
 export async function POST(req: NextRequest) {
+  const rateLimited = rateLimit(req, { limit: 20, windowSeconds: 60 })
+  if (rateLimited) return rateLimited
+
   try {
     const body = await req.json()
     const { messages } = body

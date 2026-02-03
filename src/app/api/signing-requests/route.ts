@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { supabase } from '@/lib/supabase'
 import { sendSigningInvite } from '@/lib/email'
+import { rateLimit } from '@/lib/rate-limit'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 export async function POST(req: NextRequest) {
+  const rateLimited = rateLimit(req, { limit: 10, windowSeconds: 60 })
+  if (rateLimited) return rateLimited
+
   try {
     const { userId } = await auth()
     const user = await currentUser()

@@ -606,11 +606,11 @@ const CreateInvoicePage: React.FC = () => {
                     className="hidden"
                   />
                   {invoiceData.backgroundLogo ? (
-                    <div className={`relative group h-20 ${isDark ? 'border-[#2a2a2a] bg-[#1F1F1F]' : 'border-gray-200 bg-white'} border rounded-lg flex items-center justify-center p-2`}>
+                    <div className={`relative group ${isDark ? 'border-[#2a2a2a] bg-[#1F1F1F]' : 'border-gray-200 bg-white'} border rounded-lg flex items-center p-2`}>
                       <img
                         src={invoiceData.backgroundLogo}
                         alt="Background Logo"
-                        className="h-full object-contain opacity-30"
+                        className="max-h-12 max-w-[120px] object-contain opacity-30"
                       />
                       <button
                         onClick={() => handleInputChange('backgroundLogo', null)}
@@ -981,7 +981,7 @@ const CreateInvoicePage: React.FC = () => {
                   <div className="col-span-1 text-center">Quantity</div>
                   <div className="col-span-2 text-center">Unit</div>
                   <div className="col-span-2 text-center">Price</div>
-                  <div className="col-span-1 text-center">DPH%</div>
+                  <div className="col-span-1 text-center">Tax %</div>
                   <div className="col-span-1 text-right">Total</div>
                   <div className="col-span-1"></div>
                 </div>

@@ -11,19 +11,17 @@ import {
   Target,
   Lightbulb,
   Shield,
-  Award,
   Building2,
   MapPin,
-  Linkedin,
-  Twitter,
+  Code,
 } from 'lucide-react'
 
 const AboutPage: React.FC = () => {
   const stats = [
-    { value: '10M+', label: 'Documents Signed' },
-    { value: '50K+', label: 'Happy Customers' },
-    { value: '150+', label: 'Countries' },
+    { value: '150+', label: 'Countries Served' },
     { value: '99.9%', label: 'Uptime' },
+    { value: '24h', label: 'Avg Support Response' },
+    { value: '7+', label: 'Free PDF Tools' },
   ]
 
   const values = [
@@ -49,51 +47,30 @@ const AboutPage: React.FC = () => {
     },
   ]
 
-  const team = [
+  const departments = [
     {
-      name: 'Sarah Ahmed',
-      role: 'CEO & Co-Founder',
-      bio: 'Former VP at DocuSign with 15+ years in enterprise software.',
-      image: null,
+      icon: Code,
+      title: 'Engineering',
+      description: 'Building reliable, secure infrastructure for document signing at scale.',
     },
     {
-      name: 'Michael Chen',
-      role: 'CTO & Co-Founder',
-      bio: 'Ex-Google engineer, built systems serving billions of users.',
-      image: null,
+      icon: Shield,
+      title: 'Security',
+      description: 'Protecting your documents with enterprise-grade encryption and compliance.',
     },
     {
-      name: 'Emily Rodriguez',
-      role: 'VP of Product',
-      bio: 'Product leader with experience at Dropbox and Slack.',
-      image: null,
-    },
-    {
-      name: 'James Wilson',
-      role: 'VP of Engineering',
-      bio: 'Engineering leader who scaled systems at AWS and Stripe.',
-      image: null,
-    },
-    {
-      name: 'Priya Sharma',
-      role: 'VP of Customer Success',
-      bio: 'Customer experience expert from Salesforce and HubSpot.',
-      image: null,
-    },
-    {
-      name: 'David Kim',
-      role: 'VP of Security',
-      bio: 'Cybersecurity veteran with 20+ years protecting enterprises.',
-      image: null,
+      icon: Heart,
+      title: 'Customer Success',
+      description: 'Dedicated to helping every user get the most from MamaSign.',
     },
   ]
 
   const milestones = [
     { year: '2020', event: 'MamaSign founded with a mission to simplify document signing' },
-    { year: '2021', event: 'Launched public beta, reached 10,000 users in first month' },
-    { year: '2022', event: 'Series A funding, expanded to 50+ countries' },
-    { year: '2023', event: 'Reached 1 million signed documents milestone' },
-    { year: '2024', event: 'SOC 2 Type II certification, enterprise features launch' },
+    { year: '2021', event: 'Launched public beta and began serving customers worldwide' },
+    { year: '2022', event: 'Expanded product suite with PDF tools and templates' },
+    { year: '2023', event: 'Introduced team collaboration and API access' },
+    { year: '2024', event: 'Launched enterprise features and advanced security' },
   ]
 
   return (
@@ -231,96 +208,46 @@ const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Leadership Team */}
+      {/* Our Team */}
       <section className="py-20 bg-[#1e1e1e]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Leadership Team
+              Our Team
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Meet the people building the future of document signing
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <div key={index} className="bg-[#2a2a2a] backdrop-blur-xl p-8 rounded-2xl border border-[#3a3a3a] hover:shadow-lg hover:shadow-[#c4ff0e]/20 transition-all duration-300 text-center">
-                <div className="w-24 h-24 bg-[#c4ff0e] rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-10 h-10 text-black" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-1">{member.name}</h3>
-                <p className="text-[#c4ff0e] font-medium mb-3">{member.role}</p>
-                <p className="text-gray-300 text-sm mb-4">{member.bio}</p>
-                <div className="flex items-center justify-center gap-3">
-                  <a href="#" className="text-gray-400 hover:text-[#c4ff0e] transition-colors">
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="text-gray-400 hover:text-[#c4ff0e] transition-colors">
-                    <Twitter className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Office Locations */}
-      <section className="py-20 bg-[#1F1F1F]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Our Offices
-            </h2>
-            <p className="text-xl text-gray-300">
-              A global team serving customers worldwide
+              A passionate team dedicated to making document signing simple, secure, and accessible
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { city: 'San Francisco', country: 'United States', type: 'Headquarters' },
-              { city: 'London', country: 'United Kingdom', type: 'EMEA Office' },
-              { city: 'Singapore', country: 'Singapore', type: 'APAC Office' },
-            ].map((office, index) => (
-              <div key={index} className="p-8 bg-[#2a2a2a] backdrop-blur-xl rounded-2xl border border-[#3a3a3a] text-center">
-                <div className="w-14 h-14 bg-[#c4ff0e] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="w-7 h-7 text-black" />
+            {departments.map((dept, index) => (
+              <div key={index} className="bg-[#2a2a2a] backdrop-blur-xl p-8 rounded-2xl border border-[#3a3a3a] text-center">
+                <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <dept.icon className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-1">{office.city}</h3>
-                <p className="text-gray-300 mb-2">{office.country}</p>
-                <span className="text-sm text-[#c4ff0e] font-medium">{office.type}</span>
+                <h3 className="text-xl font-semibold text-white mb-3">{dept.title}</h3>
+                <p className="text-gray-300 text-sm">{dept.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Awards & Recognition */}
-      <section className="py-20 bg-[#1e1e1e]">
+      {/* Global Reach */}
+      <section className="py-20 bg-[#1F1F1F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Awards & Recognition
+              Global Reach
             </h2>
-            <p className="text-xl text-gray-300">
-              Industry recognition for our innovation and excellence
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+              MamaSign serves customers across 150+ countries with support available in multiple time zones.
             </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              'G2 Leader 2024',
-              'Capterra Best Value',
-              'TrustRadius Top Rated',
-              'Forbes Cloud 100',
-            ].map((award, index) => (
-              <div key={index} className="p-6 bg-[#2a2a2a] rounded-xl border border-[#3a3a3a] text-center">
-                <Award className="w-10 h-10 text-[#c4ff0e] mx-auto mb-4" />
-                <p className="text-white font-medium">{award}</p>
-              </div>
-            ))}
+            <div className="flex items-center justify-center gap-3">
+              <Globe className="w-6 h-6 text-[#c4ff0e]" />
+              <span className="text-gray-400 text-lg">Americas &bull; Europe &bull; Asia-Pacific</span>
+            </div>
           </div>
         </div>
       </section>

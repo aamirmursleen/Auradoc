@@ -184,7 +184,11 @@ export async function generateFinalPdf(
       } else {
         // Text field (text, date, name, email, etc.)
         if (field.value) {
-          drawText(page, field.value, pdfCoords, field.fontSize || 12)
+          let displayValue = field.value
+          if (field.type === 'date') {
+            try { displayValue = new Date(field.value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { /* keep raw value */ }
+          }
+          drawText(page, displayValue, pdfCoords, field.fontSize || 14)
         }
       }
     }
@@ -282,13 +286,13 @@ function drawCheckbox(
   page: PDFPage,
   coords: { x: number; y: number; width: number; height: number }
 ): void {
-  // Draw green background
+  // Draw green background - matches CSS bg-green-500 (#22c55e)
   page.drawRectangle({
     x: coords.x,
     y: coords.y,
     width: coords.width,
     height: coords.height,
-    color: rgb(0.086, 0.639, 0.290), // #16a34a
+    color: rgb(0.133, 0.773, 0.369), // #22c55e (Tailwind green-500)
   })
 
   // Draw checkmark
@@ -312,30 +316,30 @@ function drawCheckbox(
 }
 
 /**
- * Draw a text stamp (rotated)
+ * Draw a text stamp
+ * Matches CSS: "w-full h-full flex items-center justify-center"
  */
 function drawTextStamp(
   page: PDFPage,
   text: string,
   coords: { x: number; y: number; width: number; height: number }
 ): void {
-  const fontSize = Math.min(coords.height * 0.5, 16)
-  const centerX = coords.x + coords.width / 2
-  const centerY = coords.y + coords.height / 2
+  // CSS uses text-xs = 12px, with cap to prevent overflow
+  const fontSize = Math.min(12, coords.height * 0.7)
 
-  // Note: pdf-lib doesn't support rotation for text easily,
-  // so we draw it normally for now. For proper rotation,
-  // you'd need to use a graphics state transformation.
+  // CSS: flex items-center justify-center with px-1 (4px = 4pt at 1:1 scale)
   page.drawText(text, {
-    x: centerX - (text.length * fontSize * 0.3),
-    y: centerY - fontSize / 2,
+    x: coords.x + 4,
+    y: coords.y + (coords.height - fontSize) / 2 + fontSize * 0.28,
     size: fontSize,
     color: rgb(0.863, 0.149, 0.149), // #dc2626
+    maxWidth: coords.width - 8,
   })
 }
 
 /**
  * Draw text field value
+ * Matches CSS: "w-full h-full flex items-center px-2" (8px = 8pt at 1:1 scale)
  */
 function drawText(
   page: PDFPage,
@@ -346,12 +350,18 @@ function drawText(
   // Adjust font size to fit height
   const adjustedFontSize = Math.min(fontSize, coords.height * 0.8)
 
+  // pdf-lib drawText positions at the baseline. To visually center text
+  // (matching CSS flex items-center with line-height ~1.2):
+  // Baseline from bottom = height/2 - fontSize*(0.5 - factor)
+  // CSS centers line box (1.2*fontSize), baseline at ~0.218*fontSize below center
+  // factor = 0.5 - 0.218 = 0.282 ≈ 0.28
+  // Horizontal padding: CSS px-2 = 8px = 8pt at 1:1 page rendering scale
   page.drawText(text, {
-    x: coords.x + 4, // Small padding from left
-    y: coords.y + (coords.height - adjustedFontSize) / 2, // Center vertically
+    x: coords.x + 8,
+    y: coords.y + (coords.height - adjustedFontSize) / 2 + adjustedFontSize * 0.28,
     size: adjustedFontSize,
     color: rgb(0, 0, 0),
-    maxWidth: coords.width - 8,
+    maxWidth: coords.width - 16,
   })
 }
 

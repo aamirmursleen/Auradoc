@@ -1,11 +1,12 @@
 {
   "name": "MamaSign - E-Signature & PDF Tools",
   "short_name": "MamaSign",
-  "description": "Sign documents electronically with legally-binding digital signatures. Free PDF tools included.",
+  "description": "Sign documents electronically with legally-binding digital signatures. Free PDF tools: compress, convert, merge PDFs.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#06b6d4",
+  "theme_color": "#4C00FF",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -20,5 +21,34 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "utilities"]
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Sign Document",
+      "short_name": "Sign",
+      "url": "/sign-document",
+      "description": "Upload and sign a PDF document"
+    },
+    {
+      "name": "Create Invoice",
+      "short_name": "Invoice",
+      "url": "/create-invoice",
+      "description": "Create a professional invoice"
+    },
+    {
+      "name": "PDF Tools",
+      "short_name": "Tools",
+      "url": "/tools",
+      "description": "Merge, split, compress PDFs and more"
+    },
+    {
+      "name": "Verify PDF",
+      "short_name": "Verify",
+      "url": "/verify",
+      "description": "Check if a PDF has been edited"
+    }
+  ]
 }

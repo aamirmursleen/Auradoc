@@ -27,8 +27,8 @@ const SecurityPage: React.FC = () => {
   const securityFeatures = [
     {
       icon: Lock,
-      title: 'End-to-End Encryption',
-      description: 'All documents are encrypted using 256-bit AES encryption, both in transit (TLS 1.3) and at rest. Your data is protected at every stage.',
+      title: 'Data Encryption',
+      description: 'All documents are encrypted using AES-256 encryption at rest and TLS 1.3 in transit. Your data is protected at every stage.',
     },
     {
       icon: Server,
@@ -60,7 +60,7 @@ const SecurityPage: React.FC = () => {
   const certifications = [
     {
       name: 'SOC 2 Type II',
-      description: 'Verified security, availability, and confidentiality controls',
+      description: 'Hosted on infrastructure with verified security controls',
       icon: FileCheck,
     },
     {

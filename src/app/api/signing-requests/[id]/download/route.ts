@@ -84,7 +84,9 @@ export async function GET(
         'hasFieldValues:', !!signer.fieldValues, 'hasSignature:', !!signer.signatureImage)
     }
 
-    // Embed each field into the PDF
+    // Embed each field into the PDF using percentage-based coordinates
+    // This matches the same approach as pdf-generator.ts for consistent alignment
+    // across PDF, PNG-to-PDF, and JPG-to-PDF documents
     for (const field of signatureFields) {
       const signer = signerByOrder[field.signerOrder]
       if (!signer || signer.status !== 'signed') {
@@ -102,19 +104,45 @@ export async function GET(
       const page = pages[pageIndex]
       const { width: pageW, height: pageH } = page.getSize()
 
-      // Field coords are stored in pixel space at scale=1
-      // which maps directly to PDF points for standard rendering
-      const pdfX = field.x
-      const pdfWidth = field.width
-      const pdfHeight = field.height
-      // Y-axis inversion: UI top-down -> PDF bottom-up
-      const pdfY = pageH - field.y - field.height
+      // Use percentage-based coordinates for accurate positioning
+      // This handles PDF, PNG-to-PDF, and JPG-to-PDF correctly
+      let xPct: number, yPct: number, wPct: number, hPct: number
+
+      if (field.xPercent !== undefined && field.yPercent !== undefined &&
+          field.widthPercent !== undefined && field.heightPercent !== undefined) {
+        // Use stored percentages (new format - most accurate)
+        xPct = field.xPercent
+        yPct = field.yPercent
+        wPct = field.widthPercent
+        hPct = field.heightPercent
+      } else if (field.pageBaseWidth && field.pageBaseHeight) {
+        // Calculate percentages from raw coords + base dimensions
+        xPct = field.x / field.pageBaseWidth
+        yPct = field.y / field.pageBaseHeight
+        wPct = field.width / field.pageBaseWidth
+        hPct = field.height / field.pageBaseHeight
+      } else {
+        // Fallback: raw coords assumed to be in PDF point space
+        xPct = field.x / pageW
+        yPct = field.y / pageH
+        wPct = field.width / pageW
+        hPct = field.height / pageH
+      }
+
+      // Convert percentage coordinates to PDF points
+      // Same formula as pdf-generator.ts: normalizedToPdfCoords()
+      const pdfX = xPct * pageW
+      const pdfWidth = wPct * pageW
+      const pdfHeight = hPct * pageH
+      // Y-axis inversion: UI top-down (yPct from top) -> PDF bottom-up
+      const pdfY = pageH - ((yPct + hPct) * pageH)
 
       const fieldType = field.type
       const value = fieldValues[field.id]
 
       console.log('📄 Field:', field.id, 'type:', fieldType, 'value:', value ? 'YES' : 'NO',
-        'coords:', { x: pdfX, y: pdfY, w: pdfWidth, h: pdfHeight })
+        'pct:', { xPct: xPct.toFixed(4), yPct: yPct.toFixed(4), wPct: wPct.toFixed(4), hPct: hPct.toFixed(4) },
+        'coords:', { x: pdfX.toFixed(1), y: pdfY.toFixed(1), w: pdfWidth.toFixed(1), h: pdfHeight.toFixed(1) })
 
       try {
         if ((fieldType === 'signature' || fieldType === 'initials') && signatureImage) {
@@ -122,7 +150,7 @@ export async function GET(
         } else if (fieldType === 'checkbox' && value === 'checked') {
           page.drawRectangle({
             x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight,
-            color: rgb(0.086, 0.639, 0.290),
+            color: rgb(0.133, 0.773, 0.369), // #22c55e (Tailwind green-500)
           })
           const cx = pdfX + pdfWidth / 2, cy = pdfY + pdfHeight / 2
           const sz = Math.min(pdfWidth, pdfHeight) * 0.6
@@ -132,10 +160,12 @@ export async function GET(
           if (value.startsWith('data:image')) {
             await embedImageIntoPdf(pdfDoc, page, value, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
           } else {
-            const fontSize = Math.min(pdfHeight * 0.5, 16)
+            // CSS uses text-xs = 12px, with cap to prevent overflow
+            const fontSize = Math.min(12, pdfHeight * 0.7)
             page.drawText(value, {
-              x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2,
+              x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
               size: fontSize, color: rgb(0.863, 0.149, 0.149),
+              maxWidth: pdfWidth - 8,
             })
           }
         } else if (fieldType === 'strikethrough' && value) {
@@ -148,12 +178,12 @@ export async function GET(
         } else if (value && fieldType !== 'checkbox') {
           let displayValue = value
           if (fieldType === 'date') {
-            try { displayValue = new Date(value).toLocaleDateString() } catch { displayValue = value }
+            try { displayValue = new Date(value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { displayValue = value }
           }
-          const fontSize = Math.min(field.fontSize || 14, pdfHeight * 0.7)
+          const fontSize = Math.min(field.fontSize || 14, pdfHeight * 0.8)
           page.drawText(displayValue, {
-            x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2,
-            size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 8,
+            x: pdfX + 8, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
+            size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 16,
           })
         }
       } catch (fieldError) {

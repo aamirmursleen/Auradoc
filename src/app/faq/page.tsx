@@ -86,7 +86,7 @@ const faqData: FAQCategory[] = [
     faqs: [
       {
         question: 'How does MamaSign protect my documents?',
-        answer: 'We use bank-level 256-bit AES encryption for all documents. Additionally, our PDF tools process files locally in your browser, so sensitive documents never leave your device. For cloud-stored documents, we use encrypted storage with strict access controls.',
+        answer: 'We use AES-256 encryption for documents at rest and TLS encryption in transit. Our PDF tools process files locally in your browser, so sensitive documents never leave your device. For cloud-stored documents, we use encrypted storage with strict access controls.',
       },
       {
         question: 'Is MamaSign GDPR compliant?',
@@ -111,20 +111,16 @@ const faqData: FAQCategory[] = [
         answer: 'Free accounts include: unlimited e-signatures for personal use, all PDF tools, 3 documents per month, basic templates, email support, and 30-day document storage. Perfect for individuals with occasional signing needs.',
       },
       {
-        question: 'What does Pro include?',
-        answer: 'Pro ($12/month) includes everything in Free plus: unlimited documents, custom branding, advanced templates, team collaboration (up to 5 users), priority support, unlimited document storage, and API access.',
+        question: 'What does the Lifetime Deal include?',
+        answer: 'The Lifetime Deal ($27 one-time payment) includes: unlimited documents, custom branding, advanced templates, team collaboration (up to 5 users), priority support, unlimited document storage, and API access. Pay once, use forever.',
       },
       {
-        question: 'Can I cancel my subscription anytime?',
-        answer: 'Yes! You can cancel your subscription at any time. Your Pro features remain active until the end of your billing period. After cancellation, your account reverts to the free plan, and you can still access your documents.',
+        question: 'Is the lifetime deal really one-time?',
+        answer: 'Yes! You pay $27 once and get access to MamaSign forever. No hidden fees, no recurring charges, no annual renewals. All future updates are included.',
       },
       {
         question: 'Do you offer refunds?',
-        answer: 'We offer a 14-day money-back guarantee for new subscriptions. If you are not satisfied with MamaSign Pro, contact us within 14 days of purchase for a full refund. No questions asked.',
-      },
-      {
-        question: 'Are there discounts for annual billing?',
-        answer: 'Yes! Annual billing saves you 20% compared to monthly billing. Pro annual is $115/year (equivalent to $9.58/month). Business plans also offer annual discounts.',
+        answer: 'We offer a 30-day money-back guarantee. If you are not satisfied with MamaSign, contact us within 30 days of purchase for a full refund. No questions asked.',
       },
     ],
   },

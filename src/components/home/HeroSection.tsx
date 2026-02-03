@@ -5,14 +5,14 @@ import Link from 'next/link'
 import { Shield, CheckCircle, PenLine, Type, Check, Clock, Sparkles } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
-const HeroSection: React.FC = () => {
+const HeroSection: React.FC<{ variant?: 'mobile' | 'desktop' }> = ({ variant }) => {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
   return (
     <section className={`relative overflow-hidden ${isDark ? 'bg-gradient-to-b from-[#1a1a1a] to-[#1F1F1F]' : 'bg-gradient-to-b from-[#EDE5FF]/50 to-white'}`}>
       {/* Mobile Layout */}
-      <div className="md:hidden relative max-w-7xl mx-auto px-4 pt-4 pb-8">
+      {variant !== 'desktop' && <div className="md:hidden relative max-w-7xl mx-auto px-4 pt-4 pb-8">
         {/* Badges - Mobile (TOP) */}
         <div className="flex flex-col items-center gap-3 mb-4">
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${isDark ? 'bg-[#c4ff0e]/10 text-[#c4ff0e]' : 'bg-[#4C00FF]/10 text-[#4C00FF]'}`}>
@@ -109,10 +109,10 @@ const HeroSection: React.FC = () => {
             Watch Demo
           </Link>
         </div>
-      </div>
+      </div>}
 
       {/* Desktop Layout */}
-      <div className="hidden md:block relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 lg:pt-20 pb-16 lg:pb-28">
+      {variant !== 'mobile' && <div className="hidden md:block relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 lg:pt-20 pb-16 lg:pb-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left Content - Desktop */}
           <div className="space-y-8 text-center lg:text-left">
@@ -276,7 +276,7 @@ const HeroSection: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </section>
   )
 }

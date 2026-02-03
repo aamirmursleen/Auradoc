@@ -3,13 +3,24 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Droplets, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock, Type, Image, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib'
-import * as pdfjsLib from 'pdfjs-dist'
 import { useTheme } from '@/components/ThemeProvider'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
-// Set worker source
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+// Lazy-loaded libraries
+let pdfjsLib: any = null
+
+async function getPdfJs() {
+  if (!pdfjsLib) {
+    const pdfjs = await import('pdfjs-dist')
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+    pdfjsLib = pdfjs
+  }
+  return pdfjsLib
+}
+
+async function getPdfLib() {
+  const { PDFDocument, rgb, degrees, StandardFonts } = await import('pdf-lib')
+  return { PDFDocument, rgb, degrees, StandardFonts }
 }
 
 export default function WatermarkPDFPage() {
@@ -136,7 +147,8 @@ export default function WatermarkPDFPage() {
     setPreviewLoading(true)
     try {
       const arrayBuffer = await pdfFile.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      const pdfjs = await getPdfJs()
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
       const numPages = pdf.numPages
       setTotalPages(numPages)
 
@@ -173,7 +185,8 @@ export default function WatermarkPDFPage() {
   const renderWatermarkedPreview = async (pdfBytes: Uint8Array) => {
     setPreviewLoading(true)
     try {
-      const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise
+      const pdfjs = await getPdfJs()
+      const pdf = await pdfjs.getDocument({ data: pdfBytes }).promise
       const numPages = pdf.numPages
       setTotalPages(numPages)
 
@@ -245,6 +258,7 @@ export default function WatermarkPDFPage() {
     if (!file) return null
 
     try {
+      const { PDFDocument, rgb, degrees, StandardFonts } = await getPdfLib()
       const arrayBuffer = await file.arrayBuffer()
       const pdf = await PDFDocument.load(arrayBuffer)
       const pages = pdf.getPages()
@@ -497,6 +511,13 @@ export default function WatermarkPDFPage() {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       <section className="py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Home', href: '/' },
+            { label: 'PDF Tools', href: '/tools' },
+            { label: 'Watermark PDF' },
+          ]} />
+        </div>
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">

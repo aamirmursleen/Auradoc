@@ -3,8 +3,8 @@
 import React, { useState, useCallback } from 'react'
 import { Minimize2, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Clock, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { PDFDocument } from 'pdf-lib'
 import { useTheme } from '@/components/ThemeProvider'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function PDFCompressorPage() {
   const { theme } = useTheme()
@@ -55,6 +55,7 @@ export default function PDFCompressorPage() {
     setCompressing(true)
 
     try {
+      const { PDFDocument } = await import('pdf-lib')
       const arrayBuffer = await file.arrayBuffer()
       const pdfDoc = await PDFDocument.load(arrayBuffer)
 
@@ -117,6 +118,13 @@ export default function PDFCompressorPage() {
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       {/* Hero Section */}
       <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Home', href: '/' },
+            { label: 'PDF Tools', href: '/tools' },
+            { label: 'Compress PDF' },
+          ]} />
+        </div>
         <div className="max-w-4xl mx-auto text-center">
           <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6`}>
             <Minimize2 className="w-4 h-4" />

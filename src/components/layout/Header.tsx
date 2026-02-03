@@ -307,9 +307,9 @@ const Header: React.FC = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-full transition-all duration-300 hover:scale-110
-                ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className={`p-2.5 rounded-full transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none
+                ${isDark ? 'hover:bg-[#2a2a2a] focus-visible:ring-[#c4ff0e] focus-visible:ring-offset-[#1e1e1e]' : 'hover:bg-[#EDE5FF] focus-visible:ring-[#4C00FF] focus-visible:ring-offset-white'}`}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? (
                 <Sun className="w-5 h-5 text-gray-300" />
@@ -348,7 +348,8 @@ const Header: React.FC = () => {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-full transition-all duration-300 ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+              className={`p-2 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none ${isDark ? 'hover:bg-[#2a2a2a] focus-visible:ring-[#c4ff0e]' : 'hover:bg-[#EDE5FF] focus-visible:ring-[#4C00FF]'}`}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5 text-gray-300" /> : <Moon className="w-5 h-5 text-[#6B7280]" />}
             </button>

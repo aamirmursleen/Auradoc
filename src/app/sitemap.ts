@@ -11,7 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/create-invoice',
     '/templates',
     '/pricing',
-    '/blog',
     '/faq',
     '/contact',
     '/tools',
@@ -31,20 +30,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/tools/watermark-pdf',
   ]
 
-  // Blog posts
-  const blogPosts = [
-    '/blog/how-to-esign-documents-legally',
-    '/blog/best-free-pdf-tools-2025',
-    '/blog/pdf-compression-guide',
-    '/blog/electronic-signature-vs-digital-signature',
-    '/blog/document-security-best-practices',
-    '/blog/esignature-real-estate-guide',
-    '/blog/gdpr-esignature-compliance',
-    '/blog/convert-pdf-to-word-guide',
-    '/blog/remote-work-document-management',
+  // Additional pages
+  const additionalPages = [
+    '/about',
+    '/features',
+    '/security',
+    '/privacy',
+    '/terms',
+    '/resume-templates',
+    '/template-library',
+    '/compliance',
   ]
 
-  const allPages = [...mainPages, ...toolPages, ...blogPosts]
+  const allPages = [...mainPages, ...toolPages, ...additionalPages]
 
   return allPages.map((route) => ({
     url: `${baseUrl}${route}`,

@@ -43,7 +43,7 @@ const FloatingMobileCTA: React.FC = () => {
         {/* Dismiss button - smaller on mobile */}
         <button
           onClick={handleDismiss}
-          className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-md z-10 active:scale-95 border ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-gray-100 border-gray-200'}`}
+          className={`absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center shadow-md z-10 active:scale-95 border ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-gray-100 border-gray-200'}`}
           aria-label="Dismiss"
         >
           <X className={`w-2.5 h-2.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />

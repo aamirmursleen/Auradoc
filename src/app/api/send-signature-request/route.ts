@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { Resend } from 'resend'
+import { rateLimit } from '@/lib/rate-limit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mamasign.com'
 const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
 
 export async function POST(req: NextRequest) {
+  const rateLimited = rateLimit(req, { limit: 5, windowSeconds: 60 })
+  if (rateLimited) return rateLimited
+
   try {
     // Check if Resend API key is configured
     if (!process.env.RESEND_API_KEY) {

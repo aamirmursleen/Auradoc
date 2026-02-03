@@ -62,10 +62,10 @@ const Footer: React.FC = () => {
                 <Mail className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 <span className="text-sm sm:text-base">support@mamasign.com</span>
               </a>
-              <a href="tel:+15551234567" className={`flex items-center space-x-3 transition-colors min-h-[44px] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}>
+              <Link href="/contact" className={`flex items-center space-x-3 transition-colors min-h-[44px] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}>
                 <Phone className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                <span className="text-sm sm:text-base">+1 (555) 123-4567</span>
-              </a>
+                <span className="text-sm sm:text-base">Contact Support</span>
+              </Link>
             </div>
           </div>
 
@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
         {/* Bottom Section - Mobile optimized */}
         <div className={`mt-10 sm:mt-12 lg:mt-16 pt-6 sm:pt-8 border-t flex flex-col-reverse sm:flex-row justify-between items-center gap-4 sm:gap-0 ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
           <p className={`text-xs sm:text-sm text-center sm:text-left ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-            &copy; {currentYear} AuraDoc. All rights reserved.
+            &copy; {currentYear} MamaSign. All rights reserved.
           </p>
           {/* Social links with 44px touch targets */}
           <div className="flex items-center space-x-3 sm:space-x-4">

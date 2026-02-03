@@ -3,9 +3,8 @@
 import React, { useState, useCallback } from 'react'
 import { FileType, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, X, Zap, Shield, Clock } from 'lucide-react'
 import Link from 'next/link'
-import mammoth from 'mammoth'
-import { jsPDF } from 'jspdf'
 import { useTheme } from '@/components/ThemeProvider'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function WordToPDFPage() {
   const { theme } = useTheme()
@@ -63,6 +62,7 @@ export default function WordToPDFPage() {
 
       setProgress(30)
       // Convert Word to HTML using mammoth
+      const mammoth = (await import('mammoth')).default
       const result = await mammoth.convertToHtml({ arrayBuffer })
       const html = result.value
 
@@ -75,6 +75,7 @@ export default function WordToPDFPage() {
 
       setProgress(70)
       // Create PDF using jsPDF
+      const { jsPDF } = await import('jspdf')
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -162,6 +163,13 @@ export default function WordToPDFPage() {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
       <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Home', href: '/' },
+            { label: 'PDF Tools', href: '/tools' },
+            { label: 'Word to PDF' },
+          ]} />
+        </div>
         <div className="max-w-4xl mx-auto text-center">
           <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a] text-[#c4ff0e]' : 'bg-[#EDE5FF] text-[#4C00FF]'} px-4 py-2 rounded-full text-sm font-medium mb-6`}>
             <FileType className="w-4 h-4" />
