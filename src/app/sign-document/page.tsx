@@ -2266,6 +2266,16 @@ const SignDocumentPage: React.FC = () => {
                         setDraggedFieldType(null)
                         setMobileFieldToPlace(null)
                         setShowPropertiesPanel(true)
+
+                        // Auto-open editing for text fields, signature/stamp modals for those types
+                        const textTypes = ['text', 'name', 'firstName', 'lastName', 'email', 'company', 'title']
+                        if (textTypes.includes(fieldTypeToPlace)) {
+                          setEditingFieldId(newField.id)
+                        } else if (fieldTypeToPlace === 'signature' || fieldTypeToPlace === 'initials') {
+                          setSignatureModalFieldId(newField.id)
+                        } else if (fieldTypeToPlace === 'stamp') {
+                          setStampModalFieldId(newField.id)
+                        }
                       }
                     }}
                     renderFieldsForPage={(pageNum, pageWidth, pageHeight) => {
@@ -2313,9 +2323,9 @@ const SignDocumentPage: React.FC = () => {
                                 ? `${field.heightPercent * 100}%`
                                 : `${(field.height / (pageHeight / zoom)) * 100}%`,
                               zIndex: isEditing ? 200 : (isSelected ? 100 : 50),
-                              border: hasValue ? 'none' : `2px ${isSelected ? 'solid' : 'dashed'} ${field.signerColor}`,
-                              backgroundColor: hasValue ? 'transparent' : `${field.signerColor}10`,
-                              borderRadius: '6px'
+                              border: (hasValue && !isEditing) ? 'none' : `2px ${isSelected ? 'solid' : 'dashed'} ${field.signerColor}`,
+                              backgroundColor: (hasValue && !isEditing) ? 'transparent' : `${field.signerColor}10`,
+                              borderRadius: '6px',
                             }}
                             onMouseDown={(e) => {
                               if (!isEditing) handleFieldMouseDown(e, field.id)
@@ -2340,12 +2350,13 @@ const SignDocumentPage: React.FC = () => {
                             }}
                           >
                             {/* Field Content - NO offset, fills entire field */}
-                            <div className="w-full h-full relative">
+                            <div className="w-full h-full relative" style={{ overflow: (hasValue && !isEditing) ? 'hidden' : undefined, borderRadius: '6px' }}>
                             {/* Editing Mode - Skip for signature types */}
                             {isEditing && !isSignatureType ? (
                               <>
                                 {/* Text Editor - Floating popup above the field */}
                                 {isTextType && (
+                                  <>
                                   <div
                                     className="absolute z-[300] flex flex-col bg-white shadow-2xl rounded-lg border border-gray-300"
                                     style={{
@@ -2354,6 +2365,7 @@ const SignDocumentPage: React.FC = () => {
                                       marginBottom: '8px',
                                       minWidth: '320px',
                                     }}
+                                    onMouseDown={(e) => e.stopPropagation()}
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     {/* Size Control Header */}
@@ -2406,6 +2418,23 @@ const SignDocumentPage: React.FC = () => {
                                     {/* Arrow pointing down to field */}
                                     <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r border-b border-gray-300 transform rotate-45"></div>
                                   </div>
+                                  {/* Show typed value or placeholder inside the field during editing */}
+                                  <div className="w-full h-full flex items-center px-2" style={{ overflow: 'hidden' }}>
+                                    {field.value ? (
+                                      <span style={{
+                                        color: '#000000',
+                                        fontSize: `${field.fontSize || 14}px`,
+                                        fontWeight: field.type === 'title' ? '600' : '400',
+                                        whiteSpace: 'nowrap'
+                                      }}>{field.value}</span>
+                                    ) : (
+                                      <div className="flex items-center gap-1" style={{ color: field.signerColor }}>
+                                        <FieldIcon className="w-4 h-4" />
+                                        <span className="text-xs font-medium">{field.label}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  </>
                                 )}
 
                                 {/* Checkbox/Radio Editor */}
@@ -2430,7 +2459,7 @@ const SignDocumentPage: React.FC = () => {
 
                                 {/* Date Editor - Simple date picker */}
                                 {isDateType && (
-                                  <div className="w-full h-full flex items-center justify-center bg-white" onClick={(e) => e.stopPropagation()}>
+                                  <div className="w-full h-full flex items-center justify-center bg-white" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                                     <input
                                       type="date"
                                       value={field.value || ''}
@@ -2566,7 +2595,7 @@ const SignDocumentPage: React.FC = () => {
                                     {/* Stamp Display */}
                                     {field.type === 'stamp' && field.value && (
                                       field.value.startsWith('data:image') ? (
-                                        <img src={field.value} alt="Stamp" className="w-full h-full object-contain" />
+                                        <img src={field.value} alt="Stamp" className="w-full h-full object-fill" style={{ display: 'block' }} />
                                       ) : (
                                         <div className="w-full h-full flex items-center justify-center">
                                           <span className="text-red-600 font-bold border border-red-600 px-1 rounded transform -rotate-12 text-xs">{field.value}</span>
@@ -2707,6 +2736,16 @@ const SignDocumentPage: React.FC = () => {
                         setDraggedFieldType(null)
                         setMobileFieldToPlace(null)
                         setShowPropertiesPanel(true)
+
+                        // Auto-open editing for text fields, signature/stamp modals for those types
+                        const textTypes = ['text', 'name', 'firstName', 'lastName', 'email', 'company', 'title']
+                        if (textTypes.includes(fieldTypeToPlace)) {
+                          setEditingFieldId(newField.id)
+                        } else if (fieldTypeToPlace === 'signature' || fieldTypeToPlace === 'initials') {
+                          setSignatureModalFieldId(newField.id)
+                        } else if (fieldTypeToPlace === 'stamp') {
+                          setStampModalFieldId(newField.id)
+                        }
                       }
                     }}
                   >
@@ -2763,7 +2802,9 @@ const SignDocumentPage: React.FC = () => {
                             '--tw-ring-color': field.signerColor,
                             zIndex: isSelected ? 100 : 50
                           } as React.CSSProperties}
-                          onMouseDown={(e) => handleFieldMouseDown(e, field.id)}
+                          onMouseDown={(e) => {
+                            if (!isEditing) handleFieldMouseDown(e, field.id)
+                          }}
                           onClick={(e) => {
                             e.stopPropagation()
                             if (isSignatureType && !hasValue) {
@@ -2796,7 +2837,8 @@ const SignDocumentPage: React.FC = () => {
                                 <img
                                   src={field.value}
                                   alt="Stamp"
-                                  className="w-full h-full object-contain"
+                                  className="w-full h-full object-fill"
+                                  style={{ display: 'block' }}
                                   draggable={false}
                                 />
                               )}
@@ -2842,6 +2884,7 @@ const SignDocumentPage: React.FC = () => {
                                       setEditingFieldId(null)
                                     }
                                   }}
+                                  onMouseDown={(e) => e.stopPropagation()}
                                   onClick={(e) => e.stopPropagation()}
                                 />
                               ) : (
@@ -3677,7 +3720,7 @@ const SignDocumentPage: React.FC = () => {
                               <img
                                 src={field.value}
                                 alt="Stamp"
-                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                style={{ width: '100%', height: '100%', objectFit: 'fill', display: 'block' }}
                                 draggable={false}
                               />
                             )}
@@ -3931,7 +3974,7 @@ const SignDocumentPage: React.FC = () => {
                 {signatureTab === 'draw' && (
                   <div>
                     <p className="text-xs md:text-sm text-gray-500 mb-3">Draw your signature below:</p>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-white">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg bg-white">
                       <SignatureCanvas
                         onSave={(data) => {
                           if (data) {

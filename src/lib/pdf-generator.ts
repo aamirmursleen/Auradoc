@@ -169,10 +169,12 @@ export async function generateFinalPdf(
         expectedTopFromBottom: (pageHeightPt * (1 - field.yPct)).toFixed(1)
       })
 
-      if (field.type === 'signature' || field.type === 'initials' ||
-          (field.type === 'stamp' && field.value?.startsWith('data:image'))) {
-        // Embed image (signature, initials, or image stamp)
-        await embedImage(pdfDoc, page, field.value!, pdfCoords)
+      if (field.type === 'stamp' && field.value?.startsWith('data:image')) {
+        // Embed stamp image - fill entire field box (no aspect ratio preservation)
+        await embedImage(pdfDoc, page, field.value!, pdfCoords, true)
+      } else if (field.type === 'signature' || field.type === 'initials') {
+        // Embed signature/initials image - maintain aspect ratio
+        await embedImage(pdfDoc, page, field.value!, pdfCoords, false)
       } else if (field.type === 'checkbox') {
         // Draw checkbox
         if (field.value === 'checked') {
@@ -216,7 +218,8 @@ async function embedImage(
   pdfDoc: PDFDocument,
   page: PDFPage,
   imageDataUrl: string,
-  coords: { x: number; y: number; width: number; height: number }
+  coords: { x: number; y: number; width: number; height: number },
+  fillBox: boolean = false
 ): Promise<void> {
   try {
     const imageBytes = dataUrlToBytes(imageDataUrl)
@@ -236,27 +239,35 @@ async function embedImage(
       }
     }
 
-    // Calculate dimensions to fit inside the field box while maintaining aspect ratio
-    const imageAspect = image.width / image.height
-    const boxAspect = coords.width / coords.height
-
     let drawWidth: number
     let drawHeight: number
     let drawX: number
     let drawY: number
 
-    if (imageAspect > boxAspect) {
-      // Image is wider than box - fit to width
+    if (fillBox) {
+      // Fill entire field box (for stamps) - stretch to fit
       drawWidth = coords.width
-      drawHeight = coords.width / imageAspect
-      drawX = coords.x
-      drawY = coords.y + (coords.height - drawHeight) / 2 // Center vertically
-    } else {
-      // Image is taller than box - fit to height
       drawHeight = coords.height
-      drawWidth = coords.height * imageAspect
-      drawX = coords.x + (coords.width - drawWidth) / 2 // Center horizontally
+      drawX = coords.x
       drawY = coords.y
+    } else {
+      // Maintain aspect ratio (for signatures/initials) - fit inside box
+      const imageAspect = image.width / image.height
+      const boxAspect = coords.width / coords.height
+
+      if (imageAspect > boxAspect) {
+        // Image is wider than box - fit to width
+        drawWidth = coords.width
+        drawHeight = coords.width / imageAspect
+        drawX = coords.x
+        drawY = coords.y + (coords.height - drawHeight) / 2 // Center vertically
+      } else {
+        // Image is taller than box - fit to height
+        drawHeight = coords.height
+        drawWidth = coords.height * imageAspect
+        drawX = coords.x + (coords.width - drawWidth) / 2 // Center horizontally
+        drawY = coords.y
+      }
     }
 
     page.drawImage(image, {

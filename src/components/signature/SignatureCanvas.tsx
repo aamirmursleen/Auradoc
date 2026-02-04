@@ -347,7 +347,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
 
       {/* Toolbar */}
       {!compact && (
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl relative z-20">
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium text-gray-600">
             {mode === 'draw' ? 'Draw your signature' : mode === 'upload' ? 'Upload signature image' : 'Capture with camera'}
@@ -368,7 +368,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
                 />
               </button>
               {showColorPicker && (
-                <div className="absolute top-full right-0 mt-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <div className="absolute top-full right-0 mt-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-30">
                   <div className="flex space-x-2">
                     {colors.map((color) => (
                       <button
@@ -420,7 +420,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
 
       {/* Compact mode toolbar */}
       {compact && (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 relative z-20">
           {mode === 'draw' && (
             <div className="relative">
               <button
@@ -431,7 +431,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
                 <Palette className="w-4 h-4 text-gray-600" />
               </button>
               {showColorPicker && (
-                <div className="absolute top-full right-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <div className="absolute top-full right-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-30">
                   <div className="flex space-x-2">
                     {colors.map((color) => (
                       <button

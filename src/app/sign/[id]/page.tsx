@@ -938,15 +938,15 @@ export default function SignDocumentPage() {
               {pdfLoading ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading document...</p></div></div>)
               : pdfError ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><p className="text-gray-300">{pdfError}</p></div></div>)
               : (
-                <div ref={pagesContainerRef} className="flex flex-col items-center gap-1 relative">
+                <div ref={pagesContainerRef} className="flex flex-col items-center gap-1 relative" data-signing-pages="true">
                   {fileType === 'image' && imageUrl ? (
-                    <div className="relative" style={{ width: pageWidths[0] || 595 * scale, height: pageHeights[0] || 842 * scale }}>
+                    <div className="relative" data-pdf-page="true" style={{ width: pageWidths[0] || 595 * scale, height: pageHeights[0] || 842 * scale }}>
                       <img src={imageUrl} alt="Document" className="w-full h-full rounded-lg shadow-lg bg-white" draggable={false} />
                       <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page 1 of 1</div>
                     </div>
                   ) : (
                     pageImages.map((imgUrl, i) => (
-                      <div key={i} className="relative" style={{ width: pageWidths[i] || 595 * scale, height: pageHeights[i] || 842 * scale }}>
+                      <div key={i} className="relative" data-pdf-page="true" style={{ width: pageWidths[i] || 595 * scale, height: pageHeights[i] || 842 * scale }}>
                         {imgUrl ? (
                           <img
                             src={imgUrl}
@@ -1054,7 +1054,7 @@ export default function SignDocumentPage() {
                           width: customPos.width * scale,
                           height: customPos.height * scale,
                           zIndex: isEditing ? 200 : (isSelected ? 100 : 10),
-                          backgroundColor: isStrkType ? 'transparent' : ((isEditing || hasValue) ? '#ffffff' : undefined)
+                          backgroundColor: (isStrkType || isStmpType) ? 'transparent' : ((isEditing || hasValue) ? '#ffffff' : undefined)
                         }}
                       >
                         {/* Inline editing for text fields */}
@@ -1139,13 +1139,13 @@ export default function SignDocumentPage() {
                             )}
                             {/* Stamp - show stamp image or text */}
                             {isStmpType && fieldValue && (
-                              <div className="w-full h-full flex items-center justify-center p-1">
-                                {fieldValue.startsWith('data:image') ? (
-                                  <img src={fieldValue} alt="Stamp" className="max-w-full max-h-full object-contain" />
-                                ) : (
-                                  <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${formatting.fontSize}px` }}>{fieldValue}</span>
-                                )}
-                              </div>
+                              fieldValue.startsWith('data:image') ? (
+                                <img src={fieldValue} alt="Stamp" className="w-full h-full object-fill" style={{ display: 'block' }} />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center overflow-hidden">
+                                  <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px` }}>{fieldValue}</span>
+                                </div>
+                              )
                             )}
 
                             {/* Formatting toolbar - show when selected and can format */}

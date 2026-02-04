@@ -875,6 +875,18 @@ object {
 }
 
 [data-pdf-page] > img {
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Signature/stamp images inside PDF page field overlays:
+   must respect height:100% for correct positioning.
+   Without this, global img { height: auto !important } overrides it
+   and stamps/signatures overflow below their field containers. */
+[data-pdf-page] div img,
+[data-signing-pages] div img {
+  height: 100% !important;
   max-width: none !important;
   max-height: none !important;
 }
