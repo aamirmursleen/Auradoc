@@ -9,7 +9,7 @@ export async function POST(
   try {
     const documentId = params.id
     const body = await req.json()
-    const { signerEmail, token, signature, signedFields, fieldValues } = body
+    const { signerEmail, token, signature, signedFields, fieldValues, fieldPositions } = body
 
     // Capture IP and User Agent for audit trail
     const forwardedFor = req.headers.get('x-forwarded-for')
@@ -83,12 +83,13 @@ export async function POST(
       )
     }
 
-    // Update signer status and store their field values + signature
+    // Update signer status and store their field values + signature + custom positions
     const signedAt = new Date().toISOString()
     signers[signerIndex].status = 'signed'
     signers[signerIndex].signedAt = signedAt
     signers[signerIndex].signatureImage = signature && signature !== 'no-signature-field' ? signature : null
     signers[signerIndex].fieldValues = fieldValues || {}
+    signers[signerIndex].fieldPositions = fieldPositions || {} // Store custom field positions (resized by signer)
 
     console.log('📝 Updated signer in array:', {
       signerIndex,
@@ -111,7 +112,7 @@ export async function POST(
         consent_given: true,
         consent_text: 'I agree to sign this document electronically',
         signed_at: signedAt,
-        field_values: fieldValues || null
+        field_values: { values: fieldValues || {}, positions: fieldPositions || {} }
       })
 
     if (recordError) {

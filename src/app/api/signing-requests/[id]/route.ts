@@ -53,6 +53,15 @@ export async function GET(
       )
     }
 
+    // Debug logging
+    console.log('📄 Returning document for signing:', {
+      id: signingRequest.id,
+      documentName: signingRequest.document_name,
+      documentUrlLength: signingRequest.document_url?.length || 0,
+      documentUrlPrefix: signingRequest.document_url?.substring(0, 100),
+      signerEmail: email
+    })
+
     // Return document data for signing
     return NextResponse.json({
       success: true,

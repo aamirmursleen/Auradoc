@@ -199,6 +199,17 @@ export async function sendSigningInvite(params: {
   })
 
   try {
+    // Check if API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      console.error('❌ RESEND_API_KEY is not configured!')
+      return { success: false, error: 'Email service not configured' }
+    }
+
+    console.log('📧 Sending email via Resend...')
+    console.log('📧 From:', FROM_EMAIL)
+    console.log('📧 To:', to)
+    console.log('📧 Subject:', `${senderName} shared "${documentName}" for your signature`)
+
     // Generate unique message ID to prevent spam filters from grouping emails
     const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(7)}`
 
@@ -217,9 +228,18 @@ export async function sendSigningInvite(params: {
       },
     })
 
+    console.log('📧 Resend API response:', JSON.stringify(result, null, 2))
+
+    if (result.error) {
+      console.error('❌ Resend API error:', result.error)
+      return { success: false, error: result.error.message || 'Unknown error' }
+    }
+
+    console.log('✅ Email sent successfully! ID:', result.data?.id)
     return { success: true, id: result.data?.id }
-  } catch (error) {
-    console.error('Failed to send signing invite:', error)
+  } catch (error: any) {
+    console.error('❌ Failed to send signing invite:', error)
+    console.error('❌ Error details:', error.message, error.statusCode, error.name)
     return { success: false, error: String(error) }
   }
 }

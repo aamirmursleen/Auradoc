@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { sendSigningInvite } from '@/lib/email'
 import { rateLimit } from '@/lib/rate-limit'
 
@@ -11,9 +11,7 @@ export async function POST(req: NextRequest) {
   if (rateLimited) return rateLimited
 
   try {
-    const { userId } = await auth()
-    const user = await currentUser()
-
+    // Parse body first (fast), then auth (can be slow)
     let body
     try {
       body = await req.json()
@@ -24,6 +22,19 @@ export async function POST(req: NextRequest) {
       )
     }
     const { documentName, documentData, signers, signatureFields, message, dueDate, senderName: providedSenderName } = body
+
+    // Run auth calls in parallel with timeout fallback (don't block on slow auth)
+    let userId: string | null = null
+    let user: any = null
+    try {
+      const authPromise = Promise.all([auth(), currentUser()])
+      const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve([{ userId: null }, null]), 3000))
+      const [authResult, userResult] = await Promise.race([authPromise, timeoutPromise]) as [{ userId: string | null }, any]
+      userId = authResult?.userId || null
+      user = userResult
+    } catch (authError) {
+      console.warn('Auth check failed, continuing without user:', authError)
+    }
 
     // Use provided sender name, or fallback to Clerk user name, or default
     const clerkUserName = user ? ((user.firstName || '') + ' ' + (user.lastName || '')).trim() : ''
@@ -52,7 +63,17 @@ export async function POST(req: NextRequest) {
       token: crypto.randomUUID()
     }))
 
-    const { data: signingRequest, error: insertError } = await supabase
+    // Log document details for debugging
+    console.log('📄 Creating signing request:', {
+      id: signingRequestId,
+      documentName: documentName,
+      documentDataLength: documentData?.length || 0,
+      documentDataPrefix: documentData?.substring(0, 100),
+      signersCount: signersWithTokens.length,
+      fieldsCount: signatureFields?.length || 0
+    })
+
+    const { data: signingRequest, error: insertError } = await supabaseAdmin
       .from('signing_requests')
       .insert({
         id: signingRequestId,
@@ -74,8 +95,14 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('Database error:', insertError)
+      console.error('❌ Database error:', insertError)
+      return NextResponse.json(
+        { success: false, message: 'Failed to create signing request: ' + insertError.message },
+        { status: 500 }
+      )
     }
+
+    console.log('✅ Signing request created successfully:', signingRequestId)
 
     // Find self-signer and all non-self signers
     const selfSigner = signersWithTokens.find((s: { is_self?: boolean }) => s.is_self)
@@ -102,20 +129,31 @@ export async function POST(req: NextRequest) {
     if (nonSelfSigners.length > 0) {
       const firstSigner = nonSelfSigners.sort((a: any, b: any) => a.order - b.order)[0]
       const signingLink = APP_URL + '/s/' + firstSigner.token
-      sendSigningInvite({
-        to: firstSigner.email,
-        signerName: firstSigner.name,
-        senderName: senderName,
-        senderEmail: senderEmail,
-        documentName: documentName,
-        signingLink: signingLink,
-        message: message,
-        expiresAt: dueDate
-      }).then(() => {
-        console.log('Email sent to first signer:', firstSigner.email)
-      }).catch((err: any) => {
-        console.error('Failed to send email to', firstSigner.email, ':', err)
-      })
+
+      console.log('📧 Attempting to send email to:', firstSigner.email)
+      console.log('📧 Signing link:', signingLink)
+
+      // Send email synchronously to catch errors
+      try {
+        const emailResult = await sendSigningInvite({
+          to: firstSigner.email,
+          signerName: firstSigner.name,
+          senderName: senderName,
+          senderEmail: senderEmail,
+          documentName: documentName,
+          signingLink: signingLink,
+          message: message,
+          expiresAt: dueDate
+        })
+
+        if (emailResult.success) {
+          console.log('✅ Email sent successfully to:', firstSigner.email, 'ID:', emailResult.id)
+        } else {
+          console.error('❌ Email failed:', emailResult.error)
+        }
+      } catch (emailError) {
+        console.error('❌ Email exception:', emailError)
+      }
     }
 
     return response
@@ -140,7 +178,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const { data: signingRequests, error } = await supabase
+    const { data: signingRequests, error } = await supabaseAdmin
       .from('signing_requests')
       .select('*')
       .eq('user_id', userId)

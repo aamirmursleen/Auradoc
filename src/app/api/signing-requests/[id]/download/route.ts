@@ -76,12 +76,13 @@ export async function GET(
 
     console.log('📄 Download: fields count:', signatureFields.length, 'signers:', signers.length)
 
-    // Build map: signerOrder -> signer data (including fieldValues and signatureImage)
+    // Build map: signerOrder -> signer data (including fieldValues, signatureImage, and fieldPositions)
     const signerByOrder: Record<number, any> = {}
     for (const signer of signers) {
       signerByOrder[signer.order] = signer
       console.log('📄 Signer:', signer.email, 'order:', signer.order, 'status:', signer.status,
-        'hasFieldValues:', !!signer.fieldValues, 'hasSignature:', !!signer.signatureImage)
+        'hasFieldValues:', !!signer.fieldValues, 'hasSignature:', !!signer.signatureImage,
+        'hasFieldPositions:', !!signer.fieldPositions)
     }
 
     // Embed each field into the PDF using percentage-based coordinates
@@ -96,6 +97,7 @@ export async function GET(
 
       const fieldValues = signer.fieldValues || {}
       const signatureImage = signer.signatureImage
+      const fieldPositions = signer.fieldPositions || {} // Custom positions set by signer during resize
 
       const pageNum = field.page || field.pageNumber || 1
       const pageIndex = pageNum - 1
@@ -104,11 +106,29 @@ export async function GET(
       const page = pages[pageIndex]
       const { width: pageW, height: pageH } = page.getSize()
 
+      // Check if signer has custom position for this field (resized by signer)
+      const customPos = fieldPositions[field.id]
+
       // Use percentage-based coordinates for accurate positioning
       // This handles PDF, PNG-to-PDF, and JPG-to-PDF correctly
       let xPct: number, yPct: number, wPct: number, hPct: number
 
-      if (field.xPercent !== undefined && field.yPercent !== undefined &&
+      if (customPos) {
+        // Use signer's custom position (they resized the field)
+        // customPos has x, y, width, height in the same space as original field coords
+        if (field.pageBaseWidth && field.pageBaseHeight) {
+          xPct = customPos.x / field.pageBaseWidth
+          yPct = customPos.y / field.pageBaseHeight
+          wPct = customPos.width / field.pageBaseWidth
+          hPct = customPos.height / field.pageBaseHeight
+        } else {
+          xPct = customPos.x / pageW
+          yPct = customPos.y / pageH
+          wPct = customPos.width / pageW
+          hPct = customPos.height / pageH
+        }
+        console.log('📄 Using custom position for field', field.id, '- resized by signer')
+      } else if (field.xPercent !== undefined && field.yPercent !== undefined &&
           field.widthPercent !== undefined && field.heightPercent !== undefined) {
         // Use stored percentages (new format - most accurate)
         xPct = field.xPercent

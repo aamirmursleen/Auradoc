@@ -390,6 +390,7 @@ const SignDocumentPage: React.FC = () => {
             .then(blob => {
               const file = new File([blob], savedName, { type: savedType })
               setDocument(file)
+              setPreUploadedUrl(null) // Reset pre-uploaded URL - will re-upload
               setDocumentDataUrl(savedDataUrl)
               setDocumentName(savedName)
             })
@@ -544,6 +545,7 @@ const SignDocumentPage: React.FC = () => {
   // Upload new document (clear current and reset)
   const uploadNewDocument = () => {
     setDocument(null)
+    setPreUploadedUrl(null) // Reset pre-uploaded URL
     setDocumentPreview(null)
     setDocumentDataUrl(null)
     setDocumentName('')
@@ -703,6 +705,7 @@ const SignDocumentPage: React.FC = () => {
           })
 
           setDocument(pdfFile)
+          setPreUploadedUrl(null) // Reset pre-uploaded URL for new document
           setTemplateProps(prev => ({ ...prev, name: file.name.replace(/\.[^/.]+$/, '') }))
           setTotalPages(1)
           setCurrentPage(1)
@@ -715,6 +718,7 @@ const SignDocumentPage: React.FC = () => {
       } else {
         // It's already a PDF
         setDocument(file)
+        setPreUploadedUrl(null) // Reset pre-uploaded URL for new document
         setTemplateProps(prev => ({ ...prev, name: file.name.replace(/\.[^/.]+$/, '') }))
         setTotalPages(1)
         setCurrentPage(1)
@@ -1479,42 +1483,51 @@ const SignDocumentPage: React.FC = () => {
     setError(null)
 
     try {
-      // Use pre-uploaded URL if available (instant!), otherwise upload now
+      // Use pre-uploaded URL if available, otherwise use base64 directly (faster & more reliable)
       let documentUrl = preUploadedUrl || ''
 
       if (!documentUrl && document) {
-        try {
-          const uploadUrlResult = await apiPost('/api/upload-url', {
-            fileName: document.name || 'document.pdf',
-            contentType: document.type || 'application/pdf'
+        // For files under 10MB, use base64 directly - faster and more reliable than storage upload
+        // This avoids timeout issues and works even if Supabase storage is not configured
+        if (document.size < 10 * 1024 * 1024) {
+          console.log('Using base64 encoding for document (fast path)')
+          const reader = new FileReader()
+          documentUrl = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = () => reject(new Error('Failed to read file'))
+            reader.readAsDataURL(document)
           })
+        } else {
+          // For larger files, try Supabase storage with timeout
+          try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
 
-          if (uploadUrlResult.success && uploadUrlResult.data?.signedUrl) {
-            const uploadRes = await fetch(uploadUrlResult.data.signedUrl, {
-              method: 'PUT',
-              headers: { 'Content-Type': document.type || 'application/pdf' },
-              body: document
+            const uploadUrlResult = await apiPost('/api/upload-url', {
+              fileName: document.name || 'document.pdf',
+              contentType: document.type || 'application/pdf'
             })
-            if (uploadRes.ok) {
-              documentUrl = uploadUrlResult.data.publicUrl
+
+            if (uploadUrlResult.success && uploadUrlResult.data?.signedUrl) {
+              const uploadRes = await fetch(uploadUrlResult.data.signedUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': document.type || 'application/pdf' },
+                body: document,
+                signal: controller.signal
+              })
+              clearTimeout(timeoutId)
+
+              if (uploadRes.ok) {
+                documentUrl = uploadUrlResult.data.publicUrl
+              } else {
+                throw new Error('Upload failed')
+              }
             } else {
-              throw new Error('Upload failed')
+              throw new Error(uploadUrlResult.error || 'Failed to get upload URL')
             }
-          } else {
-            throw new Error(uploadUrlResult.error || 'Failed to get upload URL')
-          }
-        } catch (uploadErr) {
-          // Fallback: use base64 for small files (<3MB)
-          console.warn('Storage upload failed, trying base64 fallback:', uploadErr)
-          if (document.size < 3 * 1024 * 1024) {
-            const reader = new FileReader()
-            documentUrl = await new Promise((resolve, reject) => {
-              reader.onload = () => resolve(reader.result as string)
-              reader.onerror = reject
-              reader.readAsDataURL(document)
-            })
-          } else {
-            throw new Error('File too large. Please try with a smaller file or try again.')
+          } catch (uploadErr) {
+            console.warn('Storage upload failed:', uploadErr)
+            throw new Error('File too large (>10MB). Please compress your document and try again.')
           }
         }
       }
@@ -1541,8 +1554,8 @@ const SignDocumentPage: React.FC = () => {
         fontSize: field.fontSize
       }))
 
-      // Send to API - only URL, not full document data (prevents "Request too large")
-      const result = await apiPost('/api/signing-requests', {
+      // Send to API with timeout - prevents hanging forever
+      const apiPromise = apiPost('/api/signing-requests', {
         documentName: templateProps.name || document?.name || 'Untitled Document',
         documentData: documentUrl,
         signers: signers.map(s => ({
@@ -1557,11 +1570,16 @@ const SignDocumentPage: React.FC = () => {
         senderName: senderName.trim() || undefined
       })
 
+      // Add 60-second timeout for the API call
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out. Please try again.')), 60000)
+      )
+
+      const result = await Promise.race([apiPromise, timeoutPromise]) as { success: boolean; data?: { selfSigningLink?: string }; error?: string }
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to send document')
       }
-
-      const data = result.data
 
       setSendSuccess(true)
 
@@ -1572,8 +1590,20 @@ const SignDocumentPage: React.FC = () => {
       setShowSendModal(false)
 
       // If there's a self-signing link, redirect to sign
-      if (data.selfSigningLink) {
-        router.push(data.selfSigningLink)
+      if (result.data?.selfSigningLink) {
+        // Use window.location for external URLs, router.push for internal
+        const link = result.data.selfSigningLink
+        if (link.startsWith('http') && !link.includes(window.location.host)) {
+          // Extract path from URL for local navigation (e.g., /s/token)
+          try {
+            const url = new URL(link)
+            router.push(url.pathname)
+          } catch {
+            window.location.href = link
+          }
+        } else {
+          router.push(link)
+        }
         return
       }
 
@@ -1779,7 +1809,7 @@ const SignDocumentPage: React.FC = () => {
             {/* Left - Back & Title */}
             <div className="md:hidden flex items-center gap-2 flex-1 min-w-0">
               <button
-                onClick={() => setDocument(null)}
+                onClick={() => { setDocument(null); setPreUploadedUrl(null) }}
                 className={`p-1.5 -ml-1 rounded-lg ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 <ChevronLeft className="w-5 h-5" />

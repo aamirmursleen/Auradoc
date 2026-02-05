@@ -47,7 +47,7 @@ if (typeof window !== 'undefined') {
 
 const SignatureCanvas = dynamic(() => import('@/components/signature/SignatureCanvas'), {
   ssr: false,
-  loading: () => <div className="h-40 bg-[#252525] rounded-xl animate-pulse" />
+  loading: () => <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
 })
 
 interface SignerInfo {
@@ -278,6 +278,16 @@ export default function SignDocumentPage() {
 
         const data = await response.json()
         if (!response.ok) throw new Error(data.message || 'Failed to load document')
+
+        // Debug logging - track document loading
+        console.log('📄 Document loaded:', {
+          id: data.data.id,
+          name: data.data.documentName,
+          urlPrefix: data.data.documentUrl?.substring(0, 100),
+          fieldsCount: data.data.signatureFields?.length,
+          signersCount: data.data.signers?.length
+        })
+
         setDocumentData(data.data)
         const signer = data.data.signers.find((s: SignerInfo) => s.email.toLowerCase() === signerEmail?.toLowerCase())
         setCurrentSigner(signer || null)
@@ -644,9 +654,8 @@ export default function SignDocumentPage() {
     return fieldFormatting[fieldId] || { fontSize: defaultFontSize, bold: false, italic: false, color: '#000000' }
   }
 
-  // Handle drag start
+  // Handle drag start - works for all fields (signed and unsigned)
   const handleDragStart = (e: React.MouseEvent, fieldId: string) => {
-    if (!signedFields.has(fieldId)) return
     e.preventDefault()
     e.stopPropagation()
     const field = myFields.find(f => f.id === fieldId)
@@ -749,6 +758,15 @@ export default function SignDocumentPage() {
     setIsSubmitting(true)
     setError(null)
     try {
+      // Build custom positions map - only include fields that were resized
+      const customPositions: Record<string, { x: number; y: number; width: number; height: number }> = {}
+      Object.entries(fieldPositions).forEach(([fieldId, pos]) => {
+        const field = myFields.find(f => f.id === fieldId)
+        if (field && (pos.width !== field.width || pos.height !== field.height || pos.x !== field.x || pos.y !== field.y)) {
+          customPositions[fieldId] = pos
+        }
+      })
+
       const response = await fetch(`/api/signing-requests/${documentId}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -757,7 +775,8 @@ export default function SignDocumentPage() {
           token,
           signature: signature || 'no-signature-field',
           signedFields: Array.from(signedFields),
-          fieldValues: fieldValues
+          fieldValues: fieldValues,
+          fieldPositions: customPositions
         })
       })
       const data = await response.json()
@@ -784,27 +803,27 @@ export default function SignDocumentPage() {
     }
   }
 
-  if (loading) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center"><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading document...</p></div></div>)
+  if (loading) return (<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" /><p className="text-gray-600">Loading document...</p></div></div>)
 
-  if (error && !documentData) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center p-4"><div className="card max-w-md w-full p-8 text-center"><div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><AlertCircle className="w-8 h-8 text-red-600" /></div><h1 className="text-xl font-bold text-white mb-2">Unable to Load Document</h1><p className="text-gray-300 mb-4">{error}</p><p className="text-sm text-gray-400">This link may have expired or is invalid. Please contact the sender.</p></div></div>)
+  if (error && !documentData) return (<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"><div className="bg-white rounded-xl shadow-lg max-w-md w-full p-8 text-center"><div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><AlertCircle className="w-8 h-8 text-red-600" /></div><h1 className="text-xl font-bold text-gray-900 mb-2">Unable to Load Document</h1><p className="text-gray-600 mb-4">{error}</p><p className="text-sm text-gray-500">This link may have expired or is invalid. Please contact the sender.</p></div></div>)
 
-  if (isComplete) return (<div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e] flex items-center justify-center p-4"><div className="card max-w-md w-full p-8 text-center"><div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-10 h-10 text-green-600" /></div><h1 className="text-2xl font-bold text-white mb-2">Document Signed!</h1><p className="text-gray-300 mb-6">Thank you for signing. {documentData?.senderName} has been notified.</p><div className="bg-[#252525] rounded-xl p-4 mb-6 text-left"><p className="text-sm text-gray-400 mb-1">Document</p><p className="font-medium text-white">{documentData?.documentName}</p><p className="text-sm text-gray-400 mt-3 mb-1">Signed at</p><p className="font-medium text-white">{new Date().toLocaleString()}</p></div><div className="flex items-center justify-center gap-4 text-sm text-gray-400"><div className="flex items-center gap-1"><Shield className="w-4 h-4 text-green-600" /><span>Legally Binding</span></div><div className="flex items-center gap-1"><Lock className="w-4 h-4 text-green-600" /><span>Secured</span></div></div></div></div>)
+  if (isComplete) return (<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"><div className="bg-white rounded-xl shadow-lg max-w-md w-full p-8 text-center"><div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-10 h-10 text-green-600" /></div><h1 className="text-2xl font-bold text-gray-900 mb-2">Document Signed!</h1><p className="text-gray-600 mb-6">Thank you for signing. {documentData?.senderName} has been notified.</p><div className="bg-gray-50 rounded-xl p-4 mb-6 text-left"><p className="text-sm text-gray-500 mb-1">Document</p><p className="font-medium text-gray-900">{documentData?.documentName}</p><p className="text-sm text-gray-500 mt-3 mb-1">Signed at</p><p className="font-medium text-gray-900">{new Date().toLocaleString()}</p></div><div className="flex items-center justify-center gap-4 text-sm text-gray-500"><div className="flex items-center gap-1"><Shield className="w-4 h-4 text-green-600" /><span>Legally Binding</span></div><div className="flex items-center gap-1"><Lock className="w-4 h-4 text-green-600" /><span>Secured</span></div></div></div></div>)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-[#1e1e1e]">
-      <header className="bg-[#1F1F1F] border-b border-[#2a2a2a] sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center">
-                <FileText className="w-5 h-5 text-[#c4ff0e]" />
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <FileText className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h1 className="font-semibold text-white">{documentData?.documentName}</h1>
-                <p className="text-sm text-gray-400">From {documentData?.senderName}</p>
+                <h1 className="font-semibold text-gray-900">{documentData?.documentName}</h1>
+                <p className="text-sm text-gray-500">From {documentData?.senderName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <Lock className="w-4 h-4" />
               <span>Secure Signing</span>
             </div>
@@ -815,28 +834,28 @@ export default function SignDocumentPage() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-4">
-            <div className="card p-6">
-              <h3 className="font-semibold text-white mb-4">Signing as</h3>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Signing as</h3>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-full flex items-center justify-center">
-                  <span className="text-[#c4ff0e] font-bold text-lg">{currentSigner?.name.charAt(0).toUpperCase()}</span>
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-lg">{currentSigner?.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
-                  <p className="font-medium text-white">{currentSigner?.name}</p>
-                  <p className="text-sm text-gray-400">{currentSigner?.email}</p>
+                  <p className="font-medium text-gray-900">{currentSigner?.name}</p>
+                  <p className="text-sm text-gray-500">{currentSigner?.email}</p>
                 </div>
               </div>
             </div>
 
             {documentData?.message && (
-              <div className="card p-6 bg-yellow-50 border-yellow-500/30">
-                <h3 className="font-semibold text-white mb-2">Message from sender</h3>
-                <p className="text-gray-300 text-sm italic">&quot;{documentData.message}&quot;</p>
+              <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-2">Message from sender</h3>
+                <p className="text-gray-600 text-sm italic">&quot;{documentData.message}&quot;</p>
               </div>
             )}
 
-            <div className="card p-6">
-              <h3 className="font-semibold text-white mb-4">Required Fields ({signedFields.size}/{myFields.length})</h3>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Required Fields ({signedFields.size}/{myFields.length})</h3>
               <div className="space-y-2">
                 {myFields.map((field) => {
                   const getSidebarIcon = (type: string) => {
@@ -882,11 +901,11 @@ export default function SignDocumentPage() {
                     return labels[type] || field.label || 'Field'
                   }
                   return (
-                    <div key={field.id} className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' + (signedFields.has(field.id) ? 'bg-green-50 border-green-400' : 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]')} onClick={() => handleFieldClick(field.id)}>
-                      <span className={signedFields.has(field.id) ? 'text-green-600' : 'text-gray-300'}>
+                    <div key={field.id} className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' + (signedFields.has(field.id) ? 'bg-green-50 border-green-400' : 'bg-gray-100 border-gray-200 hover:border-blue-500')} onClick={() => handleFieldClick(field.id)}>
+                      <span className={signedFields.has(field.id) ? 'text-green-600' : 'text-gray-600'}>
                         {signedFields.has(field.id) ? <CheckCircle className="w-5 h-5" /> : getSidebarIcon(field.type)}
                       </span>
-                      <span className={'font-medium flex-1 ' + (signedFields.has(field.id) ? 'text-green-400' : 'text-gray-300')}>{getSidebarLabel(field.type)}</span>
+                      <span className={'font-medium flex-1 ' + (signedFields.has(field.id) ? 'text-green-600' : 'text-gray-600')}>{getSidebarLabel(field.type)}</span>
                       {signedFields.has(field.id) ? (
                         <button
                           onClick={(e) => removeSignature(field.id, e)}
@@ -902,14 +921,14 @@ export default function SignDocumentPage() {
               </div>
             </div>
 
-            <button onClick={handleSubmit} disabled={signedFields.size !== myFields.length || isSubmitting} className="w-full py-4 bg-gradient-to-r from-[#c4ff0e] to-[#c4ff0e] text-white rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:from-[#b3e60d] hover:to-[#b3e60d] shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onClick={handleSubmit} disabled={signedFields.size !== myFields.length || isSubmitting} className="w-full py-4 bg-blue-600 text-gray-900 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
               {isSubmitting ? (<><Loader2 className="w-6 h-6 animate-spin" />Submitting...</>) : (<><Check className="w-6 h-6" />Complete Signing</>)}
             </button>
 
             {error && <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
 
-            <div className="card p-4 bg-[#252525]">
-              <div className="flex items-center justify-around text-xs text-gray-400">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <div className="flex items-center justify-around text-xs text-gray-500">
                 <div className="flex items-center gap-1"><Shield className="w-4 h-4 text-green-600" /><span>Encrypted</span></div>
                 <div className="flex items-center gap-1"><Clock className="w-4 h-4 text-green-600" /><span>Timestamped</span></div>
                 <div className="flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-600" /><span>Legal</span></div>
@@ -918,31 +937,38 @@ export default function SignDocumentPage() {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="card p-3 mb-4 flex items-center justify-between sticky top-20 z-40 bg-[#1F1F1F]">
-              <div className="flex items-center gap-2"><span className="text-sm font-medium text-gray-300">{totalPages} {totalPages === 1 ? 'page' : 'pages'}</span></div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 mb-4 flex items-center justify-between sticky top-20 z-40">
+              <div className="flex items-center gap-2"><span className="text-sm font-medium text-gray-600">{totalPages} {totalPages === 1 ? 'page' : 'pages'}</span></div>
               <div className="flex items-center gap-2">
-                <button onClick={zoomOut} disabled={scale <= 0.5} className="p-2 hover:bg-[#252525] rounded-lg disabled:opacity-50" title="Zoom out"><ZoomOut className="w-5 h-5" /></button>
-                <span className="text-sm font-medium text-gray-300 min-w-[60px] text-center">{Math.round(scale * 100)}%</span>
-                <button onClick={zoomIn} disabled={scale >= 3} className="p-2 hover:bg-[#252525] rounded-lg disabled:opacity-50" title="Zoom in"><ZoomIn className="w-5 h-5" /></button>
-                <button onClick={fitToWidth} className="p-2 hover:bg-[#252525] rounded-lg" title="Reset zoom"><Maximize2 className="w-5 h-5" /></button>
+                <button onClick={zoomOut} disabled={scale <= 0.5} className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-50 text-gray-600" title="Zoom out"><ZoomOut className="w-5 h-5" /></button>
+                <span className="text-sm font-medium text-gray-600 min-w-[60px] text-center">{Math.round(scale * 100)}%</span>
+                <button onClick={zoomIn} disabled={scale >= 3} className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-50 text-gray-600" title="Zoom in"><ZoomIn className="w-5 h-5" /></button>
+                <button onClick={fitToWidth} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600" title="Reset zoom"><Maximize2 className="w-5 h-5" /></button>
               </div>
             </div>
 
             <div
               ref={documentContainerRef}
-              className="card p-4 bg-[#2a2a2a] max-h-[80vh] overflow-auto"
+              className="bg-gray-100 rounded-xl p-4 max-h-[80vh] overflow-auto"
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
+              onClick={(e) => {
+                // Deselect field when clicking outside any field
+                const target = e.target as HTMLElement
+                if (!target.closest('[data-field-id]')) {
+                  setSelectedFieldId(null)
+                }
+              }}
             >
-              {pdfLoading ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" /><p className="text-gray-300">Loading document...</p></div></div>)
-              : pdfError ? (<div className="bg-[#1F1F1F] rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><p className="text-gray-300">{pdfError}</p></div></div>)
+              {pdfLoading ? (<div className="bg-white rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" /><p className="text-gray-600">Loading document...</p></div></div>)
+              : pdfError ? (<div className="bg-white rounded-lg shadow-lg flex items-center justify-center mx-auto" style={{ width: '595px', height: '842px' }}><div className="text-center"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><p className="text-gray-600">{pdfError}</p></div></div>)
               : (
                 <div ref={pagesContainerRef} className="flex flex-col items-center gap-1 relative" data-signing-pages="true">
                   {fileType === 'image' && imageUrl ? (
                     <div className="relative" data-pdf-page="true" style={{ width: pageWidths[0] || 595 * scale, height: pageHeights[0] || 842 * scale }}>
                       <img src={imageUrl} alt="Document" className="w-full h-full rounded-lg shadow-lg bg-white" draggable={false} />
-                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page 1 of 1</div>
+                      <div className="absolute bottom-2 right-2 bg-black/50 text-gray-900 text-xs px-2 py-1 rounded">Page 1 of 1</div>
                     </div>
                   ) : (
                     pageImages.map((imgUrl, i) => (
@@ -957,10 +983,10 @@ export default function SignDocumentPage() {
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
                           </div>
                         )}
-                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div>
+                        <div className="absolute bottom-2 right-2 bg-black/50 text-gray-900 text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div>
                       </div>
                     ))
                   )}
@@ -1023,38 +1049,45 @@ export default function SignDocumentPage() {
                       <div
                         key={field.id}
                         onClick={(e) => {
-                          if (hasValue) {
-                            e.stopPropagation()
-                            setSelectedFieldId(field.id)
-                          } else {
+                          e.stopPropagation()
+                          // If already selected, open signing modal (double-click behavior on single click)
+                          if (isSelected && !hasValue) {
                             handleFieldClick(field.id)
+                          } else {
+                            // First click always selects the field (for resize/move)
+                            setSelectedFieldId(field.id)
                           }
                         }}
                         onDoubleClick={(e) => {
-                          // Allow editing signed fields on double-click
+                          e.stopPropagation()
+                          // Double-click opens signing/editing modal
                           if (isTxtType && hasValue) {
-                            e.stopPropagation()
                             setEditingFieldId(field.id)
                             setActiveFieldId(field.id)
                             setSelectedFieldId(null)
+                          } else if (!hasValue) {
+                            handleFieldClick(field.id)
                           }
                         }}
-                        onMouseDown={(e) => hasValue && handleDragStart(e, field.id)}
+                        onMouseDown={(e) => handleDragStart(e, field.id)}
                         className={'absolute border-2 rounded transition-all z-10 group ' +
                           (isEditing
-                            ? 'border-blue-500 ring-2 ring-blue-400'
-                            : hasValue
-                              ? (isSelected ? 'border-blue-500 ring-2 ring-blue-300 cursor-move' : 'border-transparent cursor-move hover:border-blue-400')
-                              : 'border-dashed border-[#c4ff0e] bg-[#c4ff0e]/20 hover:bg-[#c4ff0e]/30 animate-pulse cursor-pointer'
+                            ? 'border-blue-500 ring-2 ring-blue-400 bg-white/90'
+                            : isSelected
+                              ? 'border-blue-500 ring-2 ring-blue-300 cursor-move'
+                              : hasValue
+                                ? 'border-blue-400/50 cursor-move hover:border-blue-500'
+                                : 'border-dashed border-blue-500 hover:border-blue-600 cursor-pointer'
                           )}
                         data-editing={isEditing}
+                        data-field-id={field.id}
                         style={{
                           left: leftCalc,
                           top: originalPos.top + ((customPos.y - field.y) * scale),
                           width: customPos.width * scale,
                           height: customPos.height * scale,
                           zIndex: isEditing ? 200 : (isSelected ? 100 : 10),
-                          backgroundColor: (isStrkType || isStmpType) ? 'transparent' : ((isEditing || hasValue) ? '#ffffff' : undefined)
+                          backgroundColor: isEditing ? 'rgba(255,255,255,0.95)' : 'transparent'
                         }}
                       >
                         {/* Inline editing for text fields */}
@@ -1088,9 +1121,17 @@ export default function SignDocumentPage() {
                           />
                         ) : hasValue ? (
                           <>
-                            {/* Signature/Initials - show signature image */}
+                            {/* Signature/Initials - show signature image with transparent bg */}
                             {isSigType && signature && (
-                              <img src={signature} alt="Your signature" className="w-full h-full object-contain p-1" />
+                              <img
+                                src={signature}
+                                alt="Your signature"
+                                className="w-full h-full object-contain"
+                                style={{
+                                  filter: formatting.bold ? 'contrast(1.8) brightness(0.7)' : 'none',
+                                  mixBlendMode: 'multiply'
+                                }}
+                              />
                             )}
                             {/* Text fields - show the entered value */}
                             {isTxtType && fieldValue && (
@@ -1140,7 +1181,7 @@ export default function SignDocumentPage() {
                             {/* Stamp - show stamp image or text */}
                             {isStmpType && fieldValue && (
                               fieldValue.startsWith('data:image') ? (
-                                <img src={fieldValue} alt="Stamp" className="w-full h-full object-fill" style={{ display: 'block' }} />
+                                <img src={fieldValue} alt="Stamp" className="w-full h-full object-contain" style={{ display: 'block', mixBlendMode: 'multiply' }} />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center overflow-hidden">
                                   <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px` }}>{fieldValue}</span>
@@ -1148,85 +1189,125 @@ export default function SignDocumentPage() {
                               )
                             )}
 
-                            {/* Formatting toolbar - show when selected and can format */}
-                            {isSelected && canFormat && (
-                              <div className="absolute -top-12 left-0 flex items-center gap-1 bg-[#1F1F1F] rounded-lg p-1.5 shadow-xl z-30">
+                            {/* Formatting toolbar - show when selected (for ALL field types) */}
+                            {isSelected && hasValue && (
+                              <div className="absolute -top-12 left-0 flex items-center gap-1 bg-white rounded-lg p-1.5 shadow-xl border border-gray-200 z-30">
+                                {/* Size controls - works for all fields */}
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { fontSize: Math.max(8, formatting.fontSize - 2) }) }}
-                                  className="w-7 h-7 flex items-center justify-center rounded bg-[#252525] hover:bg-[#3a3a3a] text-white text-xs"
-                                  title="Decrease font size"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    const pos = getCustomFieldPosition(field)
+                                    setFieldPositions(prev => ({
+                                      ...prev,
+                                      [field.id]: { ...pos, width: Math.max(30, pos.width - 10), height: Math.max(20, pos.height - 5) }
+                                    }))
+                                  }}
+                                  className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium"
+                                  title="Make smaller"
                                 >
-                                  A-
+                                  <ZoomOut className="w-4 h-4" />
                                 </button>
-                                <span className="text-white text-xs px-1">{formatting.fontSize}</span>
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { fontSize: Math.min(48, formatting.fontSize + 2) }) }}
-                                  className="w-7 h-7 flex items-center justify-center rounded bg-[#252525] hover:bg-[#3a3a3a] text-white text-xs"
-                                  title="Increase font size"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    const pos = getCustomFieldPosition(field)
+                                    setFieldPositions(prev => ({
+                                      ...prev,
+                                      [field.id]: { ...pos, width: pos.width + 10, height: pos.height + 5 }
+                                    }))
+                                  }}
+                                  className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium"
+                                  title="Make larger"
                                 >
-                                  A+
+                                  <ZoomIn className="w-4 h-4" />
                                 </button>
-                                <div className="w-px h-5 bg-gray-600 mx-1" />
+                                {/* Bold - for text and signature */}
+                                <div className="w-px h-6 bg-gray-300 mx-1" />
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { bold: !formatting.bold }) }}
-                                  className={`w-7 h-7 flex items-center justify-center rounded ${formatting.bold ? 'bg-[#c4ff0e] text-black' : 'bg-[#252525] hover:bg-[#3a3a3a] text-white'}`}
+                                  className={`w-8 h-8 flex items-center justify-center rounded font-bold ${formatting.bold ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                                   title="Bold"
                                 >
                                   <Bold className="w-4 h-4" />
                                 </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { italic: !formatting.italic }) }}
-                                  className={`w-7 h-7 flex items-center justify-center rounded ${formatting.italic ? 'bg-[#c4ff0e] text-black' : 'bg-[#252525] hover:bg-[#3a3a3a] text-white'}`}
-                                  title="Italic"
-                                >
-                                  <Italic className="w-4 h-4" />
-                                </button>
-                                <div className="w-px h-5 bg-gray-600 mx-1" />
-                                <input
-                                  type="color"
-                                  value={formatting.color}
-                                  onChange={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { color: e.target.value }) }}
-                                  className="w-7 h-7 rounded cursor-pointer bg-transparent"
-                                  title="Text color"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
+                                {/* Text-specific options */}
+                                {canFormat && (
+                                  <>
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { italic: !formatting.italic }) }}
+                                      className={`w-8 h-8 flex items-center justify-center rounded ${formatting.italic ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                                      title="Italic"
+                                    >
+                                      <Italic className="w-4 h-4" />
+                                    </button>
+                                    <div className="w-px h-6 bg-gray-300 mx-1" />
+                                    <input
+                                      type="color"
+                                      value={formatting.color}
+                                      onChange={(e) => { e.stopPropagation(); updateFieldFormatting(field.id, { color: e.target.value }) }}
+                                      className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+                                      title="Text color"
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </>
+                                )}
                               </div>
                             )}
 
-                            {/* Move indicator when selected */}
-                            {isSelected && (
-                              <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
-                                <Move className="w-3 h-3 text-white" />
-                              </div>
-                            )}
-
-                            {/* Resize handle - bottom right */}
-                            {isSelected && (
-                              <div
-                                onMouseDown={(e) => handleResizeStart(e, field.id)}
-                                className="absolute -bottom-2 -right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center cursor-se-resize shadow-lg z-30"
-                                title="Resize"
+                            {/* Delete/Re-do button - only for signed fields */}
+                            {hasValue && (
+                              <button
+                                onClick={(e) => removeSignature(field.id, e)}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-gray-900 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-20"
+                                title="Remove and redo"
+                                style={{ display: isSelected ? 'none' : undefined }}
                               >
-                                <Maximize className="w-3 h-3 text-white" />
-                              </div>
+                                <RotateCcw className="w-3 h-3" />
+                              </button>
                             )}
-
-                            {/* Delete/Re-do button */}
-                            <button
-                              onClick={(e) => removeSignature(field.id, e)}
-                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-20"
-                              title="Remove and redo"
-                              style={{ display: isSelected ? 'none' : undefined }}
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                            </button>
                           </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-[#c4ff0e] font-medium text-sm flex items-center gap-1">{fieldIcon}{(isChkType || isStrkType) ? 'Click' : 'Click to fill'}</span>
+                            <span className="text-blue-600 font-medium text-sm flex items-center gap-1">{fieldIcon}{(isChkType || isStrkType) ? 'Click' : (isSelected ? 'Double-click to fill' : 'Click to select')}</span>
                           </div>
                         )}
-                        {!hasValue && (<div className="absolute -top-6 left-0"><span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-white whitespace-nowrap animate-bounce">{fieldLabel}</span></div>)}
+
+                        {/* Move indicator - shows for ALL selected fields */}
+                        {isSelected && (
+                          <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-30">
+                            <Move className="w-3 h-3 text-gray-900" />
+                          </div>
+                        )}
+
+                        {/* Resize handles - shows for ALL selected fields */}
+                        {isSelected && (
+                          <>
+                            {/* Bottom-right resize handle */}
+                            <div
+                              onMouseDown={(e) => handleResizeStart(e, field.id)}
+                              className="absolute -bottom-2 -right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center cursor-se-resize shadow-lg z-30"
+                              title="Drag to resize"
+                            >
+                              <Maximize className="w-3 h-3 text-gray-900" />
+                            </div>
+                            {/* Sign/Fill button for unsigned fields */}
+                            {!hasValue && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleFieldClick(field.id)
+                                }}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 text-gray-900 rounded-full flex items-center justify-center hover:bg-green-600 shadow-lg z-30"
+                                title="Click to sign/fill"
+                              >
+                                <PenTool className="w-3 h-3" />
+                              </button>
+                            )}
+                          </>
+                        )}
+
+                        {/* Field label for unsigned fields */}
+                        {!hasValue && !isSelected && (<div className="absolute -top-6 left-0"><span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-gray-900 whitespace-nowrap animate-bounce">{fieldLabel}</span></div>)}
                       </div>
                     )
                   })}
@@ -1239,11 +1320,11 @@ export default function SignDocumentPage() {
 
       {showSignaturePad && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Create Your Signature</h3>
-                <button onClick={() => { setShowSignaturePad(false); setActiveFieldId(null) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <h3 className="text-xl font-semibold text-gray-900">Create Your Signature</h3>
+                <button onClick={() => { setShowSignaturePad(false); setActiveFieldId(null) }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
               </div>
               <SignatureCanvas
                 onSignatureChange={handleSignatureCreated}
@@ -1258,10 +1339,10 @@ export default function SignDocumentPage() {
       {/* Text Input Modal - Pad Style */}
       {showTextInput && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-2xl w-full">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {(() => {
                     const field = myFields.find(f => f.id === activeFieldId)
                     const labels: Record<string, string> = {
@@ -1275,7 +1356,7 @@ export default function SignDocumentPage() {
                     return labels[field?.type || 'text'] || 'Enter Value'
                   })()}
                 </h3>
-                <button onClick={() => { setShowTextInput(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <button onClick={() => { setShowTextInput(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
               </div>
 
               {/* Preview Area */}
@@ -1283,7 +1364,7 @@ export default function SignDocumentPage() {
                 {textInputValue ? (
                   <span className="text-2xl text-black font-medium">{textInputValue}</span>
                 ) : (
-                  <span className="text-gray-400 text-lg">Your text will appear here...</span>
+                  <span className="text-gray-500 text-lg">Your text will appear here...</span>
                 )}
               </div>
 
@@ -1305,7 +1386,7 @@ export default function SignDocumentPage() {
                       value={textInputValue}
                       onChange={(e) => setTextInputValue(e.target.value)}
                       placeholder={placeholders[field?.type || 'text'] || 'Type here...'}
-                      className="w-full px-4 py-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl text-white text-lg placeholder-gray-500 focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e] resize-none"
+                      className="w-full px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-900 text-lg placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                       rows={4}
                       autoFocus
                     />
@@ -1315,26 +1396,26 @@ export default function SignDocumentPage() {
                       value={textInputValue}
                       onChange={(e) => setTextInputValue(e.target.value)}
                       placeholder={placeholders[field?.type || 'text'] || 'Type here...'}
-                      className="w-full px-4 py-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl text-white text-lg placeholder-gray-500 focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                      className="w-full px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-900 text-lg placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       autoFocus
                       onKeyDown={(e) => { if (e.key === 'Enter') handleTextInputSave() }}
                     />
                   )
                 })()}
 
-                <p className="text-sm text-gray-400 text-center">After saving, you can drag to move, resize, and format the text on the document</p>
+                <p className="text-sm text-gray-500 text-center">After saving, you can drag to move, resize, and format the text on the document</p>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setShowTextInput(false); setActiveFieldId(null); setTextInputValue('') }}
-                    className="flex-1 py-4 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors text-lg"
+                    className="flex-1 py-4 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors text-lg"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleTextInputSave}
                     disabled={!textInputValue.trim()}
-                    className="flex-1 py-4 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                    className="flex-1 py-4 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
                     Done
                   </button>
@@ -1348,11 +1429,11 @@ export default function SignDocumentPage() {
       {/* Date Picker Modal - Pad Style */}
       {showDatePicker && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-2xl w-full">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Select Date</h3>
-                <button onClick={() => { setShowDatePicker(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <h3 className="text-xl font-semibold text-gray-900">Select Date</h3>
+                <button onClick={() => { setShowDatePicker(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
               </div>
 
               {/* Preview Area */}
@@ -1360,7 +1441,7 @@ export default function SignDocumentPage() {
                 {textInputValue ? (
                   <span className="text-2xl text-black font-medium">{new Date(textInputValue).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 ) : (
-                  <span className="text-gray-400 text-lg">Selected date will appear here...</span>
+                  <span className="text-gray-500 text-lg">Selected date will appear here...</span>
                 )}
               </div>
 
@@ -1369,23 +1450,23 @@ export default function SignDocumentPage() {
                   type="date"
                   value={textInputValue}
                   onChange={(e) => setTextInputValue(e.target.value)}
-                  className="w-full px-4 py-4 bg-[#252525] border-2 border-[#3a3a3a] rounded-xl text-white text-lg focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                  className="w-full px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-900 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   autoFocus
                 />
 
-                <p className="text-sm text-gray-400 text-center">After saving, you can drag to move, resize, and format the date on the document</p>
+                <p className="text-sm text-gray-500 text-center">After saving, you can drag to move, resize, and format the date on the document</p>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setShowDatePicker(false); setActiveFieldId(null); setTextInputValue('') }}
-                    className="flex-1 py-4 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors text-lg"
+                    className="flex-1 py-4 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors text-lg"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleDateSave}
                     disabled={!textInputValue}
-                    className="flex-1 py-4 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                    className="flex-1 py-4 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
                     Done
                   </button>
@@ -1399,17 +1480,17 @@ export default function SignDocumentPage() {
       {/* Selection Dropdown Modal */}
       {showSelection && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Select Option</h3>
-                <button onClick={() => { setShowSelection(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <h3 className="text-xl font-semibold text-gray-900">Select Option</h3>
+                <button onClick={() => { setShowSelection(false); setActiveFieldId(null); setTextInputValue('') }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
               </div>
               <div className="space-y-4">
                 <select
                   value={textInputValue}
                   onChange={(e) => setTextInputValue(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#252525] border border-[#3a3a3a] rounded-xl text-white focus:ring-2 focus:ring-[#c4ff0e] focus:border-[#c4ff0e]"
+                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   autoFocus
                 >
                   <option value="">Select an option...</option>
@@ -1423,14 +1504,14 @@ export default function SignDocumentPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setShowSelection(false); setActiveFieldId(null); setTextInputValue('') }}
-                    className="flex-1 py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors"
+                    className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleSelectionSave(textInputValue)}
                     disabled={!textInputValue}
-                    className="flex-1 py-3 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 py-3 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Save
                   </button>
@@ -1444,11 +1525,11 @@ export default function SignDocumentPage() {
       {/* Strikethrough Color Picker Modal */}
       {showStrikethroughPicker && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Strikethrough</h3>
-                <button onClick={() => { setShowStrikethroughPicker(false); setActiveFieldId(null) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <h3 className="text-xl font-semibold text-gray-900">Strikethrough</h3>
+                <button onClick={() => { setShowStrikethroughPicker(false); setActiveFieldId(null) }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
               </div>
 
               {/* Preview */}
@@ -1461,7 +1542,7 @@ export default function SignDocumentPage() {
               </div>
 
               {/* Color Options */}
-              <p className="text-sm text-gray-400 mb-2">Select line color:</p>
+              <p className="text-sm text-gray-500 mb-2">Select line color:</p>
               <div className="flex justify-center gap-3 mb-4">
                 {[
                   { color: '#dc2626', name: 'Red' },
@@ -1489,7 +1570,7 @@ export default function SignDocumentPage() {
                     setShowStrikethroughPicker(false)
                     setActiveFieldId(null)
                   }}
-                  className="flex-1 py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors"
+                  className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors"
                 >
                   Remove
                 </button>
@@ -1502,7 +1583,7 @@ export default function SignDocumentPage() {
                     setShowStrikethroughPicker(false)
                     setActiveFieldId(null)
                   }}
-                  className="flex-1 py-3 bg-[#c4ff0e] text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors"
+                  className="flex-1 py-3 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors"
                 >
                   Apply
                 </button>
@@ -1515,30 +1596,30 @@ export default function SignDocumentPage() {
       {/* Stamp Picker Modal */}
       {showStampPicker && activeFieldId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1F1F1F] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Add Stamp</h3>
-                <button onClick={() => { setShowStampPicker(false); setActiveFieldId(null); setStampImage(null); setShowCamera(false) }} className="p-2 hover:bg-[#252525] rounded-lg transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+                <h3 className="text-xl font-semibold text-gray-900">Add Stamp</h3>
+                <button onClick={() => { setShowStampPicker(false); setActiveFieldId(null); setStampImage(null); setShowCamera(false) }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
               </div>
 
               {/* Upload & Camera Options */}
               <div className="mb-6">
-                <p className="text-sm text-gray-400 mb-3">Upload or capture your stamp</p>
+                <p className="text-sm text-gray-500 mb-3">Upload or capture your stamp</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => stampFileInputRef.current?.click()}
-                    className="flex flex-col items-center gap-2 p-4 bg-[#252525] border-2 border-dashed border-[#3a3a3a] rounded-xl hover:border-[#c4ff0e] transition-colors"
+                    className="flex flex-col items-center gap-2 p-4 bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 transition-colors"
                   >
-                    <Upload className="w-8 h-8 text-[#c4ff0e]" />
-                    <span className="text-sm text-gray-300">Upload Image</span>
+                    <Upload className="w-8 h-8 text-blue-600" />
+                    <span className="text-sm text-gray-600">Upload Image</span>
                   </button>
                   <button
                     onClick={startCamera}
-                    className="flex flex-col items-center gap-2 p-4 bg-[#252525] border-2 border-dashed border-[#3a3a3a] rounded-xl hover:border-[#c4ff0e] transition-colors"
+                    className="flex flex-col items-center gap-2 p-4 bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 transition-colors"
                   >
-                    <Camera className="w-8 h-8 text-[#c4ff0e]" />
-                    <span className="text-sm text-gray-300">Take Photo</span>
+                    <Camera className="w-8 h-8 text-blue-600" />
+                    <span className="text-sm text-gray-600">Take Photo</span>
                   </button>
                 </div>
                 <input
@@ -1563,7 +1644,7 @@ export default function SignDocumentPage() {
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
                       <button
                         onClick={captureStamp}
-                        className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium hover:bg-[#b3e60d]"
+                        className="px-4 py-2 bg-blue-500 text-black rounded-lg font-medium hover:bg-[#b3e60d]"
                       >
                         Capture
                       </button>
@@ -1573,7 +1654,7 @@ export default function SignDocumentPage() {
                           stream?.getTracks().forEach(track => track.stop())
                           setShowCamera(false)
                         }}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600"
+                        className="px-4 py-2 bg-red-500 text-gray-900 rounded-lg font-medium hover:bg-red-600"
                       >
                         Cancel
                       </button>
@@ -1584,29 +1665,29 @@ export default function SignDocumentPage() {
 
               {/* Processing Indicator */}
               {processingStamp && (
-                <div className="mb-6 flex items-center justify-center gap-2 p-4 bg-[#252525] rounded-xl">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#c4ff0e]" />
-                  <span className="text-gray-300">Removing background...</span>
+                <div className="mb-6 flex items-center justify-center gap-2 p-4 bg-gray-100 rounded-xl">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  <span className="text-gray-600">Removing background...</span>
                 </div>
               )}
 
               {/* Stamp Preview */}
               {stampImage && !processingStamp && (
                 <div className="mb-6">
-                  <p className="text-sm text-gray-400 mb-2">Preview (background removed)</p>
+                  <p className="text-sm text-gray-500 mb-2">Preview (background removed)</p>
                   <div className="bg-white rounded-xl p-4 flex items-center justify-center" style={{ backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', backgroundSize: '20px 20px', backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px' }}>
                     <img src={stampImage} alt="Stamp preview" className="max-h-32 object-contain" />
                   </div>
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => setStampImage(null)}
-                      className="flex-1 py-2 bg-[#252525] text-gray-300 rounded-lg hover:bg-[#3a3a3a]"
+                      className="flex-1 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
                     >
                       Clear
                     </button>
                     <button
                       onClick={handleStampImageSave}
-                      className="flex-1 py-2 bg-[#c4ff0e] text-black rounded-lg font-semibold hover:bg-[#b3e60d]"
+                      className="flex-1 py-2 bg-blue-500 text-black rounded-lg font-semibold hover:bg-[#b3e60d]"
                     >
                       Use This Stamp
                     </button>
@@ -1617,14 +1698,14 @@ export default function SignDocumentPage() {
               {/* Text Stamp Options */}
               {!stampImage && !showCamera && (
                 <>
-                  <div className="border-t border-[#3a3a3a] my-4 pt-4">
-                    <p className="text-sm text-gray-400 mb-3">Or choose a text stamp</p>
+                  <div className="border-t border-gray-300 my-4 pt-4">
+                    <p className="text-sm text-gray-500 mb-3">Or choose a text stamp</p>
                     <div className="grid grid-cols-3 gap-2">
                       {stampOptions.map((stamp) => (
                         <button
                           key={stamp}
                           onClick={() => handleStampSave(stamp)}
-                          className="p-3 bg-[#252525] border border-[#3a3a3a] rounded-lg hover:border-[#c4ff0e] transition-colors"
+                          className="p-3 bg-gray-100 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors"
                         >
                           <span className="text-red-500 font-bold text-xs border border-red-500 px-2 py-0.5 rounded">{stamp}</span>
                         </button>
@@ -1636,7 +1717,7 @@ export default function SignDocumentPage() {
 
               <button
                 onClick={() => { setShowStampPicker(false); setActiveFieldId(null); setStampImage(null); setShowCamera(false) }}
-                className="w-full py-3 bg-[#252525] text-gray-300 rounded-xl font-medium hover:bg-[#3a3a3a] transition-colors mt-4"
+                className="w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors mt-4"
               >
                 Cancel
               </button>

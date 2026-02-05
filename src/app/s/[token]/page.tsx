@@ -36,24 +36,24 @@ export default function ShortSigningPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#1e1e1e] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-[#1F1F1F] rounded-2xl border border-[#2a2a2a] p-8 text-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-200 shadow-lg p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h1 className="text-xl font-bold text-white mb-2">Unable to Load Document</h1>
-          <p className="text-gray-300 mb-4">{error}</p>
-          <p className="text-sm text-gray-400">This link may have expired or is invalid. Please contact the sender.</p>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Unable to Load Document</h1>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-sm text-gray-500">This link may have expired or is invalid. Please contact the sender.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e] flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="w-12 h-12 animate-spin text-[#c4ff0e] mx-auto mb-4" />
-        <p className="text-gray-300">Loading document...</p>
+        <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+        <p className="text-gray-600">Loading document...</p>
       </div>
     </div>
   )

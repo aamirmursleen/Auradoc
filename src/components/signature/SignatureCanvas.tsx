@@ -489,11 +489,12 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
           <SignatureCanvasLib
             ref={signatureRef}
             penColor={penColor}
+            backgroundColor="rgba(255,255,255,0)"
             canvasProps={{
               width: canvasWidth,
               height: canvasHeight,
               className: 'signature-canvas rounded-xl cursor-crosshair',
-              style: { width: '100%', height: `${canvasHeight}px` },
+              style: { width: '100%', height: `${canvasHeight}px`, backgroundColor: 'transparent' },
             }}
             onEnd={handleEnd}
             minWidth={1}
