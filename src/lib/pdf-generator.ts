@@ -339,9 +339,10 @@ function drawTextStamp(
   const fontSize = Math.min(12, coords.height * 0.7)
 
   // CSS: flex items-center justify-center with px-1 (4px = 4pt at 1:1 scale)
+  // Using factor 0.15 to match CSS flex items-center rendering
   page.drawText(text, {
     x: coords.x + 4,
-    y: coords.y + (coords.height - fontSize) / 2 + fontSize * 0.28,
+    y: coords.y + (coords.height - fontSize) / 2 + fontSize * 0.15,
     size: fontSize,
     color: rgb(0.863, 0.149, 0.149), // #dc2626
     maxWidth: coords.width - 8,
@@ -362,14 +363,14 @@ function drawText(
   const adjustedFontSize = Math.min(fontSize, coords.height * 0.8)
 
   // pdf-lib drawText positions at the baseline. To visually center text
-  // (matching CSS flex items-center with line-height ~1.2):
-  // Baseline from bottom = height/2 - fontSize*(0.5 - factor)
-  // CSS centers line box (1.2*fontSize), baseline at ~0.218*fontSize below center
-  // factor = 0.5 - 0.218 = 0.282 ≈ 0.28
+  // (matching CSS flex items-center):
+  // For lowercase text like "atif", the visual center is at ~0.35 of font size above baseline
+  // CSS centers the line-box, which places baseline lower than pure visual centering
+  // Using factor 0.15 to align baseline with CSS flex items-center rendering
   // Horizontal padding: CSS px-2 = 8px = 8pt at 1:1 page rendering scale
   page.drawText(text, {
     x: coords.x + 8,
-    y: coords.y + (coords.height - adjustedFontSize) / 2 + adjustedFontSize * 0.28,
+    y: coords.y + (coords.height - adjustedFontSize) / 2 + adjustedFontSize * 0.15,
     size: adjustedFontSize,
     color: rgb(0, 0, 0),
     maxWidth: coords.width - 16,

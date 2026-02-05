@@ -903,25 +903,35 @@ const SignDocumentPage: React.FC = () => {
         }
       }
 
-      // PDF: use zoom-based calculation and UPDATE PERCENTAGES
-      const deltaX = (e.clientX - dragStartPos.current.x) / zoom
-      const deltaY = (e.clientY - dragStartPos.current.y) / zoom
-
-      const newX = Math.max(0, fieldStartPos.current.x + deltaX)
-      const newY = Math.max(0, fieldStartPos.current.y + deltaY)
-
-      // IMPORTANT: Also update percentages so preview positioning stays accurate
-      // Use the stored pageBaseWidth/Height from when the field was created
+      // PDF: use container-based percentage calculation for consistent positioning
       const baseWidth = field.pageBaseWidth || 612 // fallback to US Letter width
       const baseHeight = field.pageBaseHeight || 792 // fallback to US Letter height
 
+      // Find the PDF page container to get ACTUAL rendered dimensions
+      const pdfPage = window.document.querySelector('[data-pdf-page="true"]') as HTMLElement
+      const containerWidth = pdfPage?.offsetWidth || baseWidth * zoom
+      const containerHeight = pdfPage?.offsetHeight || baseHeight * zoom
+
+      // Calculate movement as percentage of actual container (same as image handler)
+      const deltaPctX = (e.clientX - dragStartPos.current.x) / containerWidth
+      const deltaPctY = (e.clientY - dragStartPos.current.y) / containerHeight
+
+      // Use stored start percentages, or calculate from position
+      const startXPct = fieldStartPos.current.xPercent ?? (fieldStartPos.current.x / baseWidth)
+      const startYPct = fieldStartPos.current.yPercent ?? (fieldStartPos.current.y / baseHeight)
+      const widthPct = field.widthPercent ?? (field.width / baseWidth)
+      const heightPct = field.heightPercent ?? (field.height / baseHeight)
+
+      const newXPct = Math.max(0, Math.min(1 - widthPct, startXPct + deltaPctX))
+      const newYPct = Math.max(0, Math.min(1 - heightPct, startYPct + deltaPctY))
+
       return {
         ...field,
-        x: newX,
-        y: newY,
-        // Update percentages to match new position
-        xPercent: newX / baseWidth,
-        yPercent: newY / baseHeight
+        // Update both pixel values (for compatibility) and percentages
+        x: newXPct * baseWidth,
+        y: newYPct * baseHeight,
+        xPercent: newXPct,
+        yPercent: newYPct
       }
     }))
   }, [isDragging, selectedFieldId, zoom, isPDF, imageDimensions])
@@ -2224,23 +2234,31 @@ const SignDocumentPage: React.FC = () => {
                         const fieldType = ALL_FIELD_TYPES.find(f => f.id === fieldTypeToPlace)
                         if (!fieldType) return
 
-                        // Calculate field dimensions based on type and device (in base space)
+                        // Calculate field dimensions as PERCENTAGE of page (not fixed pixels)
+                        // This ensures consistent sizing regardless of page dimensions
                         const isMobileDevice = window.innerWidth < 768
-                        const fieldWidth = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 130 : 150)
-                        const fieldHeight = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 32 : 40)
+                        const widthPercent = fieldTypeToPlace === 'signature' ? 0.28 : fieldTypeToPlace === 'checkbox' ? 0.04 : (isMobileDevice ? 0.22 : 0.20)
+                        const heightPercent = fieldTypeToPlace === 'signature' ? 0.065 : fieldTypeToPlace === 'checkbox' ? 0.035 : (isMobileDevice ? 0.04 : 0.045)
 
                         const pageBaseWidth = pdfPageWidth
                         const pageBaseHeight = pdfPageHeight
 
-                        // Calculate percentage using PDF page dimensions
-                        const xPercent = Math.max(0, (x - fieldWidth / 2) / pageBaseWidth)
-                        const yPercent = Math.max(0, (y - fieldHeight / 2) / pageBaseHeight)
+                        // Convert to base coordinates
+                        const fieldWidth = widthPercent * pageBaseWidth
+                        const fieldHeight = heightPercent * pageBaseHeight
+
+                        // Calculate position percentage
+                        // X: center horizontally on click point
+                        // Y: offset to align field preview with final text position
+                        const yOffset = 0.008
+                        const xPercent = Math.max(0, Math.min(1 - widthPercent, clickXPct - widthPercent / 2))
+                        const yPercent = Math.max(0, Math.min(1 - heightPercent, clickYPct + yOffset))
 
                         const newField: PlacedField = {
                           id: generateUUID(),
                           type: fieldTypeToPlace,
-                          x: Math.max(0, x - fieldWidth / 2),
-                          y: Math.max(0, y - fieldHeight / 2),
+                          x: xPercent * pageBaseWidth,
+                          y: yPercent * pageBaseHeight,
                           width: fieldWidth,
                           height: fieldHeight,
                           page: pageNum,
@@ -2251,11 +2269,11 @@ const SignDocumentPage: React.FC = () => {
                           tip: '',
                           label: fieldType.name,
                           value: undefined,
-                          // Store percentage position for preview
-                          xPercent: Math.max(0, xPercent),
-                          yPercent: Math.max(0, yPercent),
-                          widthPercent: fieldWidth / pageBaseWidth,
-                          heightPercent: fieldHeight / pageBaseHeight,
+                          // Store percentage position for preview (already calculated correctly)
+                          xPercent,
+                          yPercent,
+                          widthPercent,
+                          heightPercent,
                           // Store page dimensions for recalculating percentages on drag
                           pageBaseWidth,
                           pageBaseHeight
@@ -2677,33 +2695,30 @@ const SignDocumentPage: React.FC = () => {
                         const fieldType = ALL_FIELD_TYPES.find(f => f.id === fieldTypeToPlace)
                         if (!fieldType) return
 
-                        // Calculate field dimensions based on type and device
+                        // Calculate field dimensions as PERCENTAGE of page (consistent with PDF handler)
                         const isMobileDevice = window.innerWidth < 768
-                        const fieldWidth = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 160 : 200) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 130 : 150)
-                        const fieldHeight = fieldTypeToPlace === 'signature' ? (isMobileDevice ? 45 : 60) : fieldTypeToPlace === 'checkbox' ? 30 : (isMobileDevice ? 32 : 40)
+                        const widthPercent = fieldTypeToPlace === 'signature' ? 0.28 : fieldTypeToPlace === 'checkbox' ? 0.04 : (isMobileDevice ? 0.22 : 0.20)
+                        const heightPercent = fieldTypeToPlace === 'signature' ? 0.065 : fieldTypeToPlace === 'checkbox' ? 0.035 : (isMobileDevice ? 0.04 : 0.045)
 
                         // Get container's bounding rect
                         const rect = e.currentTarget.getBoundingClientRect()
 
-                        // Click position relative to the container
-                        const clickX = e.clientX - rect.left
-                        const clickY = e.clientY - rect.top
+                        // Click position as percentage
+                        const clickXPct = (e.clientX - rect.left) / rect.width
+                        const clickYPct = (e.clientY - rect.top) / rect.height
 
-                        // Use ACTUAL rendered container dimensions (from getBoundingClientRect)
-                        // This is robust against CSS constraints (max-width, height:auto, etc.)
-                        // that might cause actual size to differ from styled size
-                        const xPct = clickX / rect.width
-                        const yPct = clickY / rect.height
-
-                        // Field dimensions as percentages
+                        // Page base dimensions
                         const pageBaseWidth = imageDimensions.width
                         const pageBaseHeight = imageDimensions.height
-                        const widthPercent = fieldWidth / pageBaseWidth
-                        const heightPercent = fieldHeight / pageBaseHeight
+                        const fieldWidth = widthPercent * pageBaseWidth
+                        const fieldHeight = heightPercent * pageBaseHeight
 
-                        // Store percentage (clamped, centered on click)
-                        const xPercent = Math.max(0, Math.min(1 - widthPercent, xPct - widthPercent / 2))
-                        const yPercent = Math.max(0, Math.min(1 - heightPercent, yPct - heightPercent / 2))
+                        // Calculate position percentage
+                        // X: center horizontally on click point
+                        // Y: offset to align field preview with final text position
+                        const yOffset = 0.008
+                        const xPercent = Math.max(0, Math.min(1 - widthPercent, clickXPct - widthPercent / 2))
+                        const yPercent = Math.max(0, Math.min(1 - heightPercent, clickYPct + yOffset))
 
                         const newField: PlacedField = {
                           id: generateUUID(),
@@ -3732,7 +3747,9 @@ const SignDocumentPage: React.FC = () => {
                               </div>
                             )}
                             {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && field.value && (
-                              <span className="text-black" style={{ fontSize: field.fontSize || 14 }}>{field.value}</span>
+                              <div className="w-full h-full flex items-center px-2" style={{ fontSize: field.fontSize || 14, overflow: 'hidden' }}>
+                                <span style={{ color: '#000000', whiteSpace: 'nowrap' }}>{field.value}</span>
+                              </div>
                             )}
                           </div>
                         )
