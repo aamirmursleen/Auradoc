@@ -10,6 +10,57 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'MamaSign <noreply@mamasign.com>'
 const COMPANY_NAME = 'MamaSign'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mamasign.com'
+const RESEND_API_URL = 'https://api.resend.com/emails'
+
+/**
+ * Send email using direct fetch API (bypasses SDK issues)
+ * More reliable than SDK in Windows/MSYS environments
+ */
+async function sendEmailDirect(params: {
+  to: string
+  subject: string
+  html: string
+  text?: string
+  replyTo?: string
+  headers?: Record<string, string>
+}): Promise<{ success: boolean; id?: string; error?: string }> {
+  const { to, subject, html, text, replyTo, headers } = params
+
+  if (!process.env.RESEND_API_KEY) {
+    return { success: false, error: 'RESEND_API_KEY not configured' }
+  }
+
+  try {
+    const response = await fetch(RESEND_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to,
+        subject,
+        html,
+        text,
+        reply_to: replyTo,
+        headers,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error('❌ Resend API error:', data)
+      return { success: false, error: data.message || `HTTP ${response.status}` }
+    }
+
+    return { success: true, id: data.id }
+  } catch (error: any) {
+    console.error('❌ Fetch error:', error)
+    return { success: false, error: error.message || String(error) }
+  }
+}
 
 // Types for email service
 export interface Signer {
@@ -702,6 +753,105 @@ Secure document signing made simple
   } catch (error) {
     console.error('Failed to send reminder:', error)
     return { success: false, error }
+  }
+}
+
+/**
+ * Send signing invites to ALL signers simultaneously
+ * Uses Promise.all for parallel sending with fallback to individual sends
+ */
+export async function sendBatchSigningInvites(params: {
+  signers: Array<{
+    email: string
+    name: string
+    token: string
+  }>
+  senderName: string
+  senderEmail: string
+  documentName: string
+  message?: string
+  expiresAt?: string
+}): Promise<{ success: boolean; sentCount: number; results?: any[]; errors?: string[] }> {
+  const { signers, senderName, senderEmail, documentName, message, expiresAt } = params
+
+  if (!signers || signers.length === 0) {
+    return { success: false, sentCount: 0, errors: ['No signers provided'] }
+  }
+
+  // Check if API key is configured
+  if (!process.env.RESEND_API_KEY) {
+    console.error('❌ RESEND_API_KEY is not configured!')
+    return { success: false, sentCount: 0, errors: ['Email service not configured'] }
+  }
+
+  console.log(`📧 Sending emails to ${signers.length} signers using parallel individual sends...`)
+
+  const results: any[] = []
+  const errors: string[] = []
+
+  // Send all emails in parallel using Promise.all with direct fetch API
+  // This bypasses Resend SDK issues in Windows/MSYS environments
+  const emailPromises = signers.map(async (signer, index) => {
+    const signingLink = `${APP_URL}/s/${signer.token}`
+    const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substring(7)}`
+
+    console.log(`📧 [${index + 1}/${signers.length}] Sending to: ${signer.email}`)
+
+    const result = await sendEmailDirect({
+      to: signer.email,
+      replyTo: senderEmail,
+      subject: `${senderName} shared "${documentName}" for your signature`,
+      html: getOdooStyleTemplate({
+        recipientName: signer.name,
+        senderName,
+        documentName,
+        message,
+        signingLink,
+        expiresAt
+      }),
+      text: getPlainTextInvite({
+        recipientName: signer.name,
+        senderName,
+        documentName,
+        signingLink,
+        message,
+        expiresAt
+      }),
+      headers: {
+        'X-Entity-Ref-ID': uniqueId,
+        'Message-ID': `<${uniqueId}@mamasign.com>`,
+        'List-Unsubscribe': '<mailto:unsubscribe@mamasign.com?subject=Unsubscribe>',
+      },
+    })
+
+    if (!result.success) {
+      console.error(`❌ Failed to send to ${signer.email}:`, result.error)
+      errors.push(`${signer.email}: ${result.error}`)
+      return { success: false, email: signer.email, error: result.error }
+    }
+
+    console.log(`✅ Email sent to ${signer.email}, ID: ${result.id}`)
+    results.push({ success: true, email: signer.email, id: result.id })
+    return { success: true, email: signer.email, id: result.id }
+  })
+
+  // Wait for ALL emails to complete (parallel execution)
+  await Promise.all(emailPromises)
+
+  const sentCount = results.length
+  const totalSigners = signers.length
+
+  console.log(`📧 Email sending complete: ${sentCount}/${totalSigners} sent successfully`)
+
+  if (errors.length > 0) {
+    console.error('❌ Email errors:', errors)
+  }
+
+  return {
+    success: sentCount > 0,
+    sentCount,
+    results,
+    errors: errors.length > 0 ? errors : undefined
   }
 }
 

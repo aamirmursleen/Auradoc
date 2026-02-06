@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { sendSigningInvite } from '@/lib/email'
+import { sendSigningInvite, sendBatchSigningInvites } from '@/lib/email'
 import { rateLimit } from '@/lib/rate-limit'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -124,32 +124,38 @@ export async function POST(req: NextRequest) {
       selfSigningLink
     })
 
-    // Send email only to the FIRST non-self signer (sequential signing)
-    // Next signers will get their email after the previous signer completes
+    // Send emails to ALL non-self signers SIMULTANEOUSLY using parallel sends
+    // This ensures all signers receive their invitations at the exact same time
     if (nonSelfSigners.length > 0) {
-      const firstSigner = nonSelfSigners.sort((a: any, b: any) => a.order - b.order)[0]
-      const signingLink = APP_URL + '/s/' + firstSigner.token
+      console.log(`📧 Sending emails to ${nonSelfSigners.length} signers simultaneously...`)
 
-      console.log('📧 Attempting to send email to:', firstSigner.email)
-      console.log('📧 Signing link:', signingLink)
+      // Prepare signers data for parallel sending
+      const signersForEmail = nonSelfSigners
+        .sort((a: any, b: any) => a.order - b.order)
+        .map((signer: any) => ({
+          email: signer.email,
+          name: signer.name,
+          token: signer.token
+        }))
 
-      // Send email synchronously to catch errors
       try {
-        const emailResult = await sendSigningInvite({
-          to: firstSigner.email,
-          signerName: firstSigner.name,
+        const emailResult = await sendBatchSigningInvites({
+          signers: signersForEmail,
           senderName: senderName,
           senderEmail: senderEmail,
           documentName: documentName,
-          signingLink: signingLink,
           message: message,
           expiresAt: dueDate
         })
 
         if (emailResult.success) {
-          console.log('✅ Email sent successfully to:', firstSigner.email, 'ID:', emailResult.id)
+          console.log(`✅ Emails sent successfully: ${emailResult.sentCount}/${signersForEmail.length} signers`)
         } else {
-          console.error('❌ Email failed:', emailResult.error)
+          console.error('❌ Email sending failed:', emailResult.errors)
+        }
+
+        if (emailResult.errors && emailResult.errors.length > 0) {
+          console.error('❌ Some emails failed:', emailResult.errors)
         }
       } catch (emailError) {
         console.error('❌ Email exception:', emailError)
