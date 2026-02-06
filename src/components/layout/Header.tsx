@@ -60,18 +60,6 @@ const Header: React.FC = () => {
   const isHomePage = pathname === '/'
   const isDark = theme === 'dark'
 
-  // Theme-aware colors
-  const colors = {
-    primary: isDark ? '#c4ff0e' : '#4C00FF',
-    primaryHover: isDark ? '#b8f206' : '#3D00CC',
-    primaryPale: isDark ? 'rgba(196, 255, 14, 0.1)' : '#EDE5FF',
-    text: isDark ? '#FFFFFF' : '#26065D',
-    textSecondary: isDark ? '#D1D5DB' : '#6B7280',
-    bg: isDark ? '#1e1e1e' : '#FFFFFF',
-    bgSecondary: isDark ? '#2a2a2a' : '#F3F4F6',
-    border: isDark ? '#2a2a2a' : '#E5E7EB',
-  }
-
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
@@ -103,35 +91,41 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="hidden md:block fixed top-0 left-0 right-0 z-[100] px-4 sm:px-6 lg:px-8 pt-4">
-      <nav
-        className={`max-w-6xl mx-auto backdrop-blur-xl rounded-full transition-all duration-500 ease-out
-          ${isDark
-            ? `bg-[#1e1e1e]/90 border border-[#2a2a2a] shadow-lg shadow-black/30 ${scrolled ? 'bg-[#1e1e1e]/95 shadow-xl' : ''}`
-            : `bg-white/90 border border-gray-200 shadow-lg shadow-gray-200/50 ${scrolled ? 'bg-white/95 shadow-xl shadow-gray-300/50' : ''}`
-          }`}
-      >
-        <div className="flex justify-between items-center h-16 px-6 lg:px-8">
+    <header
+      className="hidden md:block fixed top-0 left-0 right-0 z-[100] transition-all duration-300"
+      style={{
+        backgroundColor: isDark
+          ? scrolled ? 'rgba(30, 30, 30, 0.98)' : 'rgba(30, 30, 30, 0.95)'
+          : '#130032',
+        borderBottom: scrolled
+          ? isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(255, 255, 255, 0.08)'
+          : isDark ? '1px solid transparent' : '1px solid rgba(255, 255, 255, 0.06)',
+      }}
+    >
+      <nav className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center h-[72px] px-6 lg:px-8">
           {/* Logo */}
-          <button onClick={() => handleNavClick('/')} className="flex items-center group cursor-pointer flex-shrink-0">
+          <button onClick={() => handleNavClick('/')} className="flex items-center cursor-pointer flex-shrink-0">
             <NextImage
               src="/logo.png"
               alt="MamaSign"
               width={120}
               height={45}
-              className="h-10 md:h-11 w-auto transition-transform duration-300 group-hover:scale-105"
-              style={{ filter: 'contrast(1.2) saturate(1.3)' }}
+              className="h-10 w-auto"
+              style={{ filter: isDark ? 'none' : 'brightness(0) invert(1)' }}
               priority
             />
           </button>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center justify-center flex-1 mx-8">
-            <div className={`flex items-center space-x-1 rounded-full px-2 py-1 ${isDark ? 'bg-[#2a2a2a]/50' : 'bg-gray-100/50'}`}>
+            <div className="flex items-center space-x-1">
               <button
                 onClick={() => handleNavClick('/')}
-                className={`px-4 py-2 font-medium rounded-full transition-all duration-300
-                  ${isDark ? 'text-gray-300 hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#6B7280] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                className="px-4 py-2 text-[15px] font-medium transition-colors duration-200"
+                style={{ color: isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                onMouseLeave={(e) => e.currentTarget.style.color = isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)'}
               >
                 Home
               </button>
@@ -141,45 +135,50 @@ const Header: React.FC = () => {
                 <button
                   onClick={() => setIsProductsOpen(!isProductsOpen)}
                   onMouseEnter={() => setIsProductsOpen(true)}
-                  className={`flex items-center gap-1 px-4 py-2 font-medium rounded-full transition-all duration-300
-                    ${isProductsOpen
-                      ? isDark ? 'text-[#c4ff0e] bg-[#2a2a2a]' : 'text-[#4C00FF] bg-[#EDE5FF]'
-                      : isDark ? 'text-gray-300 hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#6B7280] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'
-                    }`}
+                  className="flex items-center gap-1 px-4 py-2 text-[15px] font-medium transition-colors duration-200"
+                  style={{ color: isProductsOpen ? (isDark ? '#c4ff0e' : '#FFFFFF') : (isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)') }}
+                  onMouseOver={(e) => { if (!isProductsOpen) e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF' }}
+                  onMouseOut={(e) => { if (!isProductsOpen) e.currentTarget.style.color = isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)' }}
                 >
                   Products
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isProductsOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isProductsOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isProductsOpen && (
                   <div
-                    className={`fixed inset-x-0 top-24 mx-4 sm:mx-6 lg:mx-8 backdrop-blur-xl shadow-2xl rounded-3xl z-50 overflow-hidden
-                      ${isDark ? 'bg-[#1e1e1e]/95 border border-[#2a2a2a]' : 'bg-white/95 border border-gray-200'}`}
+                    className="fixed inset-x-0 top-[72px] mx-4 sm:mx-6 lg:mx-8 z-50 overflow-hidden"
                     onMouseLeave={() => setIsProductsOpen(false)}
                   >
-                    <div className="max-w-6xl mx-auto px-6 py-8">
+                    <div
+                      className="max-w-5xl mx-auto rounded-xl p-6 mt-2"
+                      style={{
+                        backgroundColor: isDark ? 'rgba(30, 30, 30, 0.98)' : 'rgba(255, 255, 255, 0.99)',
+                        border: isDark ? '1px solid #2a2a2a' : '1px solid #E8E0F0',
+                        boxShadow: isDark ? '0 16px 48px rgba(0,0,0,0.4)' : '0 16px 48px rgba(19, 0, 50, 0.15)',
+                        backdropFilter: 'blur(16px)',
+                      }}
+                    >
                       <div className="grid grid-cols-4 gap-8">
                         {/* E-Signature */}
                         <div>
-                          <h3 className={`text-sm font-bold mb-4 pb-2 border-b-2 ${isDark ? 'text-white border-[#c4ff0e]/50' : 'text-[#26065D] border-[#4C00FF]/50'}`}>
+                          <h3 className="text-xs font-semibold uppercase tracking-wider mb-4"
+                            style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19, 0, 50, 0.4)' }}>
                             E-Signature
                           </h3>
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             {products.signing.map((product) => (
                               <Link key={product.name} href={product.href} onClick={() => setIsProductsOpen(false)}
-                                className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 group hover:scale-[1.02]
-                                  ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                                className="flex items-start gap-3 p-3 rounded-lg transition-all duration-200 group"
+                                style={{ backgroundColor: 'transparent' }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? '#2a2a2a' : '#F8F5FF'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                               >
-                                <div className={`p-2 rounded-lg transition-transform duration-300 group-hover:scale-110
-                                  ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
-                                  <product.icon className="w-4 h-4" style={{ color: colors.primary }} />
-                                </div>
+                                <product.icon className="w-5 h-5 mt-0.5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
                                 <div>
-                                  <p className={`font-semibold text-sm transition-colors duration-300
-                                    ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
+                                  <p className="font-medium text-sm" style={{ color: isDark ? '#fff' : '#130032' }}>
                                     {product.name}
                                   </p>
-                                  <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{product.description}</p>
+                                  <p className="text-xs mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(19, 0, 50, 0.55)' }}>{product.description}</p>
                                 </div>
                               </Link>
                             ))}
@@ -188,25 +187,24 @@ const Header: React.FC = () => {
 
                         {/* PDF Tools 1 */}
                         <div>
-                          <h3 className={`text-sm font-bold mb-4 pb-2 border-b-2 ${isDark ? 'text-white border-[#c4ff0e]/50' : 'text-[#26065D] border-[#4C00FF]/50'}`}>
+                          <h3 className="text-xs font-semibold uppercase tracking-wider mb-4"
+                            style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19, 0, 50, 0.4)' }}>
                             PDF Tools
                           </h3>
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             {products.documents.slice(0, 4).map((product) => (
                               <Link key={product.name} href={product.href} onClick={() => setIsProductsOpen(false)}
-                                className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 group hover:scale-[1.02]
-                                  ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                                className="flex items-start gap-3 p-3 rounded-lg transition-all duration-200 group"
+                                style={{ backgroundColor: 'transparent' }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? '#2a2a2a' : '#F8F5FF'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                               >
-                                <div className={`p-2 rounded-lg transition-transform duration-300 group-hover:scale-110
-                                  ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
-                                  <product.icon className="w-4 h-4" style={{ color: colors.primary }} />
-                                </div>
+                                <product.icon className="w-5 h-5 mt-0.5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
                                 <div>
-                                  <p className={`font-semibold text-sm transition-colors duration-300
-                                    ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
+                                  <p className="font-medium text-sm" style={{ color: isDark ? '#fff' : '#130032' }}>
                                     {product.name}
                                   </p>
-                                  <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{product.description}</p>
+                                  <p className="text-xs mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(19, 0, 50, 0.55)' }}>{product.description}</p>
                                 </div>
                               </Link>
                             ))}
@@ -215,25 +213,24 @@ const Header: React.FC = () => {
 
                         {/* PDF Tools 2 */}
                         <div>
-                          <h3 className={`text-sm font-bold mb-4 pb-2 border-b-2 ${isDark ? 'text-white border-[#c4ff0e]/50' : 'text-[#26065D] border-[#4C00FF]/50'}`}>
+                          <h3 className="text-xs font-semibold uppercase tracking-wider mb-4"
+                            style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19, 0, 50, 0.4)' }}>
                             More PDF Tools
                           </h3>
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             {products.documents.slice(4).map((product) => (
                               <Link key={product.name} href={product.href} onClick={() => setIsProductsOpen(false)}
-                                className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 group hover:scale-[1.02]
-                                  ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                                className="flex items-start gap-3 p-3 rounded-lg transition-all duration-200 group"
+                                style={{ backgroundColor: 'transparent' }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? '#2a2a2a' : '#F8F5FF'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                               >
-                                <div className={`p-2 rounded-lg transition-transform duration-300 group-hover:scale-110
-                                  ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
-                                  <product.icon className="w-4 h-4" style={{ color: colors.primary }} />
-                                </div>
+                                <product.icon className="w-5 h-5 mt-0.5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
                                 <div>
-                                  <p className={`font-semibold text-sm transition-colors duration-300
-                                    ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
+                                  <p className="font-medium text-sm" style={{ color: isDark ? '#fff' : '#130032' }}>
                                     {product.name}
                                   </p>
-                                  <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{product.description}</p>
+                                  <p className="text-xs mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(19, 0, 50, 0.55)' }}>{product.description}</p>
                                 </div>
                               </Link>
                             ))}
@@ -242,35 +239,34 @@ const Header: React.FC = () => {
 
                         {/* Business */}
                         <div>
-                          <h3 className={`text-sm font-bold mb-4 pb-2 border-b-2 ${isDark ? 'text-white border-[#c4ff0e]/50' : 'text-[#26065D] border-[#4C00FF]/50'}`}>
+                          <h3 className="text-xs font-semibold uppercase tracking-wider mb-4"
+                            style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19, 0, 50, 0.4)' }}>
                             Business Tools
                           </h3>
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             {products.business.map((product) => (
                               <Link key={product.name} href={product.href} onClick={() => setIsProductsOpen(false)}
-                                className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 group hover:scale-[1.02]
-                                  ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                                className="flex items-start gap-3 p-3 rounded-lg transition-all duration-200 group"
+                                style={{ backgroundColor: 'transparent' }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? '#2a2a2a' : '#F8F5FF'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                               >
-                                <div className={`p-2 rounded-lg transition-transform duration-300 group-hover:scale-110
-                                  ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
-                                  <product.icon className="w-4 h-4" style={{ color: colors.primary }} />
-                                </div>
+                                <product.icon className="w-5 h-5 mt-0.5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
                                 <div>
-                                  <p className={`font-semibold text-sm transition-colors duration-300
-                                    ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>
+                                  <p className="font-medium text-sm" style={{ color: isDark ? '#fff' : '#130032' }}>
                                     {product.name}
                                   </p>
-                                  <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>{product.description}</p>
+                                  <p className="text-xs mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(19, 0, 50, 0.55)' }}>{product.description}</p>
                                 </div>
                               </Link>
                             ))}
                           </div>
-                          <div className={`mt-4 pt-4 border-t ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+                          <div className="mt-4 pt-4" style={{ borderTop: isDark ? '1px solid #2a2a2a' : '1px solid #E8E0F0' }}>
                             <Link href="/tools" onClick={() => setIsProductsOpen(false)}
-                              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full transition-all duration-300 hover:scale-105"
-                              style={{ backgroundColor: colors.primary, color: isDark ? '#000' : '#fff' }}
+                              className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200"
+                              style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }}
                             >
-                              Explore All
+                              View all tools
                               <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                             </Link>
                           </div>
@@ -283,8 +279,10 @@ const Header: React.FC = () => {
 
               <button
                 onClick={() => handleNavClick('/pricing')}
-                className={`px-4 py-2 font-medium rounded-full transition-all duration-300
-                  ${isDark ? 'text-gray-300 hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#6B7280] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                className="px-4 py-2 text-[15px] font-medium transition-colors duration-200"
+                style={{ color: isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                onMouseLeave={(e) => e.currentTarget.style.color = isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)'}
               >
                 Pricing
               </button>
@@ -292,8 +290,10 @@ const Header: React.FC = () => {
               <SignedIn>
                 <button
                   onClick={() => handleNavClick('/documents')}
-                  className={`flex items-center gap-2 px-4 py-2 font-medium rounded-full transition-all duration-300
-                    ${isDark ? 'text-gray-300 hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#6B7280] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                  className="flex items-center gap-2 px-4 py-2 text-[15px] font-medium transition-colors duration-200"
+                  style={{ color: isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)'}
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
@@ -302,20 +302,20 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Right */}
           <div className="hidden md:flex items-center space-x-3 flex-shrink-0">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-full transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none
-                ${isDark ? 'hover:bg-[#2a2a2a] focus-visible:ring-[#c4ff0e] focus-visible:ring-offset-[#1e1e1e]' : 'hover:bg-[#EDE5FF] focus-visible:ring-[#4C00FF] focus-visible:ring-offset-white'}`}
+              className="p-2 rounded-lg transition-all duration-200"
+              style={{
+                color: isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.7)',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? '#2a2a2a' : 'rgba(255,255,255,0.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDark ? (
-                <Sun className="w-5 h-5 text-gray-300" />
-              ) : (
-                <Moon className="w-5 h-5 text-[#6B7280]" />
-              )}
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             <SignedIn>
@@ -325,21 +325,30 @@ const Header: React.FC = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className={`font-medium px-4 py-2 rounded-full transition-all duration-300
-                  ${isDark ? 'text-gray-300 hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#6B7280] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                className="text-[15px] font-medium px-4 py-2 transition-colors duration-200"
+                style={{ color: isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                onMouseLeave={(e) => e.currentTarget.style.color = isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.8)'}
               >
                 Log in
               </button>
               <button
                 onClick={() => handleNavClick('/sign-up')}
-                className="px-5 py-2.5 font-medium rounded-full transition-all duration-300 hover:scale-105"
+                className="px-6 py-2.5 text-[15px] font-semibold rounded-lg transition-all duration-200"
                 style={{
-                  backgroundColor: colors.primary,
-                  color: isDark ? '#000' : '#fff',
-                  boxShadow: `0 4px 14px -4px ${isDark ? 'rgba(196, 255, 14, 0.4)' : 'rgba(76, 0, 255, 0.4)'}`
+                  backgroundColor: isDark ? '#c4ff0e' : '#FFFFFF',
+                  color: isDark ? '#000' : '#130032',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = isDark ? '#b8f206' : '#EDE5FF'
+                  e.currentTarget.style.color = isDark ? '#000' : '#130032'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isDark ? '#c4ff0e' : '#FFFFFF'
+                  e.currentTarget.style.color = isDark ? '#000' : '#130032'
                 }}
               >
-                Sign Up
+                Sign Up Free
               </button>
             </SignedOut>
           </div>
@@ -348,20 +357,19 @@ const Header: React.FC = () => {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none ${isDark ? 'hover:bg-[#2a2a2a] focus-visible:ring-[#c4ff0e]' : 'hover:bg-[#EDE5FF] focus-visible:ring-[#4C00FF]'}`}
+              className="p-2 rounded-lg transition-all duration-200"
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDark ? <Sun className="w-5 h-5 text-gray-300" /> : <Moon className="w-5 h-5 text-[#6B7280]" />}
+              {isDark ? <Sun className="w-5 h-5 text-gray-300" /> : <Moon className="w-5 h-5" style={{ color: 'rgba(19,0,50,0.55)' }} />}
             </button>
 
             <SignedOut>
               <button
                 onClick={() => handleNavClick('/sign-in')}
-                className="px-4 py-2 min-h-[40px] text-sm font-semibold rounded-full shadow-md active:scale-95 transition-all"
+                className="px-4 py-2 min-h-[40px] text-sm font-semibold rounded-lg transition-all"
                 style={{
-                  backgroundColor: colors.primary,
+                  backgroundColor: isDark ? '#c4ff0e' : '#4C00FF',
                   color: isDark ? '#000' : '#fff',
-                  boxShadow: `0 4px 14px -4px ${isDark ? 'rgba(196, 255, 14, 0.3)' : 'rgba(76, 0, 255, 0.3)'}`
                 }}
               >
                 Login
@@ -373,16 +381,15 @@ const Header: React.FC = () => {
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-300 active:scale-95
-                ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+              className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-200"
             >
               <div className="relative w-6 h-6">
                 <span className={`absolute left-0 block w-6 h-0.5 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 rotate-45' : 'top-1'}`}
-                  style={{ backgroundColor: colors.text }} />
+                  style={{ backgroundColor: isDark ? '#fff' : '#130032' }} />
                 <span className={`absolute left-0 top-3 block w-6 h-0.5 transition-all duration-300 ease-out ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}
-                  style={{ backgroundColor: colors.text }} />
+                  style={{ backgroundColor: isDark ? '#fff' : '#130032' }} />
                 <span className={`absolute left-0 block w-6 h-0.5 transform transition-all duration-300 ease-out ${isMenuOpen ? 'top-3 -rotate-45' : 'top-5'}`}
-                  style={{ backgroundColor: colors.text }} />
+                  style={{ backgroundColor: isDark ? '#fff' : '#130032' }} />
               </div>
             </button>
           </div>
@@ -390,61 +397,65 @@ const Header: React.FC = () => {
       </nav>
 
       {/* Mobile Navigation */}
-      <div className={`md:hidden mt-2 mx-auto max-w-6xl overflow-hidden transition-all duration-500 ease-out
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-out
         ${isMenuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}
       >
-        <div className={`backdrop-blur-xl rounded-3xl shadow-xl p-4
-          ${isDark ? 'bg-[#1e1e1e]/95 border border-[#2a2a2a]' : 'bg-white/95 border border-gray-200'}`}>
+        <div className="px-6 pb-6 pt-2"
+          style={{
+            backgroundColor: isDark ? 'rgba(30, 30, 30, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+            borderTop: isDark ? '1px solid #2a2a2a' : '1px solid #E8E0F0',
+          }}
+        >
           <div className="flex flex-col space-y-1">
             <button onClick={() => handleNavClick('/')}
-              className={`font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+              className="font-medium min-h-[44px] py-3 px-4 text-left rounded-lg transition-all duration-200"
+              style={{ color: isDark ? '#fff' : '#130032' }}
             >
               Home
             </button>
 
             <div>
               <button onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-                className={`w-full flex items-center justify-between font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                  ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                className="w-full flex items-center justify-between font-medium min-h-[44px] py-3 px-4 text-left rounded-lg transition-all duration-200"
+                style={{ color: isDark ? '#fff' : '#130032' }}
               >
                 Products
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              <div className={`overflow-hidden transition-all duration-500 ease-out ${isMobileProductsOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className={`ml-4 mt-2 space-y-1 border-l-2 pl-4 max-h-[50vh] overflow-y-auto
-                  ${isDark ? 'border-[#c4ff0e]/30' : 'border-[#4C00FF]/30'}`}>
-                  <p className={`text-xs font-semibold uppercase tracking-wider py-2 ${isDark ? 'text-gray-500' : 'text-[#6B7280]'}`}>E-Signature</p>
+              <div className={`overflow-hidden transition-all duration-300 ease-out ${isMobileProductsOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="ml-4 mt-2 space-y-1 pl-4 max-h-[50vh] overflow-y-auto"
+                  style={{ borderLeft: isDark ? '2px solid rgba(196,255,14,0.3)' : '2px solid rgba(76,0,255,0.2)' }}>
+                  <p className="text-xs font-semibold uppercase tracking-wider py-2"
+                    style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19,0,50,0.4)' }}>E-Signature</p>
                   {products.signing.map((product) => (
                     <Link key={product.name} href={product.href} onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl transition-all duration-300 active:scale-[0.98]
-                        ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-lg transition-all duration-200"
                     >
-                      <product.icon className="w-5 h-5" style={{ color: colors.primary }} />
-                      <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#26065D]'}`}>{product.name}</span>
+                      <product.icon className="w-5 h-5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
+                      <span className="text-sm" style={{ color: isDark ? '#D1D5DB' : 'rgba(19,0,50,0.75)' }}>{product.name}</span>
                     </Link>
                   ))}
 
-                  <p className={`text-xs font-semibold uppercase tracking-wider py-2 mt-3 ${isDark ? 'text-gray-500' : 'text-[#6B7280]'}`}>PDF Tools</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider py-2 mt-3"
+                    style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19,0,50,0.4)' }}>PDF Tools</p>
                   {products.documents.map((product) => (
                     <Link key={product.name} href={product.href} onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl transition-all duration-300 active:scale-[0.98]
-                        ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-lg transition-all duration-200"
                     >
-                      <product.icon className="w-5 h-5" style={{ color: colors.primary }} />
-                      <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#26065D]'}`}>{product.name}</span>
+                      <product.icon className="w-5 h-5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
+                      <span className="text-sm" style={{ color: isDark ? '#D1D5DB' : 'rgba(19,0,50,0.75)' }}>{product.name}</span>
                     </Link>
                   ))}
 
-                  <p className={`text-xs font-semibold uppercase tracking-wider py-2 mt-3 ${isDark ? 'text-gray-500' : 'text-[#6B7280]'}`}>Business</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider py-2 mt-3"
+                    style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(19,0,50,0.4)' }}>Business</p>
                   {products.business.map((product) => (
                     <Link key={product.name} href={product.href} onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl transition-all duration-300 active:scale-[0.98]
-                        ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                      className="flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-lg transition-all duration-200"
                     >
-                      <product.icon className="w-5 h-5" style={{ color: colors.primary }} />
-                      <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#26065D]'}`}>{product.name}</span>
+                      <product.icon className="w-5 h-5" style={{ color: isDark ? '#c4ff0e' : '#4C00FF' }} />
+                      <span className="text-sm" style={{ color: isDark ? '#D1D5DB' : 'rgba(19,0,50,0.75)' }}>{product.name}</span>
                     </Link>
                   ))}
                 </div>
@@ -452,28 +463,28 @@ const Header: React.FC = () => {
             </div>
 
             <button onClick={() => handleNavClick('/pricing')}
-              className={`font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+              className="font-medium min-h-[44px] py-3 px-4 text-left rounded-lg transition-all duration-200"
+              style={{ color: isDark ? '#fff' : '#130032' }}
             >
               Pricing
             </button>
 
             <SignedIn>
               <button onClick={() => handleNavClick('/documents')}
-                className={`flex items-center gap-3 font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                  ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                className="flex items-center gap-3 font-medium min-h-[44px] py-3 px-4 text-left rounded-lg transition-all duration-200"
+                style={{ color: isDark ? '#fff' : '#130032' }}
               >
                 <LayoutDashboard className="w-5 h-5" />
                 Dashboard
               </button>
             </SignedIn>
 
-            <hr className={isDark ? 'border-[#2a2a2a]' : 'border-gray-200'} />
+            <hr style={{ borderColor: isDark ? '#2a2a2a' : '#E8E0F0' }} />
 
             <SignedOut>
               <button onClick={() => handleNavClick('/sign-up')}
-                className="w-full min-h-[44px] py-3 px-4 font-semibold rounded-xl transition-all duration-300 active:scale-[0.98]"
-                style={{ backgroundColor: colors.primary, color: isDark ? '#000' : '#fff' }}
+                className="w-full min-h-[44px] py-3 px-4 font-semibold rounded-lg transition-all duration-200"
+                style={{ backgroundColor: isDark ? '#c4ff0e' : '#4C00FF', color: isDark ? '#000' : '#fff' }}
               >
                 Get Started Free
               </button>

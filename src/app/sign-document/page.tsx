@@ -305,6 +305,26 @@ const SignDocumentPage: React.FC = () => {
   const dragStartPos = useRef({ x: 0, y: 0 })
   const fieldStartPos = useRef<{ x: number; y: number; xPercent?: number; yPercent?: number }>({ x: 0, y: 0 })
   const resizeStartSize = useRef({ width: 0, height: 0 })
+  const textEditorPopupRef = useRef<HTMLDivElement>(null)
+  const [popupFlipped, setPopupFlipped] = useState(false)
+
+  // Detect if text editor popup should flip below the field
+  useEffect(() => {
+    if (!editingFieldId) {
+      setPopupFlipped(false)
+      return
+    }
+    // Wait for popup to render before checking position
+    const rafId = requestAnimationFrame(() => {
+      if (textEditorPopupRef.current) {
+        const rect = textEditorPopupRef.current.getBoundingClientRect()
+        if (rect.top < 0) {
+          setPopupFlipped(true)
+        }
+      }
+    })
+    return () => cancelAnimationFrame(rafId)
+  }, [editingFieldId])
 
   const isPDF = document?.type === 'application/pdf' || document?.name.toLowerCase().endsWith('.pdf')
   const selectedField = placedFields.find(f => f.id === selectedFieldId)
@@ -971,19 +991,23 @@ const SignDocumentPage: React.FC = () => {
       let newX = fieldStartPos.current.x
       let newY = fieldStartPos.current.y
 
+      const isCheckbox = field.type === 'checkbox'
+      const minW = isCheckbox ? 12 : 50
+      const minH = isCheckbox ? 12 : 30
+
       // Handle different resize directions
       if (resizeDirection.includes('e')) {
-        newWidth = Math.max(50, resizeStartSize.current.width + deltaX)
+        newWidth = Math.max(minW, resizeStartSize.current.width + deltaX)
       }
       if (resizeDirection.includes('w')) {
-        newWidth = Math.max(50, resizeStartSize.current.width - deltaX)
+        newWidth = Math.max(minW, resizeStartSize.current.width - deltaX)
         newX = fieldStartPos.current.x + deltaX
       }
       if (resizeDirection.includes('s')) {
-        newHeight = Math.max(30, resizeStartSize.current.height + deltaY)
+        newHeight = Math.max(minH, resizeStartSize.current.height + deltaY)
       }
       if (resizeDirection.includes('n')) {
-        newHeight = Math.max(30, resizeStartSize.current.height - deltaY)
+        newHeight = Math.max(minH, resizeStartSize.current.height - deltaY)
         newY = fieldStartPos.current.y + deltaY
       }
 
@@ -2380,6 +2404,11 @@ const SignDocumentPage: React.FC = () => {
                             }}
                             onClick={(e) => {
                               e.stopPropagation()
+                              if (isCheckboxType) {
+                                updateFieldValue(field.id, field.value === 'checked' ? '' : 'checked')
+                                setSelectedFieldId(field.id)
+                                return
+                              }
                               if (!isEditing) {
                                 setSelectedFieldId(field.id)
                                 setShowPropertiesPanel(true)
@@ -2387,6 +2416,7 @@ const SignDocumentPage: React.FC = () => {
                             }}
                             onDoubleClick={(e) => {
                               e.stopPropagation()
+                              if (isCheckboxType) return
                               setSelectedFieldId(field.id)
                               if (field.type === 'signature' || field.type === 'initials') {
                                 setSignatureModalFieldId(field.id)
@@ -2406,11 +2436,13 @@ const SignDocumentPage: React.FC = () => {
                                 {isTextType && (
                                   <>
                                   <div
+                                    ref={textEditorPopupRef}
                                     className="absolute z-[300] flex flex-col bg-white shadow-2xl rounded-lg border border-gray-300"
                                     style={{
-                                      bottom: '100%',
+                                      ...(popupFlipped
+                                        ? { top: '100%', marginTop: '8px' }
+                                        : { bottom: '100%', marginBottom: '8px' }),
                                       left: '0',
-                                      marginBottom: '8px',
                                       minWidth: '320px',
                                     }}
                                     onMouseDown={(e) => e.stopPropagation()}
@@ -2463,8 +2495,12 @@ const SignDocumentPage: React.FC = () => {
                                     <div className="px-3 py-2 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
                                       <button onClick={() => setEditingFieldId(null)} className="px-5 py-2 bg-[#4C00FF] text-white text-sm font-semibold rounded-md hover:bg-[#3d00cc] transition-colors shadow-sm">Done</button>
                                     </div>
-                                    {/* Arrow pointing down to field */}
-                                    <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r border-b border-gray-300 transform rotate-45"></div>
+                                    {/* Arrow pointing to field */}
+                                    {popupFlipped ? (
+                                      <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-300 transform rotate-45"></div>
+                                    ) : (
+                                      <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r border-b border-gray-300 transform rotate-45"></div>
+                                    )}
                                   </div>
                                   {/* Show typed value or placeholder inside the field during editing */}
                                   <div className="w-full h-full flex items-center px-2" style={{ overflow: 'hidden' }}>
@@ -2627,9 +2663,11 @@ const SignDocumentPage: React.FC = () => {
                                       </div>
                                     )}
                                     {/* Checkbox Display */}
-                                    {isCheckboxType && field.value === 'checked' && (
-                                      <div className="w-full h-full flex items-center justify-center bg-green-500 rounded">
-                                        <CheckSquare className="w-5 h-5 text-white" />
+                                    {isCheckboxType && (
+                                      <div className={`w-full h-full flex items-center justify-center rounded cursor-pointer ${field.value === 'checked' ? 'bg-[#4C00FF]' : 'border-2 border-gray-400'}`}>
+                                        {field.value === 'checked' && (
+                                          <CheckSquare className="w-5 h-5 text-white" />
+                                        )}
                                       </div>
                                     )}
                                     {/* Date Display */}
@@ -2652,11 +2690,16 @@ const SignDocumentPage: React.FC = () => {
                                     )}
                                   </>
                                 ) : (
-                                  /* Empty Field Placeholder - Purple theme like first image */
-                                  <div className="w-full h-full flex flex-col items-center justify-center" style={{ color: field.signerColor }}>
-                                    <FieldIcon className="w-5 h-5 mb-1" />
-                                    <span className="text-xs font-medium">{field.label}</span>
-                                  </div>
+                                  /* Empty Field Placeholder */
+                                  isCheckboxType ? (
+                                    <div className="w-full h-full flex items-center justify-center rounded cursor-pointer border-2 border-gray-400">
+                                    </div>
+                                  ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center" style={{ color: field.signerColor }}>
+                                      <FieldIcon className="w-5 h-5 mb-1" />
+                                      <span className="text-xs font-medium">{field.label}</span>
+                                    </div>
+                                  )
                                 )}
                               </>
                             )}
@@ -2887,11 +2930,13 @@ const SignDocumentPage: React.FC = () => {
                                   draggable={false}
                                 />
                               )}
-                              {field.type === 'checkbox' && field.value === 'checked' && (
-                                <div className="w-full h-full bg-green-500 rounded flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
+                              {field.type === 'checkbox' && (
+                                <div className={`w-full h-full rounded flex items-center justify-center cursor-pointer ${field.value === 'checked' ? 'bg-[#4C00FF]' : 'border-2 border-gray-400'}`}>
+                                  {field.value === 'checked' && (
+                                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
                                 </div>
                               )}
                               {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && (
@@ -2933,12 +2978,17 @@ const SignDocumentPage: React.FC = () => {
                                   onClick={(e) => e.stopPropagation()}
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center p-1 overflow-hidden">
-                                  <div className="flex items-center gap-1 text-xs font-medium" style={{ color: field.signerColor }}>
-                                    <FieldIcon className="w-4 h-4 flex-shrink-0" style={{ transform: `scale(${Math.min(zoom, 1.5)})` }} />
-                                    <span className="truncate" style={{ fontSize: 12 * Math.min(zoom, 1.5) }}>{field.label}</span>
+                                field.type === 'checkbox' ? (
+                                  <div className="w-full h-full flex items-center justify-center rounded cursor-pointer border-2 border-gray-400">
                                   </div>
-                                </div>
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center p-1 overflow-hidden">
+                                    <div className="flex items-center gap-1 text-xs font-medium" style={{ color: field.signerColor }}>
+                                      <FieldIcon className="w-4 h-4 flex-shrink-0" style={{ transform: `scale(${Math.min(zoom, 1.5)})` }} />
+                                      <span className="truncate" style={{ fontSize: 12 * Math.min(zoom, 1.5) }}>{field.label}</span>
+                                    </div>
+                                  </div>
+                                )
                               )}
                             </>
                           )}
@@ -3117,7 +3167,7 @@ const SignDocumentPage: React.FC = () => {
                     <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Width</label>
                     <div className="flex items-center">
                       <button
-                        onClick={() => updateFieldProperty('width', Math.max(30, selectedField.width - 10))}
+                        onClick={() => updateFieldProperty('width', Math.max(selectedField.type === 'checkbox' ? 12 : 30, selectedField.width - 10))}
                         className={`p-1 rounded ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'}`}
                       >
                         <Minus className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
@@ -3135,7 +3185,7 @@ const SignDocumentPage: React.FC = () => {
                     <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Height</label>
                     <div className="flex items-center">
                       <button
-                        onClick={() => updateFieldProperty('height', Math.max(20, selectedField.height - 10))}
+                        onClick={() => updateFieldProperty('height', Math.max(selectedField.type === 'checkbox' ? 12 : 20, selectedField.height - 10))}
                         className={`p-1 rounded ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'}`}
                       >
                         <Minus className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />

@@ -31,11 +31,11 @@ const config: Config = {
           foreground: '#ffffff',
         },
         dark: {
-          DEFAULT: '#26065D',
-          hover: '#1A0440',
+          DEFAULT: '#130032',
+          hover: '#0D0022',
         },
         secondary: {
-          DEFAULT: '#26065D',
+          DEFAULT: '#130032',
           foreground: '#ffffff',
         },
         destructive: {
@@ -53,7 +53,7 @@ const config: Config = {
         },
         card: {
           DEFAULT: '#ffffff',
-          foreground: '#26065D',
+          foreground: '#130032',
         },
         success: '#10B981',
         warning: '#F59E0B',

@@ -272,41 +272,42 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
               allPages.map((page, index) => {
                 const pageNum = index + 1
                 return (
-                  <div
-                    key={pageNum}
-                    className="relative bg-white shadow-xl"
-                    data-pdf-page="true"
-                    style={{
-                      width: page.width * zoom,
-                      height: page.height * zoom,
-                    }}
-                    onClick={(e) => {
-                      // Pass exact page dimensions to ensure consistent coordinate calculations
-                      if (onPageClick) {
-                        onPageClick(e, pageNum, page.width, page.height)
-                      }
-                    }}
-                  >
-                    {/* Page number label */}
-                    <div className="absolute -top-6 left-0 text-xs text-gray-500 font-medium">
+                  <div key={pageNum} className="relative">
+                    {/* Page number label - outside the clickable area */}
+                    <div className="text-xs text-gray-500 font-medium mb-1.5">
                       Page {pageNum}
                     </div>
+                    {/* Page container with precise dimensions */}
+                    <div
+                      className="relative bg-white shadow-xl"
+                      data-pdf-page="true"
+                      style={{
+                        width: page.width * zoom,
+                        height: page.height * zoom,
+                      }}
+                      onClick={(e) => {
+                        // Pass exact page dimensions to ensure consistent coordinate calculations
+                        if (onPageClick) {
+                          onPageClick(e, pageNum, page.width, page.height)
+                        }
+                      }}
+                    >
+                      {/* Page image */}
+                      <img
+                        src={page.url}
+                        alt={`Page ${pageNum}`}
+                        className="w-full h-full"
+                        style={{ display: 'block' }}
+                        draggable={false}
+                      />
 
-                    {/* Page image */}
-                    <img
-                      src={page.url}
-                      alt={`Page ${pageNum}`}
-                      className="w-full h-full"
-                      style={{ display: 'block' }}
-                      draggable={false}
-                    />
-
-                    {/* Fields overlay - NO pointer-events-none so fields can be touched/dragged */}
-                    {renderFieldsForPage && (
-                      <div className="absolute inset-0 overflow-visible">
-                        {renderFieldsForPage(pageNum, page.width * zoom, page.height * zoom)}
-                      </div>
-                    )}
+                      {/* Fields overlay - NO pointer-events-none so fields can be touched/dragged */}
+                      {renderFieldsForPage && (
+                        <div className="absolute inset-0 overflow-visible">
+                          {renderFieldsForPage(pageNum, page.width * zoom, page.height * zoom)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )
               })

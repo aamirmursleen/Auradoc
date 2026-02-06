@@ -62,6 +62,12 @@ export async function GET(
       signerEmail: email
     })
 
+    // Filter fields to only return this signer's fields
+    const allFields = signingRequest.signature_fields || []
+    const signerFields = allFields.filter(
+      (field: { signerOrder: number }) => field.signerOrder === signer.order
+    )
+
     // Return document data for signing
     return NextResponse.json({
       success: true,
@@ -74,7 +80,7 @@ export async function GET(
         message: signingRequest.message,
         dueDate: signingRequest.due_date,
         signers: signingRequest.signers,
-        signatureFields: signingRequest.signature_fields || [],
+        signatureFields: signerFields,
         currentSignerIndex: signingRequest.current_signer_index,
         status: signingRequest.status
       }

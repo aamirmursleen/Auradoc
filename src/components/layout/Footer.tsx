@@ -38,46 +38,55 @@ const Footer: React.FC = () => {
   ]
 
   return (
-    <footer className={`transition-colors duration-300 safe-area-inset border-t ${isDark ? 'bg-[#1e1e1e] text-gray-300 border-[#2a2a2a]' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
-          {/* Brand Section - Full width on mobile */}
+    <footer className="transition-colors duration-300 safe-area-inset" style={{
+      backgroundColor: isDark ? '#1a1a1a' : '#130032',
+      borderTop: isDark ? '1px solid #2a2a2a' : '1px solid rgba(255, 255, 255, 0.08)',
+      color: isDark ? '#D1D5DB' : 'rgba(255, 255, 255, 0.7)',
+    }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10">
+          {/* Brand Section */}
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="inline-block group min-h-[44px] flex items-center">
+            <Link href="/" className="inline-block min-h-[44px] flex items-center">
               <Image
                 src="/logo.png"
                 alt="MamaSign"
-                width={160}
-                height={60}
-                className="h-14 sm:h-16 w-auto group-hover:scale-105 transition-transform duration-300"
-                style={{ filter: 'contrast(1.3) saturate(1.4)' }}
+                width={140}
+                height={50}
+                className="h-12 w-auto"
+                style={{ filter: isDark ? 'none' : 'brightness(0) invert(1)' }}
               />
             </Link>
-            <p className={`mt-4 sm:mt-6 max-w-md text-sm sm:text-base lg:text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p className="mt-6 max-w-md text-sm sm:text-base leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.5)' }}>
               Professional e-signature platform for businesses of all sizes.
               Sign documents electronically with legally-binding digital signatures.
             </p>
-            <div className="mt-5 sm:mt-8 space-y-3 sm:space-y-4">
-              <a href="mailto:support@mamasign.com" className={`flex items-center space-x-3 transition-colors min-h-[44px] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}>
-                <Mail className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                <span className="text-sm sm:text-base">support@mamasign.com</span>
+            <div className="mt-6 space-y-3">
+              <a href="mailto:support@mamasign.com" className="flex items-center space-x-3 transition-colors min-h-[44px]"
+                style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.5)' }}>
+                <Mail className="w-4 h-4 flex-shrink-0" style={{ color: isDark ? '#c4ff0e' : '#CBC2FF' }} />
+                <span className="text-sm">support@mamasign.com</span>
               </a>
-              <Link href="/contact" className={`flex items-center space-x-3 transition-colors min-h-[44px] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}>
-                <Phone className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                <span className="text-sm sm:text-base">Contact Support</span>
+              <Link href="/contact" className="flex items-center space-x-3 transition-colors min-h-[44px]"
+                style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.5)' }}>
+                <Phone className="w-4 h-4 flex-shrink-0" style={{ color: isDark ? '#c4ff0e' : '#CBC2FF' }} />
+                <span className="text-sm">Contact Support</span>
               </Link>
             </div>
           </div>
 
-          {/* Product Links - Touch-friendly */}
+          {/* Product Links */}
           <div>
-            <h3 className={`font-semibold text-base sm:text-lg mb-4 sm:mb-6 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Product</h3>
-            <ul className="space-y-1 sm:space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(255, 255, 255, 0.35)' }}>Product</h3>
+            <ul className="space-y-2">
               {footerLinks.product.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className={`block py-2 text-sm sm:text-base transition-colors duration-200 active:scale-[0.98] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}
+                    className="block py-1.5 text-sm transition-colors duration-200"
+                    style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.6)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.6)'}
                   >
                     {link.name}
                   </Link>
@@ -86,15 +95,18 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Company Links - Touch-friendly */}
+          {/* Company Links */}
           <div>
-            <h3 className={`font-semibold text-base sm:text-lg mb-4 sm:mb-6 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Company</h3>
-            <ul className="space-y-1 sm:space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(255, 255, 255, 0.35)' }}>Company</h3>
+            <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className={`block py-2 text-sm sm:text-base transition-colors duration-200 active:scale-[0.98] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}
+                    className="block py-1.5 text-sm transition-colors duration-200"
+                    style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.6)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.6)'}
                   >
                     {link.name}
                   </Link>
@@ -103,15 +115,18 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Legal Links - Full width on mobile, Touch-friendly */}
+          {/* Legal Links */}
           <div className="col-span-2 sm:col-span-1">
-            <h3 className={`font-semibold text-base sm:text-lg mb-4 sm:mb-6 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Legal</h3>
-            <ul className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-1 sm:space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(255, 255, 255, 0.35)' }}>Legal</h3>
+            <ul className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-2">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className={`block py-2 text-sm sm:text-base transition-colors duration-200 active:scale-[0.98] ${isDark ? 'text-gray-400 hover:text-[#c4ff0e]' : 'text-gray-500 hover:text-[#4C00FF]'}`}
+                    className="block py-1.5 text-sm transition-colors duration-200"
+                    style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.6)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#c4ff0e' : '#FFFFFF'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.6)'}
                   >
                     {link.name}
                   </Link>
@@ -121,21 +136,33 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Section - Mobile optimized */}
-        <div className={`mt-10 sm:mt-12 lg:mt-16 pt-6 sm:pt-8 border-t flex flex-col-reverse sm:flex-row justify-between items-center gap-4 sm:gap-0 ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
-          <p className={`text-xs sm:text-sm text-center sm:text-left ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+        {/* Bottom Section */}
+        <div className="mt-12 sm:mt-16 pt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-4 sm:gap-0"
+          style={{ borderTop: isDark ? '1px solid #2a2a2a' : '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <p className="text-xs sm:text-sm text-center sm:text-left" style={{ color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(255, 255, 255, 0.3)' }}>
             &copy; {currentYear} MamaSign. All rights reserved.
           </p>
-          {/* Social links with 44px touch targets */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center space-x-3">
             {socialLinks.map((social) => (
               <a
                 key={social.name}
                 href={social.href}
-                className={`w-11 h-11 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#c4ff0e] hover:text-black hover:shadow-lg hover:shadow-[#c4ff0e]/30' : 'bg-gray-200 hover:bg-[#4C00FF] hover:text-white hover:shadow-lg hover:shadow-[#4C00FF]/30'}`}
+                className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
+                style={{
+                  backgroundColor: isDark ? '#2a2a2a' : 'rgba(255, 255, 255, 0.08)',
+                  color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.5)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = isDark ? '#c4ff0e' : '#CBC2FF'
+                  e.currentTarget.style.color = isDark ? '#000' : '#130032'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isDark ? '#2a2a2a' : 'rgba(255, 255, 255, 0.08)'
+                  e.currentTarget.style.color = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255, 255, 255, 0.5)'
+                }}
                 aria-label={social.name}
               >
-                <social.icon className="w-5 h-5" />
+                <social.icon className="w-4 h-4" />
               </a>
             ))}
           </div>
