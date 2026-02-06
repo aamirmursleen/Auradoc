@@ -207,6 +207,8 @@ const SignDocumentPage: React.FC = () => {
   const [signers, setSigners] = useState<Signer[]>([])
   const [activeSignerId, setActiveSignerId] = useState<string>('')
   const [expandedSignerId, setExpandedSignerId] = useState<string | null>(null)
+  // Track if user has ever manually toggled the signer dropdown
+  const [userToggledExpand, setUserToggledExpand] = useState(false)
 
   // Myself signing state
   const [myselfSigned, setMyselfSigned] = useState(false)
@@ -229,10 +231,14 @@ const SignDocumentPage: React.FC = () => {
     }
   }, [isUserLoaded, user, signers])
 
-  // Set initial active signer
+  // Set initial active signer and auto-expand on first load so field palette is visible
+  const initialExpandDoneRef = useRef(false)
   useEffect(() => {
     if (signers.length > 0 && !activeSignerId) {
       setActiveSignerId(signers[0].id)
+    }
+    if (signers.length > 0 && !initialExpandDoneRef.current) {
+      initialExpandDoneRef.current = true
       setExpandedSignerId(signers[0].id)
     }
   }, [signers, activeSignerId])
@@ -2017,14 +2023,6 @@ const SignDocumentPage: React.FC = () => {
 
           {/* Desktop buttons */}
           <button
-            onClick={() => setShowTemplateModal(true)}
-            className={`hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
-          >
-            <Settings className="w-4 h-4" />
-            <span className="text-sm font-medium">Properties</span>
-          </button>
-
-          <button
             onClick={() => { setShowShareModal(true); handleShare(); }}
             disabled={!document}
             className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-[#2a2a2a] hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#26065D]'}`}
@@ -2082,15 +2080,6 @@ const SignDocumentPage: React.FC = () => {
           </div>
 
           <button
-            onClick={handleSave}
-            disabled={!document || isSaving}
-            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 ${saveSuccess ? 'text-green-500' : isDark ? 'text-gray-400 hover:bg-[#2a2a2a]' : 'text-gray-500 hover:bg-gray-100'}`}
-          >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : saveSuccess ? <CheckSquare className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-            <span className="text-sm font-medium hidden lg:inline">{saveSuccess ? 'Saved!' : 'Save'}</span>
-          </button>
-
-          <button
             onClick={() => setShowSendModal(true)}
             disabled={!document || placedFields.length === 0}
             className={`hidden md:flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#b8f206]' : 'bg-[#4C00FF] text-white hover:bg-[#3d00cc]'}`}
@@ -2118,6 +2107,7 @@ const SignDocumentPage: React.FC = () => {
                   }`}
                   onClick={() => {
                     setActiveSignerId(signer.id)
+                    setUserToggledExpand(true)
                     setExpandedSignerId(expandedSignerId === signer.id ? null : signer.id)
                   }}
                 >
@@ -2164,14 +2154,14 @@ const SignDocumentPage: React.FC = () => {
                     )}
                     <ChevronDown
                       className={`w-5 h-5 transition-transform ${isDark ? 'text-gray-400' : 'text-gray-500'} ${
-                        expandedSignerId === signer.id ? 'rotate-180' : ''
+                        (expandedSignerId === signer.id || (!userToggledExpand && activeSignerId === signer.id)) ? 'rotate-180' : ''
                       }`}
                     />
                   </div>
                 </div>
 
-                {/* Expanded Signer Content */}
-                {expandedSignerId === signer.id && (
+                {/* Expanded Signer Content - auto-expand active signer until user manually toggles */}
+                {(expandedSignerId === signer.id || (!userToggledExpand && activeSignerId === signer.id)) && (
                   <div className="px-3 pb-4 space-y-3">
                     {/* Name Input */}
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? 'bg-[#2a2a2a] border border-[#2a2a2a]' : 'bg-gray-50 border border-gray-200'}`}>
