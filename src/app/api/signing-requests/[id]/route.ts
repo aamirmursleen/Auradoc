@@ -62,11 +62,31 @@ export async function GET(
       signerEmail: email
     })
 
-    // Filter fields to only return this signer's fields
+    // Return ALL fields with ownership metadata so the signing page can show
+    // other signers' completed fields as locked/read-only overlays
     const allFields = signingRequest.signature_fields || []
-    const signerFields = allFields.filter(
-      (field: { signerOrder: number }) => field.signerOrder === signer.order
-    )
+    const allSigners = signingRequest.signers || []
+
+    const enrichedFields = allFields.map((field: { signerOrder: number; id: string; [key: string]: any }) => {
+      const fieldOwner = allSigners.find((s: { order: number }) => s.order === field.signerOrder)
+      const isMine = field.signerOrder === signer.order
+      const signerStatus = fieldOwner?.status || 'pending'
+
+      // Get signed value from fieldOwner's fieldValues if they've signed
+      let signedValue = null
+      if (fieldOwner?.status === 'signed' && fieldOwner.fieldValues) {
+        signedValue = fieldOwner.fieldValues[field.id] || null
+      }
+
+      return {
+        ...field,
+        isMine,
+        signerStatus,
+        signedValue,
+        signerName: fieldOwner?.name || 'Unknown',
+        signerColor: isMine ? undefined : (fieldOwner?.is_self ? '#8B5CF6' : undefined)
+      }
+    })
 
     // Return document data for signing
     return NextResponse.json({
@@ -80,7 +100,7 @@ export async function GET(
         message: signingRequest.message,
         dueDate: signingRequest.due_date,
         signers: signingRequest.signers,
-        signatureFields: signerFields,
+        signatureFields: enrichedFields,
         currentSignerIndex: signingRequest.current_signer_index,
         status: signingRequest.status
       }

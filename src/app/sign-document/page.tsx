@@ -185,7 +185,7 @@ interface TemplateProperties {
 const SignDocumentPage: React.FC = () => {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
-  const { user } = useUser()
+  const { user, isLoaded: isUserLoaded } = useUser()
   const router = useRouter()
 
   // Mobile detection - start with null to avoid hydration mismatch
@@ -203,12 +203,31 @@ const SignDocumentPage: React.FC = () => {
   const [imageDimensions, setImageDimensions] = useState<{width: number; height: number} | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Signers state
-  const [signers, setSigners] = useState<Signer[]>([
-    { id: generateUUID(), name: 'Signer 1', email: '', color: SIGNER_COLORS[0], order: 1 }
-  ])
+  // Signers state - starts empty, "Myself" auto-added via useEffect
+  const [signers, setSigners] = useState<Signer[]>([])
   const [activeSignerId, setActiveSignerId] = useState<string>('')
   const [expandedSignerId, setExpandedSignerId] = useState<string | null>(null)
+
+  // Myself signing state
+  const [myselfSigned, setMyselfSigned] = useState(false)
+
+  // Update Myself signer with Clerk user info once it loads
+  const selfSignerUpdatedRef = useRef(false)
+  useEffect(() => {
+    if (!isUserLoaded || !user || selfSignerUpdatedRef.current) return
+    const selfSigner = signers.find(s => s.is_self)
+    if (!selfSigner) return
+    selfSignerUpdatedRef.current = true
+    const userName = (user.firstName && user.lastName)
+      ? `${user.firstName} ${user.lastName}`
+      : user.firstName || selfSigner.name
+    const userEmail = user.primaryEmailAddress?.emailAddress || selfSigner.email
+    if (userName !== selfSigner.name || userEmail !== selfSigner.email) {
+      setSigners(prev => prev.map(s =>
+        s.is_self ? { ...s, name: userName, email: userEmail } : s
+      ))
+    }
+  }, [isUserLoaded, user, signers])
 
   // Set initial active signer
   useEffect(() => {
@@ -394,6 +413,13 @@ const SignDocumentPage: React.FC = () => {
     }
   }, [placedFields])
 
+  // Save myselfSigned to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('signDocument_myselfSigned', myselfSigned ? 'true' : 'false')
+    }
+  }, [myselfSigned])
+
   // Load document and fields from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -432,12 +458,46 @@ const SignDocumentPage: React.FC = () => {
 
         const savedSigners = localStorage.getItem('signDocument_signers')
         if (savedSigners) {
-          setSigners(JSON.parse(savedSigners))
+          const parsed = JSON.parse(savedSigners)
+          if (parsed.length > 0) {
+            setSigners(parsed)
+          } else {
+            // No saved signers - create default Myself signer
+            const selfSigner: Signer = {
+              id: generateUUID(),
+              name: 'Me',
+              email: '',
+              color: SIGNER_COLORS[0],
+              order: 1,
+              is_self: true
+            }
+            setSigners([selfSigner])
+            setActiveSignerId(selfSigner.id)
+            setExpandedSignerId(selfSigner.id)
+          }
+        } else {
+          // No saved signers at all - create default Myself signer
+          const selfSigner: Signer = {
+            id: generateUUID(),
+            name: 'Me',
+            email: '',
+            color: SIGNER_COLORS[0],
+            order: 1,
+            is_self: true
+          }
+          setSigners([selfSigner])
+          setActiveSignerId(selfSigner.id)
+          setExpandedSignerId(selfSigner.id)
         }
 
         const savedDraftId = localStorage.getItem('signDocument_draftId')
         if (savedDraftId) {
           setDraftId(savedDraftId)
+        }
+
+        const savedMyselfSigned = localStorage.getItem('signDocument_myselfSigned')
+        if (savedMyselfSigned === 'true') {
+          setMyselfSigned(true)
         }
       } catch (err) {
         console.warn('Could not load saved document:', err)
@@ -455,8 +515,10 @@ const SignDocumentPage: React.FC = () => {
       localStorage.removeItem('signDocument_templateProps')
       localStorage.removeItem('signDocument_signers')
       localStorage.removeItem('signDocument_draftId')
+      localStorage.removeItem('signDocument_myselfSigned')
     }
     setDraftId(null)
+    setMyselfSigned(false)
   }
 
   // Handle Save button click - save draft to Supabase database
@@ -581,9 +643,10 @@ const SignDocumentPage: React.FC = () => {
   // Add new signer
   const addSigner = () => {
     const newOrder = signers.length + 1
+    const nonSelfCount = signers.filter(s => !s.is_self).length
     const newSigner: Signer = {
       id: generateUUID(),
-      name: `Signer ${newOrder}`,
+      name: `Signer ${nonSelfCount + 1}`,
       email: '',
       color: SIGNER_COLORS[(newOrder - 1) % SIGNER_COLORS.length],
       order: newOrder
@@ -621,9 +684,11 @@ const SignDocumentPage: React.FC = () => {
     setExpandedSignerId(newSigner.id)
   }
 
-  // Remove signer
+  // Remove signer (cannot remove self-signer)
   const removeSigner = (signerId: string) => {
     if (signers.length <= 1) return
+    const signerToRemove = signers.find(s => s.id === signerId)
+    if (signerToRemove?.is_self) return // Cannot remove Myself
 
     const filteredSigners = signers.filter(s => s.id !== signerId)
     // Re-order signers (keep original names)
@@ -876,6 +941,12 @@ const SignDocumentPage: React.FC = () => {
     const field = placedFields.find(f => f.id === fieldId)
     if (!field) return
 
+    // Prevent dragging locked fields
+    if (isFieldLocked(field)) {
+      setSelectedFieldId(fieldId)
+      return
+    }
+
     setSelectedFieldId(fieldId)
     setIsDragging(true)
     dragStartPos.current = { x: e.clientX, y: e.clientY }
@@ -967,6 +1038,7 @@ const SignDocumentPage: React.FC = () => {
 
     const field = placedFields.find(f => f.id === fieldId)
     if (!field) return
+    if (isFieldLocked(field)) return
 
     setSelectedFieldId(fieldId)
     setIsResizing(true)
@@ -1095,9 +1167,18 @@ const SignDocumentPage: React.FC = () => {
     ))
   }
 
-  // Delete selected field
+  // Check if a field is locked (belongs to self-signer and myselfSigned is true)
+  const isFieldLocked = useCallback((field: PlacedField) => {
+    if (!myselfSigned) return false
+    const fieldSigner = signers.find(s => s.id === field.signerId)
+    return fieldSigner?.is_self === true
+  }, [myselfSigned, signers])
+
+  // Delete selected field (cannot delete locked fields)
   const deleteSelectedField = () => {
     if (!selectedFieldId) return
+    const field = placedFields.find(f => f.id === selectedFieldId)
+    if (field && isFieldLocked(field)) return
     setPlacedFields(prev => prev.filter(f => f.id !== selectedFieldId))
     setSelectedFieldId(null)
     setShowPropertiesPanel(false)
@@ -1489,15 +1570,34 @@ const SignDocumentPage: React.FC = () => {
 
   // Send document for signing
   const handleSendForSigning = async () => {
-    // Validate emails
-    const invalidSigners = signers.filter(s => !s.email || !s.email.includes('@'))
+    const selfSigner = signers.find(s => s.is_self)
+    const nonSelfSigners = signers.filter(s => !s.is_self)
+    const onlyMyselfSigning = signers.length === 1 && !!selfSigner
+
+    // Validate emails (skip for self-signer since they're already authenticated)
+    const invalidSigners = nonSelfSigners.filter(s => !s.email || !s.email.includes('@'))
     if (invalidSigners.length > 0) {
       setError('Please enter valid email addresses for all signers')
       return
     }
 
-    // Check if all signers have at least one field
-    const signersWithoutFields = signers.filter(s => !placedFields.some(f => f.signerId === s.id))
+    // For myself-only: validate that I've completed signing
+    if (onlyMyselfSigning && !myselfSigned) {
+      setError('Please complete your signing before finishing')
+      return
+    }
+
+    // For mixed signing: validate myself has signed if they have fields
+    if (!onlyMyselfSigning && selfSigner) {
+      const selfFields = placedFields.filter(f => f.signerId === selfSigner.id)
+      if (selfFields.length > 0 && !myselfSigned) {
+        setError('Please complete your signing before sending')
+        return
+      }
+    }
+
+    // Check if all non-self signers have at least one field
+    const signersWithoutFields = nonSelfSigners.filter(s => !placedFields.some(f => f.signerId === s.id))
     if (signersWithoutFields.length > 0) {
       setError(`${signersWithoutFields.map(s => s.name).join(', ')} have no fields assigned`)
       return
@@ -1578,6 +1678,17 @@ const SignDocumentPage: React.FC = () => {
         fontSize: field.fontSize
       }))
 
+      // Collect self-signer's field values if they've already signed
+      let selfSignedFieldValues: Record<string, string> | undefined
+      if (myselfSigned && selfSigner) {
+        selfSignedFieldValues = {}
+        placedFields
+          .filter(f => f.signerId === selfSigner.id && f.value)
+          .forEach(f => {
+            selfSignedFieldValues![f.id] = f.value!
+          })
+      }
+
       // Send to API with timeout - prevents hanging forever
       const apiPromise = apiPost('/api/signing-requests', {
         documentName: templateProps.name || document?.name || 'Untitled Document',
@@ -1591,7 +1702,12 @@ const SignDocumentPage: React.FC = () => {
         signatureFields,
         message: emailMessage || undefined,
         subject: emailSubject || undefined,
-        senderName: senderName.trim() || undefined
+        senderName: senderName.trim() || undefined,
+        // Myself-only signing: complete immediately without emails
+        myselfOnly: onlyMyselfSigning && myselfSigned,
+        // Pre-signed self: mark self as signed in initial creation
+        myselfAlreadySigned: !onlyMyselfSigning && myselfSigned,
+        selfSignedFieldValues
       })
 
       // Add 60-second timeout for the API call
@@ -1613,8 +1729,18 @@ const SignDocumentPage: React.FC = () => {
       }
       setShowSendModal(false)
 
-      // If there's a self-signing link, redirect to sign
-      if (result.data?.selfSigningLink) {
+      // Clear saved document from localStorage after successful send
+      clearSavedDocument()
+
+      // For myself-only signing, don't redirect to signing page (already completed)
+      if (onlyMyselfSigning) {
+        // Show success and stay on page
+        setTimeout(() => setSendSuccess(false), 5000)
+        return
+      }
+
+      // If there's a self-signing link and self hasn't already signed, redirect to sign
+      if (result.data?.selfSigningLink && !myselfSigned) {
         // Use window.location for external URLs, router.push for internal
         const link = result.data.selfSigningLink
         if (link.startsWith('http') && !link.includes(window.location.host)) {
@@ -1654,29 +1780,40 @@ const SignDocumentPage: React.FC = () => {
         const FieldIcon = getFieldIcon(field.type)
         const isSelected = field.id === selectedFieldId
         const fieldSigner = signers.find(s => s.id === field.signerId)
+        const locked = isFieldLocked(field)
 
         return (
           <div
             key={field.id}
-            className={`absolute border-2 rounded-md cursor-move transition-all group
-              ${isSelected ? 'border-primary-500 shadow-lg ring-2 ring-primary-200' : 'border-dashed hover:border-primary-400'}
+            className={`absolute border-2 rounded-md transition-all group
+              ${locked ? 'cursor-default opacity-80' : 'cursor-move'}
+              ${isSelected && !locked ? 'border-primary-500 shadow-lg ring-2 ring-primary-200' : locked ? 'border-solid' : 'border-dashed hover:border-primary-400'}
             `}
             style={{
               left: field.x * zoom,
               top: field.y * zoom,
               width: field.width * zoom,
               height: field.height * zoom,
-              backgroundColor: `${field.signerColor}15`,
-              borderColor: isSelected ? undefined : field.signerColor,
+              backgroundColor: locked ? `${field.signerColor}08` : `${field.signerColor}15`,
+              borderColor: locked ? `${field.signerColor}60` : (isSelected ? undefined : field.signerColor),
               zIndex: isSelected ? 100 : 50
             }}
-            onMouseDown={(e) => handleFieldMouseDown(e, field.id)}
+            onMouseDown={(e) => !locked && handleFieldMouseDown(e, field.id)}
             onClick={(e) => {
               e.stopPropagation()
-              setSelectedFieldId(field.id)
-              setShowPropertiesPanel(true)
+              if (!locked) {
+                setSelectedFieldId(field.id)
+                setShowPropertiesPanel(true)
+              }
             }}
           >
+            {/* Lock icon for locked fields */}
+            {locked && (
+              <div className="absolute -top-1 -left-1 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center z-10">
+                <Lock className="w-2.5 h-2.5 text-white" />
+              </div>
+            )}
+
             {/* Field content */}
             <div className="w-full h-full flex items-center justify-center p-1 overflow-hidden">
               <div className="flex items-center gap-1 text-xs font-medium" style={{ color: field.signerColor }}>
@@ -1686,7 +1823,7 @@ const SignDocumentPage: React.FC = () => {
             </div>
 
             {/* Mandatory indicator */}
-            {field.mandatory && (
+            {field.mandatory && !locked && (
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" title="Required" />
             )}
 
@@ -1698,8 +1835,8 @@ const SignDocumentPage: React.FC = () => {
               {fieldSigner?.name || 'Signer'}
             </div>
 
-            {/* Resize handle */}
-            {isSelected && (
+            {/* Resize handle - not shown for locked fields */}
+            {isSelected && !locked && (
               <div
                 className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-br-md cursor-se-resize flex items-center justify-center ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}
                 onMouseDown={(e) => handleResizeStart(e, field.id)}
@@ -1708,8 +1845,8 @@ const SignDocumentPage: React.FC = () => {
               </div>
             )}
 
-            {/* Delete button on hover */}
-            <button
+            {/* Delete button on hover - not shown for locked fields */}
+            {!locked && <button
               className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:flex"
               onClick={(e) => {
                 e.stopPropagation()
@@ -1721,7 +1858,7 @@ const SignDocumentPage: React.FC = () => {
               }}
             >
               <X className="w-3 h-3 text-white" />
-            </button>
+            </button>}
           </div>
         )
       })}
@@ -2014,7 +2151,7 @@ const SignDocumentPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    {signers.length > 1 && (
+                    {signers.length > 1 && !signer.is_self && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -2094,16 +2231,8 @@ const SignDocumentPage: React.FC = () => {
               </div>
             ))}
 
-            {/* Add Signer Buttons */}
+            {/* Add Signer Button */}
             <div className={`flex flex-col gap-2 p-3 border-t ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
-              <button
-                onClick={addMyselfAsSigner}
-                disabled={signers.some(s => s.is_self)}
-                className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-[#c4ff0e]/10 text-[#c4ff0e] hover:bg-[#c4ff0e]/20 border border-[#c4ff0e]/20' : 'bg-[#4C00FF]/10 text-[#4C00FF] hover:bg-[#4C00FF]/20 border border-[#4C00FF]/20'}`}
-              >
-                <User className="w-5 h-5" />
-                <span className="font-medium">Add Myself</span>
-              </button>
               <button
                 onClick={addSigner}
                 className={`w-full flex items-center justify-center gap-2 p-3 rounded-lg transition-colors ${isDark ? 'text-[#c4ff0e] hover:bg-[#c4ff0e]/10' : 'text-[#4C00FF] hover:bg-[#4C00FF]/10'}`}
@@ -2112,6 +2241,33 @@ const SignDocumentPage: React.FC = () => {
                 <span className="font-medium">Add Other Signer</span>
               </button>
             </div>
+
+            {/* Complete My Signing Button */}
+            {(() => {
+              const selfSigner = signers.find(s => s.is_self)
+              const selfFields = selfSigner ? placedFields.filter(f => f.signerId === selfSigner.id) : []
+              const allSelfFieldsFilled = selfFields.length > 0 && selfFields.every(f => !!f.value)
+              if (!selfSigner || selfFields.length === 0) return null
+              return (
+                <div className={`p-3 border-t ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+                  {myselfSigned ? (
+                    <div className={`flex items-center justify-center gap-2 p-3 rounded-xl ${isDark ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                      <Lock className="w-4 h-4" />
+                      <span className="font-medium text-sm">My Signing Complete</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setMyselfSigned(true)}
+                      disabled={!allSelfFieldsFilled}
+                      className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-green-600 text-white hover:bg-green-500 disabled:bg-green-900/50' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                    >
+                      <PenLine className="w-4 h-4" />
+                      Complete My Signing
+                    </button>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         </div>
 
@@ -2360,6 +2516,7 @@ const SignDocumentPage: React.FC = () => {
                         const isEditing = field.id === editingFieldId
                         const fieldSigner = signers.find(s => s.id === field.signerId)
                         const hasValue = !!field.value
+                        const locked = isFieldLocked(field)
 
                         // Check if this is a signature/initials type field
                         const isSignatureType = field.type === 'signature' || field.type === 'initials'
@@ -2374,14 +2531,11 @@ const SignDocumentPage: React.FC = () => {
                         return (
                           <div
                             key={field.id}
-                            className={`pointer-events-auto absolute transition-all group cursor-move
+                            className={`pointer-events-auto absolute transition-all group ${locked ? 'cursor-default' : 'cursor-move'}
                               ${isEditing ? 'z-[200]' : ''}
                             `}
                             style={{
                               // CSS percentage positioning: robust against CSS constraints
-                              // pageWidth/pageHeight = page.width * zoom / page.height * zoom
-                              // field.x is in base (unzoomed) PDF points
-                              // Percentage = field.x / pageBaseWidth = field.x / (pageWidth / zoom)
                               left: field.xPercent !== undefined
                                 ? `${field.xPercent * 100}%`
                                 : `${(field.x / (pageWidth / zoom)) * 100}%`,
@@ -2395,15 +2549,21 @@ const SignDocumentPage: React.FC = () => {
                                 ? `${field.heightPercent * 100}%`
                                 : `${(field.height / (pageHeight / zoom)) * 100}%`,
                               zIndex: isEditing ? 200 : (isSelected ? 100 : 50),
-                              border: (hasValue && !isEditing) ? 'none' : `2px ${isSelected ? 'solid' : 'dashed'} ${field.signerColor}`,
-                              backgroundColor: (hasValue && !isEditing) ? 'transparent' : `${field.signerColor}10`,
+                              border: locked
+                                ? `1px solid ${field.signerColor}60`
+                                : (hasValue && !isEditing) ? 'none' : `2px ${isSelected ? 'solid' : 'dashed'} ${field.signerColor}`,
+                              backgroundColor: locked
+                                ? `${field.signerColor}08`
+                                : (hasValue && !isEditing) ? 'transparent' : `${field.signerColor}10`,
                               borderRadius: '6px',
+                              opacity: locked ? 0.85 : 1,
                             }}
                             onMouseDown={(e) => {
-                              if (!isEditing) handleFieldMouseDown(e, field.id)
+                              if (!isEditing && !locked) handleFieldMouseDown(e, field.id)
                             }}
                             onClick={(e) => {
                               e.stopPropagation()
+                              if (locked) return
                               if (isCheckboxType) {
                                 updateFieldValue(field.id, field.value === 'checked' ? '' : 'checked')
                                 setSelectedFieldId(field.id)
@@ -2416,6 +2576,7 @@ const SignDocumentPage: React.FC = () => {
                             }}
                             onDoubleClick={(e) => {
                               e.stopPropagation()
+                              if (locked) return
                               if (isCheckboxType) return
                               setSelectedFieldId(field.id)
                               if (field.type === 'signature' || field.type === 'initials') {
@@ -2427,6 +2588,12 @@ const SignDocumentPage: React.FC = () => {
                               }
                             }}
                           >
+                            {/* Lock icon for locked fields */}
+                            {locked && (
+                              <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center z-20">
+                                <Lock className="w-2.5 h-2.5 text-white" />
+                              </div>
+                            )}
                             {/* Field Content - NO offset, fills entire field */}
                             <div className="w-full h-full relative" style={{ overflow: (hasValue && !isEditing) ? 'hidden' : undefined, borderRadius: '6px' }}>
                             {/* Editing Mode - Skip for signature types */}
@@ -2705,8 +2872,8 @@ const SignDocumentPage: React.FC = () => {
                             )}
                             </div>
 
-                            {/* Gray Corner Handles - DocuSign Style */}
-                            {isSelected && (
+                            {/* Gray Corner Handles - DocuSign Style (hidden for locked fields) */}
+                            {isSelected && !locked && (
                               <>
                                 {/* Top-Left Handle */}
                                 <div
@@ -2731,8 +2898,8 @@ const SignDocumentPage: React.FC = () => {
                               </>
                             )}
 
-                            {/* Red X Delete Button - DocuSign Style */}
-                            {isSelected && (
+                            {/* Red X Delete Button - DocuSign Style (hidden for locked fields) */}
+                            {isSelected && !locked && (
                               <button
                                 className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
                                 onClick={(e) => {
@@ -2855,6 +3022,7 @@ const SignDocumentPage: React.FC = () => {
                       const fieldSigner = signers.find(s => s.id === field.signerId)
                       const hasValue = !!field.value
                       const isSignatureType = field.type === 'signature' || field.type === 'initials'
+                      const locked = isFieldLocked(field)
 
                       // CSS percentage positioning: robust against CSS constraints
                       // Instead of calculating pixel positions (which can mismatch if CSS
@@ -2873,28 +3041,30 @@ const SignDocumentPage: React.FC = () => {
                       return (
                         <div
                           key={field.id}
-                          className={`absolute cursor-move transition-all group
-                            ${isSelected ? 'ring-2 ring-offset-2' : 'hover:ring-1 hover:ring-offset-1'}
+                          className={`absolute transition-all group ${locked ? 'cursor-default' : 'cursor-move'}
+                            ${isSelected && !locked ? 'ring-2 ring-offset-2' : !locked ? 'hover:ring-1 hover:ring-offset-1' : ''}
                           `}
                           style={{
                             left: displayLeft,
                             top: displayTop,
                             width: displayWidth,
                             height: displayHeight,
-                            backgroundColor: hasValue ? 'transparent' : `${field.signerColor}15`,
-                            borderWidth: hasValue ? 0 : 2,
-                            borderStyle: isSelected ? 'solid' : 'dashed',
-                            borderColor: field.signerColor,
+                            backgroundColor: locked ? `${field.signerColor}08` : (hasValue ? 'transparent' : `${field.signerColor}15`),
+                            borderWidth: locked ? 1 : (hasValue ? 0 : 2),
+                            borderStyle: locked ? 'solid' : (isSelected ? 'solid' : 'dashed'),
+                            borderColor: locked ? `${field.signerColor}60` : field.signerColor,
                             borderRadius: '0.375rem',
                             // @ts-ignore - CSS custom property for Tailwind ring color
                             '--tw-ring-color': field.signerColor,
-                            zIndex: isSelected ? 100 : 50
+                            zIndex: isSelected ? 100 : 50,
+                            opacity: locked ? 0.85 : 1,
                           } as React.CSSProperties}
                           onMouseDown={(e) => {
-                            if (!isEditing) handleFieldMouseDown(e, field.id)
+                            if (!isEditing && !locked) handleFieldMouseDown(e, field.id)
                           }}
                           onClick={(e) => {
                             e.stopPropagation()
+                            if (locked) return
                             if (isSignatureType && !hasValue) {
                               setSignatureModalFieldId(field.id)
                               setSignatureTab('style')
@@ -2911,6 +3081,12 @@ const SignDocumentPage: React.FC = () => {
                             setShowPropertiesPanel(true)
                           }}
                         >
+                          {/* Lock icon for locked fields */}
+                          {locked && (
+                            <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center z-20">
+                              <Lock className="w-2.5 h-2.5 text-white" />
+                            </div>
+                          )}
                           {hasValue ? (
                             <>
                               {(field.type === 'signature' || field.type === 'initials') && (
@@ -3012,8 +3188,8 @@ const SignDocumentPage: React.FC = () => {
                             />
                           )}
 
-                          {/* Resize handle */}
-                          {isSelected && (
+                          {/* Resize handle (hidden for locked fields) */}
+                          {isSelected && !locked && (
                             <>
                               <div
                                 className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-br-md cursor-se-resize ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}
@@ -3022,8 +3198,8 @@ const SignDocumentPage: React.FC = () => {
                             </>
                           )}
 
-                          {/* Red X Delete Button */}
-                          {isSelected && (
+                          {/* Red X Delete Button (hidden for locked fields) */}
+                          {isSelected && !locked && (
                             <button
                               className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
                               onClick={(e) => {
@@ -3496,8 +3672,17 @@ const SignDocumentPage: React.FC = () => {
 
             <div className={`flex items-center justify-between px-4 py-2.5 ${isDark ? 'border-b border-[#2a2a2a]' : 'border-b border-gray-200'}`}>
               <h3 className={`text-base font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
-                <Send className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                Send for Signatures
+                {signers.length === 1 && signers[0]?.is_self ? (
+                  <>
+                    <FileSignature className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                    Finish Signing
+                  </>
+                ) : (
+                  <>
+                    <Send className={`w-4 h-4 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                    Send for Signatures
+                  </>
+                )}
               </h3>
               <button
                 onClick={() => setShowSendModal(false)}
@@ -3535,32 +3720,50 @@ const SignDocumentPage: React.FC = () => {
                 <div className="space-y-2 max-h-[30vh] overflow-auto">
                   {signers.map((signer, idx) => {
                     const signerFields = placedFields.filter(f => f.signerId === signer.id)
+                    const isSelfAndSigned = signer.is_self && myselfSigned
                     return (
-                      <div key={signer.id} className={`p-2 rounded-lg space-y-1.5 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-50'}`}>
+                      <div key={signer.id} className={`p-2 rounded-lg space-y-1.5 ${isSelfAndSigned ? (isDark ? 'bg-green-900/20 border border-green-800/30' : 'bg-green-50 border border-green-200') : (isDark ? 'bg-[#2a2a2a]' : 'bg-gray-50')}`}>
                         <div className="flex items-center gap-2">
                           <div
                             className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
-                            style={{ backgroundColor: signer.color }}
+                            style={{ backgroundColor: isSelfAndSigned ? '#22c55e' : signer.color }}
                           >
-                            {idx + 1}
+                            {isSelfAndSigned ? <Lock className="w-3 h-3" /> : idx + 1}
                           </div>
                           <input
                             type="text"
                             placeholder="Name..."
                             value={signer.name}
                             onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
-                            className={`flex-1 px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                            readOnly={signer.is_self}
+                            className={`flex-1 px-2 py-1 rounded text-sm focus:ring-1 ${signer.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
                           />
-                          <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{signerFields.length} fields</span>
+                          {isSelfAndSigned ? (
+                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${isDark ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700'}`}>Signed</span>
+                          ) : (
+                            <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{signerFields.length} fields</span>
+                          )}
                         </div>
                         <div className="pl-8">
-                          <input
-                            type="email"
-                            placeholder="Email..."
-                            value={signer.email}
-                            onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                            className={`w-full px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
-                          />
+                          {signer.is_self ? (
+                            <div>
+                              <input
+                                type="email"
+                                value={signer.email}
+                                readOnly
+                                className={`w-full px-2 py-1 rounded text-sm cursor-default ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-gray-400' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
+                              />
+                              <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Will not receive email</p>
+                            </div>
+                          ) : (
+                            <input
+                              type="email"
+                              placeholder="Email..."
+                              value={signer.email}
+                              onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
+                              className={`w-full px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-[#3a3a3a] border border-[#3a3a3a] text-white focus:ring-[#c4ff0e]/50' : 'bg-white border border-gray-200 text-[#26065D] focus:ring-[#4C00FF]/50'}`}
+                            />
+                          )}
                         </div>
                       </div>
                     )
@@ -3606,12 +3809,21 @@ const SignDocumentPage: React.FC = () => {
                 {isSending ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Sending...
+                    {signers.length === 1 && signers[0].is_self ? 'Finishing...' : 'Sending...'}
                   </>
                 ) : (
                   <>
-                    <Send className="w-3.5 h-3.5" />
-                    Send
+                    {signers.length === 1 && signers[0].is_self && myselfSigned ? (
+                      <>
+                        <FileSignature className="w-3.5 h-3.5" />
+                        Finish
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        Send
+                      </>
+                    )}
                   </>
                 )}
               </button>

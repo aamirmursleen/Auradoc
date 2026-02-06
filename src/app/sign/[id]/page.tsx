@@ -69,6 +69,17 @@ interface SignatureFieldInfo {
   pageNumber?: number
   page?: number // Support both field names
   fontSize?: number // Font size set by document creator
+  // Ownership/signed metadata from API
+  isMine?: boolean
+  signerStatus?: string
+  signedValue?: string | null
+  signerName?: string
+  signerColor?: string
+  // Percentage-based positioning
+  xPercent?: number
+  yPercent?: number
+  widthPercent?: number
+  heightPercent?: number
 }
 
 interface DocumentData {
@@ -96,6 +107,7 @@ export default function SignDocumentPage() {
   const [documentData, setDocumentData] = useState<DocumentData | null>(null)
   const [currentSigner, setCurrentSigner] = useState<SignerInfo | null>(null)
   const [myFields, setMyFields] = useState<SignatureFieldInfo[]>([])
+  const [otherFields, setOtherFields] = useState<SignatureFieldInfo[]>([])
 
   // PDF state
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
@@ -291,8 +303,12 @@ export default function SignDocumentPage() {
         setDocumentData(data.data)
         const signer = data.data.signers.find((s: SignerInfo) => s.email.toLowerCase() === signerEmail?.toLowerCase())
         setCurrentSigner(signer || null)
-        const fields = data.data.signatureFields.filter((f: SignatureFieldInfo) => f.signerOrder === signer?.order)
-        setMyFields(fields)
+        // Separate my fields from other signers' fields
+        const allFields = data.data.signatureFields || []
+        const mine = allFields.filter((f: SignatureFieldInfo) => f.isMine !== false && f.signerOrder === signer?.order)
+        const others = allFields.filter((f: SignatureFieldInfo) => f.isMine === false || f.signerOrder !== signer?.order)
+        setMyFields(mine)
+        setOtherFields(others)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -990,6 +1006,57 @@ export default function SignDocumentPage() {
                       </div>
                     ))
                   )}
+                  {/* Other signers' signed fields - rendered as read-only locked overlays */}
+                  {otherFields.filter(f => f.signerStatus === 'signed' && f.signedValue).map((field) => {
+                    const originalPos = getFieldPosition(field)
+                    const pageIndex = ((field.page || field.pageNumber || 1)) - 1
+                    const actualPageWidth = pageWidths[pageIndex] || 595 * scale
+                    const leftCalc = 'calc(50% - ' + (actualPageWidth / 2) + 'px + ' + (field.x * scale) + 'px)'
+                    const signerColor = field.signerColor || '#9CA3AF'
+
+                    return (
+                      <div
+                        key={`other-${field.id}`}
+                        className="absolute pointer-events-none z-[5]"
+                        style={{
+                          left: leftCalc,
+                          top: originalPos.top,
+                          width: field.width * scale,
+                          height: field.height * scale,
+                          border: `1px solid ${signerColor}40`,
+                          borderRadius: '4px',
+                          backgroundColor: `${signerColor}05`,
+                          opacity: 0.9,
+                        }}
+                      >
+                        {/* Lock icon */}
+                        <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 bg-gray-400 rounded-full flex items-center justify-center z-10">
+                          <Lock className="w-2 h-2 text-white" />
+                        </div>
+                        {/* Signer name tag */}
+                        <div
+                          className="absolute -top-5 left-3 px-1.5 py-0.5 rounded text-[9px] font-medium text-white whitespace-nowrap"
+                          style={{ backgroundColor: signerColor }}
+                        >
+                          {field.signerName}
+                        </div>
+                        {/* Render signed value */}
+                        <div className="w-full h-full flex items-center justify-center overflow-hidden p-0.5">
+                          {(field.type === 'signature' || field.type === 'initials') && field.signedValue?.startsWith('data:') ? (
+                            <img src={field.signedValue} alt={`${field.signerName}'s signature`} className="w-full h-full object-contain" style={{ mixBlendMode: 'multiply', opacity: 0.8 }} draggable={false} />
+                          ) : field.type === 'checkbox' && field.signedValue === 'checked' ? (
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          ) : field.type === 'date' && field.signedValue ? (
+                            <span className="text-xs text-gray-700">{new Date(field.signedValue).toLocaleDateString()}</span>
+                          ) : field.type === 'stamp' && field.signedValue?.startsWith('data:') ? (
+                            <img src={field.signedValue} alt="Stamp" className="w-full h-full object-contain" style={{ mixBlendMode: 'multiply', opacity: 0.8 }} draggable={false} />
+                          ) : field.signedValue ? (
+                            <span className="text-xs text-gray-700 truncate px-1" style={{ fontSize: `${Math.min(field.fontSize || 12, field.height * scale * 0.6)}px` }}>{field.signedValue}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    )
+                  })}
                   {myFields.map((field) => {
                     const originalPos = getFieldPosition(field)
                     const customPos = getCustomFieldPosition(field)

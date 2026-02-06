@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
-    const { documentName, documentData, signers, signatureFields, message, dueDate, senderName: providedSenderName } = body
+    const { documentName, documentData, signers, signatureFields, message, dueDate, senderName: providedSenderName, myselfOnly, myselfAlreadySigned, selfSignedFieldValues } = body
 
     // Run auth calls in parallel with timeout fallback (don't block on slow auth)
     let userId: string | null = null
@@ -53,15 +53,20 @@ export async function POST(req: NextRequest) {
     // Create signing request in database
     const signingRequestId = crypto.randomUUID()
 
-    const signersWithTokens = signers.map((s: { name: string; email: string; order: number; is_self?: boolean }) => ({
-      name: s.name,
-      email: s.email,
-      order: s.order,
-      is_self: s.is_self || false,
-      status: 'pending',
-      signedAt: null,
-      token: crypto.randomUUID()
-    }))
+    const signersWithTokens = signers.map((s: { name: string; email: string; order: number; is_self?: boolean }) => {
+      const isSelf = s.is_self || false
+      const selfAlreadySigned = isSelf && (myselfOnly || myselfAlreadySigned)
+      return {
+        name: s.name,
+        email: s.email,
+        order: s.order,
+        is_self: isSelf,
+        status: selfAlreadySigned ? 'signed' : 'pending',
+        signedAt: selfAlreadySigned ? new Date().toISOString() : null,
+        fieldValues: selfAlreadySigned && selfSignedFieldValues ? selfSignedFieldValues : null,
+        token: crypto.randomUUID()
+      }
+    })
 
     // Log document details for debugging
     console.log('📄 Creating signing request:', {
@@ -72,6 +77,10 @@ export async function POST(req: NextRequest) {
       signersCount: signersWithTokens.length,
       fieldsCount: signatureFields?.length || 0
     })
+
+    // Determine initial status: 'completed' if only myself signing, otherwise 'pending'
+    const allSignersComplete = signersWithTokens.every((s: { status: string }) => s.status === 'signed')
+    const initialStatus = myselfOnly && allSignersComplete ? 'completed' : 'pending'
 
     const { data: signingRequest, error: insertError } = await supabaseAdmin
       .from('signing_requests')
@@ -86,7 +95,7 @@ export async function POST(req: NextRequest) {
         signature_fields: signatureFields,
         message: message || null,
         due_date: dueDate || null,
-        status: 'pending',
+        status: initialStatus,
         current_signer_index: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -104,18 +113,28 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Signing request created successfully:', signingRequestId)
 
+    // For myself-only signing, return immediately without emails
+    if (myselfOnly) {
+      console.log('✅ Myself-only signing completed:', signingRequestId)
+      return NextResponse.json({
+        success: true,
+        message: 'Document signed successfully',
+        documentId: signingRequestId,
+        signerCount: 1,
+        selfSigningLink: null
+      })
+    }
+
     // Find self-signer and all non-self signers
     const selfSigner = signersWithTokens.find((s: { is_self?: boolean }) => s.is_self)
     const nonSelfSigners = signersWithTokens.filter((s: { is_self?: boolean }) => !s.is_self)
 
-    // Generate self-signing link FIRST (so we can return immediately)
-    // Use short URL format: /s/TOKEN
-    const selfSigningLink = selfSigner
+    // Generate self-signing link only if self hasn't already signed
+    const selfSigningLink = (selfSigner && !myselfAlreadySigned)
       ? APP_URL + '/s/' + selfSigner.token
       : null
 
     // INSTANT RESPONSE - Return immediately, send emails in background
-    // This makes the UI show "Document sent!" within 1 second
     const response = NextResponse.json({
       success: true,
       message: 'Document sent for signing',
@@ -125,11 +144,9 @@ export async function POST(req: NextRequest) {
     })
 
     // Send emails to ALL non-self signers SIMULTANEOUSLY using parallel sends
-    // This ensures all signers receive their invitations at the exact same time
     if (nonSelfSigners.length > 0) {
       console.log(`📧 Sending emails to ${nonSelfSigners.length} signers simultaneously...`)
 
-      // Prepare signers data for parallel sending
       const signersForEmail = nonSelfSigners
         .sort((a: any, b: any) => a.order - b.order)
         .map((signer: any) => ({
