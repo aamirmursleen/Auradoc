@@ -2058,21 +2058,21 @@ const SignDocumentPage: React.FC = () => {
                   onClick={() => handleDownload('pdf')}
                   className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-[#2a2a2a] text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
                 >
-                  <span className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-xs font-bold text-red-600">PDF</span>
+                  <img src="/icon-pdf.png" alt="PDF" className="w-8 h-8 object-contain" />
                   Download PDF
                 </button>
                 <button
                   onClick={() => handleDownload('png')}
                   className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-[#2a2a2a] text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
                 >
-                  <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-xs font-bold text-blue-600">PNG</span>
+                  <img src="/icon-png.png" alt="PNG" className="w-8 h-8 object-contain" />
                   Download PNG
                 </button>
                 <button
                   onClick={() => handleDownload('jpg')}
                   className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-[#2a2a2a] text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
                 >
-                  <span className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-xs font-bold text-green-600">JPG</span>
+                  <img src="/icon-jpg.png" alt="JPG" className="w-8 h-8 object-contain" />
                   Download JPG
                 </button>
               </div>
