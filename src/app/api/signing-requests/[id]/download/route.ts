@@ -165,8 +165,13 @@ export async function GET(
         'coords:', { x: pdfX.toFixed(1), y: pdfY.toFixed(1), w: pdfWidth.toFixed(1), h: pdfHeight.toFixed(1) })
 
       try {
-        if ((fieldType === 'signature' || fieldType === 'initials') && signatureImage) {
-          await embedImageIntoPdf(pdfDoc, page, signatureImage, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
+        // For signature/initials: use signatureImage first, fallback to fieldValues if it contains image data
+        const sigImageSrc = (fieldType === 'signature' || fieldType === 'initials')
+          ? (signatureImage || (value && typeof value === 'string' && value.startsWith('data:image') ? value : null))
+          : null
+
+        if ((fieldType === 'signature' || fieldType === 'initials') && sigImageSrc) {
+          await embedImageIntoPdf(pdfDoc, page, sigImageSrc, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
         } else if (fieldType === 'checkbox' && value === 'checked') {
           page.drawRectangle({
             x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight,
@@ -196,15 +201,20 @@ export async function GET(
             thickness: 3, color,
           })
         } else if (value && fieldType !== 'checkbox') {
-          let displayValue = value
-          if (fieldType === 'date') {
-            try { displayValue = new Date(value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { displayValue = value }
+          // If value is a base64 image (e.g. signature stored in fieldValues), embed as image
+          if (typeof value === 'string' && value.startsWith('data:image')) {
+            await embedImageIntoPdf(pdfDoc, page, value, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
+          } else {
+            let displayValue = value
+            if (fieldType === 'date') {
+              try { displayValue = new Date(value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { displayValue = value }
+            }
+            const fontSize = Math.min(field.fontSize || 14, pdfHeight * 0.8)
+            page.drawText(displayValue, {
+              x: pdfX + 8, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
+              size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 16,
+            })
           }
-          const fontSize = Math.min(field.fontSize || 14, pdfHeight * 0.8)
-          page.drawText(displayValue, {
-            x: pdfX + 8, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
-            size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 16,
-          })
         }
       } catch (fieldError) {
         console.error(`Error embedding field ${field.id}:`, fieldError)
