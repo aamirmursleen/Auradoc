@@ -98,6 +98,8 @@ export async function GET(
       const fieldValues = signer.fieldValues || {}
       const signatureImage = signer.signatureImage
       const fieldPositions = signer.fieldPositions || {} // Custom positions set by signer during resize
+      const signatureScales = signer.signatureScales || {} // Signature scale factors set by signer
+      const signerFormatting = signer.fieldFormatting || {} // Custom formatting set by signer
 
       const pageNum = field.page || field.pageNumber || 1
       const pageIndex = pageNum - 1
@@ -171,7 +173,13 @@ export async function GET(
           : null
 
         if ((fieldType === 'signature' || fieldType === 'initials') && sigImageSrc) {
-          await embedImageIntoPdf(pdfDoc, page, sigImageSrc, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
+          // Apply signature scale if set by signer or uploader
+          const sigScale = signatureScales[field.id] || field.signatureScale || 1
+          const scaledW = pdfWidth * sigScale
+          const scaledH = pdfHeight * sigScale
+          const scaledX = pdfX + (pdfWidth - scaledW) / 2
+          const scaledY = pdfY + (pdfHeight - scaledH) / 2
+          await embedImageIntoPdf(pdfDoc, page, sigImageSrc, { x: scaledX, y: scaledY, width: scaledW, height: scaledH })
         } else if (fieldType === 'checkbox' && value === 'checked') {
           page.drawRectangle({
             x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight,
@@ -209,7 +217,10 @@ export async function GET(
             if (fieldType === 'date') {
               try { displayValue = new Date(value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { displayValue = value }
             }
-            const fontSize = Math.min(field.fontSize || 14, pdfHeight * 0.8)
+            // Use signer's custom font size if set, otherwise fall back to field's default
+            const customFmt = signerFormatting[field.id]
+            const baseFontSize = customFmt?.fontSize || field.fontSize || 14
+            const fontSize = Math.min(baseFontSize, pdfHeight * 0.8)
             page.drawText(displayValue, {
               x: pdfX + 8, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
               size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 16,

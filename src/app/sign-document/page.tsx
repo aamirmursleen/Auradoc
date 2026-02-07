@@ -172,6 +172,7 @@ interface PlacedField {
   // Store page dimensions at placement time for consistent calculations
   pageBaseWidth?: number
   pageBaseHeight?: number
+  signatureScale?: number // Scale factor for signature within its field
 }
 
 interface TemplateProperties {
@@ -280,6 +281,7 @@ const SignDocumentPage: React.FC = () => {
   const [signatureFullName, setSignatureFullName] = useState('')
   const [signatureInitials, setSignatureInitials] = useState('')
   const [signatureStyle, setSignatureStyle] = useState(0)
+  const [signatureColor, setSignatureColor] = useState('#1e293b')
   const [stampImage, setStampImage] = useState<string | null>(null)
   const [stampModalFieldId, setStampModalFieldId] = useState<string | null>(null)
   const [showStampCamera, setShowStampCamera] = useState(false)
@@ -333,7 +335,7 @@ const SignDocumentPage: React.FC = () => {
   const textEditorPopupRef = useRef<HTMLDivElement>(null)
   const [popupFlipped, setPopupFlipped] = useState(false)
 
-  // Detect if text editor popup should flip below the field
+  // Detect if text editor popup should flip above the field
   useEffect(() => {
     if (!editingFieldId) {
       setPopupFlipped(false)
@@ -343,7 +345,7 @@ const SignDocumentPage: React.FC = () => {
     const rafId = requestAnimationFrame(() => {
       if (textEditorPopupRef.current) {
         const rect = textEditorPopupRef.current.getBoundingClientRect()
-        if (rect.top < 0) {
+        if (rect.bottom > window.innerHeight) {
           setPopupFlipped(true)
         }
       }
@@ -1383,6 +1385,7 @@ const SignDocumentPage: React.FC = () => {
               hPct,
               value: field.value,
               fontSize: field.fontSize,
+              signatureScale: field.signatureScale,
             } as SignatureField
           })
           .filter((f): f is SignatureField => f !== null)
@@ -1506,6 +1509,7 @@ const SignDocumentPage: React.FC = () => {
           xPct, yPct, wPct, hPct,
           value: field.value,
           fontSize: field.fontSize,
+          signatureScale: field.signatureScale,
         } as SignatureField
       })
       .filter((f): f is SignatureField => f !== null)
@@ -1681,7 +1685,8 @@ const SignDocumentPage: React.FC = () => {
         label: field.label,
         mandatory: field.mandatory,
         page: field.page,
-        fontSize: field.fontSize
+        fontSize: field.fontSize,
+        signatureScale: field.signatureScale
       }))
 
       // Collect self-signer's field values if they've already signed
@@ -2597,8 +2602,8 @@ const SignDocumentPage: React.FC = () => {
                                     className="absolute z-[300] flex flex-col bg-white shadow-2xl rounded-lg border border-gray-300"
                                     style={{
                                       ...(popupFlipped
-                                        ? { top: '100%', marginTop: '8px' }
-                                        : { bottom: '100%', marginBottom: '8px' }),
+                                        ? { bottom: '100%', marginBottom: '8px' }
+                                        : { top: '100%', marginTop: '8px' }),
                                       left: '0',
                                       minWidth: '320px',
                                     }}
@@ -2654,9 +2659,9 @@ const SignDocumentPage: React.FC = () => {
                                     </div>
                                     {/* Arrow pointing to field */}
                                     {popupFlipped ? (
-                                      <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-300 transform rotate-45"></div>
-                                    ) : (
                                       <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r border-b border-gray-300 transform rotate-45"></div>
+                                    ) : (
+                                      <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-300 transform rotate-45"></div>
                                     )}
                                   </div>
                                   {/* Show typed value or placeholder inside the field during editing */}
@@ -2805,8 +2810,40 @@ const SignDocumentPage: React.FC = () => {
                                         src={field.value}
                                         alt="Signature"
                                         className="w-full h-full object-contain"
-                                        style={{ display: 'block' }}
+                                        style={{ display: 'block', transform: `scale(${field.signatureScale || 1})`, transformOrigin: 'center center' }}
                                       />
+                                    )}
+                                    {/* Signature Scale Controls */}
+                                    {isSignatureType && field.value && isSelected && !locked && (
+                                      <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-full px-2 py-1 shadow-lg border border-gray-200 z-30">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            const currentScale = field.signatureScale || 1
+                                            setPlacedFields(prev => prev.map(f =>
+                                              f.id === field.id ? { ...f, signatureScale: Math.max(0.5, currentScale - 0.1) } : f
+                                            ))
+                                          }}
+                                          className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                          title="Decrease signature size"
+                                        >
+                                          <Minus className="w-3 h-3" />
+                                        </button>
+                                        <span className="text-xs font-medium text-gray-500 min-w-[32px] text-center">{Math.round((field.signatureScale || 1) * 100)}%</span>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            const currentScale = field.signatureScale || 1
+                                            setPlacedFields(prev => prev.map(f =>
+                                              f.id === field.id ? { ...f, signatureScale: Math.min(1.5, currentScale + 0.1) } : f
+                                            ))
+                                          }}
+                                          className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                          title="Increase signature size"
+                                        >
+                                          <Plus className="w-3 h-3" />
+                                        </button>
+                                      </div>
                                     )}
                                     {/* Text Fields Display */}
                                     {isTextType && (
@@ -3085,6 +3122,7 @@ const SignDocumentPage: React.FC = () => {
                                   alt={field.type}
                                   className="w-full h-full object-contain"
                                   draggable={false}
+                                  style={{ transform: `scale(${field.signatureScale || 1})`, transformOrigin: 'center center' }}
                                 />
                               )}
                               {field.type === 'stamp' && field.value?.startsWith('data:image') && (
@@ -4111,7 +4149,7 @@ const SignDocumentPage: React.FC = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height)
 
           const font = signatureFonts[fontIndex] || signatureFonts[0]
-          ctx.fillStyle = '#1a1a1a'
+          ctx.fillStyle = signatureColor
           ctx.font = `${font.style} 32px ${font.name}, cursive`
           ctx.textAlign = 'left'
           ctx.textBaseline = 'middle'
@@ -4224,6 +4262,28 @@ const SignDocumentPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Signature Color Selector */}
+              <div className="px-4 md:px-6 py-3 flex items-center gap-3 border-b border-gray-100">
+                <span className="text-xs font-medium text-gray-500">Color:</span>
+                <div className="flex items-center gap-2">
+                  {[
+                    { name: 'Black', value: '#1e293b' },
+                    { name: 'Blue', value: '#1d4ed8' },
+                    { name: 'Navy', value: '#1e3a5f' },
+                  ].map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => setSignatureColor(color.value)}
+                      className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 ${
+                        signatureColor === color.value ? 'border-blue-500 scale-110 ring-2 ring-blue-200' : 'border-gray-200'
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* Tab Content */}
               <div className="px-4 md:px-6 py-4">
                 {/* SELECT STYLE Tab */}
@@ -4245,8 +4305,8 @@ const SignDocumentPage: React.FC = () => {
                           <div className="border-l-4 border-blue-200 pl-3">
                             <p className="text-xs text-gray-400 mb-1">Signed by:</p>
                             <p
-                              className="text-xl md:text-2xl text-gray-800 break-words"
-                              style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style }}
+                              className="text-xl md:text-2xl break-words"
+                              style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style, color: signatureColor }}
                             >
                               {signatureFullName || 'Your Name'}
                             </p>
@@ -4257,8 +4317,8 @@ const SignDocumentPage: React.FC = () => {
                           <div className="border-l-4 border-blue-200 pl-3">
                             <p className="text-xs text-gray-400 mb-1">Initials</p>
                             <p
-                              className="text-xl md:text-2xl text-gray-800"
-                              style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style }}
+                              className="text-xl md:text-2xl"
+                              style={{ fontFamily: `${signatureFonts[signatureStyle].name}, cursive`, fontStyle: signatureFonts[signatureStyle].style, color: signatureColor }}
                             >
                               {signatureInitials || 'AB'}
                             </p>
@@ -4283,8 +4343,9 @@ const SignDocumentPage: React.FC = () => {
                         onClear={() => {}}
                         onCancel={() => {}}
                         initialSignature={modalField.value?.startsWith('data:image') ? modalField.value : undefined}
+                        initialPenColor={signatureColor}
                         compact={false}
-                        height={150}
+                        height={200}
                         showDoneButton={false}
                       />
                     </div>

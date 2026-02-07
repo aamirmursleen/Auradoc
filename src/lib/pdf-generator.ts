@@ -37,6 +37,7 @@ export interface SignatureField {
 
   // Optional styling
   fontSize?: number
+  signatureScale?: number // Scale factor for signature/initials (default 1)
 }
 
 /**
@@ -173,8 +174,23 @@ export async function generateFinalPdf(
         // Embed stamp image - fill entire field box (no aspect ratio preservation)
         await embedImage(pdfDoc, page, field.value!, pdfCoords, true)
       } else if (field.type === 'signature' || field.type === 'initials') {
-        // Embed signature/initials image - maintain aspect ratio
-        await embedImage(pdfDoc, page, field.value!, pdfCoords, false)
+        // Apply signature scale if set by user
+        const sigScale = field.signatureScale || 1
+        const scaledW = pdfCoords.width * sigScale
+        const scaledH = pdfCoords.height * sigScale
+        const scaledX = pdfCoords.x + (pdfCoords.width - scaledW) / 2
+        const scaledY = pdfCoords.y + (pdfCoords.height - scaledH) / 2
+        await embedImage(pdfDoc, page, field.value!, { x: scaledX, y: scaledY, width: scaledW, height: scaledH }, false)
+      } else if (field.type === 'strikethrough' && field.value) {
+        // Draw strikethrough line
+        const lineY = pdfCoords.y + pdfCoords.height / 2
+        const color = field.value.startsWith('#') ? hexToRgb(field.value) : rgb(0.863, 0.149, 0.149)
+        page.drawLine({
+          start: { x: pdfCoords.x, y: lineY },
+          end: { x: pdfCoords.x + pdfCoords.width, y: lineY },
+          thickness: 3,
+          color,
+        })
       } else if (field.type === 'checkbox') {
         // Draw checkbox
         if (field.value === 'checked') {
@@ -419,6 +435,7 @@ export interface PlacedFieldInput {
   pageBaseHeight?: number
   value?: string
   fontSize?: number
+  signatureScale?: number
 }
 
 export function convertPlacedFieldToSignatureField(
@@ -477,5 +494,14 @@ export function convertPlacedFieldToSignatureField(
     hPct,
     value: field.value,
     fontSize: field.fontSize,
+    signatureScale: field.signatureScale,
   }
+}
+
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (result) {
+    return rgb(parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255)
+  }
+  return rgb(0.863, 0.149, 0.149)
 }

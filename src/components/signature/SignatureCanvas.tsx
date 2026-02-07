@@ -10,6 +10,7 @@ interface SignatureCanvasProps {
   onClear?: () => void
   onCancel?: () => void
   initialSignature?: string
+  initialPenColor?: string
   width?: number
   height?: number
   compact?: boolean
@@ -24,6 +25,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   onClear,
   onCancel,
   initialSignature,
+  initialPenColor,
   width,
   height = 200,
   compact = false,
@@ -36,7 +38,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [isEmpty, setIsEmpty] = useState(!initialSignature)
-  const [penColor, setPenColor] = useState('#1e293b')
+  const [penColor, setPenColor] = useState(initialPenColor || '#1e293b')
   const [canvasWidth, setCanvasWidth] = useState(width || 300)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [mode, setMode] = useState<SignatureMode>('draw')

@@ -37,7 +37,9 @@ import {
   Upload,
   Palette,
   Move,
-  Maximize
+  Maximize,
+  Plus,
+  Minus
 } from 'lucide-react'
 
 // Set up PDF.js worker
@@ -268,6 +270,7 @@ export default function SignDocumentPage() {
   const [showFormatting, setShowFormatting] = useState(false)
   const [fieldPositions, setFieldPositions] = useState<Record<string, { x: number; y: number; width: number; height: number }>>({})
   const [fieldFormatting, setFieldFormatting] = useState<Record<string, { fontSize: number; bold: boolean; italic: boolean; color: string }>>({})
+  const [signatureScales, setSignatureScales] = useState<Record<string, number>>({})
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState<{ x: number; y: number; fieldX: number; fieldY: number } | null>(null)
@@ -275,6 +278,25 @@ export default function SignDocumentPage() {
 
   const pagesContainerRef = useRef<HTMLDivElement>(null)
   const documentContainerRef = useRef<HTMLDivElement>(null)
+  const textEditorPopupRef = useRef<HTMLDivElement>(null)
+  const [popupFlipped, setPopupFlipped] = useState(false)
+
+  // Detect if text editor popup should flip above the field
+  useEffect(() => {
+    if (!editingFieldId) {
+      setPopupFlipped(false)
+      return
+    }
+    const rafId = requestAnimationFrame(() => {
+      if (textEditorPopupRef.current) {
+        const rect = textEditorPopupRef.current.getBoundingClientRect()
+        if (rect.bottom > window.innerHeight) {
+          setPopupFlipped(true)
+        }
+      }
+    })
+    return () => cancelAnimationFrame(rafId)
+  }, [editingFieldId])
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -783,6 +805,18 @@ export default function SignDocumentPage() {
         }
       })
 
+      // Build custom formatting map - only include fields with changed formatting
+      const customFormatting: Record<string, { fontSize: number; bold: boolean; italic: boolean; color: string }> = {}
+      Object.entries(fieldFormatting).forEach(([fieldId, fmt]) => {
+        const field = myFields.find(f => f.id === fieldId)
+        if (field) {
+          const defaultSize = field.fontSize || 14
+          if (fmt.fontSize !== defaultSize || fmt.bold || fmt.italic || fmt.color !== '#000000') {
+            customFormatting[fieldId] = fmt
+          }
+        }
+      })
+
       const response = await fetch(`/api/signing-requests/${documentId}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -792,7 +826,9 @@ export default function SignDocumentPage() {
           signature: signature || 'no-signature-field',
           signedFields: Array.from(signedFields),
           fieldValues: fieldValues,
-          fieldPositions: customPositions
+          fieldPositions: customPositions,
+          signatureScales: Object.keys(signatureScales).length > 0 ? signatureScales : undefined,
+          fieldFormatting: Object.keys(customFormatting).length > 0 ? customFormatting : undefined
         })
       })
       const data = await response.json()
@@ -1157,35 +1193,112 @@ export default function SignDocumentPage() {
                           backgroundColor: isEditing ? 'rgba(255,255,255,0.95)' : 'transparent'
                         }}
                       >
-                        {/* Inline editing for text fields */}
+                        {/* Inline editing for text fields - with font size popup */}
                         {isEditing && isTxtType ? (
-                          <input
-                            type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
-                            value={fieldValue || ''}
-                            onChange={(e) => handleInlineTextChange(field.id, e.target.value)}
-                            onBlur={() => handleInlineTextSave(field.id)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault()
-                                handleInlineTextSave(field.id)
-                              }
-                              if (e.key === 'Escape') {
-                                setEditingFieldId(null)
-                                setActiveFieldId(null)
-                              }
-                            }}
-                            placeholder={field.type === 'name' ? 'Type name...' : field.type === 'email' ? 'Type email...' : field.type === 'phone' ? 'Type phone...' : 'Type here...'}
-                            className="w-full h-full px-2 border-none outline-none rounded"
-                            style={{
-                              color: '#000000',
-                              backgroundColor: '#ffffff',
-                              fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
-                              fontWeight: formatting.bold ? 'bold' : 'normal',
-                              fontStyle: formatting.italic ? 'italic' : 'normal'
-                            }}
-                            autoFocus
-                            onClick={(e) => e.stopPropagation()}
-                          />
+                          <>
+                            {/* Text Editor - Floating popup */}
+                            <div
+                              ref={textEditorPopupRef}
+                              className="absolute z-[300] flex flex-col bg-white shadow-2xl rounded-lg border border-gray-300"
+                              style={{
+                                ...(popupFlipped
+                                  ? { bottom: '100%', marginBottom: '8px' }
+                                  : { top: '100%', marginTop: '8px' }),
+                                left: '0',
+                                minWidth: '320px',
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {/* Size Control Header */}
+                              <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
+                                <span className="text-sm font-bold text-gray-700 mr-2">Size:</span>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  {(field.type === 'title' ? [
+                                    { label: 'H1', size: 32 },
+                                    { label: 'H2', size: 24 },
+                                    { label: 'H3', size: 20 },
+                                    { label: 'H4', size: 16 },
+                                  ] : [
+                                    { label: '10', size: 10 },
+                                    { label: '12', size: 12 },
+                                    { label: '14', size: 14 },
+                                    { label: '16', size: 16 },
+                                    { label: '18', size: 18 },
+                                    { label: '20', size: 20 },
+                                    { label: '24', size: 24 },
+                                  ]).map((item) => (
+                                    <button
+                                      key={item.size}
+                                      onClick={() => updateFieldFormatting(field.id, { fontSize: item.size })}
+                                      className={`px-2.5 py-1.5 text-sm font-semibold rounded-md transition-all ${
+                                        formatting.fontSize === item.size
+                                          ? 'bg-blue-600 text-white shadow-md'
+                                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-500'
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              {/* Input */}
+                              <input
+                                type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
+                                value={fieldValue || ''}
+                                onChange={(e) => handleInlineTextChange(field.id, e.target.value)}
+                                placeholder={field.type === 'name' ? 'Type name...' : field.type === 'email' ? 'Type email...' : field.type === 'phone' ? 'Type phone...' : `Type ${field.label || 'here'}...`}
+                                className="w-full px-3 py-3 border-none outline-none"
+                                style={{
+                                  color: '#000000',
+                                  backgroundColor: '#ffffff',
+                                  fontSize: `${Math.max(formatting.fontSize, 14)}px`,
+                                  fontWeight: formatting.bold ? 'bold' : 'normal',
+                                  fontStyle: formatting.italic ? 'italic' : 'normal'
+                                }}
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    handleInlineTextSave(field.id)
+                                  }
+                                  if (e.key === 'Escape') {
+                                    setEditingFieldId(null)
+                                    setActiveFieldId(null)
+                                  }
+                                }}
+                              />
+                              {/* Done button */}
+                              <div className="px-3 py-2 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
+                                <button
+                                  onClick={() => handleInlineTextSave(field.id)}
+                                  className="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+                                >
+                                  Done
+                                </button>
+                              </div>
+                              {/* Arrow pointing to field */}
+                              {popupFlipped ? (
+                                <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r border-b border-gray-300 transform rotate-45"></div>
+                              ) : (
+                                <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-300 transform rotate-45"></div>
+                              )}
+                            </div>
+                            {/* Show typed value or placeholder inside the field during editing */}
+                            <div className="w-full h-full flex items-center px-2" style={{ overflow: 'hidden' }}>
+                              {fieldValue ? (
+                                <span style={{
+                                  color: '#000000',
+                                  fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                                  fontWeight: formatting.bold ? 'bold' : 'normal',
+                                  fontStyle: formatting.italic ? 'italic' : 'normal',
+                                  whiteSpace: 'nowrap'
+                                }}>{fieldValue}</span>
+                              ) : (
+                                <span className="text-blue-500 text-sm font-medium">{field.label || 'Click to fill'}</span>
+                              )}
+                            </div>
+                          </>
                         ) : hasValue ? (
                           <>
                             {/* Signature/Initials - show signature image with transparent bg */}
@@ -1196,7 +1309,9 @@ export default function SignDocumentPage() {
                                 className="w-full h-full object-contain"
                                 style={{
                                   filter: formatting.bold ? 'contrast(1.8) brightness(0.7)' : 'none',
-                                  mixBlendMode: 'multiply'
+                                  mixBlendMode: 'multiply',
+                                  transform: `scale(${signatureScales[field.id] || 1})`,
+                                  transformOrigin: 'center center'
                                 }}
                               />
                             )}
@@ -1288,6 +1403,35 @@ export default function SignDocumentPage() {
                                 >
                                   <ZoomIn className="w-4 h-4" />
                                 </button>
+                                {/* Signature scale controls */}
+                                {isSigType && (
+                                  <>
+                                    <div className="w-px h-6 bg-gray-300 mx-1" />
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        const current = signatureScales[field.id] || 1
+                                        setSignatureScales(prev => ({ ...prev, [field.id]: Math.max(0.5, current - 0.1) }))
+                                      }}
+                                      className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                      title="Decrease signature size"
+                                    >
+                                      <Minus className="w-3 h-3" />
+                                    </button>
+                                    <span className="text-xs font-medium text-gray-500 min-w-[28px] text-center">{Math.round((signatureScales[field.id] || 1) * 100)}%</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        const current = signatureScales[field.id] || 1
+                                        setSignatureScales(prev => ({ ...prev, [field.id]: Math.min(1.5, current + 0.1) }))
+                                      }}
+                                      className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                      title="Increase signature size"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </button>
+                                  </>
+                                )}
                                 {/* Bold - for text and signature */}
                                 <div className="w-px h-6 bg-gray-300 mx-1" />
                                 <button

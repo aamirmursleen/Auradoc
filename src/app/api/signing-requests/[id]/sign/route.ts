@@ -9,7 +9,7 @@ export async function POST(
   try {
     const documentId = params.id
     const body = await req.json()
-    const { signerEmail, token, signature, signedFields, fieldValues, fieldPositions } = body
+    const { signerEmail, token, signature, signedFields, fieldValues, fieldPositions, signatureScales, fieldFormatting } = body
 
     // Capture IP and User Agent for audit trail
     const forwardedFor = req.headers.get('x-forwarded-for')
@@ -90,6 +90,8 @@ export async function POST(
     signers[signerIndex].signatureImage = signature && signature !== 'no-signature-field' ? signature : null
     signers[signerIndex].fieldValues = fieldValues || {}
     signers[signerIndex].fieldPositions = fieldPositions || {} // Store custom field positions (resized by signer)
+    signers[signerIndex].signatureScales = signatureScales || {} // Store signature scale factors
+    signers[signerIndex].fieldFormatting = fieldFormatting || {} // Store custom field formatting (font size, bold, etc.)
 
     console.log('📝 Updated signer in array:', {
       signerIndex,
