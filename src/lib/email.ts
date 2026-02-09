@@ -368,7 +368,7 @@ export async function sendSignatureCompletedNotification(
 
   const signedCount = signerIndex + 1
   const total = data.signers.length
-  const downloadLink = `${APP_URL}/documents/${data.documentId}`
+  const downloadLink = `${APP_URL}/documents`
 
   const html = `
 <!DOCTYPE html>
@@ -473,7 +473,7 @@ export async function sendSignerConfirmation(
   const signer = data.signers[signerIndex]
   if (!signer) return { success: false, error: 'Signer not found' }
 
-  const downloadLink = `${APP_URL}/documents/${data.documentId}/download`
+  const downloadLink = `${APP_URL}/documents`
 
   const html = `
 <!DOCTYPE html>
