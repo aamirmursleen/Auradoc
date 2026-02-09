@@ -43,7 +43,8 @@ import {
   Download,
   Camera,
   Briefcase,
-  AlignLeft
+  AlignLeft,
+  Bold
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { incrementSignCount } from '@/lib/usageLimit'
@@ -163,6 +164,8 @@ interface PlacedField {
   label: string
   value?: string // For storing user input (text, signature image, etc.)
   fontSize?: number // Font size for text fields
+  fontFamily?: string // Font family for text fields
+  fontBold?: boolean // Bold text for text fields
   options?: string[] // For selection field dropdown options
   // Percentage-based positioning for accurate preview/download
   xPercent?: number
@@ -335,18 +338,19 @@ const SignDocumentPage: React.FC = () => {
   const textEditorPopupRef = useRef<HTMLDivElement>(null)
   const [popupFlipped, setPopupFlipped] = useState(false)
 
-  // Detect if text editor popup should flip above the field
+  // Ensure text editor popup is always visible below the field
   useEffect(() => {
     if (!editingFieldId) {
       setPopupFlipped(false)
       return
     }
-    // Wait for popup to render before checking position
+    // Always show popup below - scroll it into view if needed
+    setPopupFlipped(false)
     const rafId = requestAnimationFrame(() => {
       if (textEditorPopupRef.current) {
         const rect = textEditorPopupRef.current.getBoundingClientRect()
         if (rect.bottom > window.innerHeight) {
-          setPopupFlipped(true)
+          textEditorPopupRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         }
       }
     })
@@ -1236,6 +1240,20 @@ const SignDocumentPage: React.FC = () => {
     ))
   }
 
+  // Update field font family
+  const updateFieldFontFamily = (fieldId: string, fontFamily: string) => {
+    setPlacedFields(prev => prev.map(field =>
+      field.id === fieldId ? { ...field, fontFamily } : field
+    ))
+  }
+
+  // Toggle field bold
+  const toggleFieldBold = (fieldId: string) => {
+    setPlacedFields(prev => prev.map(field =>
+      field.id === fieldId ? { ...field, fontBold: !field.fontBold } : field
+    ))
+  }
+
   // Handle signature save from SignatureCanvas
   const handleSignatureSave = (fieldId: string, signatureData: string) => {
     updateFieldValue(fieldId, signatureData)
@@ -1385,6 +1403,8 @@ const SignDocumentPage: React.FC = () => {
               hPct,
               value: field.value,
               fontSize: field.fontSize,
+              fontFamily: field.fontFamily,
+              fontBold: field.fontBold,
               signatureScale: field.signatureScale,
             } as SignatureField
           })
@@ -1509,6 +1529,8 @@ const SignDocumentPage: React.FC = () => {
           xPct, yPct, wPct, hPct,
           value: field.value,
           fontSize: field.fontSize,
+          fontFamily: field.fontFamily,
+          fontBold: field.fontBold,
           signatureScale: field.signatureScale,
         } as SignatureField
       })
@@ -1686,6 +1708,8 @@ const SignDocumentPage: React.FC = () => {
         mandatory: field.mandatory,
         page: field.page,
         fontSize: field.fontSize,
+        fontFamily: field.fontFamily,
+        fontBold: field.fontBold,
         signatureScale: field.signatureScale
       }))
 
@@ -2610,37 +2634,122 @@ const SignDocumentPage: React.FC = () => {
                                     onMouseDown={(e) => e.stopPropagation()}
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    {/* Size Control Header */}
-                                    <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
-                                      <span className="text-sm font-bold text-gray-700 mr-2">Size:</span>
-                                      <div className="flex items-center gap-1.5 flex-wrap">
-                                        {(field.type === 'title' ? [
-                                          { label: 'H1', size: 32 },
-                                          { label: 'H2', size: 24 },
-                                          { label: 'H3', size: 20 },
-                                          { label: 'H4', size: 16 },
-                                        ] : [
-                                          { label: '10', size: 10 },
-                                          { label: '12', size: 12 },
-                                          { label: '14', size: 14 },
-                                          { label: '16', size: 16 },
-                                          { label: '18', size: 18 },
-                                          { label: '20', size: 20 },
-                                          { label: '24', size: 24 },
-                                        ]).map((item) => (
-                                          <button
-                                            key={item.size}
-                                            onClick={() => updateFieldFontSize(field.id, item.size)}
-                                            className={`px-2.5 py-1.5 text-sm font-semibold rounded-md transition-all ${
-                                              field.fontSize === item.size
-                                                ? 'bg-[#4C00FF] text-white shadow-md'
-                                                : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-[#4C00FF]/10 hover:border-[#4C00FF]'
-                                            }`}
+                                    {/* Text Formatting Toolbar */}
+                                    <div className="flex items-center gap-1.5 px-2.5 py-2 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
+                                      {field.type === 'title' ? (
+                                        <>
+                                          {/* Title: H1-H4 Size Buttons */}
+                                          <div className="flex items-center gap-1 shrink-0">
+                                            {[
+                                              { label: 'H1', size: 32 },
+                                              { label: 'H2', size: 24 },
+                                              { label: 'H3', size: 20 },
+                                              { label: 'H4', size: 16 },
+                                            ].map((item) => (
+                                              <button
+                                                key={item.size}
+                                                onClick={() => updateFieldFontSize(field.id, item.size)}
+                                                className={`px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                                                  field.fontSize === item.size
+                                                    ? 'bg-[#4C00FF] text-white shadow-md'
+                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-[#4C00FF]/10 hover:border-[#4C00FF]'
+                                                }`}
+                                              >
+                                                {item.label}
+                                              </button>
+                                            ))}
+                                          </div>
+                                          {/* Separator */}
+                                          <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                          {/* Font Family for Title */}
+                                          <select
+                                            value={field.fontFamily || 'Arial'}
+                                            onChange={(e) => updateFieldFontFamily(field.id, e.target.value)}
+                                            className="h-8 w-[90px] px-1.5 pr-5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md outline-none cursor-pointer hover:border-[#4C00FF] transition-colors appearance-none truncate"
+                                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 4px center' }}
                                           >
-                                            {item.label}
+                                            <option value="Arial">Arial</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Verdana">Verdana</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Trebuchet MS">Trebuchet MS</option>
+                                            <option value="Tahoma">Tahoma</option>
+                                          </select>
+                                          {/* Separator */}
+                                          <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                          {/* Bold for Title */}
+                                          <button
+                                            onClick={() => toggleFieldBold(field.id)}
+                                            className={`h-8 w-8 shrink-0 flex items-center justify-center rounded-md border transition-colors ${
+                                              field.fontBold
+                                                ? 'bg-[#4C00FF] text-white border-[#4C00FF]'
+                                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
+                                            }`}
+                                            title="Bold"
+                                          >
+                                            <Bold className="w-4 h-4" />
                                           </button>
-                                        ))}
-                                      </div>
+                                        </>
+                                      ) : (
+                                        <>
+                                          {/* Non-title: Font Family + Size +/- + Bold */}
+                                          <select
+                                            value={field.fontFamily || 'Arial'}
+                                            onChange={(e) => updateFieldFontFamily(field.id, e.target.value)}
+                                            className="h-8 w-[100px] px-1.5 pr-6 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md outline-none cursor-pointer hover:border-[#4C00FF] transition-colors appearance-none truncate"
+                                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 4px center' }}
+                                          >
+                                            <option value="Arial">Arial</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Verdana">Verdana</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Trebuchet MS">Trebuchet MS</option>
+                                            <option value="Tahoma">Tahoma</option>
+                                          </select>
+                                          {/* Separator */}
+                                          <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                          {/* Font Size - / + Controls */}
+                                          <div className="flex items-center shrink-0">
+                                            <button
+                                              onClick={() => updateFieldFontSize(field.id, Math.max((field.fontSize || 14) - 1, 8))}
+                                              className="h-8 w-7 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-l-md hover:bg-gray-100 transition-colors"
+                                            >
+                                              <Minus className="w-3 h-3" />
+                                            </button>
+                                            <input
+                                              type="number"
+                                              value={field.fontSize || 14}
+                                              onChange={(e) => {
+                                                const val = parseInt(e.target.value)
+                                                if (val >= 8 && val <= 72) updateFieldFontSize(field.id, val)
+                                              }}
+                                              className="h-8 w-9 text-center text-xs font-semibold text-gray-700 border-t border-b border-gray-300 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            />
+                                            <button
+                                              onClick={() => updateFieldFontSize(field.id, Math.min((field.fontSize || 14) + 1, 72))}
+                                              className="h-8 w-7 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-r-md hover:bg-gray-100 transition-colors"
+                                            >
+                                              <Plus className="w-3 h-3" />
+                                            </button>
+                                          </div>
+                                          {/* Separator */}
+                                          <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                          {/* Bold Button */}
+                                          <button
+                                            onClick={() => toggleFieldBold(field.id)}
+                                            className={`h-8 w-8 shrink-0 flex items-center justify-center rounded-md border transition-colors ${
+                                              field.fontBold
+                                                ? 'bg-[#4C00FF] text-white border-[#4C00FF]'
+                                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
+                                            }`}
+                                            title="Bold"
+                                          >
+                                            <Bold className="w-4 h-4" />
+                                          </button>
+                                        </>
+                                      )}
                                     </div>
                                     {/* Input */}
                                     <input
@@ -2649,7 +2758,7 @@ const SignDocumentPage: React.FC = () => {
                                       onChange={(e) => updateFieldValue(field.id, e.target.value)}
                                       placeholder={field.placeholder || `Type ${field.label}...`}
                                       className="w-full px-3 py-3 border-none outline-none"
-                                      style={{ color: '#000000', backgroundColor: '#ffffff', fontSize: `${Math.max(field.fontSize || 14, 14)}px`, fontWeight: field.type === 'title' ? '600' : '400' }}
+                                      style={{ color: '#000000', backgroundColor: '#ffffff', fontSize: `${Math.max(field.fontSize || 14, 14)}px`, fontWeight: field.fontBold ? '700' : '400', fontFamily: field.fontFamily || 'Arial' }}
                                       autoFocus
                                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditingFieldId(null) }}
                                     />
@@ -2670,7 +2779,8 @@ const SignDocumentPage: React.FC = () => {
                                       <span style={{
                                         color: '#000000',
                                         fontSize: `${field.fontSize || 14}px`,
-                                        fontWeight: field.type === 'title' ? '600' : '400',
+                                        fontWeight: field.fontBold ? '700' : (field.type === 'title' ? '600' : '400'),
+                                        fontFamily: field.fontFamily || 'Arial',
                                         whiteSpace: 'nowrap'
                                       }}>{field.value}</span>
                                     ) : (
@@ -2851,7 +2961,8 @@ const SignDocumentPage: React.FC = () => {
                                         <span style={{
                                           color: '#000000',
                                           fontSize: `${field.fontSize || 14}px`,
-                                          fontWeight: field.type === 'title' ? '600' : '400',
+                                          fontWeight: field.fontBold ? '700' : (field.type === 'title' ? '600' : '400'),
+                                          fontFamily: field.fontFamily || 'Arial',
                                           whiteSpace: 'nowrap'
                                         }}>{field.value}</span>
                                       </div>
@@ -3144,7 +3255,7 @@ const SignDocumentPage: React.FC = () => {
                                 </div>
                               )}
                               {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && (
-                                <div className="w-full h-full flex items-center px-2" style={{ fontSize: (field.fontSize || 14) * zoom, overflow: 'hidden' }}>
+                                <div className="w-full h-full flex items-center px-2" style={{ fontSize: (field.fontSize || 14) * zoom, fontWeight: field.fontBold ? '700' : '400', fontFamily: field.fontFamily || 'Arial', overflow: 'hidden' }}>
                                   <span className="text-gray-800" style={{ whiteSpace: 'nowrap' }}>{field.value}</span>
                                 </div>
                               )}
@@ -3156,7 +3267,7 @@ const SignDocumentPage: React.FC = () => {
                                   type="text"
                                   autoFocus
                                   className="w-full h-full px-2 text-sm bg-white border-0 outline-none"
-                                  style={{ fontSize: (field.fontSize || 14) * zoom }}
+                                  style={{ fontSize: (field.fontSize || 14) * zoom, fontWeight: field.fontBold ? '700' : '400', fontFamily: field.fontFamily || 'Arial' }}
                                   placeholder={field.placeholder || field.label}
                                   onBlur={(e) => {
                                     const value = e.target.value.trim()
@@ -4067,7 +4178,7 @@ const SignDocumentPage: React.FC = () => {
                               </div>
                             )}
                             {field.type !== 'signature' && field.type !== 'initials' && field.type !== 'stamp' && field.type !== 'checkbox' && field.value && (
-                              <div className="w-full h-full flex items-center px-2" style={{ fontSize: field.fontSize || 14, overflow: 'hidden' }}>
+                              <div className="w-full h-full flex items-center px-2" style={{ fontSize: field.fontSize || 14, fontWeight: field.fontBold ? '700' : '400', fontFamily: field.fontFamily || 'Arial', overflow: 'hidden' }}>
                                 <span style={{ color: '#000000', whiteSpace: 'nowrap' }}>{field.value}</span>
                               </div>
                             )}

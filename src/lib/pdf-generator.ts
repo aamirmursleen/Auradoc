@@ -15,7 +15,7 @@
  * in the UI, regardless of zoom level, device, or PDF viewer.
  */
 
-import { PDFDocument, PDFPage, rgb } from 'pdf-lib'
+import { PDFDocument, PDFPage, rgb, StandardFonts } from 'pdf-lib'
 
 /**
  * Field data with normalized coordinates (0-1 range, top-left origin)
@@ -37,6 +37,8 @@ export interface SignatureField {
 
   // Optional styling
   fontSize?: number
+  fontFamily?: string
+  fontBold?: boolean
   signatureScale?: number // Scale factor for signature/initials (default 1)
 }
 
@@ -206,7 +208,7 @@ export async function generateFinalPdf(
           if (field.type === 'date') {
             try { displayValue = new Date(field.value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { /* keep raw value */ }
           }
-          drawText(page, displayValue, pdfCoords, field.fontSize || 14)
+          await drawText(pdfDoc, page, displayValue, pdfCoords, field.fontSize || 14, field.fontBold)
         }
       }
     }
@@ -369,14 +371,19 @@ function drawTextStamp(
  * Draw text field value
  * Matches CSS: "w-full h-full flex items-center px-2" (8px = 8pt at 1:1 scale)
  */
-function drawText(
+async function drawText(
+  pdfDoc: PDFDocument,
   page: PDFPage,
   text: string,
   coords: { x: number; y: number; width: number; height: number },
-  fontSize: number
-): void {
+  fontSize: number,
+  bold?: boolean
+): Promise<void> {
   // Adjust font size to fit height
   const adjustedFontSize = Math.min(fontSize, coords.height * 0.8)
+
+  // Embed the appropriate font based on bold setting
+  const font = await pdfDoc.embedFont(bold ? StandardFonts.HelveticaBold : StandardFonts.Helvetica)
 
   // pdf-lib drawText positions at the baseline. To visually center text
   // (matching CSS flex items-center):
@@ -388,6 +395,7 @@ function drawText(
     x: coords.x + 8,
     y: coords.y + (coords.height - adjustedFontSize) / 2 + adjustedFontSize * 0.15,
     size: adjustedFontSize,
+    font,
     color: rgb(0, 0, 0),
     maxWidth: coords.width - 16,
   })

@@ -71,6 +71,8 @@ interface SignatureFieldInfo {
   pageNumber?: number
   page?: number // Support both field names
   fontSize?: number // Font size set by document creator
+  fontFamily?: string // Font family set by document creator
+  fontBold?: boolean // Bold set by document creator
   // Ownership/signed metadata from API
   isMine?: boolean
   signerStatus?: string
@@ -269,7 +271,7 @@ export default function SignDocumentPage() {
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
   const [showFormatting, setShowFormatting] = useState(false)
   const [fieldPositions, setFieldPositions] = useState<Record<string, { x: number; y: number; width: number; height: number }>>({})
-  const [fieldFormatting, setFieldFormatting] = useState<Record<string, { fontSize: number; bold: boolean; italic: boolean; color: string }>>({})
+  const [fieldFormatting, setFieldFormatting] = useState<Record<string, { fontSize: number; fontFamily: string; bold: boolean; italic: boolean; color: string }>>({})
   const [signatureScales, setSignatureScales] = useState<Record<string, number>>({})
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
@@ -281,17 +283,19 @@ export default function SignDocumentPage() {
   const textEditorPopupRef = useRef<HTMLDivElement>(null)
   const [popupFlipped, setPopupFlipped] = useState(false)
 
-  // Detect if text editor popup should flip above the field
+  // Ensure text editor popup is always visible below the field
   useEffect(() => {
     if (!editingFieldId) {
       setPopupFlipped(false)
       return
     }
+    // Always show popup below - scroll it into view if needed
+    setPopupFlipped(false)
     const rafId = requestAnimationFrame(() => {
       if (textEditorPopupRef.current) {
         const rect = textEditorPopupRef.current.getBoundingClientRect()
         if (rect.bottom > window.innerHeight) {
-          setPopupFlipped(true)
+          textEditorPopupRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         }
       }
     })
@@ -689,7 +693,9 @@ export default function SignDocumentPage() {
   // Get field formatting
   const getFieldFormatting = (fieldId: string, field?: SignatureFieldInfo) => {
     const defaultFontSize = field?.fontSize || 14
-    return fieldFormatting[fieldId] || { fontSize: defaultFontSize, bold: false, italic: false, color: '#000000' }
+    const defaultFontFamily = field?.fontFamily || 'Arial'
+    const defaultBold = field?.fontBold || false
+    return fieldFormatting[fieldId] || { fontSize: defaultFontSize, fontFamily: defaultFontFamily, bold: defaultBold, italic: false, color: '#000000' }
   }
 
   // Handle drag start - works for all fields (signed and unsigned)
@@ -758,7 +764,7 @@ export default function SignDocumentPage() {
   }
 
   // Update field formatting
-  const updateFieldFormatting = (fieldId: string, updates: Partial<{ fontSize: number; bold: boolean; italic: boolean; color: string }>) => {
+  const updateFieldFormatting = (fieldId: string, updates: Partial<{ fontSize: number; fontFamily: string; bold: boolean; italic: boolean; color: string }>) => {
     const field = myFields.find(f => f.id === fieldId)
     setFieldFormatting(prev => ({
       ...prev,
@@ -806,12 +812,14 @@ export default function SignDocumentPage() {
       })
 
       // Build custom formatting map - only include fields with changed formatting
-      const customFormatting: Record<string, { fontSize: number; bold: boolean; italic: boolean; color: string }> = {}
+      const customFormatting: Record<string, { fontSize: number; fontFamily: string; bold: boolean; italic: boolean; color: string }> = {}
       Object.entries(fieldFormatting).forEach(([fieldId, fmt]) => {
         const field = myFields.find(f => f.id === fieldId)
         if (field) {
           const defaultSize = field.fontSize || 14
-          if (fmt.fontSize !== defaultSize || fmt.bold || fmt.italic || fmt.color !== '#000000') {
+          const defaultFamily = field.fontFamily || 'Arial'
+          const defaultBold = field.fontBold || false
+          if (fmt.fontSize !== defaultSize || fmt.fontFamily !== defaultFamily || fmt.bold !== defaultBold || fmt.italic || fmt.color !== '#000000') {
             customFormatting[fieldId] = fmt
           }
         }
@@ -1143,6 +1151,7 @@ export default function SignDocumentPage() {
                     // Text style based on formatting
                     const textStyle: React.CSSProperties = {
                       fontSize: `${formatting.fontSize}px`,
+                      fontFamily: formatting.fontFamily || 'Arial',
                       fontWeight: formatting.bold ? 'bold' : 'normal',
                       fontStyle: formatting.italic ? 'italic' : 'normal',
                       color: formatting.color
@@ -1210,37 +1219,122 @@ export default function SignDocumentPage() {
                               onMouseDown={(e) => e.stopPropagation()}
                               onClick={(e) => e.stopPropagation()}
                             >
-                              {/* Size Control Header */}
-                              <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
-                                <span className="text-sm font-bold text-gray-700 mr-2">Size:</span>
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  {(field.type === 'title' ? [
-                                    { label: 'H1', size: 32 },
-                                    { label: 'H2', size: 24 },
-                                    { label: 'H3', size: 20 },
-                                    { label: 'H4', size: 16 },
-                                  ] : [
-                                    { label: '10', size: 10 },
-                                    { label: '12', size: 12 },
-                                    { label: '14', size: 14 },
-                                    { label: '16', size: 16 },
-                                    { label: '18', size: 18 },
-                                    { label: '20', size: 20 },
-                                    { label: '24', size: 24 },
-                                  ]).map((item) => (
-                                    <button
-                                      key={item.size}
-                                      onClick={() => updateFieldFormatting(field.id, { fontSize: item.size })}
-                                      className={`px-2.5 py-1.5 text-sm font-semibold rounded-md transition-all ${
-                                        formatting.fontSize === item.size
-                                          ? 'bg-blue-600 text-white shadow-md'
-                                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-500'
-                                      }`}
+                              {/* Text Formatting Toolbar */}
+                              <div className="flex items-center gap-1.5 px-2.5 py-2 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
+                                {field.type === 'title' ? (
+                                  <>
+                                    {/* Title: H1-H4 Size Buttons */}
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      {[
+                                        { label: 'H1', size: 32 },
+                                        { label: 'H2', size: 24 },
+                                        { label: 'H3', size: 20 },
+                                        { label: 'H4', size: 16 },
+                                      ].map((item) => (
+                                        <button
+                                          key={item.size}
+                                          onClick={() => updateFieldFormatting(field.id, { fontSize: item.size })}
+                                          className={`px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                                            formatting.fontSize === item.size
+                                              ? 'bg-blue-600 text-white shadow-md'
+                                              : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-500'
+                                          }`}
+                                        >
+                                          {item.label}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    {/* Separator */}
+                                    <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                    {/* Font Family for Title */}
+                                    <select
+                                      value={formatting.fontFamily || 'Arial'}
+                                      onChange={(e) => updateFieldFormatting(field.id, { fontFamily: e.target.value })}
+                                      className="h-8 w-[90px] px-1.5 pr-5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md outline-none cursor-pointer hover:border-blue-500 transition-colors appearance-none truncate"
+                                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 4px center' }}
                                     >
-                                      {item.label}
+                                      <option value="Arial">Arial</option>
+                                      <option value="Times New Roman">Times New Roman</option>
+                                      <option value="Georgia">Georgia</option>
+                                      <option value="Verdana">Verdana</option>
+                                      <option value="Courier New">Courier New</option>
+                                      <option value="Trebuchet MS">Trebuchet MS</option>
+                                      <option value="Tahoma">Tahoma</option>
+                                    </select>
+                                    {/* Separator */}
+                                    <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                    {/* Bold for Title */}
+                                    <button
+                                      onClick={() => updateFieldFormatting(field.id, { bold: !formatting.bold })}
+                                      className={`h-8 w-8 shrink-0 flex items-center justify-center rounded-md border transition-colors ${
+                                        formatting.bold
+                                          ? 'bg-blue-600 text-white border-blue-600'
+                                          : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
+                                      }`}
+                                      title="Bold"
+                                    >
+                                      <Bold className="w-4 h-4" />
                                     </button>
-                                  ))}
-                                </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    {/* Non-title: Font Family + Size +/- + Bold */}
+                                    <select
+                                      value={formatting.fontFamily || 'Arial'}
+                                      onChange={(e) => updateFieldFormatting(field.id, { fontFamily: e.target.value })}
+                                      className="h-8 w-[100px] px-1.5 pr-6 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md outline-none cursor-pointer hover:border-blue-500 transition-colors appearance-none truncate"
+                                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 4px center' }}
+                                    >
+                                      <option value="Arial">Arial</option>
+                                      <option value="Times New Roman">Times New Roman</option>
+                                      <option value="Georgia">Georgia</option>
+                                      <option value="Verdana">Verdana</option>
+                                      <option value="Courier New">Courier New</option>
+                                      <option value="Trebuchet MS">Trebuchet MS</option>
+                                      <option value="Tahoma">Tahoma</option>
+                                    </select>
+                                    {/* Separator */}
+                                    <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                    {/* Font Size - / + Controls */}
+                                    <div className="flex items-center shrink-0">
+                                      <button
+                                        onClick={() => updateFieldFormatting(field.id, { fontSize: Math.max(formatting.fontSize - 1, 8) })}
+                                        className="h-8 w-7 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-l-md hover:bg-gray-100 transition-colors"
+                                      >
+                                        <Minus className="w-3 h-3" />
+                                      </button>
+                                      <input
+                                        type="number"
+                                        value={formatting.fontSize}
+                                        onChange={(e) => {
+                                          const val = parseInt(e.target.value)
+                                          if (val >= 8 && val <= 72) updateFieldFormatting(field.id, { fontSize: val })
+                                        }}
+                                        className="h-8 w-9 text-center text-xs font-semibold text-gray-700 border-t border-b border-gray-300 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      />
+                                      <button
+                                        onClick={() => updateFieldFormatting(field.id, { fontSize: Math.min(formatting.fontSize + 1, 72) })}
+                                        className="h-8 w-7 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-r-md hover:bg-gray-100 transition-colors"
+                                      >
+                                        <Plus className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                    {/* Separator */}
+                                    <div className="w-px h-6 bg-gray-300 shrink-0"></div>
+                                    {/* Bold Button */}
+                                    <button
+                                      onClick={() => updateFieldFormatting(field.id, { bold: !formatting.bold })}
+                                      className={`h-8 w-8 shrink-0 flex items-center justify-center rounded-md border transition-colors ${
+                                        formatting.bold
+                                          ? 'bg-blue-600 text-white border-blue-600'
+                                          : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
+                                      }`}
+                                      title="Bold"
+                                    >
+                                      <Bold className="w-4 h-4" />
+                                    </button>
+                                  </>
+                                )}
                               </div>
                               {/* Input */}
                               <input
@@ -1253,6 +1347,7 @@ export default function SignDocumentPage() {
                                   color: '#000000',
                                   backgroundColor: '#ffffff',
                                   fontSize: `${Math.max(formatting.fontSize, 14)}px`,
+                                  fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal'
                                 }}
@@ -1290,6 +1385,7 @@ export default function SignDocumentPage() {
                                 <span style={{
                                   color: '#000000',
                                   fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                                  fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal',
                                   whiteSpace: 'nowrap'
@@ -1321,6 +1417,7 @@ export default function SignDocumentPage() {
                                 <span style={{
                                   color: '#000000',
                                   fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                                  fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal',
                                   lineHeight: '1.2',
@@ -1333,6 +1430,7 @@ export default function SignDocumentPage() {
                               <div className="w-full h-full flex items-center px-1">
                                 <span className="w-full text-left text-black" style={{
                                   fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.7))}px`,
+                                  fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal'
                                 }}>{new Date(fieldValue).toLocaleDateString()}</span>
@@ -1349,6 +1447,7 @@ export default function SignDocumentPage() {
                               <div className="w-full h-full flex items-center px-1">
                                 <span className="w-full text-left text-black" style={{
                                   fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.7))}px`,
+                                  fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal'
                                 }}>{fieldValue}</span>
