@@ -1774,25 +1774,7 @@ const SignDocumentPage: React.FC = () => {
         return
       }
 
-      // If there's a self-signing link and self hasn't already signed, redirect to sign
-      if (result.data?.selfSigningLink && !myselfSigned) {
-        // Use window.location for external URLs, router.push for internal
-        const link = result.data.selfSigningLink
-        if (link.startsWith('http') && !link.includes(window.location.host)) {
-          // Extract path from URL for local navigation (e.g., /s/token)
-          try {
-            const url = new URL(link)
-            router.push(url.pathname)
-          } catch {
-            window.location.href = link
-          }
-        } else {
-          router.push(link)
-        }
-        return
-      }
-
-      // Show success message
+      // Show success message - sender stays on this page, signers get email
       setTimeout(() => setSendSuccess(false), 5000)
 
     } catch (err) {
