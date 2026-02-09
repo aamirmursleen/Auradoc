@@ -1725,10 +1725,13 @@ const SignDocumentPage: React.FC = () => {
       }
 
       // Send to API with timeout - prevents hanging forever
+      // Only include signers who have fields assigned to them
+      const signersWithFields = signers.filter(s => placedFields.some(f => f.signerId === s.id))
+
       const apiPromise = apiPost('/api/signing-requests', {
         documentName: templateProps.name || document?.name || 'Untitled Document',
         documentData: documentUrl,
-        signers: signers.map(s => ({
+        signers: signersWithFields.map(s => ({
           name: s.name,
           email: s.email,
           order: s.order,
