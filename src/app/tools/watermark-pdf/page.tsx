@@ -86,7 +86,7 @@ export default function WatermarkPDFPage() {
     page.drawImage(image, { x: 0, y: 0, width, height })
 
     const pdfBytes = await pdfDoc.save()
-    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' })
+    const pdfBlob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
     const fileName = imageFile.name.replace(/\.[^.]+$/, '.pdf')
     return new File([pdfBlob], fileName, { type: 'application/pdf' })
   }
