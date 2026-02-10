@@ -67,8 +67,45 @@ export default function WatermarkPDFPage() {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Watermark layer: 'front' (over content) or 'back' (behind content)
-  const [watermarkLayer, setWatermarkLayer] = useState<'front' | 'back'>('front')
+
+  // Convert image file (PNG/JPG) to PDF
+  const convertImageToPdf = async (imageFile: File): Promise<File> => {
+    const { PDFDocument } = await getPdfLib()
+    const pdfDoc = await PDFDocument.create()
+    const imageBytes = await imageFile.arrayBuffer()
+
+    let image
+    if (imageFile.type === 'image/png') {
+      image = await pdfDoc.embedPng(imageBytes)
+    } else {
+      image = await pdfDoc.embedJpg(imageBytes)
+    }
+
+    const { width, height } = image.scale(1)
+    const page = pdfDoc.addPage([width, height])
+    page.drawImage(image, { x: 0, y: 0, width, height })
+
+    const pdfBytes = await pdfDoc.save()
+    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' })
+    const fileName = imageFile.name.replace(/\.[^.]+$/, '.pdf')
+    return new File([pdfBlob], fileName, { type: 'application/pdf' })
+  }
+
+  const acceptedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
+
+  const processUploadedFile = async (uploadedFile: File) => {
+    setPdfBlob(null)
+    setPreviewPages([])
+
+    if (uploadedFile.type === 'application/pdf') {
+      setFile(uploadedFile)
+      loadPdfPreview(uploadedFile)
+    } else if (uploadedFile.type.startsWith('image/')) {
+      const pdfFile = await convertImageToPdf(uploadedFile)
+      setFile(pdfFile)
+      loadPdfPreview(pdfFile)
+    }
+  }
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -85,23 +122,17 @@ export default function WatermarkPDFPage() {
     e.stopPropagation()
     setDragActive(false)
     const droppedFile = Array.from(e.dataTransfer.files).find(
-      file => file.type === 'application/pdf'
+      file => acceptedTypes.includes(file.type)
     )
     if (droppedFile) {
-      setFile(droppedFile)
-      setPdfBlob(null)
-      setPreviewPages([])
-      loadPdfPreview(droppedFile)
+      processUploadedFile(droppedFile)
     }
   }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
-    if (selectedFile && selectedFile.type === 'application/pdf') {
-      setFile(selectedFile)
-      setPdfBlob(null)
-      setPreviewPages([])
-      loadPdfPreview(selectedFile)
+    if (selectedFile && acceptedTypes.includes(selectedFile.type)) {
+      processUploadedFile(selectedFile)
     }
   }
 
@@ -282,11 +313,30 @@ export default function WatermarkPDFPage() {
           const page = pages[pageIndex]
           const { width, height } = page.getSize()
 
+          // Helper: PDF-lib rotates around (x,y) i.e. bottom-left of text.
+          // CSS rotates around center via translate(-50%,-50%).
+          // To match CSS center-rotation, we calculate (x,y) so that the
+          // rotated center of the text lands at the desired center point.
+          const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+          const textHeight = fontSize
+          const rad = (rotation * Math.PI) / 180
+
+          const calcRotatedOrigin = (centerX: number, centerY: number) => {
+            // Given desired center point after rotation, find the (x,y) origin
+            // Center of unrotated text relative to origin: (tw/2, th/2)
+            // After rotation around origin, this center moves to:
+            //   cx = x + (tw/2)*cos(r) - (th/2)*sin(r)
+            //   cy = y + (tw/2)*sin(r) + (th/2)*cos(r)
+            // We want cx=centerX, cy=centerY, so:
+            const x = centerX - (textWidth / 2) * Math.cos(rad) + (textHeight / 2) * Math.sin(rad)
+            const y = centerY - (textWidth / 2) * Math.sin(rad) - (textHeight / 2) * Math.cos(rad)
+            return { x, y }
+          }
+
           if (position === 'center') {
-            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+            const { x, y } = calcRotatedOrigin(width / 2, height / 2)
             page.drawText(watermarkText, {
-              x: (width - textWidth) / 2,
-              y: height / 2,
+              x, y,
               size: fontSize,
               font,
               color: rgb(r, g, b),
@@ -294,14 +344,13 @@ export default function WatermarkPDFPage() {
               rotate: degrees(rotation),
             })
           } else if (position === 'tile') {
-            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
             const spacing = Math.max(textWidth + 100, 250)
 
-            for (let x = -spacing; x < width + spacing; x += spacing) {
-              for (let y = -spacing; y < height + spacing; y += spacing) {
+            for (let tx = -spacing; tx < width + spacing; tx += spacing) {
+              for (let ty = -spacing; ty < height + spacing; ty += spacing) {
+                const { x, y } = calcRotatedOrigin(tx + textWidth / 2, ty + textHeight / 2)
                 page.drawText(watermarkText, {
-                  x,
-                  y,
+                  x, y,
                   size: fontSize,
                   font,
                   color: rgb(r, g, b),
@@ -311,16 +360,14 @@ export default function WatermarkPDFPage() {
               }
             }
           } else if (position === 'custom') {
-            // Custom position from drag (percentage-based)
-            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
-            // Convert percentage to PDF coordinates
-            // Note: PDF coordinates have origin at bottom-left
-            const x = (customX / 100) * width - textWidth / 2
-            const y = height - (customY / 100) * height - fontSize / 2
+            // Convert CSS percentage to PDF center point
+            // CSS: top-left is (0,0), PDF: bottom-left is (0,0)
+            const centerX = (customX / 100) * width
+            const centerY = height - (customY / 100) * height
+            const { x, y } = calcRotatedOrigin(centerX, centerY)
 
             page.drawText(watermarkText, {
-              x: Math.max(0, x),
-              y: Math.max(0, Math.min(height - fontSize, y)),
+              x, y,
               size: fontSize,
               font,
               color: rgb(r, g, b),
@@ -328,8 +375,7 @@ export default function WatermarkPDFPage() {
               rotate: degrees(rotation),
             })
           } else {
-            // Corner positions
-            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize)
+            // Corner positions (no rotation)
             const padding = 30
             let x = padding
             let y = padding
@@ -355,7 +401,7 @@ export default function WatermarkPDFPage() {
               font,
               color: rgb(r, g, b),
               opacity: opacity,
-              rotate: degrees(0), // No rotation for corner positions
+              rotate: degrees(0),
             })
           }
         }
@@ -378,16 +424,54 @@ export default function WatermarkPDFPage() {
 
           const page = pages[pageIndex]
           const { width, height } = page.getSize()
-          const x = (width - imgDims.width) / 2
-          const y = (height - imgDims.height) / 2
+          const padding = 30
 
-          page.drawImage(embeddedImage, {
-            x,
-            y,
-            width: imgDims.width,
-            height: imgDims.height,
-            opacity: imageOpacity,
-          })
+          if (position === 'tile') {
+            const spacingX = Math.max(imgDims.width + 80, 200)
+            const spacingY = Math.max(imgDims.height + 80, 200)
+            for (let tx = 0; tx < width + spacingX; tx += spacingX) {
+              for (let ty = 0; ty < height + spacingY; ty += spacingY) {
+                page.drawImage(embeddedImage, {
+                  x: tx,
+                  y: ty,
+                  width: imgDims.width,
+                  height: imgDims.height,
+                  opacity: imageOpacity,
+                })
+              }
+            }
+          } else if (position === 'custom') {
+            const x = (customX / 100) * width - imgDims.width / 2
+            const y = height - (customY / 100) * height - imgDims.height / 2
+            page.drawImage(embeddedImage, {
+              x: Math.max(0, x),
+              y: Math.max(0, y),
+              width: imgDims.width,
+              height: imgDims.height,
+              opacity: imageOpacity,
+            })
+          } else {
+            let x = (width - imgDims.width) / 2
+            let y = (height - imgDims.height) / 2
+
+            if (position === 'top-left') {
+              x = padding; y = height - padding - imgDims.height
+            } else if (position === 'top-right') {
+              x = width - imgDims.width - padding; y = height - padding - imgDims.height
+            } else if (position === 'bottom-left') {
+              x = padding; y = padding
+            } else if (position === 'bottom-right') {
+              x = width - imgDims.width - padding; y = padding
+            }
+
+            page.drawImage(embeddedImage, {
+              x,
+              y,
+              width: imgDims.width,
+              height: imgDims.height,
+              opacity: imageOpacity,
+            })
+          }
         }
       }
 
@@ -498,8 +582,14 @@ export default function WatermarkPDFPage() {
 
     if (isResizingWatermark) {
       const deltaX = pos.x - dragStartPos.x
-      const newSize = Math.max(20, Math.min(150, startFontSize + deltaX * 0.5))
-      setFontSize(Math.round(newSize))
+      if (watermarkType === 'text') {
+        const newSize = Math.max(20, Math.min(150, startFontSize + deltaX * 0.5))
+        setFontSize(Math.round(newSize))
+      } else {
+        const newScale = Math.max(0.1, Math.min(1, imageScale + deltaX * 0.002))
+        setImageScale(newScale)
+        setDragStartPos(pos)
+      }
     }
   }
 
@@ -507,6 +597,37 @@ export default function WatermarkPDFPage() {
     setIsDraggingWatermark(false)
     setIsResizingWatermark(false)
   }
+
+  // Auto-generate real PDF preview when any watermark setting changes
+  // This ensures preview exactly matches the downloaded PDF
+  // In 'custom' position mode: show original pages + CSS drag overlay (to avoid double watermark)
+  // In other modes: show actual watermarked PDF pages
+  useEffect(() => {
+    if (!file || isDraggingWatermark || isResizingWatermark) return
+
+    const hasValidConfig =
+      (watermarkType === 'text' && watermarkText.trim()) ||
+      (watermarkType === 'image' && watermarkImage)
+
+    if (!hasValidConfig) {
+      loadPdfPreview(file)
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const pdfBytes = await applyWatermark()
+        if (pdfBytes) {
+          await renderWatermarkedPreview(pdfBytes)
+        }
+      } catch (error) {
+        console.error('Error auto-generating preview:', error)
+      }
+    }, 400)
+
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, watermarkType, watermarkText, fontSize, opacity, rotation, color, position, customX, customY, watermarkImage, imageOpacity, imageScale, pageSelection, selectedPages, isDraggingWatermark, isResizingWatermark])
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
@@ -529,7 +650,7 @@ export default function WatermarkPDFPage() {
               Watermark PDF
             </h1>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto`}>
-              Add or remove custom text/image watermarks to your PDF documents.
+              Add or remove custom text/image watermarks to your PDF, PNG & JPG files.
             </p>
           </div>
 
@@ -552,12 +673,13 @@ export default function WatermarkPDFPage() {
                   <Upload className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
                 </div>
                 <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>
-                  Drop your PDF here
+                  Drop your file here
                 </h3>
-                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4`}>or click to browse</p>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>or click to browse</p>
+                <p className={`${isDark ? 'text-gray-500' : 'text-gray-400'} text-xs mb-4`}>Supports PDF, PNG, JPG</p>
                 <input
                   type="file"
-                  accept=".pdf,application/pdf"
+                  accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
                   onChange={handleFileChange}
                   className="hidden"
                   id="pdf-upload"
@@ -567,7 +689,7 @@ export default function WatermarkPDFPage() {
                   className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3a00cc]'} font-medium rounded-lg cursor-pointer transition-colors`}
                 >
                   <Upload className="w-5 h-5" />
-                  Select PDF File
+                  Select File
                 </label>
               </div>
             </div>
@@ -669,38 +791,6 @@ export default function WatermarkPDFPage() {
                       </div>
                     )}
                   </div>
-                </div>
-
-                {/* Watermark Layer - Background/Foreground */}
-                <div className={`${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-xl p-4`}>
-                  <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-3`}>
-                    Watermark Layer
-                  </label>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setWatermarkLayer('front')}
-                      className={`flex-1 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                        watermarkLayer === 'front'
-                          ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
-                          : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
-                      }`}
-                    >
-                      Foreground
-                    </button>
-                    <button
-                      onClick={() => setWatermarkLayer('back')}
-                      className={`flex-1 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                        watermarkLayer === 'back'
-                          ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
-                          : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
-                      }`}
-                    >
-                      Background
-                    </button>
-                  </div>
-                  <p className={`text-xs mt-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                    {watermarkLayer === 'front' ? 'Watermark appears over the document content' : 'Watermark appears behind the document content'}
-                  </p>
                 </div>
 
                 {/* Text Watermark Settings */}
@@ -892,6 +982,50 @@ export default function WatermarkPDFPage() {
                       )}
                     </div>
 
+                    {/* Image Position */}
+                    <div>
+                      <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
+                        Position
+                      </label>
+                      <div className="grid grid-cols-3 gap-2 mb-2">
+                        {[
+                          { id: 'top-left', label: '↖' },
+                          { id: 'center', label: '⊕' },
+                          { id: 'top-right', label: '↗' },
+                          { id: 'bottom-left', label: '↙' },
+                          { id: 'tile', label: '⊞' },
+                          { id: 'bottom-right', label: '↘' },
+                        ].map(pos => (
+                          <button
+                            key={pos.id}
+                            onClick={() => setPosition(pos.id as any)}
+                            className={`px-3 py-2 rounded-lg border-2 text-lg transition-all ${
+                              position === pos.id
+                                ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
+                                : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
+                            }`}
+                          >
+                            {pos.label}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => setPosition('custom')}
+                        className={`w-full px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                          position === 'custom'
+                            ? `${isDark ? 'border-[#c4ff0e] bg-[#2a2a2a] text-[#c4ff0e]' : 'border-[#4C00FF] bg-[#EDE5FF] text-[#4C00FF]'}`
+                            : `${isDark ? 'border-[#3a3a3a] text-gray-400 hover:border-[#4a4a4a]' : 'border-gray-300 text-gray-500 hover:border-gray-400'}`
+                        }`}
+                      >
+                        ✋ Drag to Position (Custom)
+                      </button>
+                      {position === 'custom' && (
+                        <p className={`text-xs mt-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                          Drag the watermark image on the preview to position it
+                        </p>
+                      )}
+                    </div>
+
                     {/* Image Opacity */}
                     <div>
                       <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
@@ -953,12 +1087,27 @@ export default function WatermarkPDFPage() {
                       Remove Watermark
                     </button>
                   )}
+
+                  <button
+                    onClick={clearAll}
+                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333] text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'} font-medium rounded-lg transition-colors`}
+                  >
+                    <Upload className="w-5 h-5" />
+                    Upload New Document
+                  </button>
                 </div>
               </div>
 
               {/* Right Panel - Preview */}
               <div className={`lg:col-span-2 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-xl p-4`}>
-                <div className="flex items-center justify-end mb-4">
+                <div className="flex items-center justify-end gap-2 mb-4">
+                  <button
+                    onClick={clearAll}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#333] text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'} font-medium rounded-lg text-sm transition-colors`}
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload New
+                  </button>
                   <button
                     onClick={downloadPDF}
                     disabled={processing || (watermarkType === 'text' && !watermarkText.trim()) || (watermarkType === 'image' && !watermarkImage)}
@@ -986,79 +1135,10 @@ export default function WatermarkPDFPage() {
                         </span>
                       </div>
 
-                      {/* All Pages Display with LIVE CSS watermark overlay */}
+                      {/* All Pages Display - rendered from actual PDF (no CSS overlay mismatch) */}
                       <div className="overflow-y-auto p-4 space-y-4" style={{ maxHeight: '600px' }}>
                         {previewPages.map((pageImg, index) => {
                           const pageNum = index + 1
-                          // Determine if this page gets a watermark
-                          const showWatermark = pageSelection === 'all'
-                            || parsePageSelection(selectedPages, totalPages).includes(pageNum)
-                          // Check valid watermark config
-                          const hasValidWatermark = showWatermark && (
-                            (watermarkType === 'text' && watermarkText.trim()) ||
-                            (watermarkType === 'image' && watermarkImage)
-                          )
-
-                          // Build CSS watermark overlay style for text
-                          const getTextOverlayStyle = (): React.CSSProperties => {
-                            const base: React.CSSProperties = {
-                              position: 'absolute',
-                              fontSize: `${fontSize * 0.5}px`,
-                              color: color,
-                              opacity: opacity,
-                              fontWeight: 'bold',
-                              whiteSpace: 'nowrap',
-                              pointerEvents: position === 'custom' ? 'auto' : 'none',
-                              zIndex: watermarkLayer === 'front' ? 10 : 1,
-                              fontFamily: 'Helvetica, Arial, sans-serif',
-                              letterSpacing: '2px',
-                            }
-                            if (position === 'center') {
-                              return { ...base, left: '50%', top: '50%', transform: `translate(-50%, -50%) rotate(${rotation}deg)` }
-                            } else if (position === 'top-left') {
-                              return { ...base, left: '30px', top: '30px', transform: `rotate(0deg)` }
-                            } else if (position === 'top-right') {
-                              return { ...base, right: '30px', top: '30px', transform: `rotate(0deg)` }
-                            } else if (position === 'bottom-left') {
-                              return { ...base, left: '30px', bottom: '30px', transform: `rotate(0deg)` }
-                            } else if (position === 'bottom-right') {
-                              return { ...base, right: '30px', bottom: '30px', transform: `rotate(0deg)` }
-                            } else if (position === 'custom') {
-                              return { ...base, left: `${customX}%`, top: `${customY}%`, transform: `translate(-50%, -50%) rotate(${rotation}deg)`, cursor: 'move' }
-                            }
-                            return base
-                          }
-
-                          // Tile overlay: generate repeated text
-                          const renderTileOverlay = () => {
-                            const items = []
-                            for (let row = 0; row < 6; row++) {
-                              for (let col = 0; col < 4; col++) {
-                                items.push(
-                                  <span
-                                    key={`${row}-${col}`}
-                                    style={{
-                                      position: 'absolute',
-                                      left: `${col * 28 - 5}%`,
-                                      top: `${row * 20 - 5}%`,
-                                      fontSize: `${fontSize * 0.4}px`,
-                                      color: color,
-                                      opacity: opacity,
-                                      fontWeight: 'bold',
-                                      whiteSpace: 'nowrap',
-                                      transform: `rotate(${rotation}deg)`,
-                                      pointerEvents: 'none',
-                                      fontFamily: 'Helvetica, Arial, sans-serif',
-                                      letterSpacing: '2px',
-                                    }}
-                                  >
-                                    {watermarkText}
-                                  </span>
-                                )
-                              }
-                            }
-                            return items
-                          }
 
                           return (
                             <div
@@ -1085,70 +1165,40 @@ export default function WatermarkPDFPage() {
                                 Page {pageNum}
                               </div>
 
-                              {/* Document image */}
+                              {/* Document image (watermark is baked into the rendered PDF) */}
                               <img
                                 src={pageImg}
                                 alt={`Page ${pageNum}`}
                                 className={`w-full object-contain shadow-xl rounded border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'}`}
-                                style={{ position: 'relative', zIndex: watermarkLayer === 'back' ? 10 : 1 }}
                               />
 
-                              {/* LIVE CSS Watermark Overlay - instant, no loading */}
-                              {hasValidWatermark && watermarkType === 'text' && position === 'tile' && (
-                                <div className="absolute inset-0 overflow-hidden" style={{ zIndex: watermarkLayer === 'front' ? 10 : 1, pointerEvents: 'none' }}>
-                                  {renderTileOverlay()}
-                                </div>
-                              )}
-
-                              {hasValidWatermark && watermarkType === 'text' && position !== 'tile' && (
+                              {/* Custom position: drag handle to reposition watermark */}
+                              {position === 'custom' && (
                                 <div
-                                  className={`select-none ${position === 'custom' ? 'group touch-none' : ''}`}
-                                  style={getTextOverlayStyle()}
-                                  onMouseDown={position === 'custom' ? (e) => {
+                                  className="absolute select-none touch-none cursor-move z-30 flex items-center justify-center"
+                                  style={{
+                                    left: `${customX}%`,
+                                    top: `${customY}%`,
+                                    transform: 'translate(-50%, -50%)',
+                                    width: '48px',
+                                    height: '48px',
+                                  }}
+                                  onMouseDown={(e) => {
                                     const rect = e.currentTarget.parentElement?.getBoundingClientRect()
                                     if (rect) handleWatermarkDragStart(e, rect)
-                                  } : undefined}
-                                  onTouchStart={position === 'custom' ? (e) => {
+                                  }}
+                                  onTouchStart={(e) => {
                                     const rect = e.currentTarget.parentElement?.getBoundingClientRect()
                                     if (rect) handleWatermarkDragStart(e, rect)
-                                  } : undefined}
+                                  }}
+                                  title="Drag to reposition watermark"
                                 >
-                                  {watermarkText}
-                                  {/* Resize handle for custom position */}
-                                  {position === 'custom' && (
-                                    <>
-                                      <div
-                                        className="absolute -bottom-5 -right-5 w-10 h-10 bg-blue-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg active:bg-blue-600 transition-colors"
-                                        style={{ touchAction: 'none' }}
-                                        onMouseDown={(e) => { e.stopPropagation(); handleWatermarkResizeStart(e) }}
-                                        onTouchStart={(e) => { e.stopPropagation(); handleWatermarkResizeStart(e) }}
-                                        title="Drag to resize"
-                                      >
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 20h4m-4 0v-4m16 4h-4m4 0v-4" />
-                                        </svg>
-                                      </div>
-                                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                        Drag to move • Corner to resize
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Image watermark overlay */}
-                              {hasValidWatermark && watermarkType === 'image' && watermarkImage && (
-                                <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: watermarkLayer === 'front' ? 10 : 1, pointerEvents: 'none' }}>
-                                  <img
-                                    src={watermarkImage}
-                                    alt="Watermark"
-                                    style={{
-                                      maxWidth: `${imageScale * 100}%`,
-                                      maxHeight: `${imageScale * 100}%`,
-                                      opacity: imageOpacity,
-                                    }}
-                                    draggable={false}
-                                  />
+                                  {/* Crosshair indicator */}
+                                  <div className="relative w-10 h-10">
+                                    <div className="absolute inset-0 rounded-full border-2 border-blue-500 bg-blue-500/15" />
+                                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-blue-500 -translate-y-1/2" />
+                                    <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-blue-500 -translate-x-1/2" />
+                                  </div>
                                 </div>
                               )}
                             </div>
