@@ -149,6 +149,22 @@ const SignerManager: React.FC<SignerManagerProps> = ({
                           You
                         </span>
                       )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onUpdateSigner(signer.id, {
+                            role: signer.role === 'cc' ? 'signer' : 'cc'
+                          })
+                        }}
+                        className={`px-1.5 py-0.5 text-xs font-medium rounded transition-colors ${
+                          signer.role === 'cc'
+                            ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        }`}
+                        title={signer.role === 'cc' ? 'Click to make signer' : 'Click to make CC (receive copy only)'}
+                      >
+                        {signer.role === 'cc' ? 'CC' : 'Signer'}
+                      </button>
                     </div>
                     <p className="text-xs text-gray-500 truncate">
                       {signer.email}

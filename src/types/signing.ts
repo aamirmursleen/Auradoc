@@ -24,6 +24,7 @@ export interface Signer {
   email: string
   order: number
   status: 'pending' | 'sent' | 'opened' | 'signed' | 'declined'
+  role?: 'signer' | 'cc'
   color?: string
   is_self?: boolean
   signed_at?: string

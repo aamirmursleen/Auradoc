@@ -147,15 +147,21 @@ export async function POST(
       // Don't fail the request, signature record is for audit
     }
 
-    // Check if all signers have signed
-    const allSigned = signers.every((s: { status: string }) => s.status === 'signed')
-    const nextSignerIndex = signers.findIndex((s: { status: string }) => s.status === 'pending')
+    // Check if all signers (excluding CC recipients) have signed
+    const allSigned = signers
+      .filter((s: { role?: string }) => s.role !== 'cc')
+      .every((s: { status: string }) => s.status === 'signed')
+    const nextSignerIndex = signers.findIndex((s: { status: string; role?: string }) => s.status === 'pending' && s.role !== 'cc')
+
+    const actualSigners = signers.filter((s: { role?: string }) => s.role !== 'cc')
+    const totalSigners = actualSigners.length
 
     console.log('📊 Signing progress:', {
       allSigned,
       nextSignerIndex,
-      signedCount: signers.filter((s: { status: string }) => s.status === 'signed').length,
-      totalSigners: signers.length
+      signedCount: actualSigners.filter((s: { status: string }) => s.status === 'signed').length,
+      totalSigners,
+      ccRecipients: signers.filter((s: { role?: string }) => s.role === 'cc').length
     })
 
     // Update the signing request
@@ -253,8 +259,7 @@ export async function POST(
 
     // Create dashboard notification for sender
     try {
-      const signedCount = signers.filter((s: { status: string }) => s.status === 'signed').length
-      const totalSigners = signers.length
+      const signedCount = signers.filter((s: { status: string; role?: string }) => s.status === 'signed' && s.role !== 'cc').length
 
       await supabaseAdmin
         .from('notifications')

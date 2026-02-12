@@ -79,7 +79,9 @@ export async function POST(req: NextRequest) {
     })
 
     // Determine initial status: 'completed' if only myself signing, otherwise 'pending'
-    const allSignersComplete = signersWithTokens.every((s: { status: string }) => s.status === 'signed')
+    // CC recipients don't count towards completion
+    const actualSigners = signersWithTokens.filter((s: { role?: string }) => s.role !== 'cc')
+    const allSignersComplete = actualSigners.every((s: { status: string }) => s.status === 'signed')
     const initialStatus = myselfOnly && allSignersComplete ? 'completed' : 'pending'
 
     const { data: signingRequest, error: insertError } = await supabaseAdmin
