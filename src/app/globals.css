@@ -1,1897 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Spin animation for loaders */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 10%;
+
+    --card: 260 100% 98%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    --primary: 263 84% 57%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 260 60% 95%;
+    --secondary-foreground: 240 10% 10%;
+
+    --muted: 260 30% 96%;
+    --muted-foreground: 240 5% 46%;
+
+    --accent: 263 84% 57%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 260 30% 90%;
+    --input: 260 30% 90%;
+    --ring: 263 84% 57%;
+
+    --radius: 0.75rem;
+
+    --section-alt: 260 60% 97%;
+
+    --font-heading: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 263 84% 57%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 260 60% 95%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 260 30% 90%;
+    --sidebar-ring: 263 84% 57%;
   }
-  to {
-    transform: rotate(360deg);
+
+  .dark {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 260 20% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 263 84% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 260 20% 14%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 260 15% 14%;
+    --muted-foreground: 260 10% 58%;
+    --accent: 263 84% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 260 15% 18%;
+    --input: 260 15% 18%;
+    --ring: 263 84% 65%;
+    --section-alt: 260 15% 6%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 263 84% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 260 15% 16%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 260 15% 18%;
+    --sidebar-ring: 263 84% 65%;
   }
 }
 
-/* Logo marquee scroll animation */
-@keyframes marquee-scroll {
-  0% {
-    transform: translateX(0);
+@layer base {
+  * {
+    @apply border-border;
   }
-  100% {
-    transform: translateX(-50%);
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
-}
-
-.marquee-container {
-  overflow: hidden;
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-}
-
-.marquee-track {
-  display: flex;
-  animation: marquee-scroll 30s linear infinite;
-  width: max-content;
-}
-
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
-/* ========================================
-   MOBILE-FIRST OPTIMIZATIONS
-======================================== */
-@import './mobile-optimizations.css';
-
-/* ========================================
-   PDF.JS FIX - Prevent text mirroring
-======================================== */
-canvas {
-  image-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  transform: scaleX(1) !important;
-  -webkit-transform: scaleX(1) !important;
-}
-
-/* Force correct text rendering direction */
-.textLayer {
-  direction: ltr !important;
-  unicode-bidi: bidi-override !important;
-}
-
-/* PDF canvas specific fixes */
-.react-pdf__Page__canvas,
-.pdf-canvas {
-  transform: none !important;
-  -webkit-transform: none !important;
-}
-
-/* ========================================
-   CSS VARIABLES - LIGHT THEME (Default)
-======================================== */
-:root, .light {
-  /* Primary - Purple */
-  --primary: #4C00FF;
-  --primary-hover: #3D00CC;
-  --primary-light: #CBC2FF;
-  --primary-pale: #EDE5FF;
-  --primary-glow: rgba(76, 0, 255, 0.3);
-
-  /* Text Colors */
-  --text-primary: #130032;
-  --text-secondary: rgba(19, 0, 50, 0.75);
-  --text-muted: rgba(19, 0, 50, 0.55);
-
-  /* Background Colors */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F8F5FF;
-  --bg-tertiary: #F3F4F6;
-  --bg-card: #FFFFFF;
-  --bg-input: #FFFFFF;
-  --bg-nav: rgba(255, 255, 255, 0.95);
-  --bg-dropdown: rgba(255, 255, 255, 0.98);
-
-  /* Border Colors */
-  --border-primary: #E8E0F0;
-  --border-secondary: #D1C9E0;
-  --border-hover: rgba(76, 0, 255, 0.3);
-
-  /* Accent */
-  --accent: #FF5252;
-  --accent-hover: #E64545;
-
-  /* Semantic */
-  --success: #10B981;
-  --warning: #F59E0B;
-  --error: #EF4444;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(19, 0, 50, 0.08);
-  --shadow-md: 0 4px 6px -1px rgba(19, 0, 50, 0.1);
-  --shadow-lg: 0 8px 24px rgba(19, 0, 50, 0.12);
-  --shadow-primary: 0 4px 14px -4px rgba(76, 0, 255, 0.4);
-  --shadow-dropdown: 0 16px 48px rgba(19, 0, 50, 0.15);
-
-  /* Misc */
-  --radius: 0.5rem;
-}
-
-/* ========================================
-   CSS VARIABLES - DARK THEME
-======================================== */
-.dark {
-  /* Primary - Lime/Yellow */
-  --primary: #c4ff0e;
-  --primary-hover: #b8f206;
-  --primary-light: #d4ff4d;
-  --primary-pale: rgba(196, 255, 14, 0.1);
-  --primary-glow: rgba(196, 255, 14, 0.3);
-
-  /* Text Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #D1D5DB;
-  --text-muted: #9CA3AF;
-
-  /* Background Colors */
-  --bg-primary: #1F1F1F;
-  --bg-secondary: #252525;
-  --bg-tertiary: #2a2a2a;
-  --bg-card: #1e1e1e;
-  --bg-input: #2a2a2a;
-  --bg-nav: rgba(30, 30, 30, 0.9);
-  --bg-dropdown: rgba(30, 30, 30, 0.95);
-
-  /* Border Colors */
-  --border-primary: #2a2a2a;
-  --border-secondary: #3a3a3a;
-  --border-hover: rgba(196, 255, 14, 0.5);
-
-  /* Accent */
-  --accent: #c4ff0e;
-  --accent-hover: #b8f206;
-
-  /* Semantic */
-  --success: #22C55E;
-  --warning: #FBBF24;
-  --error: #EF4444;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-primary: 0 4px 14px -4px rgba(196, 255, 14, 0.4);
-}
-
-/* ========================================
-   BASE STYLES
-======================================== */
-html {
-  height: 100%;
-  scroll-behavior: smooth;
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: system-ui, -apple-system, sans-serif;
-  margin: 0;
-  padding: 0;
-  max-width: 100vw;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100%;
-  min-height: 100dvh;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-* {
-  box-sizing: border-box;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .section-padding {
+    @apply py-24 md:py-32 lg:py-40;
+  }
+
+  .section-padding-sm {
+    @apply py-12 md:py-16;
+  }
+
+  .container-main {
+    @apply mx-auto max-w-[1200px] px-6 md:px-12;
+  }
+
+  .container-narrow {
+    @apply mx-auto max-w-[800px] px-6 md:px-12;
+  }
+
+  .container-wide {
+    @apply mx-auto max-w-[1400px] px-6 md:px-12;
+  }
+
+  .heading-1 {
+    @apply text-[clamp(2.75rem,5vw,4.75rem)] font-normal leading-[1.1] tracking-[-0.02em];
+    font-family: var(--font-heading);
+  }
+
+  .heading-2 {
+    @apply text-[clamp(2rem,4vw,3rem)] font-normal leading-[1.15] tracking-[-0.01em];
+    font-family: var(--font-heading);
+  }
+
+  .heading-3 {
+    @apply text-[clamp(1.25rem,2vw,1.5rem)] font-normal leading-[1.25];
+    font-family: var(--font-heading);
+  }
+
+  .body-large {
+    @apply text-lg md:text-xl leading-relaxed;
+  }
+
+  .body-regular {
+    @apply text-base md:text-lg leading-relaxed;
   }
 }
 
-/* ========================================
-   THEME-AWARE UTILITY CLASSES
-======================================== */
-/* Backgrounds */
-.bg-theme-primary { background-color: var(--bg-primary); }
-.bg-theme-secondary { background-color: var(--bg-secondary); }
-.bg-theme-tertiary { background-color: var(--bg-tertiary); }
-.bg-theme-card { background-color: var(--bg-card); }
-.bg-theme-nav { background-color: var(--bg-nav); }
-
-/* Text */
-.text-theme-primary { color: var(--text-primary); }
-.text-theme-secondary { color: var(--text-secondary); }
-.text-theme-muted { color: var(--text-muted); }
-
-/* Borders */
-.border-theme-primary { border-color: var(--border-primary); }
-.border-theme-secondary { border-color: var(--border-secondary); }
-
-/* Primary Color */
-.text-theme-accent { color: var(--primary); }
-.bg-theme-accent { background-color: var(--primary); }
-.border-theme-accent { border-color: var(--primary); }
-
-/* ========================================
-   SCROLLBAR STYLES
-======================================== */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-light) transparent;
+@keyframes float {
+  0%, 100% { transform: translateY(0px); opacity: 0.12; }
+  50% { transform: translateY(-20px); opacity: 0.2; }
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+@keyframes progress-loop {
+  0% { width: 0%; }
+  50% { width: 100%; }
+  100% { width: 0%; }
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--primary-light);
-  border-radius: 3px;
+.animate-float {
+  animation: float 10s ease-in-out infinite;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
 }
 
-/* ========================================
-   BUTTON STYLES - Theme Aware
-======================================== */
-.btn-primary {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200;
-  background-color: var(--primary);
-  color: var(--bg-primary);
-  box-shadow: var(--shadow-primary);
-  @apply hover:scale-[1.02] active:scale-[0.98];
-  @apply focus-visible:outline-none focus-visible:ring-2;
-  @apply disabled:pointer-events-none disabled:opacity-50;
+.animate-progress-loop {
+  animation: progress-loop 4s ease-in-out infinite;
 }
 
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-}
+/* ===================================
+   SMOOTH ANIMATIONS FOR AUTO-DEMOS
+=================================== */
 
-.btn-secondary {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
-  @apply hover:scale-[1.02] active:scale-[0.98];
-  @apply focus-visible:outline-none focus-visible:ring-2;
-}
-
-.btn-secondary:hover {
-  border-color: var(--border-hover);
-  background-color: var(--primary-pale);
-}
-
-.btn-ghost {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200;
-  color: var(--text-secondary);
-  @apply hover:scale-[1.02] active:scale-[0.98];
-}
-
-.btn-ghost:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-tertiary);
-}
-
-.btn-destructive {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200;
-  @apply bg-red-500 text-white shadow-md hover:bg-red-600 hover:shadow-lg;
-  @apply hover:scale-[1.02] active:scale-[0.98];
-  box-shadow: 0 4px 14px -4px rgba(239, 68, 68, 0.4);
-}
-
-/* ========================================
-   CARD STYLES - Theme Aware
-======================================== */
-.card {
-  @apply rounded-xl;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-md);
-}
-
-.card-header {
-  @apply flex flex-col space-y-1.5 p-6;
-}
-
-.card-title {
-  @apply font-semibold leading-none tracking-tight;
-  color: var(--text-primary);
-}
-
-.card-description {
-  @apply text-sm;
-  color: var(--text-secondary);
-}
-
-.card-content {
-  @apply p-6 pt-0;
-}
-
-.card-footer {
-  @apply flex items-center p-6 pt-0;
-}
-
-/* ========================================
-   INPUT STYLES - Theme Aware
-======================================== */
-.input {
-  @apply flex h-10 w-full rounded-xl px-3 py-2 text-sm;
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-secondary);
-  color: var(--text-primary);
-  @apply focus-visible:outline-none focus-visible:ring-2;
-  @apply disabled:cursor-not-allowed disabled:opacity-50;
-}
-
-.input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary-pale);
-}
-
-.input::placeholder {
-  color: var(--text-muted);
-}
-
-input, textarea, select {
-  background-color: var(--bg-input);
-  border-color: var(--border-secondary);
-  color: var(--text-primary);
-  @apply rounded-xl;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--text-muted);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  @apply outline-none ring-2;
-  border-color: var(--primary);
-  --tw-ring-color: var(--primary-pale);
-}
-
-/* ========================================
-   GRADIENT TEXT
-======================================== */
-.gradient-text {
-  background: linear-gradient(97deg, #4C00FF -38%, #FF5252 141%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.dark .gradient-text {
-  background: linear-gradient(90deg, #c4ff0e 0%, #a8dd0c 50%, #89cc00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ========================================
-   GLOW EFFECTS
-======================================== */
-.primary-glow {
-  box-shadow: 0 0 20px var(--primary-glow), 0 0 40px var(--primary-glow);
-}
-
-.primary-glow-sm {
-  box-shadow: 0 0 10px var(--primary-glow);
-}
-
-.primary-border-glow {
-  border-color: var(--border-hover);
-  box-shadow: 0 0 15px var(--primary-glow);
-}
-
-/* ========================================
-   BADGE STYLES - Theme Aware
-======================================== */
-.badge {
-  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors;
-}
-
-.badge-primary {
-  background-color: var(--primary-pale);
-  color: var(--primary);
-  border: 1px solid var(--border-hover);
-}
-
-.badge-secondary {
-  background-color: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-primary);
-}
-
-.badge-success {
-  @apply bg-green-500/20 text-green-600 border border-green-500/30;
-}
-
-.dark .badge-success {
-  @apply text-green-400;
-}
-
-.badge-destructive {
-  @apply bg-red-500/20 text-red-600 border border-red-500/30;
-}
-
-.dark .badge-destructive {
-  @apply text-red-400;
-}
-
-/* ========================================
-   SIDEBAR STYLES - Theme Aware
-======================================== */
-.sidebar {
-  background-color: var(--bg-secondary);
-  border-right: 1px solid var(--border-primary);
-}
-
-.sidebar-item {
-  @apply flex items-center gap-3 px-4 py-3 text-sm font-medium;
-  color: var(--text-secondary);
-  @apply rounded-xl transition-all duration-200;
-}
-
-.sidebar-item:hover {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.sidebar-item.active {
-  background-color: var(--primary-pale);
-  color: var(--primary);
-  border: 1px solid var(--border-hover);
-}
-
-/* ========================================
-   MODAL/DIALOG STYLES - Theme Aware
-======================================== */
-.modal-overlay {
-  @apply fixed inset-0 z-50;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.dark .modal-overlay {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.modal-content {
-  @apply fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  @apply rounded-2xl shadow-2xl;
-  @apply max-h-[90vh] overflow-auto;
-}
-
-.modal-header {
-  @apply flex items-center justify-between p-4;
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.modal-body {
-  @apply p-4;
-}
-
-.modal-footer {
-  @apply flex items-center justify-end gap-3 p-4;
-  border-top: 1px solid var(--border-primary);
-}
-
-/* ========================================
-   TABLE STYLES - Theme Aware
-======================================== */
-.table {
-  @apply w-full caption-bottom text-sm;
-}
-
-.table-header {
-  background-color: var(--bg-secondary);
-}
-
-.table-row {
-  border-bottom: 1px solid var(--border-primary);
-  @apply transition-colors;
-}
-
-.table-row:hover {
-  background-color: var(--bg-tertiary);
-}
-
-.table-cell {
-  @apply p-4 align-middle;
-  color: var(--text-secondary);
-}
-
-.table-head {
-  @apply h-12 px-4 text-left align-middle font-medium;
-  color: var(--text-muted);
-}
-
-/* ========================================
-   ANIMATIONS
-======================================== */
-.animate-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-@keyframes fadeIn {
+@keyframes fadeInScale {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: scale(0.95) translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-@keyframes fadeInUp {
+@keyframes smoothSlide {
   from {
+    transform: translateX(-20px);
     opacity: 0;
-    transform: translateY(30px);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.scale-in {
-  animation: scaleIn 0.4s ease-out forwards;
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Glow animation */
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px var(--primary-glow);
-  }
-  50% {
-    box-shadow: 0 0 40px var(--primary-glow);
-  }
-}
-
-/* Shimmer animation */
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--bg-tertiary) 25%,
-    var(--bg-secondary) 50%,
-    var(--bg-tertiary) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* Pulse slow */
-.animate-pulse-slow {
-  animation: pulseSlow 3s ease-in-out infinite;
-}
-
-@keyframes pulseSlow {
-  0%, 100% {
+    transform: translateX(0);
     opacity: 1;
   }
-  50% {
-    opacity: 0.5;
-  }
 }
 
-/* Scroll Reveal Animations */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+@keyframes numberChange {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); color: hsl(263, 84%, 57%); }
 }
 
-.scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
+.animate-number-change {
+  animation: numberChange 0.6s ease-in-out;
 }
 
-.scroll-reveal-left {
-  opacity: 0;
-  transform: translateX(-50px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.scroll-reveal-left.revealed {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.scroll-reveal-right {
-  opacity: 0;
-  transform: translateX(50px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.scroll-reveal-right.revealed {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.scroll-reveal-scale {
-  opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.scroll-reveal-scale.revealed {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* ========================================
-   SIGNATURE CANVAS STYLES
-======================================== */
-.signature-canvas-container {
-  @apply relative rounded-xl border-2 border-dashed transition-all duration-300;
-  border-color: var(--border-secondary);
-  background-color: white;
-}
-
-.signature-canvas-container:hover {
-  border-color: var(--border-hover);
-}
-
-.signature-canvas-container.has-signature {
-  @apply border-solid;
-  border-color: var(--primary);
-}
-
-.signature-canvas {
-  background-color: white !important;
-}
-
-/* ========================================
-   TOOLTIP STYLES
-======================================== */
-.tooltip {
-  @apply absolute z-50 px-3 py-1.5 text-xs font-medium rounded-lg;
-  background-color: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
-  box-shadow: var(--shadow-lg);
-}
-
-/* ========================================
-   DROPDOWN STYLES
-======================================== */
-.dropdown-content {
-  @apply z-50 min-w-[8rem] overflow-hidden rounded-xl p-1 shadow-lg;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-}
-
-.dropdown-item {
-  @apply relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm;
-  color: var(--text-secondary);
-  @apply outline-none transition-colors;
-}
-
-.dropdown-item:hover,
-.dropdown-item:focus {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-/* ========================================
-   TRANSITIONS
-======================================== */
-.transition-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-a, button {
-  transition: all 0.2s ease;
-}
-
-/* Theme transition */
-*, *::before, *::after {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* ========================================
-   RESPONSIVE
-======================================== */
-@media (max-width: 767px) {
-  .btn-primary,
-  .btn-secondary,
-  .btn-destructive {
-    @apply w-full justify-center py-3 min-h-[48px];
-  }
-
-  .card {
-    @apply rounded-xl;
-  }
-
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="tel"],
-  input[type="number"],
-  select,
-  textarea {
-    font-size: 16px !important;
-    @apply min-h-[48px];
-  }
-}
-
-/* ========================================
-   ACCESSIBILITY
-======================================== */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  @apply outline-none ring-2;
-  --tw-ring-color: var(--primary-pale);
-}
-
-/* ========================================
-   SAFE AREA (iOS)
-======================================== */
-@supports (padding: env(safe-area-inset-bottom)) {
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .safe-area-top {
-    padding-top: env(safe-area-inset-top);
-  }
-}
-
-/* ========================================
-   GPU ACCELERATION
-======================================== */
-.animate-pulse,
-.animate-ping,
-.animate-bounce,
-.animate-spin {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* ========================================
-   COMPREHENSIVE MOBILE-FIRST PATCHES
-   Critical fixes for mobile devices (320px+)
-======================================== */
-
-/* 1. PREVENT HORIZONTAL SCROLL - Critical Fix */
-html,
-body {
-  overflow-x: hidden !important;
-  max-width: 100vw !important;
-  position: relative;
-}
-
-* {
-  max-width: 100% !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-/* Override any fixed widths that might cause overflow */
-@media (max-width: 767px) {
-  [style*="width: 1200px"],
-  [style*="width: 1000px"],
-  [style*="width: 800px"],
-  .container:not(.max-w-7xl):not(.max-w-6xl):not(.max-w-5xl) {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-
-/* 2. RESPONSIVE IMAGES & MEDIA */
-img,
-video,
-iframe,
-embed,
-object {
-  max-width: 100% !important;
-  height: auto !important;
-  display: block;
-}
-
-/* ========================================
-   SIGN EDITOR OVERRIDE - Prevent global responsive rules
-   from breaking the coordinate system. The sign editor needs
-   exact pixel dimensions for field placement to work correctly.
-   Without this, the global * { max-width: 100% } and
-   img { height: auto } rules distort the editor layout,
-   causing field positions to not match between editor and preview.
-======================================== */
-[data-image-container] {
-  max-width: none !important;
-  overflow: visible !important;
-}
-
-/* Document image: override ALL global img constraints.
-   Global CSS sets img { max-width: 100% !important; height: auto !important; }
-   Both must be neutralized for the editor's coordinate system to work. */
-[data-image-container] > img {
-  max-width: none !important;
-  max-height: none !important;
-}
-
-/* Signature/stamp images inside field overlays:
-   must respect height:100% for correct object-contain centering.
-   Without this, global img { height: auto !important } overrides it. */
-[data-image-container] div img {
-  height: 100% !important;
-  max-width: none !important;
-}
-
-/* Preview modal: ALL elements must be free from global constraints
-   to match editor rendering exactly */
-[data-sign-preview],
-[data-sign-preview] * {
-  max-width: none !important;
-}
-
-[data-sign-preview] div[style] img {
-  height: 100% !important;
-}
-
-/* PDF page containers: prevent global CSS from distorting layout */
-[data-pdf-page] {
-  max-width: none !important;
-  overflow: visible !important;
-}
-
-[data-pdf-page] > img {
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-}
-
-/* Signature/stamp images inside PDF page field overlays:
-   must respect height:100% for correct positioning.
-   Without this, global img { height: auto !important } overrides it
-   and stamps/signatures overflow below their field containers. */
-[data-pdf-page] div img,
-[data-signing-pages] div img {
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-}
-
-picture {
-  display: block;
-  max-width: 100%;
-}
-
-svg {
-  max-width: 100%;
-  height: auto;
-}
-
-/* 3. RESPONSIVE TYPOGRAPHY - Mobile-First */
-@media (max-width: 767px) {
-  /* Base font size - ensures readability */
-  html {
-    font-size: 16px;
-  }
-
-  /* Headings scaling for mobile */
-  h1 {
-    font-size: clamp(1.75rem, 5vw, 2.5rem) !important;
-    line-height: 1.2 !important;
-  }
-
-  h2 {
-    font-size: clamp(1.5rem, 4vw, 2rem) !important;
-    line-height: 1.3 !important;
-  }
-
-  h3 {
-    font-size: clamp(1.25rem, 3.5vw, 1.75rem) !important;
-    line-height: 1.3 !important;
-  }
-
-  h4 {
-    font-size: clamp(1.125rem, 3vw, 1.5rem) !important;
-    line-height: 1.4 !important;
-  }
-
-  h5,
-  h6 {
-    font-size: clamp(1rem, 2.5vw, 1.25rem) !important;
-    line-height: 1.4 !important;
-  }
-
-  /* Body text */
-  p, li, td, th {
-    font-size: 16px !important;
-    line-height: 1.6 !important;
-  }
-
-  /* Small text remains readable */
-  small, .text-sm {
-    font-size: 14px !important;
-  }
-}
-
-/* 4. TOUCH-FRIENDLY INTERACTIVE ELEMENTS */
-@media (max-width: 767px) {
-  /* Minimum tap target 44x44px (Apple HIG / WCAG) */
-  button,
-  a,
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"],
-  .clickable,
-  [role="button"] {
-    min-height: 44px !important;
-    min-width: 44px !important;
-    padding: 12px 16px !important;
-  }
-
-  /* Ensure links in text are easy to tap */
-  a:not(.btn):not(.button) {
-    padding: 4px 0;
-    display: inline-block;
-  }
-
-  /* Form inputs touch-friendly */
-  input:not([type="checkbox"]):not([type="radio"]),
-  select,
-  textarea {
-    min-height: 48px !important;
-    font-size: 16px !important; /* Prevents iOS zoom */
-    padding: 12px 16px !important;
-  }
-
-  select {
-    padding-right: 40px !important; /* Space for dropdown arrow */
-  }
-
-  textarea {
-    min-height: 120px !important;
-  }
-}
-
-/* 5. RESPONSIVE TABLES - Convert or Scroll */
-@media (max-width: 767px) {
-  /* Option 1: Horizontal scroll wrapper (safe fallback) */
-  table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-  }
-
-  /* Add visual hint for scrollable tables */
-  table::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  table::-webkit-scrollbar-thumb {
-    background: var(--primary-light);
-    border-radius: 4px;
-  }
-
-  /* Option 2: Card-style table (add .table-responsive class to enable) */
-  .table-responsive {
-    display: block;
-    overflow-x: visible;
-  }
-
-  .table-responsive thead {
-    display: none;
-  }
-
-  .table-responsive tr {
-    display: block;
-    margin-bottom: 16px;
-    border: 1px solid var(--border-primary);
-    border-radius: 8px;
-    padding: 12px;
-    background: var(--bg-card);
-  }
-
-  .table-responsive td {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-primary);
-  }
-
-  .table-responsive td:last-child {
-    border-bottom: none;
-  }
-
-  .table-responsive td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    margin-right: 12px;
-  }
-}
-
-/* 6. GRID & FLEXBOX MOBILE STACKING */
-@media (max-width: 767px) {
-  /* Force single column for multi-column grids */
-  .grid,
-  [class*="grid-cols-2"],
-  [class*="grid-cols-3"],
-  [class*="grid-cols-4"],
-  [class*="grid-cols-5"],
-  [class*="grid-cols-6"] {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-
-  /* Stack flex items */
-  .flex:not(.flex-col):not(.items-center):not(.justify-center) {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  /* Two-column grid for small items (like PDF tools) */
-  .grid-mobile-2 {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
-}
-
-/* 7. MOBILE SPACING & PADDING */
-@media (max-width: 767px) {
-  /* Reduce large padding */
-  .py-20 { padding-top: 48px !important; padding-bottom: 48px !important; }
-  .py-16 { padding-top: 40px !important; padding-bottom: 40px !important; }
-  .py-12 { padding-top: 32px !important; padding-bottom: 32px !important; }
-
-  .px-20 { padding-left: 16px !important; padding-right: 16px !important; }
-  .px-16 { padding-left: 16px !important; padding-right: 16px !important; }
-  .px-12 { padding-left: 16px !important; padding-right: 16px !important; }
-
-  /* Reduce large margins */
-  .my-20 { margin-top: 48px !important; margin-bottom: 48px !important; }
-  .my-16 { margin-top: 40px !important; margin-bottom: 40px !important; }
-  .my-12 { margin-top: 32px !important; margin-bottom: 32px !important; }
-
-  /* Container padding */
-  .container,
-  [class*="max-w-"] {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-}
-
-/* 8. MODALS & POPUPS - Fullscreen on Mobile */
-@media (max-width: 767px) {
-  [role="dialog"],
-  .modal,
-  .popup,
-  [class*="Dialog"],
-  [class*="Modal"] {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100vh !important;
-    height: 100dvh !important; /* Dynamic viewport height for mobile */
-    margin: 0 !important;
-    border-radius: 0 !important;
-    max-height: 100vh !important;
-  }
-
-  /* Modal content scrollable */
-  [role="dialog"] > div,
-  .modal-content {
-    overflow-y: auto !important;
-    max-height: 100vh !important;
-    padding-bottom: env(safe-area-inset-bottom) !important;
-  }
-}
-
-/* 9. NAVIGATION & HEADER FIXES */
-@media (max-width: 767px) {
-  /* Fixed header safe area */
-  header,
-  nav {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  /* Sticky headers shouldn't overlap content */
-  .sticky,
-  .fixed {
-    z-index: 1000;
-  }
-
-  /* Mobile menu improvements */
-  .mobile-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-primary);
-    z-index: 9999;
-    overflow-y: auto;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-/* 10. FORM LAYOUTS - Single Column */
-@media (max-width: 767px) {
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .form-row,
-  .form-group {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-
-  label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    margin-bottom: 4px !important;
-  }
-}
-
-/* 11. CARD GRIDS - Responsive */
-@media (max-width: 767px) {
-  /* Feature cards, testimonials, etc. */
-  .card-grid {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-}
-
-/* 12. OVERFLOW PREVENTION - Critical */
-@media (max-width: 767px) {
-  /* Prevent code blocks from overflowing */
-  pre,
-  code {
-    overflow-x: auto !important;
-    max-width: 100% !important;
-    white-space: pre-wrap !important;
-    word-break: break-word !important;
-  }
-
-  /* Prevent long URLs/emails from overflowing */
-  .break-words {
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-  }
-}
-
-/* 13. HIDING ELEMENTS ON MOBILE (if needed) */
-@media (max-width: 767px) {
-  .hidden-mobile {
-    display: none !important;
-  }
-
-  .visible-mobile {
-    display: block !important;
-  }
-}
-
-/* 14. FLOATING ACTION BUTTONS - Mobile Safe */
-@media (max-width: 767px) {
-  .fab,
-  .floating-btn {
-    bottom: calc(16px + env(safe-area-inset-bottom)) !important;
-    right: 16px !important;
-  }
-}
-
-/* 15. HERO SECTIONS - Mobile Optimization */
-@media (max-width: 767px) {
-  .hero,
-  [class*="hero"] {
-    padding-top: 80px !important;
-    padding-bottom: 40px !important;
-    min-height: auto !important;
-  }
-
-  .hero h1 {
-    font-size: clamp(2rem, 6vw, 3rem) !important;
-  }
-
-  .hero img,
-  .hero video {
-    max-height: 300px !important;
-    object-fit: cover;
-  }
-}
-
-/* ========================================
-   MOBILE-SPECIFIC BREAKPOINTS
-======================================== */
-
-/* Extra small devices (< 375px) */
-@media (max-width: 374px) {
-  html {
-    font-size: 14px !important;
-  }
-
-  .container,
-  [class*="max-w-"] {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-
-  button,
-  .btn {
-    font-size: 14px !important;
-    padding: 10px 12px !important;
-  }
-}
-
-/* iPhone SE, small Android (320px-374px) */
-@media (min-width: 320px) and (max-width: 374px) {
-  .grid-mobile-2 {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* Standard mobile (375px-767px) */
-@media (min-width: 375px) and (max-width: 767px) {
-  .container {
-    max-width: 100%;
-  }
-}
-
-/* Tablet portrait (768px-1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .grid-tablet-2 {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  .container {
-    max-width: 720px;
-  }
-}
-
-/* ========================================
-   iOS-SPECIFIC FIXES
-======================================== */
-@supports (-webkit-touch-callout: none) {
-  /* iOS 100vh fix */
-  .min-h-screen {
-    min-height: -webkit-fill-available !important;
-  }
-
-  /* Prevent zoom on input focus */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="tel"],
-  input[type="number"],
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
-
-  /* Smooth scrolling on iOS */
-  .overflow-scroll,
-  .overflow-auto {
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* ========================================
-   LANDSCAPE MODE (Mobile)
-======================================== */
-@media (max-height: 500px) and (orientation: landscape) {
-  /* Reduce vertical padding in landscape */
-  .py-20 { padding-top: 24px !important; padding-bottom: 24px !important; }
-  .py-16 { padding-top: 20px !important; padding-bottom: 20px !important; }
-
-  /* Full screen modals should be scrollable */
-  [role="dialog"],
-  .modal {
-    overflow-y: auto !important;
-  }
-}
-
-/* ========================================
-   PRINT OPTIMIZATION
-======================================== */
-@media print {
-  .no-print,
-  header,
-  footer,
-  nav,
-  .mobile-menu,
-  button:not(.print-btn) {
-    display: none !important;
-  }
-
-  * {
-    overflow: visible !important;
-    max-width: none !important;
-  }
-}
-
-/* ========================================
-   TOOL PAGES - UNIVERSAL MOBILE FIXES
-   Applies to all /tools/* pages
-======================================== */
-
-@media (max-width: 1023px) {
-  /* Tool Page Main Layout - Force Stacking */
-  .tool-layout,
-  .tool-container {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-  }
-
-  /* Tool Upload Areas - Full Width & Touch Friendly */
-  .upload-area,
-  [class*="upload"],
-  [class*="dropzone"],
-  .file-upload {
-    width: 100% !important;
-    min-height: 200px !important;
-    padding: 24px 16px !important;
-  }
-
-  /* Tool Buttons - Full Width on Mobile */
-  .tool-buttons,
-  .tool-actions {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  .tool-buttons button,
-  .tool-actions button {
-    width: 100% !important;
-    min-height: 48px !important;
-    justify-content: center !important;
-  }
-
-  /* Tool Settings Panel - Full Width */
-  .tool-settings,
-  .tool-options,
-  .settings-panel {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 20px !important;
-  }
-
-  /* Tool Preview Area - Full Width */
-  .tool-preview,
-  .preview-area,
-  [class*="preview"] {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  /* PDF Preview Canvas/Images - Responsive */
-  .pdf-preview canvas,
-  .pdf-preview img,
-  .preview-canvas {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 100% !important;
-  }
-}
-
-@media (max-width: 767px) {
-  /* Tool Page Headers */
-  .tool-header h1 {
-    font-size: clamp(1.75rem, 5vw, 2.5rem) !important;
-  }
-
-  .tool-header p {
-    font-size: 16px !important;
-  }
-
-  /* Tool Cards in Grid */
-  .tool-grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-
-  /* Tool Option Groups - Stack Vertically */
-  .option-group,
-  .form-group,
-  .input-group {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  /* Tool Range Sliders - Full Width */
-  input[type="range"] {
-    width: 100% !important;
-    min-height: 44px !important; /* Touch-friendly */
-  }
-
-  /* Tool Color Pickers - Bigger */
-  input[type="color"] {
-    width: 100% !important;
-    min-height: 48px !important;
-    padding: 4px !important;
-  }
-
-  /* Tool Select Dropdowns - Full Width */
-  .tool-select,
-  select {
-    width: 100% !important;
-    min-height: 48px !important;
-    font-size: 16px !important;
-  }
-
-  /* Tool Radio/Checkbox Groups - Bigger Touch Targets */
-  .radio-group label,
-  .checkbox-group label {
-    min-height: 44px !important;
-    padding: 12px !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-
-  input[type="radio"],
-  input[type="checkbox"] {
-    width: 20px !important;
-    height: 20px !important;
-    margin-right: 12px !important;
-  }
-
-  /* Tool File List - Stack Items */
-  .file-list,
-  .file-items {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  .file-item {
-    padding: 12px !important;
-    min-height: 60px !important;
-  }
-
-  /* Tool Progress Bars - Full Width */
-  .progress-bar,
-  [role="progressbar"] {
-    width: 100% !important;
-    min-height: 8px !important;
-  }
-
-  /* Tool Download Links - Full Width Buttons */
-  .download-link,
-  a[download] {
-    display: flex !important;
-    width: 100% !important;
-    min-height: 48px !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  /* Tool Icons - Visible and Sized */
-  .tool-icon {
-    width: 48px !important;
-    height: 48px !important;
-  }
-
-  /* Tool Tabs - Scrollable if Needed */
-  .tool-tabs {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    white-space: nowrap !important;
-  }
-
-  .tool-tabs button {
-    min-width: 120px !important;
-    min-height: 44px !important;
-  }
-
-  /* Tool Alerts/Messages - Full Width */
-  .tool-alert,
-  .tool-message {
-    width: 100% !important;
-    padding: 16px !important;
-    font-size: 14px !important;
-  }
-
-  /* Tool Signature Canvas - Responsive */
-  canvas.signature-canvas,
-  .signature-pad canvas {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 200px !important;
-    touch-action: none !important;
-  }
-
-  /* Tool Image Upload Preview - Grid */
-  .image-preview-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
-    gap: 12px !important;
-  }
-
-  /* Tool Accordion/Collapse - Full Width */
-  .tool-accordion,
-  .collapsible {
-    width: 100% !important;
-  }
-
-  .accordion-trigger {
-    width: 100% !important;
-    min-height: 48px !important;
-    padding: 16px !important;
-  }
-
-  /* Tool Split View - Stack on Mobile */
-  .split-view {
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .split-view > div {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-
-/* ========================================
-   SPECIFIC TOOL PAGE FIXES
-======================================== */
-
-/* PDF to Word Tool */
-@media (max-width: 767px) {
-  .pdf-to-word-layout,
-  .word-to-pdf-layout {
-    padding: 16px !important;
-  }
-
-  .conversion-options {
-    margin-top: 20px !important;
-  }
-}
-
-/* PDF Compressor Tool */
-@media (max-width: 767px) {
-  .compression-slider {
-    width: 100% !important;
-  }
-
-  .compression-preview {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-  }
-
-  .compression-stats {
-    font-size: 14px !important;
-  }
-}
-
-/* PDF Merge Tool */
-@media (max-width: 767px) {
-  .pdf-merge-list {
-    max-height: 400px !important;
-    overflow-y: auto !important;
-  }
-
-  .merge-item {
-    padding: 12px !important;
-    margin-bottom: 8px !important;
-  }
-
-  .merge-item-drag-handle {
-    min-width: 44px !important;
-    min-height: 44px !important;
-  }
-
-  /* Reorder buttons instead of drag on mobile */
-  .merge-item-actions {
-    display: flex !important;
-    gap: 8px !important;
-  }
-
-  .merge-item-actions button {
-    min-width: 44px !important;
-    min-height: 44px !important;
-  }
-}
-
-/* PDF Split Tool */
-@media (max-width: 767px) {
-  .split-options {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-  }
-
-  .page-range-input {
-    width: 100% !important;
-    min-height: 48px !important;
-  }
-
-  .split-preview-pages {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
-}
-
-/* Image to PDF Tool */
-@media (max-width: 767px) {
-  .image-to-pdf-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  .image-upload-item {
-    aspect-ratio: 1 !important;
-  }
-
-  .image-item-actions {
-    position: absolute !important;
-    top: 8px !important;
-    right: 8px !important;
-  }
-
-  .image-item-actions button {
-    min-width: 36px !important;
-    min-height: 36px !important;
-    padding: 8px !important;
-  }
-}
-
-/* Signature Generator Tool */
-@media (max-width: 767px) {
-  .signature-tabs {
-    display: flex !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-  }
-
-  .signature-tab {
-    flex: 1 !important;
-    min-width: 100px !important;
-    min-height: 44px !important;
-  }
-
-  .signature-canvas-container {
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  .signature-tools {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
-
-  .signature-tools button {
-    flex: 1 !important;
-    min-width: 80px !important;
-    min-height: 44px !important;
-  }
-
-  /* Signature Font Selector */
-  .font-selector {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  .font-option {
-    min-height: 60px !important;
-  }
-}
-
-/* Watermark PDF Tool */
-@media (max-width: 767px) {
-  .watermark-controls {
-    position: static !important;
-    width: 100% !important;
-  }
-
-  .watermark-position-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-  }
-
-  .position-btn {
-    min-height: 60px !important;
-    aspect-ratio: 1 !important;
-  }
-
-  .watermark-preview-container {
-    margin-top: 20px !important;
-  }
-
-  .watermark-preview-pages {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-}
-
-/* ========================================
-   TOOL PAGE - LOADING STATES
-======================================== */
-@media (max-width: 767px) {
-  .tool-loading,
-  .loading-spinner {
-    padding: 40px 20px !important;
-  }
-
-  .loading-text {
-    font-size: 14px !important;
-    margin-top: 16px !important;
-  }
-
-  /* Processing overlay */
-  .processing-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: rgba(0, 0, 0, 0.7) !important;
-    z-index: 9999 !important;
-  }
-}
-
-/* ========================================
-   TOOL PAGE - ERROR STATES
-======================================== */
-@media (max-width: 767px) {
-  .tool-error {
-    padding: 20px !important;
-    margin: 16px 0 !important;
-    border-radius: 12px !important;
-    font-size: 14px !important;
-  }
-
-  .error-actions {
-    margin-top: 16px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  .error-actions button {
-    width: 100% !important;
-    min-height: 48px !important;
-  }
-}
-
-/* ========================================
-   TOOL PAGE - SUCCESS STATES
-======================================== */
-@media (max-width: 767px) {
-  .tool-success {
-    padding: 20px !important;
-    border-radius: 12px !important;
-  }
-
-  .success-icon {
-    width: 60px !important;
-    height: 60px !important;
-    margin: 0 auto 16px !important;
-  }
-
-  .success-message {
-    font-size: 16px !important;
-    margin-bottom: 16px !important;
-  }
-
-  .success-actions {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  .success-actions button {
-    width: 100% !important;
-    min-height: 48px !important;
-  }
-}
-
-/* ========================================
-   TOOL PAGE - DRAG & DROP ENHANCEMENTS
-======================================== */
-@media (max-width: 767px) {
-  /* Make drag and drop areas more obvious on touch */
-  [draggable="true"],
-  .draggable {
-    touch-action: none !important;
-    cursor: move !important;
-  }
-
-  /* Drag placeholder */
-  .drag-placeholder {
-    min-height: 60px !important;
-    border: 2px dashed currentColor !important;
-    border-radius: 8px !important;
-  }
-
-  /* Drag over state */
-  .drag-over {
-    opacity: 0.5 !important;
-  }
-}
-
-/* ========================================
-   TOOL PAGE - FILE SIZE LIMITS WARNING
-======================================== */
-@media (max-width: 767px) {
-  .file-size-warning {
-    padding: 16px !important;
-    margin: 16px 0 !important;
-    font-size: 14px !important;
-    border-radius: 8px !important;
-  }
-
-  .file-size-warning-icon {
-    width: 24px !important;
-    height: 24px !important;
-  }
+.animate-smooth-slide {
+  animation: smoothSlide 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
