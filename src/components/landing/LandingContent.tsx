@@ -13,7 +13,6 @@ import Testimonials from "@/components/landing/Testimonials";
 import BentoGrid from "@/components/landing/BentoGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import FinalCta from "@/components/landing/FinalCta";
-import Footer from "@/components/landing/Footer";
 
 const LandingContent = () => {
   return (
@@ -33,7 +32,6 @@ const LandingContent = () => {
       <BentoGrid />
       <FaqSection />
       <FinalCta />
-      <Footer />
     </>
   );
 };
