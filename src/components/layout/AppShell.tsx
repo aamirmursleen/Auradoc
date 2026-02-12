@@ -19,6 +19,7 @@ const dashboardRoutes = [
   '/resume-templates',
   '/sign/',
   '/s/',
+  '/settings',
 ]
 
 // Routes that should have NO header/footer (clean pages)

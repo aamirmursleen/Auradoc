@@ -24,6 +24,7 @@ import {
   Wrench,
   Inbox,
   Send,
+  Settings,
 } from 'lucide-react'
 
 interface NavItem {
@@ -198,7 +199,18 @@ export default function DashboardSidebar() {
       </nav>
 
       {/* Bottom section */}
-      <div className="px-3 py-4 border-t border-border">
+      <div className="px-3 py-4 border-t border-border space-y-1">
+        <Link
+          href="/settings"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
+            pathname === '/settings'
+              ? 'bg-secondary text-primary font-medium'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Settings className="w-4 h-4" />
+          Settings
+        </Link>
         <Link
           href="/"
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
