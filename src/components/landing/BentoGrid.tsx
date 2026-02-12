@@ -127,7 +127,7 @@ const BentoGrid = () => {
                           <path
                             d="M10,28 Q20,5 35,18 T60,15 Q70,12 80,22 T110,15 Q130,8 150,20 T180,18 L190,20"
                             fill="none"
-                            stroke="hsl(263, 84%, 50%)"
+                            stroke="hsl(var(--primary))"
                             strokeWidth="2"
                             strokeLinecap="round"
                             className="signature-path"
@@ -181,7 +181,7 @@ const BentoGrid = () => {
                     {/* Stacked avatars with activity indicators */}
                     <div className="flex items-center -space-x-4">
                       {[
-                        { initials: "SC", color: "hsl(263,84%,57%)", name: "Sarah C." },
+                        { initials: "SC", color: "hsl(var(--primary))", name: "Sarah C." },
                         { initials: "MR", color: "hsl(340,82%,52%)", name: "Mike R." },
                         { initials: "EP", color: "hsl(217,91%,60%)", name: "Emily P." },
                         { initials: "JW", color: "hsl(142,76%,46%)", name: "James W." },
@@ -306,18 +306,18 @@ const BentoGrid = () => {
           {/* ── Card 4: Template Library ── */}
           <div
             data-bento-card
-            className="group rounded-2xl border border-border/60 bg-card relative overflow-hidden hover:border-purple-400/30 transition-all duration-500 hover:shadow-xl hover:shadow-purple-500/5"
+            className="group rounded-2xl border border-border/60 bg-card relative overflow-hidden hover:border-primary/30 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5"
           >
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-400/40 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
             <div className="p-7">
-              <div className="relative h-36 rounded-xl bg-gradient-to-br from-purple-50 via-purple-50/30 to-transparent dark:from-purple-950/20 mb-5 overflow-hidden flex items-center justify-center">
+              <div className="relative h-36 rounded-xl bg-gradient-to-br from-primary/5 via-primary/3 to-transparent dark:from-primary/5 mb-5 overflow-hidden flex items-center justify-center">
                 {/* Template card stack */}
                 <div className="template-stack relative" style={{ width: 120, height: 80 }}>
                   {[
-                    { label: "NDA", color: "hsl(263,84%,57%)", delay: "0s" },
-                    { label: "Contract", color: "hsl(280,70%,55%)", delay: "0.15s" },
-                    { label: "Invoice", color: "hsl(300,60%,50%)", delay: "0.3s" },
+                    { label: "NDA", color: "hsl(var(--primary))", delay: "0s" },
+                    { label: "Contract", color: "hsl(205,80%,55%)", delay: "0.15s" },
+                    { label: "Invoice", color: "hsl(190,65%,50%)", delay: "0.3s" },
                   ].map((tpl, i) => (
                     <div
                       key={tpl.label}
@@ -349,8 +349,8 @@ const BentoGrid = () => {
               </div>
 
               <div className="flex items-center gap-2.5 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/15 to-purple-500/5 flex items-center justify-center border border-purple-500/10">
-                  <Layout className="w-5 h-5 text-purple-500" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-primary/10">
+                  <Layout className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="heading-3">Templates</h3>
               </div>
@@ -445,13 +445,13 @@ const BentoGrid = () => {
                       {[
                         { time: "09:41", event: "Contract signed", user: "John S.", color: "text-green-500", icon: "✓" },
                         { time: "09:38", event: "Document viewed", user: "Sarah K.", color: "text-blue-500", icon: "◉" },
-                        { time: "09:35", event: "NDA sent to", user: "legal team", color: "text-purple-500", icon: "→" },
+                        { time: "09:35", event: "NDA sent to", user: "legal team", color: "text-primary", icon: "→" },
                         { time: "09:32", event: "Template updated", user: "Admin", color: "text-orange-500", icon: "✎" },
                         { time: "09:28", event: "New signer added", user: "Mike R.", color: "text-cyan-500", icon: "+" },
                         { time: "09:25", event: "Audit exported", user: "Finance", color: "text-gray-500", icon: "↓" },
                         { time: "09:41", event: "Contract signed", user: "John S.", color: "text-green-500", icon: "✓" },
                         { time: "09:38", event: "Document viewed", user: "Sarah K.", color: "text-blue-500", icon: "◉" },
-                        { time: "09:35", event: "NDA sent to", user: "legal team", color: "text-purple-500", icon: "→" },
+                        { time: "09:35", event: "NDA sent to", user: "legal team", color: "text-primary", icon: "→" },
                         { time: "09:32", event: "Template updated", user: "Admin", color: "text-orange-500", icon: "✎" },
                       ].map((log, i) => (
                         <div key={i} className="flex items-center gap-1.5 leading-[18px]">

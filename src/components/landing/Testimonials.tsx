@@ -12,7 +12,7 @@ const testimonials = [
     company: "TechFlow Inc.",
     metric: "Saved $14,000/year",
     initials: "SC",
-    color: "hsl(263, 84%, 57%)",
+    color: "hsl(var(--primary))",
     featured: true,
   },
   {
@@ -62,7 +62,7 @@ const testimonials = [
     company: "FinSecure",
     metric: "Best value overall",
     initials: "DO",
-    color: "hsl(280, 70%, 55%)",
+    color: "hsl(205, 80%, 55%)",
     featured: false,
   },
 ];

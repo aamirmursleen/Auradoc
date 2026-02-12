@@ -28,12 +28,12 @@ const experienceEntries = [
 ];
 
 const skillsList = [
-  { label: "Product Strategy", color: "hsl(263, 84%, 57%)" },
+  { label: "Product Strategy", color: "hsl(var(--primary))" },
   { label: "Figma", color: "hsl(340, 82%, 52%)" },
   { label: "User Research", color: "hsl(217, 91%, 60%)" },
   { label: "Design Systems", color: "hsl(160, 84%, 40%)" },
   { label: "Prototyping", color: "hsl(30, 90%, 50%)" },
-  { label: "A/B Testing", color: "hsl(280, 80%, 55%)" },
+  { label: "A/B Testing", color: "hsl(205, 80%, 55%)" },
 ];
 
 const ResumeBuilder = () => {
@@ -158,7 +158,7 @@ const ResumeBuilder = () => {
     };
   }, [resetAll, typeText]);
 
-  const accentColor = templateApplied ? "hsl(263, 84%, 57%)" : "#d1d5db";
+  const accentColor = templateApplied ? "hsl(var(--primary))" : "#d1d5db";
 
   return (
     <section className="section-padding">
@@ -235,7 +235,7 @@ const ResumeBuilder = () => {
               {/* Browser Chrome */}
               <div
                 className="flex items-center gap-3 px-4 py-3 border-b border-border/40"
-                style={{ background: "hsl(263, 84%, 10%)" }}
+                style={{ background: "hsl(var(--browser-chrome))" }}
               >
                 <div className="flex gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
@@ -245,7 +245,7 @@ const ResumeBuilder = () => {
                 <div className="flex-1 text-center">
                   <div
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md"
-                    style={{ background: "hsl(263, 84%, 16%)" }}
+                    style={{ background: "hsl(var(--browser-bar))" }}
                   >
                     <Lock className="w-3 h-3 text-green-400" />
                     <span className="text-[10px] font-medium text-white/50">
@@ -332,7 +332,7 @@ const ResumeBuilder = () => {
                             className="text-[12px] font-medium uppercase tracking-widest"
                             style={{
                               color: templateApplied
-                                ? "hsl(263, 84%, 57%)"
+                                ? "hsl(var(--primary))"
                                 : "#6b7280",
                               fontFamily: "Arial, sans-serif",
                             }}
@@ -361,10 +361,10 @@ const ResumeBuilder = () => {
                         className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 pb-1 border-b"
                         style={{
                           color: templateApplied
-                            ? "hsl(263, 84%, 57%)"
+                            ? "hsl(var(--primary))"
                             : "#374151",
                           borderColor: templateApplied
-                            ? "hsl(263, 84%, 57%)"
+                            ? "hsl(var(--primary))"
                             : "#d1d5db",
                           fontFamily: "Arial, sans-serif",
                         }}
@@ -413,7 +413,7 @@ const ResumeBuilder = () => {
                                   className="text-[9px] font-medium mb-0.5"
                                   style={{
                                     color: templateApplied
-                                      ? "hsl(263, 70%, 50%)"
+                                      ? "hsl(var(--primary))"
                                       : "#6b7280",
                                     fontFamily: "Arial, sans-serif",
                                   }}
@@ -442,10 +442,10 @@ const ResumeBuilder = () => {
                         className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 pb-1 border-b"
                         style={{
                           color: templateApplied
-                            ? "hsl(263, 84%, 57%)"
+                            ? "hsl(var(--primary))"
                             : "#374151",
                           borderColor: templateApplied
-                            ? "hsl(263, 84%, 57%)"
+                            ? "hsl(var(--primary))"
                             : "#d1d5db",
                           fontFamily: "Arial, sans-serif",
                         }}
@@ -501,10 +501,10 @@ const ResumeBuilder = () => {
                         className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 pb-1 border-b"
                         style={{
                           color: templateApplied
-                            ? "hsl(263, 84%, 57%)"
+                            ? "hsl(var(--primary))"
                             : "#374151",
                           borderColor: templateApplied
-                            ? "hsl(263, 84%, 57%)"
+                            ? "hsl(var(--primary))"
                             : "#d1d5db",
                           fontFamily: "Arial, sans-serif",
                         }}
@@ -548,7 +548,7 @@ const ResumeBuilder = () => {
                               className="text-[9px] font-medium"
                               style={{
                                 color: templateApplied
-                                  ? "hsl(263, 70%, 50%)"
+                                  ? "hsl(var(--primary))"
                                   : "#6b7280",
                                 fontFamily: "Arial, sans-serif",
                               }}

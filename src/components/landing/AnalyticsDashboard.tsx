@@ -12,7 +12,7 @@ import {
 const statCards = [
   { id: "docs", label: "Documents Sent", target: 12847, format: "int", icon: FileText, color: "hsl(217, 91%, 60%)" },
   { id: "rate", label: "Completion Rate", target: 98.2, format: "percent", icon: CheckCircle2, color: "hsl(142, 76%, 46%)" },
-  { id: "time", label: "Avg. Sign Time", target: 3.4, format: "min", icon: Clock, color: "hsl(270, 70%, 58%)" },
+  { id: "time", label: "Avg. Sign Time", target: 3.4, format: "min", icon: Clock, color: "hsl(200, 70%, 55%)" },
   { id: "revenue", label: "Revenue Secured", target: 2.4, format: "money", icon: DollarSign, color: "hsl(38, 92%, 50%)" },
 ];
 

@@ -80,13 +80,13 @@ const ESignContent = ({ progress }: { progress: number }) => {
         </div>
         {/* Signature field */}
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 relative" style={{
-          borderColor: progress > 0 ? 'hsl(263, 84%, 57%)' : undefined,
+          borderColor: progress > 0 ? 'hsl(var(--primary))' : undefined,
         }}>
           <svg viewBox="0 0 200 40" className="w-full h-10" style={{ overflow: 'visible' }}>
             <path
               d="M10,30 Q20,5 35,20 T60,15 Q70,12 80,25 T110,18 Q130,10 150,22 T180,20 L190,22"
               fill="none"
-              stroke="hsl(263, 84%, 45%)"
+              stroke="hsl(var(--primary))"
               strokeWidth="2"
               strokeLinecap="round"
               strokeDasharray={pathLength}
@@ -138,7 +138,7 @@ const VerifyContent = ({ progress }: { progress: number }) => {
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div className="h-full rounded-full transition-all duration-100" style={{
             width: `${barFill * 100}%`,
-            background: showShield ? '#22c55e' : 'hsl(263, 84%, 57%)',
+            background: showShield ? '#22c55e' : 'hsl(var(--primary))',
           }} />
         </div>
         <p className="text-[10px] text-gray-400 mt-1 text-center">
@@ -446,7 +446,7 @@ const HeroSection = () => {
           <p className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-8" style={{
             fontFamily: 'var(--font-heading)',
             letterSpacing: '-0.03em',
-            background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(280, 80%, 55%), hsl(var(--primary)))',
+            background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(190, 80%, 50%), hsl(var(--primary)))',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             filter: 'drop-shadow(0 0 30px hsl(var(--primary) / 0.3))',
@@ -516,14 +516,14 @@ const HeroSection = () => {
           {/* Browser mockup */}
           <div className="rounded-2xl overflow-hidden shadow-2xl border border-border/60 bg-background">
             {/* Browser Chrome */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40" style={{ background: 'hsl(263, 84%, 10%)' }}>
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40" style={{ background: 'hsl(var(--browser-chrome))' }}>
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
               </div>
               <div className="flex-1 text-center">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md" style={{ background: 'hsl(263, 84%, 16%)' }}>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md" style={{ background: 'hsl(var(--browser-bar))' }}>
                   <Lock className="w-3 h-3 text-green-400" />
                   <span className="text-[10px] font-medium text-white/50 transition-all duration-300">
                     {activeUrl}

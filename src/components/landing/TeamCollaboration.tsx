@@ -9,7 +9,7 @@ import {
 
 // ─── TEAM MEMBER DEFINITIONS ─────────────────────────────────────
 const members = [
-  { name: "Sarah C.", initials: "SC", color: "hsl(263, 84%, 57%)", cursorColor: "hsl(263, 84%, 65%)" },
+  { name: "Sarah C.", initials: "SC", color: "hsl(var(--primary))", cursorColor: "hsl(var(--primary))" },
   { name: "Mike R.", initials: "MR", color: "hsl(217, 91%, 60%)", cursorColor: "hsl(217, 91%, 68%)" },
   { name: "Emily P.", initials: "EP", color: "hsl(142, 76%, 40%)", cursorColor: "hsl(142, 76%, 50%)" },
   { name: "James W.", initials: "JW", color: "hsl(34, 100%, 50%)", cursorColor: "hsl(34, 100%, 58%)" },

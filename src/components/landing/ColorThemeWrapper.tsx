@@ -26,6 +26,8 @@ const ColorThemeWrapper = ({
     "--sidebar-ring": `${h} ${s}% ${l}%`,
     "--sidebar-accent": `${h} 60% 95%`,
     "--sidebar-border": `${h} 30% 90%`,
+    "--browser-chrome": `${h} ${s}% 10%`,
+    "--browser-bar": `${h} ${s}% 16%`,
   };
 
   const darkVars: Record<string, string> = {
@@ -43,6 +45,8 @@ const ColorThemeWrapper = ({
     "--sidebar-ring": `${h} ${s}% ${dl}%`,
     "--sidebar-accent": `${h} 15% 16%`,
     "--sidebar-border": `${h} 15% 18%`,
+    "--browser-chrome": `${h} ${s}% 10%`,
+    "--browser-bar": `${h} ${s}% 16%`,
   };
 
   const lightCSS = Object.entries(lightVars)

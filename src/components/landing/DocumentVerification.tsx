@@ -316,7 +316,7 @@ const DocumentVerification = () => {
               {/* Browser Chrome */}
               <div
                 className="flex items-center gap-3 px-4 py-3 border-b border-border/40"
-                style={{ background: "hsl(263, 84%, 10%)" }}
+                style={{ background: "hsl(var(--browser-chrome))" }}
               >
                 <div className="flex gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
@@ -326,7 +326,7 @@ const DocumentVerification = () => {
                 <div className="flex-1 text-center">
                   <div
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md"
-                    style={{ background: "hsl(263, 84%, 16%)" }}
+                    style={{ background: "hsl(var(--browser-bar))" }}
                   >
                     <Lock className="w-3 h-3 text-green-400" />
                     <span className="text-[10px] font-medium text-white/50">

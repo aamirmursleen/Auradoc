@@ -8,7 +8,7 @@ const companies = [
   { slug: "techflow", name: "TechFlow", color: "hsl(217, 91%, 60%)" },
   { slug: "acmecorp", name: "AcmeCorp", color: "hsl(340, 82%, 52%)" },
   { slug: "growthlab", name: "GrowthLab", color: "hsl(142, 76%, 36%)" },
-  { slug: "designco", name: "DesignCo", color: "hsl(263, 84%, 57%)" },
+  { slug: "designco", name: "DesignCo", color: "hsl(var(--primary))" },
 ];
 
 const CustomDomain = () => {

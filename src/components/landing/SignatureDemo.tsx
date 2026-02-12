@@ -9,8 +9,8 @@ import {
 
 // ─── FIELD WIDGET DEFINITIONS ────────────────────────────────────
 const fieldWidgets = [
-  { id: "firstName", label: "First Name", icon: User, color: "hsl(263, 84%, 57%)" },
-  { id: "lastName", label: "Last Name", icon: Type, color: "hsl(280, 80%, 55%)" },
+  { id: "firstName", label: "First Name", icon: User, color: "hsl(var(--primary))" },
+  { id: "lastName", label: "Last Name", icon: Type, color: "hsl(205, 80%, 55%)" },
   { id: "date", label: "Date", icon: Calendar, color: "hsl(217, 91%, 60%)" },
   { id: "signature", label: "Signature", icon: PenTool, color: "hsl(340, 82%, 52%)" },
 ];
@@ -350,14 +350,14 @@ const SignatureDemo = () => {
             {/* ── PDF DOCUMENT ── */}
             <div className="ml-14 rounded-2xl border border-border/60 bg-background shadow-2xl overflow-hidden">
               {/* Browser Chrome */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40" style={{ background: 'hsl(263, 84%, 10%)' }}>
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40" style={{ background: 'hsl(var(--browser-chrome))' }}>
                 <div className="flex gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
                 </div>
                 <div className="flex-1 text-center">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md" style={{ background: 'hsl(263, 84%, 16%)' }}>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md" style={{ background: 'hsl(var(--browser-bar))' }}>
                     <Lock className="w-3 h-3 text-green-400" />
                     <span className="text-[10px] font-medium text-white/50">sign.yourcompany.com</span>
                   </div>
@@ -457,8 +457,8 @@ const SignatureDemo = () => {
                           <div
                             className="relative h-7 border-b-2 transition-all duration-500 flex items-end"
                             style={{
-                              borderColor: isLanded("firstName") ? 'hsl(263, 84%, 57%)' : '#d1d5db',
-                              background: isLanded("firstName") && !firstName ? 'hsla(263, 84%, 57%, 0.04)' : 'transparent',
+                              borderColor: isLanded("firstName") ? 'hsl(var(--primary))' : '#d1d5db',
+                              background: isLanded("firstName") && !firstName ? 'hsl(var(--primary) / 0.04)' : 'transparent',
                             }}
                           >
                             {firstName ? (
@@ -480,14 +480,14 @@ const SignatureDemo = () => {
                           <div
                             className="relative h-7 border-b-2 transition-all duration-500 flex items-end"
                             style={{
-                              borderColor: isLanded("lastName") ? 'hsl(280, 80%, 55%)' : '#d1d5db',
-                              background: isLanded("lastName") && !lastName ? 'hsla(280, 80%, 55%, 0.04)' : 'transparent',
+                              borderColor: isLanded("lastName") ? 'hsl(205, 80%, 55%)' : '#d1d5db',
+                              background: isLanded("lastName") && !lastName ? 'hsla(205, 80%, 55%, 0.04)' : 'transparent',
                             }}
                           >
                             {lastName ? (
                               <span className="text-[13px] text-gray-900 pb-0.5 font-medium" style={{ fontFamily: 'Georgia, serif' }}>{lastName}</span>
                             ) : isLanded("lastName") ? (
-                              <span className="w-0.5 h-4 bg-purple-500 animate-pulse mb-0.5" />
+                              <span className="w-0.5 h-4 bg-primary animate-pulse mb-0.5" />
                             ) : (
                               <span className="text-[9px] text-gray-300 pb-1 italic">Drop here</span>
                             )}
