@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { incrementInvoiceCount } from '@/lib/usageLimit'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
@@ -28,7 +29,11 @@ import {
   MessageCircle,
   Link2,
   CheckCircle,
-  Loader2
+  Loader2,
+  Save,
+  FolderOpen,
+  Clock,
+  DollarSign
 } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -187,10 +192,24 @@ const invoiceTemplates = [
   },
 ]
 
-const CreateInvoicePage: React.FC = () => {
+interface SavedInvoice {
+  id: string
+  invoice_number: string | null
+  status: string
+  total: number | null
+  currency: string
+  client_name: string | null
+  client_email: string | null
+  created_at: string
+  updated_at: string
+}
+
+const CreateInvoicePageInner: React.FC = () => {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
   const { user } = useUser()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const logoInputRef = useRef<HTMLInputElement>(null)
   const bgLogoInputRef = useRef<HTMLInputElement>(null)
 
@@ -242,6 +261,13 @@ const CreateInvoicePage: React.FC = () => {
   const [sendingEmail, setSendingEmail] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
 
+  // Saved invoices state
+  const [savedInvoices, setSavedInvoices] = useState<SavedInvoice[]>([])
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(null)
+  const [savingInvoice, setSavingInvoice] = useState(false)
+  const [savedMessage, setSavedMessage] = useState('')
+  const [loadingInvoices, setLoadingInvoices] = useState(false)
+
   // Generate invoice number and date on client side to avoid hydration error
   useEffect(() => {
     const year = new Date().getFullYear()
@@ -254,6 +280,142 @@ const CreateInvoicePage: React.FC = () => {
       issueDate: prev.issueDate || today
     }))
   }, [])
+
+  // Fetch saved invoices
+  const fetchSavedInvoices = async () => {
+    try {
+      setLoadingInvoices(true)
+      const res = await fetch('/api/invoices')
+      const data = await res.json()
+      if (data.success) {
+        setSavedInvoices(data.data || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch invoices:', err)
+    } finally {
+      setLoadingInvoices(false)
+    }
+  }
+
+  // Load saved invoices on mount
+  useEffect(() => {
+    if (user) {
+      fetchSavedInvoices()
+    }
+  }, [user])
+
+  // Load invoice from URL param ?id=
+  useEffect(() => {
+    const invoiceId = searchParams.get('id')
+    if (invoiceId && user) {
+      setCurrentInvoiceId(invoiceId)
+      fetch(`/api/invoices/${invoiceId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data?.data) {
+            setInvoiceData(prev => ({ ...prev, ...data.data.data }))
+          }
+        })
+        .catch(err => console.error('Failed to load invoice:', err))
+    }
+  }, [searchParams, user])
+
+  // Save or update invoice
+  const handleSaveInvoice = async () => {
+    if (!user) return
+    setSavingInvoice(true)
+    setSavedMessage('')
+
+    try {
+      if (currentInvoiceId) {
+        // Update existing
+        const res = await fetch(`/api/invoices/${currentInvoiceId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invoiceData, status: 'draft' }),
+        })
+        const data = await res.json()
+        if (data.success) {
+          setSavedMessage('Invoice updated!')
+          fetchSavedInvoices()
+        } else {
+          setSavedMessage(data.message || 'Failed to save')
+        }
+      } else {
+        // Create new
+        const res = await fetch('/api/invoices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invoiceData, status: 'draft' }),
+        })
+        const data = await res.json()
+        if (data.success) {
+          setCurrentInvoiceId(data.data.id)
+          setSavedMessage('Invoice saved!')
+          fetchSavedInvoices()
+          // Update URL without reload
+          window.history.replaceState({}, '', `/create-invoice?id=${data.data.id}`)
+        } else {
+          setSavedMessage(data.message || 'Failed to save')
+        }
+      }
+      setTimeout(() => setSavedMessage(''), 3000)
+    } catch (err) {
+      console.error('Failed to save invoice:', err)
+      setSavedMessage('Error saving invoice')
+    } finally {
+      setSavingInvoice(false)
+    }
+  }
+
+  // Delete invoice
+  const handleDeleteInvoice = async (id: string) => {
+    try {
+      const res = await fetch(`/api/invoices/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        setSavedInvoices(prev => prev.filter(inv => inv.id !== id))
+        if (currentInvoiceId === id) {
+          setCurrentInvoiceId(null)
+          window.history.replaceState({}, '', '/create-invoice')
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete invoice:', err)
+    }
+  }
+
+  // Create new invoice (reset form)
+  const handleNewInvoice = () => {
+    setCurrentInvoiceId(null)
+    const year = new Date().getFullYear()
+    const randomNum = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+    const today = new Date().toISOString().split('T')[0]
+    setInvoiceData({
+      businessName: '',
+      businessEmail: '',
+      businessPhone: '',
+      businessAddress: '',
+      businessLogo: null,
+      backgroundLogo: null,
+      logoX: 20, logoY: 50, logoWidth: 120, logoHeight: 60,
+      bgLogoX: 30, bgLogoY: 30, bgLogoWidth: 40, bgLogoHeight: 40,
+      clientName: '',
+      clientEmail: '',
+      clientPhone: '',
+      clientAddress: '',
+      invoiceNumber: `${year}${randomNum}`,
+      issueDate: today,
+      dueDate: '14 days',
+      deliveryDate: '',
+      items: [{ id: '1', name: '', description: '', quantity: 1, unit: '', price: 0, tax: 20, total: 0 }],
+      notes: '',
+      bankDetails: '',
+      selectedTemplate: 'classic-blue',
+      currency: 'USD',
+    })
+    window.history.replaceState({}, '', '/create-invoice')
+  }
 
   // Calculate totals
   const calculateItemTotal = (item: InvoiceItem) => {
@@ -482,8 +644,71 @@ const CreateInvoicePage: React.FC = () => {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-white'}`}>
       <div className="flex">
-        {/* Left Side - Template Selection */}
+        {/* Left Side - Template Selection & Saved Invoices */}
         <div className={`w-80 ${isDark ? 'bg-muted/30 border-border' : 'bg-white border-gray-200'} border-r min-h-screen p-6 overflow-y-auto`}>
+          {/* My Invoices Section */}
+          {user && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} flex items-center gap-2`}>
+                  <FolderOpen className="w-5 h-5" />
+                  My Invoices
+                </h2>
+                <button
+                  onClick={handleNewInvoice}
+                  className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium hover:opacity-90 transition-opacity flex items-center gap-1`}
+                >
+                  <Plus className="w-3 h-3" />
+                  New
+                </button>
+              </div>
+
+              {loadingInvoices ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                </div>
+              ) : savedInvoices.length > 0 ? (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {savedInvoices.slice(0, 10).map((inv) => (
+                    <div
+                      key={inv.id}
+                      className={`group flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition-all ${
+                        currentInvoiceId === inv.id
+                          ? isDark ? 'border-primary bg-primary/10' : 'border-[#0d9488] bg-[#0d9488]/5'
+                          : isDark ? 'border-border hover:bg-muted' : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                      onClick={() => {
+                        router.push(`/create-invoice?id=${inv.id}`)
+                      }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-medium truncate ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
+                          #{inv.invoice_number || 'Draft'}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {inv.client_name || 'No client'} {inv.total ? `· ${inv.currency} ${Number(inv.total).toFixed(2)}` : ''}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteInvoice(inv.id)
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400 text-center py-3">No saved invoices yet</p>
+              )}
+
+              <div className={`mt-3 pt-3 border-t ${isDark ? 'border-border' : 'border-gray-200'}`} />
+            </div>
+          )}
+
           <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} mb-4`}>Choose Template</h2>
 
           <div className="space-y-4">
@@ -1141,6 +1366,27 @@ const CreateInvoicePage: React.FC = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
+                {/* Save Draft Button */}
+                {user && (
+                  <button
+                    onClick={handleSaveInvoice}
+                    disabled={savingInvoice}
+                    className={`w-full py-3 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 border ${
+                      savedMessage
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        : isDark ? 'bg-secondary text-foreground hover:bg-muted border-border' : 'bg-gray-50 text-[#134e4a] hover:bg-gray-100 border-gray-200'
+                    } disabled:opacity-60`}
+                  >
+                    {savingInvoice ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                    ) : savedMessage ? (
+                      <><CheckCircle className="w-4 h-4" /> {savedMessage}</>
+                    ) : (
+                      <><Save className="w-4 h-4" /> {currentInvoiceId ? 'Update Invoice' : 'Save Draft'}</>
+                    )}
+                  </button>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setShowPreview(true)}
@@ -1946,6 +2192,14 @@ const CreateInvoicePage: React.FC = () => {
         </div>
       )}
     </div>
+  )
+}
+
+const CreateInvoicePage: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>}>
+      <CreateInvoicePageInner />
+    </Suspense>
   )
 }
 
