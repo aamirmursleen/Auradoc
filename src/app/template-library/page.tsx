@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
   FileText,
@@ -19,11 +19,48 @@ import {
   Star,
   Filter,
   Clock,
+  Loader2,
 } from 'lucide-react'
+
+interface Template {
+  id: string | number
+  name: string
+  description: string
+  category: string
+  downloads: number
+  rating: number
+  popular: boolean
+}
 
 const TemplateLibraryPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [apiTemplates, setApiTemplates] = useState<Template[] | null>(null)
+  const [loadingApi, setLoadingApi] = useState(true)
+
+  // Fetch templates from API
+  const fetchTemplates = useCallback(async () => {
+    try {
+      setLoadingApi(true)
+      const params = new URLSearchParams()
+      if (activeCategory !== 'all') params.set('category', activeCategory)
+      if (searchQuery.trim()) params.set('search', searchQuery)
+
+      const res = await fetch(`/api/templates?${params.toString()}`)
+      const data = await res.json()
+      if (data.success && data.data?.length > 0) {
+        setApiTemplates(data.data)
+      }
+    } catch {
+      // Fallback to hardcoded
+    } finally {
+      setLoadingApi(false)
+    }
+  }, [activeCategory, searchQuery])
+
+  useEffect(() => {
+    fetchTemplates()
+  }, [fetchTemplates])
 
   const categories = [
     { id: 'all', name: 'All Templates', icon: FileText, count: 50 },
@@ -148,12 +185,17 @@ const TemplateLibraryPage: React.FC = () => {
     },
   ]
 
-  const filteredTemplates = templates.filter((template) => {
-    const matchesCategory = activeCategory === 'all' || template.category === activeCategory
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  // Use API templates if available, otherwise fall back to hardcoded
+  const sourceTemplates: Template[] = apiTemplates || templates
+
+  const filteredTemplates = apiTemplates
+    ? sourceTemplates // API already filters by category/search
+    : sourceTemplates.filter((template) => {
+        const matchesCategory = activeCategory === 'all' || template.category === activeCategory
+        const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          template.description.toLowerCase().includes(searchQuery.toLowerCase())
+        return matchesCategory && matchesSearch
+      })
 
   return (
     <div className="overflow-hidden bg-muted/30">
