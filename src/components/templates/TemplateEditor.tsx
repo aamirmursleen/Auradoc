@@ -32,6 +32,9 @@ interface TemplateEditorProps {
   template: DocumentTemplate
   onClose: () => void
   onComplete: (documentHtml: string, template: DocumentTemplate) => void
+  onSave?: (formData: Record<string, string>) => Promise<void>
+  initialData?: Record<string, string>
+  saveLabel?: string
 }
 
 // Sample data for initial preview
@@ -76,8 +79,10 @@ const sampleData: Record<string, string> = {
   about: 'Passionate professional dedicated to delivering high-quality work and continuous improvement.',
 }
 
-const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onComplete }) => {
-  const [formData, setFormData] = useState<Record<string, string>>({})
+const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onComplete, onSave, initialData, saveLabel }) => {
+  const [formData, setFormData] = useState<Record<string, string>>(initialData || {})
+  const [saving, setSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
   const [documentHtml, setDocumentHtml] = useState('')
   const [aiPrompt, setAiPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -610,6 +615,33 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
         </div>
 
         <div className="flex items-center gap-3">
+          {onSave && (
+            <button
+              onClick={async () => {
+                setSaving(true)
+                setSaveSuccess(false)
+                try {
+                  await onSave(formData)
+                  setSaveSuccess(true)
+                  setTimeout(() => setSaveSuccess(false), 2000)
+                } catch (err) {
+                  console.error('Save failed:', err)
+                } finally {
+                  setSaving(false)
+                }
+              }}
+              disabled={saving}
+              className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all flex items-center gap-2 font-medium disabled:opacity-60"
+            >
+              {saving ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+              ) : saveSuccess ? (
+                <><Check className="w-4 h-4 text-green-600" /> Saved!</>
+              ) : (
+                <><FileText className="w-4 h-4" /> {saveLabel || 'Save'}</>
+              )}
+            </button>
+          )}
           <button
             onClick={handleDownload}
             disabled={downloading}

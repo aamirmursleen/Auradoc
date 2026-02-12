@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
 import {
   Search,
@@ -14,6 +15,10 @@ import {
   ArrowLeft,
   PenLine,
   Check,
+  FolderOpen,
+  Trash2,
+  Loader2,
+  Clock,
 } from 'lucide-react'
 import {
   resumeTemplates,
@@ -64,8 +69,17 @@ const features = [
   { icon: Check, text: 'AI-powered content generation' },
 ]
 
+interface SavedResume {
+  id: string
+  template_id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
+
 export default function ResumeTemplatesPage() {
   const router = useRouter()
+  const { user } = useUser()
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
@@ -74,6 +88,97 @@ export default function ResumeTemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate | null>(null)
   const [showPreviewPopup, setShowPreviewPopup] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
+
+  // Saved resumes state
+  const [savedResumes, setSavedResumes] = useState<SavedResume[]>([])
+  const [loadingResumes, setLoadingResumes] = useState(false)
+  const [editingResumeId, setEditingResumeId] = useState<string | null>(null)
+  const [editingResumeData, setEditingResumeData] = useState<Record<string, string> | null>(null)
+
+  // Fetch saved resumes
+  const fetchSavedResumes = async () => {
+    try {
+      setLoadingResumes(true)
+      const res = await fetch('/api/resumes')
+      const data = await res.json()
+      if (data.success) {
+        setSavedResumes(data.data || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch resumes:', err)
+    } finally {
+      setLoadingResumes(false)
+    }
+  }
+
+  useEffect(() => {
+    if (user) fetchSavedResumes()
+  }, [user])
+
+  // Load a saved resume into the editor
+  const handleLoadResume = async (resume: SavedResume) => {
+    try {
+      const res = await fetch(`/api/resumes/${resume.id}`)
+      const data = await res.json()
+      if (data.success && data.data) {
+        const template = resumeTemplates.find(t => t.id === data.data.template_id)
+        if (template) {
+          setSelectedTemplate(template)
+          setEditingResumeId(resume.id)
+          setEditingResumeData(data.data.data || {})
+          setShowEditor(true)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load resume:', err)
+    }
+  }
+
+  // Save resume handler (passed to TemplateEditor)
+  const handleSaveResume = async (formData: Record<string, string>) => {
+    if (!selectedTemplate) return
+    if (editingResumeId) {
+      // Update existing
+      await fetch(`/api/resumes/${editingResumeId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.fullName || selectedTemplate.name,
+          data: formData,
+        }),
+      })
+    } else {
+      // Create new
+      const res = await fetch('/api/resumes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId: selectedTemplate.id,
+          name: formData.fullName || selectedTemplate.name,
+          data: formData,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setEditingResumeId(data.data.id)
+      }
+    }
+    fetchSavedResumes()
+  }
+
+  // Delete a saved resume
+  const handleDeleteResume = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      const res = await fetch(`/api/resumes/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        setSavedResumes(prev => prev.filter(r => r.id !== id))
+      }
+    } catch (err) {
+      console.error('Failed to delete resume:', err)
+    }
+  }
 
   // Filter templates
   const filteredTemplates = useMemo(() => {
@@ -107,6 +212,8 @@ export default function ResumeTemplatesPage() {
   const handleUseTemplate = (template: ResumeTemplate) => {
     setSelectedTemplate(template)
     setShowPreviewPopup(false)
+    setEditingResumeId(null)
+    setEditingResumeData(null)
     setShowEditor(true)
   }
 
@@ -202,6 +309,49 @@ export default function ResumeTemplatesPage() {
             )}
           </p>
         </div>
+
+        {/* My Saved Resumes */}
+        {user && savedResumes.length > 0 && (
+          <div className="mb-8">
+            <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-gray-900'} mb-3 flex items-center gap-2`}>
+              <FolderOpen className="w-5 h-5" />
+              My Saved Resumes
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {savedResumes.map((resume) => {
+                const template = resumeTemplates.find(t => t.id === resume.template_id)
+                return (
+                  <div
+                    key={resume.id}
+                    onClick={() => handleLoadResume(resume)}
+                    className={`group relative p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${
+                      isDark ? 'bg-secondary border-border hover:border-primary' : 'bg-white border-gray-200 hover:border-[#0d9488]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium truncate ${isDark ? 'text-foreground' : 'text-gray-900'}`}>{resume.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {template?.name || 'Unknown template'}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(resume.updated_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteResume(resume.id, e)}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all rounded-lg hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Templates Grid */}
         {filteredTemplates.length > 0 ? (
@@ -388,8 +538,11 @@ export default function ResumeTemplatesPage() {
       {showEditor && selectedTemplate && (
         <TemplateEditor
           template={selectedTemplate}
-          onClose={() => { setShowEditor(false); setSelectedTemplate(null) }}
+          onClose={() => { setShowEditor(false); setSelectedTemplate(null); setEditingResumeId(null); setEditingResumeData(null) }}
           onComplete={handleTemplateComplete}
+          onSave={user ? handleSaveResume : undefined}
+          initialData={editingResumeData || undefined}
+          saveLabel={editingResumeId ? 'Update Resume' : 'Save Resume'}
         />
       )}
     </div>
