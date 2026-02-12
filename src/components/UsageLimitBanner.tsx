@@ -90,10 +90,10 @@ export const UsageLimitBanner: React.FC<UsageLimitBannerProps> = ({
             {/* Price */}
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-3">
-                <span className="text-3xl font-bold text-gray-300 line-through">$120</span>
+                <span className="text-3xl font-bold text-muted-foreground line-through">$120</span>
                 <span className="text-5xl font-bold text-primary-600">$27</span>
               </div>
-              <p className="text-sm text-gray-500 mt-1">One-time payment</p>
+              <p className="text-sm text-muted-foreground mt-1">One-time payment</p>
             </div>
 
             {/* CTA Button */}
@@ -105,7 +105,7 @@ export const UsageLimitBanner: React.FC<UsageLimitBannerProps> = ({
               <ArrowRight className="w-5 h-5" />
             </Link>
 
-            <p className="text-center text-xs text-gray-400 mt-4">
+            <p className="text-center text-xs text-muted-foreground mt-4">
               Secure payment via Stripe
             </p>
           </div>

@@ -981,7 +981,7 @@ export default function SignDocumentPage() {
               </div>
             </div>
 
-            <button onClick={handleSubmit} disabled={signedFields.size !== myFields.length || isSubmitting} className="w-full py-4 bg-blue-600 text-gray-900 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onClick={handleSubmit} disabled={signedFields.size !== myFields.length || isSubmitting} className="w-full py-4 bg-blue-600 text-primary-foreground rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
               {isSubmitting ? (<><Loader2 className="w-6 h-6 animate-spin" />Submitting...</>) : (<><Check className="w-6 h-6" />Complete Signing</>)}
             </button>
 
@@ -1028,7 +1028,7 @@ export default function SignDocumentPage() {
                   {fileType === 'image' && imageUrl ? (
                     <div className="relative" data-pdf-page="true" style={{ width: pageWidths[0] || 595 * scale, height: pageHeights[0] || 842 * scale }}>
                       <img src={imageUrl} alt="Document" className="w-full h-full rounded-lg shadow-lg bg-white" draggable={false} />
-                      <div className="absolute bottom-2 right-2 bg-black/50 text-gray-900 text-xs px-2 py-1 rounded">Page 1 of 1</div>
+                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page 1 of 1</div>
                     </div>
                   ) : (
                     pageImages.map((imgUrl, i) => (
@@ -1046,7 +1046,7 @@ export default function SignDocumentPage() {
                             <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
                           </div>
                         )}
-                        <div className="absolute bottom-2 right-2 bg-black/50 text-gray-900 text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div>
+                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Page {i + 1} of {totalPages}</div>
                       </div>
                     ))
                   )}
@@ -1568,7 +1568,7 @@ export default function SignDocumentPage() {
                             {hasValue && (
                               <button
                                 onClick={(e) => removeSignature(field.id, e)}
-                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-gray-900 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-20"
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-20"
                                 title="Remove and redo"
                                 style={{ display: isSelected ? 'none' : undefined }}
                               >

@@ -22,6 +22,8 @@ import {
   Home,
   Briefcase,
   Wrench,
+  Inbox,
+  Send,
 } from 'lucide-react'
 
 interface NavItem {
@@ -53,6 +55,8 @@ const navigation: NavGroup[] = [
     defaultOpen: true,
     items: [
       { name: 'All Documents', href: '/documents', icon: FileText },
+      { name: 'Inbox', href: '/documents?tab=inbox', icon: Inbox },
+      { name: 'Sent', href: '/documents?tab=sent', icon: Send },
       { name: 'Templates', href: '/templates', icon: LayoutTemplate },
       { name: 'Track', href: '/track', icon: Eye },
       { name: 'Verify', href: '/verify', icon: Shield },
@@ -97,7 +101,22 @@ export default function DashboardSidebar() {
   }
 
   const isActive = (href: string) => {
-    if (href === '/documents') return pathname === '/documents'
+    if (href.includes('?')) {
+      // For query param links like /documents?tab=inbox
+      const [path, query] = href.split('?')
+      if (pathname !== path) return false
+      // Check if URL has matching query params
+      if (typeof window !== 'undefined') {
+        const currentParams = new URLSearchParams(window.location.search)
+        const targetParams = new URLSearchParams(query)
+        for (const [key, value] of targetParams.entries()) {
+          if (currentParams.get(key) !== value) return false
+        }
+        return true
+      }
+      return false
+    }
+    if (href === '/documents') return pathname === '/documents' && (typeof window === 'undefined' || !window.location.search.includes('tab='))
     return pathname.startsWith(href)
   }
 

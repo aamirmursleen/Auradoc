@@ -298,7 +298,7 @@ export default function SignatureGeneratorPage() {
                     setHasSignature(!!e.target.value)
                   }}
                   placeholder="Type your name..."
-                  className="w-full text-center text-4xl border-b-2 border-border focus:border-primary outline-none pb-2 mb-6 bg-transparent placeholder:text-gray-400"
+                  className="w-full text-center text-4xl border-b-2 border-border focus:border-primary outline-none pb-2 mb-6 bg-transparent placeholder:text-muted-foreground"
                   style={{ fontFamily: `"${selectedFont}", cursive`, color: selectedColor }}
                 />
 

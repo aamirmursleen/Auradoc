@@ -62,18 +62,18 @@ const FloatingLifetimeDeal: React.FC = () => {
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className={`absolute -top-3 -right-3 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-lg z-10 transition-colors active:scale-95 ${isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-200 hover:bg-gray-300'}`}
+          className="absolute -top-3 -right-3 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-lg z-10 transition-colors active:scale-95 bg-secondary hover:bg-secondary/80"
           aria-label="Dismiss"
         >
-          <X className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+          <X className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" />
         </button>
 
         {/* Main CTA */}
         <Link href="/pricing" className="block group">
-          <div className={`relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl transition-all duration-300 hover:scale-[1.02] ${isDark ? 'shadow-orange-500/30 hover:shadow-orange-500/50' : 'shadow-[#4C00FF]/30 hover:shadow-[#4C00FF]/50'}`}>
-            <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-r from-white via-gray-50 to-white'}`} />
-            <div className={`absolute top-0 left-0 right-0 h-0.5 sm:h-1 animate-gradient-x ${isDark ? 'bg-gradient-to-r from-orange-500 via-red-500 to-orange-500' : 'bg-gradient-to-r from-[#4C00FF] via-[#8B5CF6] to-[#4C00FF]'}`} />
-            <div className={`absolute inset-0 rounded-xl sm:rounded-2xl border transition-colors ${isDark ? 'border-orange-500/30 group-hover:border-orange-500/50' : 'border-[#4C00FF]/30 group-hover:border-[#4C00FF]/50'}`} />
+          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl transition-all duration-300 hover:scale-[1.02] shadow-primary/30 hover:shadow-primary/50">
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-gray-50 to-white" />
+            <div className="absolute top-0 left-0 right-0 h-0.5 sm:h-1 animate-gradient-x bg-gradient-to-r from-primary via-primary/70 to-primary" />
+            <div className="absolute inset-0 rounded-xl sm:rounded-2xl border transition-colors border-primary/30 group-hover:border-primary/50" />
 
             <div className="relative px-3 py-2.5 sm:px-5 sm:py-4 flex items-center gap-2 sm:gap-4">
               <div className="relative">
@@ -82,22 +82,22 @@ const FloatingLifetimeDeal: React.FC = () => {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
-                  <span className={`font-bold text-xs sm:text-base whitespace-nowrap ${isDark ? 'text-white' : 'text-[#26065D]'}`}>Lifetime Deal</span>
-                  <span className={`hidden sm:inline-block px-2 py-0.5 text-white text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse ${isDark ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-[#4C00FF] to-[#8B5CF6]'}`}>
+                  <span className="font-bold text-xs sm:text-base whitespace-nowrap text-foreground">Lifetime Deal</span>
+                  <span className="hidden sm:inline-block px-2 py-0.5 text-primary-foreground text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse bg-gradient-to-r from-primary to-primary/70">
                     Ending Soon
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5 sm:gap-2">
-                  <span className={`font-bold text-lg sm:text-2xl ${isDark ? 'text-white' : 'text-[#26065D]'}`}>$27</span>
-                  <span className={`text-[10px] sm:text-sm hidden xs:inline ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>once</span>
-                  <span className={`text-[10px] sm:text-sm line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>$270</span>
+                  <span className="font-bold text-lg sm:text-2xl text-foreground">$27</span>
+                  <span className="text-[10px] sm:text-sm hidden xs:inline text-muted-foreground">once</span>
+                  <span className="text-[10px] sm:text-sm line-through text-muted-foreground">$270</span>
                 </div>
               </div>
 
-              <div className={`flex items-center gap-2 sm:gap-3 sm:pl-4 sm:border-l ${isDark ? 'sm:border-gray-700' : 'sm:border-gray-200'}`}>
-                <span className={`hidden sm:block font-bold text-xl ${isDark ? 'text-white' : 'text-[#26065D]'}`}>$27</span>
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg ${isDark ? 'bg-[#c4ff0e] shadow-[#c4ff0e]/30' : 'bg-[#4C00FF] shadow-[#4C00FF]/30'}`}>
-                  <ArrowRight className={`w-4 h-4 sm:w-5 sm:h-5 ${isDark ? 'text-black' : 'text-white'}`} />
+              <div className="flex items-center gap-2 sm:gap-3 sm:pl-4 sm:border-l sm:border-border">
+                <span className="hidden sm:block font-bold text-xl text-foreground">$27</span>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg bg-primary shadow-primary/30">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
                 </div>
               </div>
             </div>

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
 import { rateLimit } from '@/lib/rate-limit'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+function getOpenAI() {
+  const OpenAI = require('openai').default
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+}
 
 interface TemplateField {
   name: string
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     // Build the system prompt based on category
     const systemPrompt = getSystemPrompt(category, fields)
 
+    const openai = getOpenAI()
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [

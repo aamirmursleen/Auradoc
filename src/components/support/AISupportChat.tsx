@@ -166,8 +166,8 @@ const AISupportChat: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground text-sm">Mamasign Support</h3>
-                <p className="text-xs text-green-400 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                <p className="text-xs text-green-600 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
                   Online
                 </p>
               </div>
@@ -241,7 +241,7 @@ const AISupportChat: React.FC = () => {
                     <Send className="w-5 h-5 text-primary-foreground" />
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-muted-foreground mt-2 text-center">
                   Powered by Mamasign AI
                 </p>
               </div>

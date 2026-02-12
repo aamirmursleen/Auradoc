@@ -79,7 +79,7 @@ const TemplatesPage: React.FC = () => {
     color: string
     bgColor: string
   }> = [
-    { key: 'all', label: 'All Templates', icon: Grid3X3, color: isDark ? 'text-gray-300' : 'text-gray-600', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'all', label: 'All Templates', icon: Grid3X3, color: isDark ? 'text-muted-foreground' : 'text-gray-600', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
     { key: 'popular', label: 'Popular', icon: Star, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
     { key: 'resume', label: 'Resume', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
     { key: 'letters', label: 'Cover Letter', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
@@ -198,31 +198,31 @@ const TemplatesPage: React.FC = () => {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-white'}`}>
       {/* Hero Section - Compact */}
-      <section className={`${isDark ? 'bg-white text-white border-border' : 'bg-gray-50 text-[#134e4a] border-gray-200'} pt-8 pb-6 px-4 border-b`}>
+      <section className={`${isDark ? 'bg-secondary text-foreground border-border' : 'bg-gray-50 text-[#134e4a] border-gray-200'} pt-8 pb-6 px-4 border-b`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6">
-            <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+            <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
               Document Templates
             </h1>
-            <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm md:text-base max-w-xl mx-auto`}>
+            <p className={`${isDark ? 'text-muted-foreground' : 'text-gray-500'} text-sm md:text-base max-w-xl mx-auto`}>
               Professional templates ready to customize, sign, and send
             </p>
           </div>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto relative">
-            <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+            <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
             <input
               type="text"
               placeholder="Search templates... (contract, invoice, NDA, offer letter)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-muted text-white placeholder-gray-400 border-border focus:ring-primary/30' : 'bg-white text-[#134e4a] placeholder-gray-500 border-gray-200 focus:ring-[#0d9488]/30'} shadow-lg focus:ring-4 outline-none text-sm border`}
+              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-muted text-foreground placeholder-muted-foreground border-border focus:ring-primary/30' : 'bg-white text-[#134e4a] placeholder-gray-500 border-gray-200 focus:ring-[#0d9488]/30'} shadow-lg focus:ring-4 outline-none text-sm border`}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'}`}
+                className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isDark ? 'text-muted-foreground hover:text-foreground' : 'text-gray-500 hover:text-gray-600'}`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -241,7 +241,7 @@ const TemplatesPage: React.FC = () => {
                 onClick={() => scrollCategories('left')}
                 className={`absolute left-0 z-10 w-10 h-10 ${isDark ? 'bg-gradient-to-r from-muted/30 via-muted/30 to-transparent' : 'bg-gradient-to-r from-white via-white to-transparent'} flex items-center justify-start`}
               >
-                <ChevronLeft className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <ChevronLeft className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             )}
 
@@ -283,7 +283,7 @@ const TemplatesPage: React.FC = () => {
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all
                       ${isActive
-                        ? isDark ? 'bg-primary text-black shadow-md scale-105' : 'bg-[#0d9488] text-white shadow-md scale-105'
+                        ? isDark ? 'bg-primary text-primary-foreground shadow-md scale-105' : 'bg-[#0d9488] text-white shadow-md scale-105'
                         : `${cat.bgColor} ${cat.color}`
                       }
                     `}
@@ -291,7 +291,7 @@ const TemplatesPage: React.FC = () => {
                     <Icon className="w-4 h-4" />
                     {cat.label}
                     {cat.key === 'popular' && !isActive && (
-                      <span className={`px-1.5 py-0.5 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} text-xs rounded-full`}>
+                      <span className={`px-1.5 py-0.5 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} text-xs rounded-full`}>
                         Hot
                       </span>
                     )}
@@ -306,7 +306,7 @@ const TemplatesPage: React.FC = () => {
                 onClick={() => scrollCategories('right')}
                 className={`absolute right-0 z-10 w-10 h-10 ${isDark ? 'bg-gradient-to-l from-muted/30 via-muted/30 to-transparent' : 'bg-gradient-to-l from-white via-white to-transparent'} flex items-center justify-end`}
               >
-                <ChevronRight className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <ChevronRight className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             )}
           </div>
@@ -318,8 +318,8 @@ const TemplatesPage: React.FC = () => {
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-              <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{filteredTemplates.length}</span> templates
+            <p className={isDark ? 'text-muted-foreground' : 'text-gray-500'}>
+              <span className={`font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{filteredTemplates.length}</span> templates
               {searchQuery && (
                 <span> for "<span className={`font-medium ${isDark ? 'text-primary' : 'text-[#0d9488]'}`}>{searchQuery}</span>"</span>
               )}
@@ -332,7 +332,7 @@ const TemplatesPage: React.FC = () => {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
+                viewMode === 'grid' ? isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white' : isDark ? 'text-muted-foreground hover:text-foreground' : 'text-gray-500 hover:text-gray-600'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -340,7 +340,7 @@ const TemplatesPage: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
+                viewMode === 'list' ? isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white' : isDark ? 'text-muted-foreground hover:text-foreground' : 'text-gray-500 hover:text-gray-600'
               }`}
             >
               <List className="w-5 h-5" />
@@ -394,8 +394,8 @@ const TemplatesPage: React.FC = () => {
 
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      <span className={`px-4 py-2 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full text-sm font-medium shadow-lg flex items-center gap-2`}>
-                        <Zap className={`w-4 h-4 ${isDark ? 'text-black' : 'text-white'}`} />
+                      <span className={`px-4 py-2 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full text-sm font-medium shadow-lg flex items-center gap-2`}>
+                        <Zap className={`w-4 h-4 ${isDark ? 'text-primary-foreground' : 'text-white'}`} />
                         Preview Template
                       </span>
                     </div>
@@ -405,22 +405,22 @@ const TemplatesPage: React.FC = () => {
                   <div className="p-4">
                     {/* Category Badge */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r ${colors.gradient} ${isDark ? 'text-black' : 'text-white'} text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r ${colors.gradient} ${isDark ? 'text-primary-foreground' : 'text-white'} text-xs font-medium rounded-full`}>
                         <IconComponent className="w-3 h-3" />
                         {categoryLabels[template.category]}
                       </span>
-                      <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                         {template.fields.length} fields
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors mb-1 line-clamp-1`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-foreground group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors mb-1 line-clamp-1`}>
                       {template.name}
                     </h3>
 
                     {/* Description */}
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} line-clamp-2 mb-3`}>
+                    <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-500'} line-clamp-2 mb-3`}>
                       {template.description}
                     </p>
 
@@ -430,7 +430,7 @@ const TemplatesPage: React.FC = () => {
                         e.stopPropagation()
                         handleUseTemplate(template)
                       }}
-                      className={`w-full py-2 ${isDark ? 'bg-muted hover:bg-primary text-gray-300 hover:text-black' : 'bg-[#ccfbf1] hover:bg-[#0d9488] text-gray-600 hover:text-white'} rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
+                      className={`w-full py-2 ${isDark ? 'bg-muted hover:bg-primary text-muted-foreground hover:text-primary-foreground' : 'bg-[#ccfbf1] hover:bg-[#0d9488] text-gray-600 hover:text-white'} rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -454,7 +454,7 @@ const TemplatesPage: React.FC = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r ${colors.gradient} ${isDark ? 'text-black' : 'text-white'} text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r ${colors.gradient} ${isDark ? 'text-primary-foreground' : 'text-white'} text-xs font-medium rounded-full`}>
                         {categoryLabels[template.category]}
                       </span>
                       {template.popular && (
@@ -468,11 +468,11 @@ const TemplatesPage: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-foreground group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors`}>
                       {template.name}
                     </h3>
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} line-clamp-1`}>{template.description}</p>
-                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-1`}>{template.fields.length} fields to fill</p>
+                    <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-500'} line-clamp-1`}>{template.description}</p>
+                    <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mt-1`}>{template.fields.length} fields to fill</p>
                   </div>
 
                   <button
@@ -480,7 +480,7 @@ const TemplatesPage: React.FC = () => {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className={`px-4 py-2 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
+                    className={`px-4 py-2 ${isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
                   >
                     Use
                     <ArrowRight className="w-4 h-4" />
@@ -493,10 +493,10 @@ const TemplatesPage: React.FC = () => {
           // No results
           <div className="text-center py-16">
             <div className={`w-20 h-20 ${isDark ? 'bg-muted' : 'bg-[#ccfbf1]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-              <Search className={`w-10 h-10 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+              <Search className={`w-10 h-10 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
             </div>
-            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'} mb-2`}>No templates found</h3>
-            <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6`}>
+            <h3 className={`text-xl font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} mb-2`}>No templates found</h3>
+            <p className={`${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-6`}>
               Try adjusting your search or filter to find what you're looking for.
             </p>
             <button
@@ -504,7 +504,7 @@ const TemplatesPage: React.FC = () => {
                 setSearchQuery('')
                 setSelectedCategory('all')
               }}
-              className={`px-6 py-3 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-medium transition-colors`}
+              className={`px-6 py-3 ${isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-medium transition-colors`}
             >
               Clear Filters
             </button>
@@ -513,16 +513,16 @@ const TemplatesPage: React.FC = () => {
 
         {/* CTA Section */}
         <div className={`mt-16 ${isDark ? 'bg-secondary border-border' : 'bg-white border border-gray-200'} rounded-2xl p-8 md:p-12 text-center`}>
-          <h2 className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-white' : 'text-[#134e4a]'} mb-4`}>
+          <h2 className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} mb-4`}>
             Can't Find What You Need?
           </h2>
-          <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6 max-w-xl mx-auto`}>
+          <p className={`${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-6 max-w-xl mx-auto`}>
             Upload your own document and add signatures directly.
             Our platform supports PDF, PNG, and JPG files.
           </p>
           <button
             onClick={() => router.push('/sign')}
-            className={`inline-flex items-center gap-2 px-8 py-4 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-semibold transition-colors`}
+            className={`inline-flex items-center gap-2 px-8 py-4 ${isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-semibold transition-colors`}
           >
             Upload Your Document
             <ArrowRight className="w-5 h-5" />

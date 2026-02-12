@@ -75,6 +75,31 @@ export async function POST(
       )
     }
 
+    // Check if document is expired
+    if (signingRequest.due_date) {
+      const dueDate = new Date(signingRequest.due_date)
+      if (dueDate < new Date()) {
+        // Auto-update status to expired
+        await supabaseAdmin
+          .from('signing_requests')
+          .update({ status: 'expired', updated_at: new Date().toISOString() })
+          .eq('id', documentId)
+
+        return NextResponse.json(
+          { success: false, message: 'This document has expired and can no longer be signed' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Check if document is voided
+    if (signingRequest.status === 'voided') {
+      return NextResponse.json(
+        { success: false, message: 'This document has been voided and can no longer be signed' },
+        { status: 400 }
+      )
+    }
+
     // Check if already signed
     if (signers[signerIndex].status === 'signed') {
       return NextResponse.json(

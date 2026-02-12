@@ -484,7 +484,7 @@ const CreateInvoicePage: React.FC = () => {
       <div className="flex">
         {/* Left Side - Template Selection */}
         <div className={`w-80 ${isDark ? 'bg-muted/30 border-border' : 'bg-white border-gray-200'} border-r min-h-screen p-6 overflow-y-auto`}>
-          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'} mb-4`}>Choose Template</h2>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} mb-4`}>Choose Template</h2>
 
           <div className="space-y-4">
             {invoiceTemplates.map((template) => (
@@ -534,15 +534,15 @@ const CreateInvoicePage: React.FC = () => {
                   {/* Selected Checkmark */}
                   {invoiceData.selectedTemplate === template.id && (
                     <div className={`absolute top-2 right-2 w-6 h-6 ${isDark ? 'bg-primary' : 'bg-[#0d9488]'} rounded-full flex items-center justify-center`}>
-                      <Check className={`w-4 h-4 ${isDark ? 'text-black' : 'text-white'}`} />
+                      <Check className={`w-4 h-4 ${isDark ? 'text-primary-foreground' : 'text-white'}`} />
                     </div>
                   )}
                 </div>
 
                 {/* Template Info */}
                 <div className={`p-3 ${isDark ? 'bg-white' : 'bg-gray-50'}`}>
-                  <h3 className={`font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'} text-sm`}>{template.name}</h3>
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-0.5`}>{template.description}</p>
+                  <h3 className={`font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'} text-sm`}>{template.name}</h3>
+                  <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mt-0.5`}>{template.description}</p>
                 </div>
               </button>
             ))}
@@ -555,14 +555,14 @@ const CreateInvoicePage: React.FC = () => {
             {/* Logo Upload Section */}
             <div className={`${isDark ? 'bg-white border-border' : 'bg-gray-50 border-gray-200'} rounded-xl border p-4 mb-6`}>
               <div className="flex items-center justify-between mb-3">
-                <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>Invoice Branding</h3>
-                <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>Optional</span>
+                <h3 className={`text-sm font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>Invoice Branding</h3>
+                <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>Optional</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Business Logo */}
                 <div>
-                  <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2`}>Your Logo</label>
+                  <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-2`}>Your Logo</label>
                   <input
                     type="file"
                     ref={logoInputRef}
@@ -587,7 +587,7 @@ const CreateInvoicePage: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => logoInputRef.current?.click()}
-                      className={`w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed ${isDark ? 'border-border hover:border-primary hover:bg-muted text-gray-400 hover:text-primary' : 'border-gray-300 hover:border-[#0d9488] hover:bg-[#ccfbf1] text-gray-400 hover:text-[#0d9488]'} rounded-lg transition-all`}
+                      className={`w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed ${isDark ? 'border-border hover:border-primary hover:bg-muted text-muted-foreground hover:text-primary' : 'border-gray-300 hover:border-[#0d9488] hover:bg-[#ccfbf1] text-gray-400 hover:text-[#0d9488]'} rounded-lg transition-all`}
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span className="text-xs font-medium">Add your logo</span>
@@ -597,7 +597,7 @@ const CreateInvoicePage: React.FC = () => {
 
                 {/* Background/Watermark Logo */}
                 <div>
-                  <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2`}>Background Logo (Watermark)</label>
+                  <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-2`}>Background Logo (Watermark)</label>
                   <input
                     type="file"
                     ref={bgLogoInputRef}
@@ -622,7 +622,7 @@ const CreateInvoicePage: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => bgLogoInputRef.current?.click()}
-                      className={`w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed ${isDark ? 'border-border hover:border-primary hover:bg-muted text-gray-400 hover:text-primary' : 'border-gray-300 hover:border-[#0d9488] hover:bg-[#ccfbf1] text-gray-400 hover:text-[#0d9488]'} rounded-lg transition-all`}
+                      className={`w-full h-20 flex flex-col items-center justify-center gap-1 border-2 border-dashed ${isDark ? 'border-border hover:border-primary hover:bg-muted text-muted-foreground hover:text-primary' : 'border-gray-300 hover:border-[#0d9488] hover:bg-[#ccfbf1] text-gray-400 hover:text-[#0d9488]'} rounded-lg transition-all`}
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span className="text-xs font-medium">Add background logo</span>
@@ -656,15 +656,15 @@ const CreateInvoicePage: React.FC = () => {
                       <Building2 className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                     </div>
                     <div className="text-left">
-                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>FROM</p>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} uppercase tracking-wider`}>FROM</p>
+                      <p className={`text-sm font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                         {invoiceData.businessName || 'Add your business details'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>1.</span>
-                    <ChevronDown className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'} transition-transform ${expandedSection === 'from' ? 'rotate-180' : ''}`} />
+                    <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>1.</span>
+                    <ChevronDown className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'} transition-transform ${expandedSection === 'from' ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
@@ -675,7 +675,7 @@ const CreateInvoicePage: React.FC = () => {
                       value={invoiceData.businessName}
                       onChange={(e) => handleInputChange('businessName', e.target.value)}
                       placeholder="Business Name"
-                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
+                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <input
@@ -683,14 +683,14 @@ const CreateInvoicePage: React.FC = () => {
                         value={invoiceData.businessEmail}
                         onChange={(e) => handleInputChange('businessEmail', e.target.value)}
                         placeholder="Email"
-                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
                       />
                       <input
                         type="tel"
                         value={invoiceData.businessPhone}
                         onChange={(e) => handleInputChange('businessPhone', e.target.value)}
                         placeholder="Phone"
-                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
                       />
                     </div>
                     <textarea
@@ -698,7 +698,7 @@ const CreateInvoicePage: React.FC = () => {
                       onChange={(e) => handleInputChange('businessAddress', e.target.value)}
                       placeholder="Address"
                       rows={2}
-                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent resize-none`}
+                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent resize-none`}
                     />
                   </div>
                 )}
@@ -715,15 +715,15 @@ const CreateInvoicePage: React.FC = () => {
                       <User className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                     </div>
                     <div className="text-left">
-                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>BILL TO</p>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} uppercase tracking-wider`}>BILL TO</p>
+                      <p className={`text-sm font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                         {invoiceData.clientName || 'Add customer details'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>2.</span>
-                    <ChevronDown className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'} transition-transform ${expandedSection === 'billto' ? 'rotate-180' : ''}`} />
+                    <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>2.</span>
+                    <ChevronDown className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'} transition-transform ${expandedSection === 'billto' ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
@@ -734,7 +734,7 @@ const CreateInvoicePage: React.FC = () => {
                       value={invoiceData.clientName}
                       onChange={(e) => handleInputChange('clientName', e.target.value)}
                       placeholder="Client Name"
-                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
+                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <input
@@ -742,14 +742,14 @@ const CreateInvoicePage: React.FC = () => {
                         value={invoiceData.clientEmail}
                         onChange={(e) => handleInputChange('clientEmail', e.target.value)}
                         placeholder="Email"
-                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
                       />
                       <input
                         type="tel"
                         value={invoiceData.clientPhone}
                         onChange={(e) => handleInputChange('clientPhone', e.target.value)}
                         placeholder="Phone"
-                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent`}
                       />
                     </div>
                     <textarea
@@ -757,7 +757,7 @@ const CreateInvoicePage: React.FC = () => {
                       onChange={(e) => handleInputChange('clientAddress', e.target.value)}
                       placeholder="Address"
                       rows={2}
-                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent resize-none`}
+                      className={`w-full px-4 py-2.5 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg focus:ring-2 focus:border-transparent resize-none`}
                     />
                   </div>
                 )}
@@ -766,37 +766,37 @@ const CreateInvoicePage: React.FC = () => {
               {/* Invoice Details */}
               <div className={`${isDark ? 'bg-white border-border' : 'bg-gray-50 border-gray-200'} rounded-xl border p-4`}>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>3.</span>
-                  <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Invoice Details</span>
+                  <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>3.</span>
+                  <span className={`text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Invoice Details</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Invoice number *</label>
+                    <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Invoice number *</label>
                     <input
                       type="text"
                       value={invoiceData.invoiceNumber}
                       onChange={(e) => handleInputChange('invoiceNumber', e.target.value)}
-                      className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                      className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Issue date *</label>
+                    <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Issue date *</label>
                     <div className="relative">
                       <input
                         type="date"
                         value={invoiceData.issueDate}
                         onChange={(e) => handleInputChange('issueDate', e.target.value)}
-                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Due date *</label>
+                    <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Due date *</label>
                     <select
                       value={invoiceData.dueDate}
                       onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                      className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent appearance-none`}
+                      className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent appearance-none`}
                     >
                       <option value="7 days">7 days</option>
                       <option value="14 days">14 days</option>
@@ -806,13 +806,13 @@ const CreateInvoicePage: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Delivery date</label>
+                    <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Delivery date</label>
                     <div className="relative">
                       <input
                         type="date"
                         value={invoiceData.deliveryDate}
                         onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
-                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                       />
                     </div>
                   </div>
@@ -820,7 +820,7 @@ const CreateInvoicePage: React.FC = () => {
 
                 {/* Currency Selector */}
                 <div className={`mt-4 pt-4 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
-                  <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2`}>Currency</label>
+                  <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-2`}>Currency</label>
                   <div className="relative">
                     <button
                       type="button"
@@ -828,11 +828,11 @@ const CreateInvoicePage: React.FC = () => {
                       className={`w-full md:w-64 px-3 py-2 ${isDark ? 'bg-secondary border-border focus:ring-primary' : 'bg-white border-gray-200 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent text-left flex items-center justify-between`}
                     >
                       <span className="flex items-center gap-2">
-                        <span className={`font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{selectedCurrency.symbol}</span>
-                        <span className={isDark ? 'text-white' : 'text-[#134e4a]'}>{selectedCurrency.code}</span>
-                        <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>- {selectedCurrency.name}</span>
+                        <span className={`font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{selectedCurrency.symbol}</span>
+                        <span className={isDark ? 'text-foreground' : 'text-[#134e4a]'}>{selectedCurrency.code}</span>
+                        <span className={isDark ? 'text-muted-foreground' : 'text-gray-500'}>- {selectedCurrency.name}</span>
                       </span>
-                      <ChevronDown className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'} transition-transform ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'} transition-transform ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
                     </button>
 
                     {showCurrencyDropdown && (
@@ -843,7 +843,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={currencySearch}
                             onChange={(e) => setCurrencySearch(e.target.value)}
                             placeholder="Search currency..."
-                            className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                            className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                             autoFocus
                           />
                         </div>
@@ -858,12 +858,12 @@ const CreateInvoicePage: React.FC = () => {
                                 setCurrencySearch('')
                               }}
                               className={`w-full px-3 py-2 text-left text-sm ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'} flex items-center gap-3 ${
-                                invoiceData.currency === currency.code ? isDark ? 'bg-primary/20 text-primary' : 'bg-[#0d9488]/20 text-[#0d9488]' : isDark ? 'text-white' : 'text-[#134e4a]'
+                                invoiceData.currency === currency.code ? isDark ? 'bg-primary/20 text-primary' : 'bg-[#0d9488]/20 text-[#0d9488]' : isDark ? 'text-foreground' : 'text-[#134e4a]'
                               }`}
                             >
                               <span className="w-8 font-medium">{currency.symbol}</span>
                               <span className="font-medium">{currency.code}</span>
-                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>{currency.name}</span>
+                              <span className={isDark ? 'text-muted-foreground' : 'text-gray-500'}>{currency.name}</span>
                               {invoiceData.currency === currency.code && (
                                 <Check className={`w-4 h-4 ml-auto ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                               )}
@@ -888,30 +888,30 @@ const CreateInvoicePage: React.FC = () => {
                   <div className={`mt-4 pt-4 border-t ${isDark ? 'border-border' : 'border-gray-200'} space-y-4`}>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Purchase Order (PO) #</label>
+                        <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Purchase Order (PO) #</label>
                         <input
                           type="text"
                           value={invoiceData.poNumber || ''}
                           onChange={(e) => handleInputChange('poNumber', e.target.value)}
                           placeholder="PO-12345"
-                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                         />
                       </div>
                       <div>
-                        <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Reference #</label>
+                        <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Reference #</label>
                         <input
                           type="text"
                           value={invoiceData.referenceNumber || ''}
                           onChange={(e) => handleInputChange('referenceNumber', e.target.value)}
                           placeholder="REF-001"
-                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Discount (%)</label>
+                        <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Discount (%)</label>
                         <input
                           type="number"
                           value={invoiceData.discount || 0}
@@ -919,11 +919,11 @@ const CreateInvoicePage: React.FC = () => {
                           min="0"
                           max="100"
                           placeholder="0"
-                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                         />
                       </div>
                       <div>
-                        <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Shipping / Delivery Charges</label>
+                        <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Shipping / Delivery Charges</label>
                         <input
                           type="number"
                           value={invoiceData.shipping || 0}
@@ -931,17 +931,17 @@ const CreateInvoicePage: React.FC = () => {
                           min="0"
                           step="0.01"
                           placeholder="0.00"
-                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Payment Terms</label>
+                      <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Payment Terms</label>
                       <select
                         value={invoiceData.paymentTerms || ''}
                         onChange={(e) => handleInputChange('paymentTerms', e.target.value)}
-                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                       >
                         <option value="">Select payment terms</option>
                         <option value="due_on_receipt">Due on Receipt</option>
@@ -954,13 +954,13 @@ const CreateInvoicePage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Footer Note / Terms & Conditions</label>
+                      <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Footer Note / Terms & Conditions</label>
                       <textarea
                         value={invoiceData.footerNote || ''}
                         onChange={(e) => handleInputChange('footerNote', e.target.value)}
                         placeholder="Payment is due within the specified period. Late payments may incur additional charges..."
                         rows={2}
-                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
+                        className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
                       />
                     </div>
                   </div>
@@ -970,13 +970,13 @@ const CreateInvoicePage: React.FC = () => {
               {/* Items Section */}
               <div className={`${isDark ? 'bg-white border-border' : 'bg-gray-50 border-gray-200'} rounded-xl border p-4`}>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>4.</span>
-                  <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>I invoice you:</span>
-                  <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium ml-auto`}>5.</span>
+                  <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>4.</span>
+                  <span className={`text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>I invoice you:</span>
+                  <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium ml-auto`}>5.</span>
                 </div>
 
                 {/* Items Header */}
-                <div className={`grid grid-cols-12 gap-2 mb-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} font-medium`}>
+                <div className={`grid grid-cols-12 gap-2 mb-2 text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} font-medium`}>
                   <div className="col-span-4">Item</div>
                   <div className="col-span-1 text-center">Quantity</div>
                   <div className="col-span-2 text-center">Unit</div>
@@ -997,7 +997,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.name}
                             onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                             placeholder="Enter a name here"
-                            className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                            className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                           />
                         </div>
                         <div className="col-span-1">
@@ -1006,7 +1006,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.quantity}
                             onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
                             min="0"
-                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
+                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
                           />
                         </div>
                         <div className="col-span-2">
@@ -1015,7 +1015,7 @@ const CreateInvoicePage: React.FC = () => {
                             value={item.unit}
                             onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
                             placeholder="pcs"
-                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
+                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
                           />
                         </div>
                         <div className="col-span-2">
@@ -1026,7 +1026,7 @@ const CreateInvoicePage: React.FC = () => {
                             min="0"
                             step="0.01"
                             placeholder="0.00"
-                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
+                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
                           />
                         </div>
                         <div className="col-span-1">
@@ -1036,16 +1036,16 @@ const CreateInvoicePage: React.FC = () => {
                             onChange={(e) => handleItemChange(index, 'tax', parseFloat(e.target.value) || 0)}
                             min="0"
                             max="100"
-                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-white focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
+                            className={`w-full px-2 py-2 ${isDark ? 'bg-secondary border-border text-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] focus:ring-[#0d9488]'} border rounded-lg text-sm text-center focus:ring-2 focus:border-transparent`}
                           />
                         </div>
-                        <div className={`col-span-1 text-right text-sm font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+                        <div className={`col-span-1 text-right text-sm font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                           {(item.quantity * item.price).toFixed(2)}
                         </div>
                         <div className="col-span-1 text-center">
                           <button
                             onClick={() => removeItem(index)}
-                            className={`p-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'} hover:text-red-500 hover:bg-red-500/10 rounded transition-colors`}
+                            className={`p-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'} hover:text-red-500 hover:bg-red-500/10 rounded transition-colors`}
                             disabled={invoiceData.items.length === 1}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1058,7 +1058,7 @@ const CreateInvoicePage: React.FC = () => {
                           onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                           placeholder="Enter a description here"
                           rows={1}
-                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-gray-300 placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-gray-600 placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
+                          className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-muted-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-gray-600 placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
                         />
                       </div>
                     </div>
@@ -1079,26 +1079,26 @@ const CreateInvoicePage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className={`${isDark ? 'bg-white border-border' : 'bg-gray-50 border-gray-200'} rounded-xl border p-4`}>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>9.</span>
-                    <label className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Add a note</label>
+                    <span className={`text-xs px-2 py-1 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-full font-medium`}>9.</span>
+                    <label className={`text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Add a note</label>
                   </div>
                   <textarea
                     value={invoiceData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     placeholder="Notes for the client..."
                     rows={3}
-                    className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
+                    className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
                   />
                 </div>
 
                 <div className={`${isDark ? 'bg-white border-border' : 'bg-gray-50 border-gray-200'} rounded-xl border p-4`}>
-                  <label className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} block mb-3`}>Add bank details</label>
+                  <label className={`text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-500'} block mb-3`}>Add bank details</label>
                   <textarea
                     value={invoiceData.bankDetails}
                     onChange={(e) => handleInputChange('bankDetails', e.target.value)}
                     placeholder="Bank name, Account number, etc..."
                     rows={3}
-                    className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
+                    className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-white border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
                   />
                 </div>
               </div>
@@ -1108,29 +1108,29 @@ const CreateInvoicePage: React.FC = () => {
                 <div className="flex justify-end">
                   <div className="w-72 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>SUBTOTAL</span>
-                      <span className={`font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{formatCurrency(subtotal)}</span>
+                      <span className={isDark ? 'text-muted-foreground' : 'text-gray-600'}>SUBTOTAL</span>
+                      <span className={`font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{formatCurrency(subtotal)}</span>
                     </div>
                     {totalTax > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>TAX</span>
-                        <span className={`font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{formatCurrency(totalTax)}</span>
+                        <span className={isDark ? 'text-muted-foreground' : 'text-gray-600'}>TAX</span>
+                        <span className={`font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{formatCurrency(totalTax)}</span>
                       </div>
                     )}
                     {discountAmount > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>DISCOUNT ({invoiceData.discount}%)</span>
-                        <span className="font-medium text-green-400">-{formatCurrency(discountAmount)}</span>
+                        <span className={isDark ? 'text-muted-foreground' : 'text-gray-600'}>DISCOUNT ({invoiceData.discount}%)</span>
+                        <span className="font-medium text-green-600">-{formatCurrency(discountAmount)}</span>
                       </div>
                     )}
                     {shippingAmount > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>SHIPPING</span>
-                        <span className={`font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{formatCurrency(shippingAmount)}</span>
+                        <span className={isDark ? 'text-muted-foreground' : 'text-gray-600'}>SHIPPING</span>
+                        <span className={`font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{formatCurrency(shippingAmount)}</span>
                       </div>
                     )}
                     <div
-                      className={`flex justify-between text-sm font-semibold py-2 px-3 rounded-lg ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'}`}
+                      className={`flex justify-between text-sm font-semibold py-2 px-3 rounded-lg ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'}`}
                     >
                       <span>TOTAL</span>
                       <span>{formatCurrency(grandTotal)}</span>
@@ -1144,7 +1144,7 @@ const CreateInvoicePage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setShowPreview(true)}
-                    className={`py-4 ${isDark ? 'bg-secondary text-gray-400 hover:bg-muted border-border' : 'bg-white text-gray-500 hover:bg-gray-100 border-gray-200'} font-semibold rounded-xl transition-all flex items-center justify-center gap-2 border`}
+                    className={`py-4 ${isDark ? 'bg-secondary text-muted-foreground hover:bg-muted border-border' : 'bg-white text-gray-500 hover:bg-gray-100 border-gray-200'} font-semibold rounded-xl transition-all flex items-center justify-center gap-2 border`}
                   >
                     <Eye className="w-5 h-5" />
                     Preview & Adjust
@@ -1152,7 +1152,7 @@ const CreateInvoicePage: React.FC = () => {
                   <button
                     onClick={handleDownloadPDF}
                     disabled={downloadingPDF}
-                    className={`py-4 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60`}
+                    className={`py-4 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60`}
                   >
                     {downloadingPDF ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                     {downloadingPDF ? 'Downloading...' : 'Download PDF'}
@@ -1166,14 +1166,14 @@ const CreateInvoicePage: React.FC = () => {
                       setEmailMessage(`Dear ${invoiceData.clientName || 'Customer'},\n\nPlease find attached invoice #${invoiceData.invoiceNumber} for the amount of ${formatCurrency(grandTotal)}.\n\nDue Date: ${invoiceData.dueDate}\n\nThank you for your business!\n\nBest regards,\n${invoiceData.businessName || 'Your Business'}`)
                       setShowEmailModal(true)
                     }}
-                    className={`w-full py-3 ${isDark ? 'bg-secondary text-gray-300 hover:bg-muted border-border' : 'bg-white text-gray-600 hover:bg-gray-100 border-gray-200'} font-medium transition-colors flex items-center justify-center gap-2 rounded-xl border`}
+                    className={`w-full py-3 ${isDark ? 'bg-secondary text-muted-foreground hover:bg-muted border-border' : 'bg-white text-gray-600 hover:bg-gray-100 border-gray-200'} font-medium transition-colors flex items-center justify-center gap-2 rounded-xl border`}
                   >
                     <Mail className="w-4 h-4" />
                     Send by Email
                   </button>
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className={`w-full py-3 ${isDark ? 'bg-secondary text-gray-300 hover:bg-muted border-border' : 'bg-white text-gray-600 hover:bg-gray-100 border-gray-200'} font-medium transition-colors flex items-center justify-center gap-2 rounded-xl border`}
+                    className={`w-full py-3 ${isDark ? 'bg-secondary text-muted-foreground hover:bg-muted border-border' : 'bg-white text-gray-600 hover:bg-gray-100 border-gray-200'} font-medium transition-colors flex items-center justify-center gap-2 rounded-xl border`}
                   >
                     <Share2 className="w-4 h-4" />
                     Share Invoice
@@ -1199,21 +1199,21 @@ const CreateInvoicePage: React.FC = () => {
               <div className="flex items-center gap-2 md:gap-3">
                 <button
                   onClick={() => setShowPreview(false)}
-                  className={`p-2 md:px-4 md:py-2 ${isDark ? 'bg-secondary text-gray-400 hover:bg-muted' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors flex items-center gap-1 md:gap-2 text-sm font-medium`}
+                  className={`p-2 md:px-4 md:py-2 ${isDark ? 'bg-secondary text-muted-foreground hover:bg-muted' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors flex items-center gap-1 md:gap-2 text-sm font-medium`}
                 >
                   <ChevronDown className="w-4 h-4 rotate-90" />
                   <span className="hidden md:inline">Back to Edit</span>
                 </button>
-                <h2 className={`text-sm md:text-lg font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>Invoice Preview</h2>
+                <h2 className={`text-sm md:text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>Invoice Preview</h2>
               </div>
               <div className="flex items-center gap-1 md:gap-2">
-                <button className={`hidden md:flex px-4 py-2 ${isDark ? 'bg-secondary text-gray-400 hover:bg-muted' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors items-center gap-2 text-sm font-medium`}>
+                <button className={`hidden md:flex px-4 py-2 ${isDark ? 'bg-secondary text-muted-foreground hover:bg-muted' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} rounded-lg transition-colors items-center gap-2 text-sm font-medium`}>
                   <Printer className="w-4 h-4" />
                   Print
                 </button>
                 <button
                   onClick={handleDownloadPDF}
-                  className={`px-3 py-2 md:px-4 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-lg transition-all hover:shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium`}
+                  className={`px-3 py-2 md:px-4 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} rounded-lg transition-all hover:shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium`}
                 >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Download</span> PDF
@@ -1239,23 +1239,23 @@ const CreateInvoicePage: React.FC = () => {
             >
               {/* Logo Adjustment Instructions Panel - Hidden on mobile */}
               <div className={`hidden md:block w-64 flex-shrink-0 ${isDark ? 'bg-secondary' : 'bg-white'} rounded-xl p-4 shadow-lg h-fit sticky top-0`}>
-                <h3 className={`text-sm font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Adjust Logos</h3>
+                <h3 className={`text-sm font-semibold mb-4 ${isDark ? 'text-foreground' : 'text-gray-900'}`}>Adjust Logos</h3>
 
                 {(invoiceData.businessLogo || invoiceData.backgroundLogo) ? (
                   <div className="space-y-4">
                     <div className={`p-3 rounded-lg ${isDark ? 'bg-muted/30' : 'bg-blue-50'}`}>
-                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-blue-700'} mb-2`}>
+                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-blue-700'} mb-2`}>
                         <strong>Drag</strong> the logo to move it anywhere
                       </p>
-                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-blue-700'}`}>
+                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-blue-700'}`}>
                         <strong>Drag the corner</strong> to resize
                       </p>
                     </div>
 
                     {invoiceData.businessLogo && (
                       <div className={`p-3 rounded-lg border ${isDark ? 'border-border' : 'border-gray-200'}`}>
-                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Your Logo</label>
-                        <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'} space-y-1`}>
+                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>Your Logo</label>
+                        <div className={`text-[10px] ${isDark ? 'text-muted-foreground' : 'text-gray-400'} space-y-1`}>
                           <div>Position: {Math.round(invoiceData.logoX)}px, {Math.round(invoiceData.logoY)}px</div>
                           <div>Size: {Math.round(invoiceData.logoWidth)} x {Math.round(invoiceData.logoHeight)}px</div>
                         </div>
@@ -1270,8 +1270,8 @@ const CreateInvoicePage: React.FC = () => {
 
                     {invoiceData.backgroundLogo && (
                       <div className={`p-3 rounded-lg border ${isDark ? 'border-border' : 'border-gray-200'}`}>
-                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Background Watermark</label>
-                        <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'} space-y-1`}>
+                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>Background Watermark</label>
+                        <div className={`text-[10px] ${isDark ? 'text-muted-foreground' : 'text-gray-400'} space-y-1`}>
                           <div>Position: {Math.round(invoiceData.bgLogoX)}%, {Math.round(invoiceData.bgLogoY)}%</div>
                           <div>Size: {Math.round(invoiceData.bgLogoWidth)}%</div>
                         </div>
@@ -1285,7 +1285,7 @@ const CreateInvoicePage: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} text-center py-4`}>
+                  <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-400'} text-center py-4`}>
                     Upload logos in the form to adjust them here
                   </p>
                 )}
@@ -1701,13 +1701,13 @@ const CreateInvoicePage: React.FC = () => {
         >
           <div className={`${isDark ? 'bg-white' : 'bg-white'} rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden`}>
             <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
-              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'} flex items-center gap-2`}>
+              <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} flex items-center gap-2`}>
                 <Mail className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 Send Invoice by Email
               </h2>
               <button
                 onClick={() => setShowEmailModal(false)}
-                className={`w-8 h-8 ${isDark ? 'bg-secondary text-gray-400' : 'bg-gray-100 text-gray-500'} hover:bg-red-500 hover:text-white rounded-lg flex items-center justify-center transition-colors`}
+                className={`w-8 h-8 ${isDark ? 'bg-secondary text-muted-foreground' : 'bg-gray-100 text-gray-500'} hover:bg-red-500 hover:text-white rounded-lg flex items-center justify-center transition-colors`}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1715,35 +1715,35 @@ const CreateInvoicePage: React.FC = () => {
 
             <div className="p-4 space-y-4">
               <div>
-                <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>To *</label>
+                <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>To *</label>
                 <input
                   type="email"
                   value={emailTo}
                   onChange={(e) => setEmailTo(e.target.value)}
                   placeholder="client@email.com"
-                  className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                  className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                 />
               </div>
 
               <div>
-                <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Subject</label>
+                <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Subject</label>
                 <input
                   type="text"
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Invoice subject"
-                  className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
+                  className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent`}
                 />
               </div>
 
               <div>
-                <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Message</label>
+                <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-1`}>Message</label>
                 <textarea
                   value={emailMessage}
                   onChange={(e) => setEmailMessage(e.target.value)}
                   placeholder="Your message..."
                   rows={5}
-                  className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-white placeholder-gray-400 focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
+                  className={`w-full px-3 py-2 ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground focus:ring-primary' : 'bg-gray-50 border-gray-200 text-[#134e4a] placeholder-gray-400 focus:ring-[#0d9488]'} border rounded-lg text-sm focus:ring-2 focus:border-transparent resize-none`}
                 />
               </div>
 
@@ -1752,8 +1752,8 @@ const CreateInvoicePage: React.FC = () => {
                   <FileText className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 </div>
                 <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>Invoice #{invoiceData.invoiceNumber}.pdf</p>
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Will be attached to email</p>
+                  <p className={`text-sm font-medium ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>Invoice #{invoiceData.invoiceNumber}.pdf</p>
+                  <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Will be attached to email</p>
                 </div>
               </div>
             </div>
@@ -1761,7 +1761,7 @@ const CreateInvoicePage: React.FC = () => {
             <div className={`p-4 border-t ${isDark ? 'border-border' : 'border-gray-200'} flex gap-3`}>
               <button
                 onClick={() => setShowEmailModal(false)}
-                className={`flex-1 py-3 ${isDark ? 'bg-secondary text-gray-400 hover:bg-muted' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} font-medium rounded-xl transition-colors`}
+                className={`flex-1 py-3 ${isDark ? 'bg-secondary text-muted-foreground hover:bg-muted' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} font-medium rounded-xl transition-colors`}
               >
                 Cancel
               </button>
@@ -1779,11 +1779,11 @@ const CreateInvoicePage: React.FC = () => {
                   alert('Invoice sent successfully!')
                 }}
                 disabled={sendingEmail || !emailTo}
-                className={`flex-1 py-3 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50`}
+                className={`flex-1 py-3 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50`}
               >
                 {sendingEmail ? (
                   <>
-                    <div className={`w-4 h-4 border-2 ${isDark ? 'border-black/30 border-t-black' : 'border-white/30 border-t-white'} rounded-full animate-spin`} />
+                    <div className={`w-4 h-4 border-2 ${isDark ? 'border-primary-foreground/30 border-t-primary-foreground' : 'border-white/30 border-t-white'} rounded-full animate-spin`} />
                     Sending...
                   </>
                 ) : (
@@ -1808,13 +1808,13 @@ const CreateInvoicePage: React.FC = () => {
         >
           <div className={`${isDark ? 'bg-white' : 'bg-white'} rounded-2xl shadow-2xl w-full max-w-md overflow-hidden`}>
             <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
-              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'} flex items-center gap-2`}>
+              <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'} flex items-center gap-2`}>
                 <Share2 className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 Share Invoice
               </h2>
               <button
                 onClick={() => setShowShareModal(false)}
-                className={`w-8 h-8 ${isDark ? 'bg-secondary text-gray-400' : 'bg-gray-100 text-gray-500'} hover:bg-red-500 hover:text-white rounded-lg flex items-center justify-center transition-colors`}
+                className={`w-8 h-8 ${isDark ? 'bg-secondary text-muted-foreground' : 'bg-gray-100 text-gray-500'} hover:bg-red-500 hover:text-white rounded-lg flex items-center justify-center transition-colors`}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1823,13 +1823,13 @@ const CreateInvoicePage: React.FC = () => {
             <div className="p-4 space-y-4">
               {/* Copy Link */}
               <div className={`${isDark ? 'bg-secondary' : 'bg-gray-100'} rounded-lg p-3`}>
-                <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2`}>Invoice Link</label>
+                <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-2`}>Invoice Link</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     readOnly
                     value={`${typeof window !== 'undefined' ? window.location.origin : ''}/invoice/view/${invoiceData.invoiceNumber}`}
-                    className={`flex-1 px-3 py-2 ${isDark ? 'bg-muted/30 border-border text-gray-300' : 'bg-white border-gray-200 text-gray-600'} border rounded-lg text-sm`}
+                    className={`flex-1 px-3 py-2 ${isDark ? 'bg-muted/30 border-border text-muted-foreground' : 'bg-white border-gray-200 text-gray-600'} border rounded-lg text-sm`}
                   />
                   <button
                     onClick={() => {
@@ -1840,7 +1840,7 @@ const CreateInvoicePage: React.FC = () => {
                     className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-all ${
                       linkCopied
                         ? 'bg-green-500 text-white'
-                        : isDark ? 'bg-primary text-black hover:shadow-lg' : 'bg-[#0d9488] text-white hover:shadow-lg'
+                        : isDark ? 'bg-primary text-primary-foreground hover:shadow-lg' : 'bg-[#0d9488] text-white hover:shadow-lg'
                     }`}
                   >
                     {linkCopied ? (
@@ -1860,7 +1860,7 @@ const CreateInvoicePage: React.FC = () => {
 
               {/* Share Options */}
               <div>
-                <label className={`block text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-3`}>Share via</label>
+                <label className={`block text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'} mb-3`}>Share via</label>
                 <div className="grid grid-cols-2 gap-3">
                   {/* WhatsApp */}
                   <button
@@ -1873,7 +1873,7 @@ const CreateInvoicePage: React.FC = () => {
                     <div className="w-10 h-10 bg-[#25D366] rounded-lg flex items-center justify-center">
                       <MessageCircle className="w-5 h-5 text-white" />
                     </div>
-                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} group-hover:text-[#25D366]`}>WhatsApp</span>
+                    <span className={`font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-600'} group-hover:text-[#25D366]`}>WhatsApp</span>
                   </button>
 
                   {/* SMS */}
@@ -1887,7 +1887,7 @@ const CreateInvoicePage: React.FC = () => {
                     <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                       <MessageCircle className="w-5 h-5 text-white" />
                     </div>
-                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} group-hover:text-blue-500`}>SMS</span>
+                    <span className={`font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-600'} group-hover:text-blue-500`}>SMS</span>
                   </button>
 
                   {/* Email */}
@@ -1902,7 +1902,7 @@ const CreateInvoicePage: React.FC = () => {
                     <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
                       <Mail className="w-5 h-5 text-white" />
                     </div>
-                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} group-hover:text-red-500`}>Email</span>
+                    <span className={`font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-600'} group-hover:text-red-500`}>Email</span>
                   </button>
 
                   {/* More Share */}
@@ -1925,7 +1925,7 @@ const CreateInvoicePage: React.FC = () => {
                     <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
                       <Share2 className="w-5 h-5 text-white" />
                     </div>
-                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} group-hover:text-purple-500`}>More</span>
+                    <span className={`font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-600'} group-hover:text-purple-500`}>More</span>
                   </button>
                 </div>
               </div>
@@ -1936,7 +1936,7 @@ const CreateInvoicePage: React.FC = () => {
                   handleDownloadPDF()
                   setShowShareModal(false)
                 }}
-                className={`w-full py-3 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2`}
+                className={`w-full py-3 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'} font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2`}
               >
                 <Download className="w-5 h-5" />
                 Download PDF to Share

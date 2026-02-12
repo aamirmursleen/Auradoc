@@ -222,7 +222,7 @@ const SignerManager: React.FC<SignerManagerProps> = ({
             <button
               onClick={handleAdd}
               disabled={!newName.trim() || !newEmail.trim()}
-              className="px-3 py-1.5 text-sm bg-primary-500 text-white rounded hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-sm bg-primary-500 text-primary-foreground rounded hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Add Signer
             </button>
@@ -234,7 +234,7 @@ const SignerManager: React.FC<SignerManagerProps> = ({
           {currentUserName && currentUserEmail && !isCurrentUserSigner && (
             <button
               onClick={handleAddSelf}
-              className="w-full flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg"
+              className="w-full flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-primary-500 to-primary-600 text-primary-foreground rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg"
             >
               <UserCheck className="w-5 h-5" />
               <span className="font-medium">Sign Myself</span>

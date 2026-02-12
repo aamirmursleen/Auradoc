@@ -781,7 +781,7 @@ export default function WatermarkPDFPage() {
                           placeholder="e.g., 1,3,5 or 1-5 or 1,3-5,7"
                           className={`w-full px-3 py-2 bg-muted/30 border-border text-foreground border rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary`}
                         />
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           Total: {totalPages} pages
                         </p>
                       </div>
@@ -1203,7 +1203,7 @@ export default function WatermarkPDFPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-[500px] text-center text-gray-500">
+                    <div className="flex items-center justify-center h-[500px] text-center text-muted-foreground">
                       <div>
                         <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
                         <p>Upload a PDF to see preview</p>

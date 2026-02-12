@@ -856,6 +856,76 @@ export async function sendBatchSigningInvites(params: {
 }
 
 /**
+ * Send document voided notification to all signers
+ */
+export async function sendDocumentVoidedNotification(params: {
+  documentName: string
+  senderName: string
+  senderEmail: string
+  signers: Array<{ name: string; email: string }>
+  voidReason?: string
+}): Promise<{ success: boolean; sentCount: number }> {
+  const { documentName, senderName, senderEmail, signers, voidReason } = params
+  let sentCount = 0
+
+  for (const signer of signers) {
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
+          <tr>
+            <td style="background-color: #000000; padding: 30px 40px; text-align: center;">
+              <div style="font-size: 40px; margin-bottom: 10px;">🚫</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700;">Document Voided</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 35px 40px;">
+              <p style="margin: 0 0 15px 0; font-size: 16px; color: #333333;">Hi <strong>${signer.name}</strong>,</p>
+              <p style="margin: 0 0 20px 0; font-size: 15px; color: #555555; line-height: 1.7;"><strong>${senderName}</strong> has voided the document "<strong>${documentName}</strong>". This document no longer requires your signature.</p>
+              ${voidReason ? `<div style="background-color: #f9f9f9; border-left: 4px solid #000000; padding: 15px 20px; margin: 20px 0;"><p style="margin: 0; font-size: 14px; color: #333333;"><strong>Reason:</strong> "${voidReason}"</p></div>` : ''}
+              <p style="margin: 20px 0 0 0; font-size: 14px; color: #888888;">If you have questions, please contact <a href="mailto:${senderEmail}" style="color: #0066cc;">${senderEmail}</a>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #f9f9f9; padding: 20px 40px; text-align: center; border-top: 1px solid #e0e0e0;">
+              <p style="margin: 0; font-size: 12px; color: #888888;">Powered by <strong style="color: #000000;">${COMPANY_NAME}</strong></p>
+            </td>
+          </tr>
+        </table>
+        <p style="margin: 20px 0 0 0; font-size: 11px; color: #999999; text-align: center;">&copy; ${new Date().getFullYear()} MamaSign. All rights reserved.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+    try {
+      const result = await sendEmailDirect({
+        to: signer.email,
+        subject: `"${documentName}" has been voided by ${senderName}`,
+        html,
+        replyTo: senderEmail,
+      })
+      if (result.success) sentCount++
+    } catch (error) {
+      console.error(`Failed to send void notification to ${signer.email}:`, error)
+    }
+  }
+
+  return { success: sentCount > 0, sentCount }
+}
+
+/**
  * Send document declined notification
  */
 export async function sendDocumentDeclined(

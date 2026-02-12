@@ -39,17 +39,17 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
           {items.map((item, index) => (
             <li key={index} className="flex items-center">
               {index > 0 && (
-                <ChevronRight className={`w-3.5 h-3.5 mx-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+                <ChevronRight className="w-3.5 h-3.5 mx-1 text-muted-foreground" />
               )}
               {item.href && index < items.length - 1 ? (
                 <Link
                   href={item.href}
-                  className={`hover:underline ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-900'}`}
+                  className="hover:underline text-muted-foreground hover:text-foreground"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>
+                <span className="text-foreground">
                   {item.label}
                 </span>
               )}

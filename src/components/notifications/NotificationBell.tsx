@@ -143,7 +143,7 @@ const NotificationBell: React.FC = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'document_completed':
-        return <FileCheck className="w-5 h-5 text-green-400" />
+        return <FileCheck className="w-5 h-5 text-green-600" />
       case 'document_signed':
         return <Check className="w-5 h-5 text-primary" />
       case 'document_viewed':
@@ -153,7 +153,7 @@ const NotificationBell: React.FC = () => {
       case 'reminder_sent':
         return <Clock className="w-5 h-5 text-yellow-400" />
       default:
-        return <FileText className="w-5 h-5 text-gray-400" />
+        return <FileText className="w-5 h-5 text-muted-foreground" />
     }
   }
 
@@ -203,7 +203,7 @@ const NotificationBell: React.FC = () => {
               Notifications
               {/* Live indicator */}
               <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
-                isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                isConnected ? 'bg-green-500/20 text-green-600' : 'bg-red-500/20 text-red-500'
               }`}>
                 {isConnected ? (
                   <>
@@ -233,7 +233,7 @@ const NotificationBell: React.FC = () => {
           {/* Notifications List */}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-muted-foreground">
                 <Bell className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p>No notifications yet</p>
                 <p className="text-sm mt-1">You'll see updates here when documents are signed</p>
@@ -270,11 +270,11 @@ const NotificationBell: React.FC = () => {
                           <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1.5 animate-pulse" />
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {notification.message}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-muted-foreground">
                           {formatTimeAgo(notification.created_at)}
                         </span>
                         {notification.document_name && (

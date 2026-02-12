@@ -53,12 +53,15 @@ export interface SigningRequest {
   signers: SigningRequestSigner[]
   message?: string
   due_date?: string
-  status: 'pending' | 'in_progress' | 'completed' | 'declined' | 'expired'
+  status: 'pending' | 'in_progress' | 'completed' | 'declined' | 'expired' | 'voided'
   current_signer_index: number
   declined_by?: string
   declined_reason?: string
   declined_at?: string
   completed_at?: string
+  voided_at?: string
+  voided_by?: string
+  void_reason?: string
   created_at: string
   updated_at: string
 }
@@ -181,6 +184,22 @@ export async function deleteDocument(documentId: string): Promise<void> {
     console.error('Error deleting document:', error)
     throw error
   }
+}
+
+// Get signing requests where user is a signer (inbox)
+export async function getInboxSigningRequests(userEmail: string): Promise<SigningRequest[]> {
+  const { data, error } = await supabase
+    .from('signing_requests')
+    .select('*')
+    .contains('signers', [{ email: userEmail }])
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching inbox signing requests:', error)
+    throw error
+  }
+
+  return data || []
 }
 
 // ============ DOCUMENT EVENTS (Audit Trail) ============

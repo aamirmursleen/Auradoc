@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import {
   FileText,
@@ -26,12 +26,28 @@ import {
   ChevronDown,
   Wifi,
   WifiOff,
-  RefreshCw
+  RefreshCw,
+  AlertCircle,
+  Users,
+  Ban,
+  RotateCw,
+  XCircle
 } from 'lucide-react'
-import { getUserDocuments, deleteDocument, getUserSigningRequests, deleteSigningRequest, SigningRequest } from '@/lib/documents'
+import { getUserDocuments, deleteDocument, getUserSigningRequests, deleteSigningRequest, getInboxSigningRequests, SigningRequest } from '@/lib/documents'
 import { Document, DocumentStatus } from '@/lib/types'
 import { useRealtimeNotifications, SigningRequestUpdate } from '@/hooks/useRealtimeNotifications'
 import { useToastContext } from '@/contexts/ToastContext'
+
+type DashboardTab = 'all' | 'action_required' | 'waiting' | 'completed' | 'sent' | 'inbox'
+
+const tabConfig: { id: DashboardTab; label: string; icon: React.ElementType }[] = [
+  { id: 'all', label: 'All', icon: FileText },
+  { id: 'action_required', label: 'Action Required', icon: AlertCircle },
+  { id: 'waiting', label: 'Waiting for Others', icon: Clock },
+  { id: 'completed', label: 'Completed', icon: CheckCircle2 },
+  { id: 'sent', label: 'Sent', icon: Send },
+  { id: 'inbox', label: 'Inbox', icon: Inbox },
+]
 
 // Status configuration — light teal theme
 const statusConfig: Record<DocumentStatus, {
@@ -98,10 +114,12 @@ const formatRelativeTime = (dateString: string) => {
 
 const DocumentsPage: React.FC = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, isLoaded } = useUser()
   const { addToast } = useToastContext()
   const [documents, setDocuments] = useState<Document[]>([])
   const [signingRequests, setSigningRequests] = useState<SigningRequest[]>([])
+  const [inboxRequests, setInboxRequests] = useState<SigningRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<DocumentStatus | 'all'>('all')
@@ -109,16 +127,35 @@ const DocumentsPage: React.FC = () => {
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  // Tab state from URL param
+  const activeTab = (searchParams.get('tab') as DashboardTab) || 'all'
+  const setActiveTab = (tab: DashboardTab) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (tab === 'all') {
+      params.delete('tab')
+    } else {
+      params.set('tab', tab)
+    }
+    router.push(`/documents${params.toString() ? '?' + params.toString() : ''}`)
+  }
+
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
+
   const loadDocuments = useCallback(async (showLoader = true) => {
     if (!isLoaded || !user) return
     try {
       if (showLoader) setLoading(true)
-      const [docs, requests] = await Promise.all([
+      const email = user.emailAddresses?.[0]?.emailAddress || ''
+      const [docs, requests, inbox] = await Promise.all([
         getUserDocuments(user.id),
-        getUserSigningRequests(user.id)
+        getUserSigningRequests(user.id),
+        email ? getInboxSigningRequests(email) : Promise.resolve([])
       ])
       setDocuments(docs)
       setSigningRequests(requests)
+      // Filter out inbox requests that the user also owns (avoid duplicates)
+      const ownedIds = new Set(requests.map(r => r.id))
+      setInboxRequests(inbox.filter(r => !ownedIds.has(r.id)))
     } catch (error) {
       console.error('Error loading documents:', error)
     } finally {
@@ -186,6 +223,22 @@ const DocumentsPage: React.FC = () => {
   }
 
   const filteredDocuments = documents.filter(doc => {
+    // Tab filter
+    switch (activeTab) {
+      case 'waiting':
+        if (!['delivered', 'opened'].includes(doc.status)) return false
+        break
+      case 'completed':
+        if (doc.status !== 'completed') return false
+        break
+      case 'sent':
+        if (!['delivered', 'opened', 'signed', 'completed'].includes(doc.status)) return false
+        break
+      case 'action_required':
+      case 'inbox':
+        return false // Documents table doesn't have inbox concept
+      // 'all' shows everything
+    }
     const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (doc.recipient_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (doc.recipient_email?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -205,18 +258,71 @@ const DocumentsPage: React.FC = () => {
 
   const handleCreateNew = () => router.push('/track')
 
+  // Compute tab counts
+  const actionRequiredCount = inboxRequests.filter(r =>
+    r.signers.some(s => s.email === userEmail && s.status === 'pending')
+  ).length
+  const waitingCount = signingRequests.filter(r => ['pending', 'in_progress'].includes(r.status)).length
+  const completedCount = documents.filter(d => d.status === 'completed').length +
+    signingRequests.filter(r => r.status === 'completed').length
+  const sentCount = signingRequests.length
+  const inboxCount = inboxRequests.length
+
+  const tabCounts: Record<DashboardTab, number> = {
+    all: documents.length + signingRequests.length + inboxRequests.length,
+    action_required: actionRequiredCount,
+    waiting: waitingCount,
+    completed: completedCount,
+    sent: sentCount,
+    inbox: inboxCount,
+  }
+
   const stats = {
     total: documents.length + signingRequests.length,
     pending: documents.filter(d => ['created', 'delivered', 'opened'].includes(d.status)).length +
              signingRequests.filter(r => ['pending', 'in_progress'].includes(r.status)).length,
-    completed: documents.filter(d => d.status === 'completed').length +
-               signingRequests.filter(r => r.status === 'completed').length,
+    completed: completedCount,
     awaitingSignature: documents.filter(d => d.status === 'opened').length +
                        signingRequests.filter(r => r.status === 'in_progress').length
   }
 
-  const filteredSigningRequests = signingRequests.filter(req => {
-    const matchesSearch = req.document_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  // Tab-filtered signing requests from owned requests
+  const tabFilteredSigningRequests = signingRequests.filter(req => {
+    switch (activeTab) {
+      case 'waiting':
+        return ['pending', 'in_progress'].includes(req.status)
+      case 'completed':
+        return req.status === 'completed'
+      case 'sent':
+        return true // All owned signing requests are "sent"
+      case 'action_required':
+        return false // Action required comes from inbox, not owned
+      case 'inbox':
+        return false // Inbox comes from inboxRequests
+      default:
+        return true // 'all'
+    }
+  })
+
+  // Tab-filtered inbox requests
+  const tabFilteredInboxRequests = inboxRequests.filter(req => {
+    switch (activeTab) {
+      case 'action_required':
+        return req.signers.some(s => s.email === userEmail && s.status === 'pending')
+      case 'inbox':
+        return true
+      case 'completed':
+        return req.status === 'completed'
+      default:
+        return activeTab === 'all'
+    }
+  })
+
+  // Combine and apply search + status filter
+  const allVisibleSigningRequests = [...tabFilteredSigningRequests, ...tabFilteredInboxRequests]
+
+  const filteredSigningRequests = allVisibleSigningRequests.filter(req => {
+    const matchesSearch = !searchQuery || req.document_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.signers.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.email.toLowerCase().includes(searchQuery.toLowerCase()))
     const statusMap: Record<string, DocumentStatus[]> = {
@@ -230,6 +336,56 @@ const DocumentsPage: React.FC = () => {
       (statusMap[req.status] && statusMap[req.status].includes(statusFilter as DocumentStatus))
     return matchesSearch && (statusFilter === 'all' || matchesStatus)
   })
+
+  const [voidingId, setVoidingId] = useState<string | null>(null)
+  const [resendingId, setResendingId] = useState<string | null>(null)
+  const [voidConfirmId, setVoidConfirmId] = useState<string | null>(null)
+
+  const handleVoidSigningRequest = async (id: string, reason?: string) => {
+    try {
+      setVoidingId(id)
+      const res = await fetch(`/api/signing-requests/${id}/void`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setSigningRequests(prev => prev.map(req =>
+          req.id === id ? { ...req, status: 'voided' as any } : req
+        ))
+        addToast({ type: 'document_completed', title: 'Document Voided', message: data.message, duration: 4000 })
+        setVoidConfirmId(null)
+      } else {
+        addToast({ type: 'document_declined', title: 'Error', message: data.message, duration: 4000 })
+      }
+    } catch (error) {
+      addToast({ type: 'document_declined', title: 'Error', message: 'Failed to void document', duration: 4000 })
+    } finally {
+      setVoidingId(null)
+    }
+  }
+
+  const handleResendSigningRequest = async (id: string, signerEmail?: string) => {
+    try {
+      setResendingId(id)
+      const res = await fetch(`/api/signing-requests/${id}/resend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signerEmail })
+      })
+      const data = await res.json()
+      if (data.success) {
+        addToast({ type: 'document_completed', title: 'Invite Resent', message: data.message, duration: 4000 })
+      } else {
+        addToast({ type: 'document_declined', title: 'Error', message: data.message, duration: 4000 })
+      }
+    } catch (error) {
+      addToast({ type: 'document_declined', title: 'Error', message: 'Failed to resend invite', duration: 4000 })
+    } finally {
+      setResendingId(null)
+    }
+  }
 
   const handleDeleteSigningRequest = async (id: string) => {
     try {
@@ -433,6 +589,38 @@ const DocumentsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Tab Bar */}
+      <div className="mb-6 overflow-x-auto">
+        <div className="flex border-b border-border min-w-max">
+          {tabConfig.map((tab) => {
+            const TabIcon = tab.icon
+            const count = tabCounts[tab.id]
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  isActive
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                }`}
+              >
+                <TabIcon className="w-4 h-4" />
+                {tab.label}
+                {count > 0 && (
+                  <span className={`ml-1 px-1.5 py-0.5 text-xs rounded-full ${
+                    isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="bg-white rounded-xl border border-border shadow-sm mb-6">
         <div className="p-4 flex flex-wrap items-center gap-4">
@@ -577,17 +765,29 @@ const DocumentsPage: React.FC = () => {
       ) : (
         <div className="bg-white rounded-xl border border-border shadow-sm p-12 text-center">
           <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-            <Inbox className="w-8 h-8 text-primary" />
+            {activeTab === 'inbox' ? <Inbox className="w-8 h-8 text-primary" /> :
+             activeTab === 'action_required' ? <AlertCircle className="w-8 h-8 text-primary" /> :
+             <FileText className="w-8 h-8 text-primary" />}
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            {searchQuery || statusFilter !== 'all' ? 'No documents found' : 'No documents yet'}
+            {searchQuery || statusFilter !== 'all'
+              ? 'No documents found'
+              : activeTab === 'inbox' ? 'No documents in your inbox'
+              : activeTab === 'action_required' ? 'Nothing requires your action'
+              : activeTab === 'waiting' ? 'No documents waiting for others'
+              : activeTab === 'completed' ? 'No completed documents'
+              : activeTab === 'sent' ? 'No sent documents'
+              : 'No documents yet'}
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             {searchQuery || statusFilter !== 'all'
               ? 'Try adjusting your search or filter to find what you\'re looking for.'
+              : activeTab === 'action_required' ? 'Documents that need your signature will appear here.'
+              : activeTab === 'inbox' ? 'Documents sent to you for signing will appear here.'
+              : activeTab === 'waiting' ? 'Documents you\'ve sent that are awaiting signatures will appear here.'
               : 'Create your first document to start tracking signatures and interactions.'}
           </p>
-          {!searchQuery && statusFilter === 'all' && (
+          {!searchQuery && statusFilter === 'all' && activeTab === 'all' && (
             <button
               onClick={handleCreateNew}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
@@ -626,6 +826,11 @@ const DocumentsPage: React.FC = () => {
                           <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">{req.document_name}</h3>
                           <p className="text-xs sm:text-sm text-muted-foreground truncate">
                             Sent by {req.sender_name} &middot; {formatRelativeTime(req.created_at)}
+                            {req.due_date && (
+                              <span className={`ml-2 ${new Date(req.due_date) < new Date() ? 'text-red-500' : new Date(req.due_date).getTime() - Date.now() < 3 * 86400000 ? 'text-amber-600' : ''}`}>
+                                &middot; Due {formatDate(req.due_date)}
+                              </span>
+                            )}
                           </p>
                           <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2 flex-wrap">
                             {req.signers.map((signer, idx) => (
@@ -668,11 +873,16 @@ const DocumentsPage: React.FC = () => {
                             ? 'bg-emerald-50 text-emerald-600'
                             : req.status === 'declined'
                             ? 'bg-red-50 text-red-600'
+                            : req.status === 'voided'
+                            ? 'bg-gray-100 text-gray-500'
+                            : req.status === 'expired'
+                            ? 'bg-amber-50 text-amber-700'
                             : 'bg-secondary text-primary'
                         }`}>
                           {req.status === 'completed' ? 'Completed' :
                            req.status === 'in_progress' ? 'In Progress' :
                            req.status === 'declined' ? 'Declined' :
+                           req.status === 'voided' ? 'Voided' :
                            req.status === 'expired' ? 'Expired' : 'Pending'}
                         </span>
 
@@ -716,10 +926,10 @@ const DocumentsPage: React.FC = () => {
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm ${
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-foreground text-sm font-bold shadow-sm ${
                                 signer.status === 'signed'
-                                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-                                  : 'bg-gradient-to-br from-slate-400 to-slate-500'
+                                  ? 'bg-emerald-100'
+                                  : 'bg-slate-200'
                               }`}>
                                 {signer.status === 'signed' ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
                               </div>
@@ -820,16 +1030,70 @@ const DocumentsPage: React.FC = () => {
                           <Copy className="w-4 h-4" />
                           Copy Signing Link
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleDeleteSigningRequest(req.id)
-                          }}
-                          className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors ml-auto"
+                        <Link
+                          href={`/track?id=${req.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-4 py-2 bg-muted text-foreground rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-muted/80 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
+                          <Eye className="w-4 h-4" />
+                          Track
+                        </Link>
+                        {req.status !== 'completed' && req.status !== 'voided' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleResendSigningRequest(req.id)
+                            }}
+                            disabled={resendingId === req.id}
+                            className="px-4 py-2 bg-muted text-foreground rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-muted/80 transition-colors disabled:opacity-50"
+                          >
+                            {resendingId === req.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCw className="w-4 h-4" />}
+                            Resend
+                          </button>
+                        )}
+                        {req.status !== 'completed' && req.status !== 'voided' && (
+                          voidConfirmId === req.id ? (
+                            <div className="flex items-center gap-2 ml-auto" onClick={(e) => e.stopPropagation()}>
+                              <span className="text-xs text-muted-foreground">Void this document?</span>
+                              <button
+                                onClick={() => handleVoidSigningRequest(req.id)}
+                                disabled={voidingId === req.id}
+                                className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                              >
+                                {voidingId === req.id ? 'Voiding...' : 'Yes, Void'}
+                              </button>
+                              <button
+                                onClick={() => setVoidConfirmId(null)}
+                                className="px-3 py-1.5 bg-muted text-foreground rounded-lg text-xs font-medium hover:bg-muted/80 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setVoidConfirmId(req.id)
+                              }}
+                              className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors ml-auto"
+                            >
+                              <Ban className="w-4 h-4" />
+                              Void
+                            </button>
+                          )
+                        )}
+                        {(req.status === 'completed' || req.status === 'voided') && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteSigningRequest(req.id)
+                            }}
+                            className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors ml-auto"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -892,4 +1156,21 @@ const DocumentsPage: React.FC = () => {
   )
 }
 
-export default DocumentsPage
+import { Suspense } from 'react'
+
+function DocumentsPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-32">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading documents...</p>
+        </div>
+      </div>
+    }>
+      <DocumentsPage />
+    </Suspense>
+  )
+}
+
+export default DocumentsPageWrapper

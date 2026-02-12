@@ -584,7 +584,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
               <Check className="w-full h-full text-green-600" style={{ pointerEvents: 'none' }} />
             ) : (
               <span
-                className={`text-xs font-medium truncate ${isDark ? 'text-white' : 'text-gray-800'}`}
+                className={`text-xs font-medium truncate ${isDark ? 'text-foreground' : 'text-gray-800'}`}
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
               >
                 {field.value}
@@ -636,9 +636,9 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <button onClick={() => setPdfFile(null)} className={`p-1 rounded-lg ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}>
-                  <ChevronLeft className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+                  <ChevronLeft className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`} />
                 </button>
-                <span className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                <span className={`text-sm font-medium truncate ${isDark ? 'text-foreground' : 'text-gray-800'}`}>
                   {pdfFile.name}
                 </span>
               </div>
@@ -751,7 +751,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
         ) : (
           <div className="flex items-center gap-2">
             <FileSignature className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>Sign Document</span>
+            <span className={`text-sm font-bold ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Sign Document</span>
           </div>
         )}
       </div>
@@ -775,13 +775,13 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
       <div className="flex-1 overflow-auto" ref={containerRef}>
         {!pdfFile ? (
           <div className="flex items-center justify-center h-full p-4">
-            <label className={`w-full max-w-md rounded-2xl border-2 border-dashed p-8 flex flex-col items-center cursor-pointer ${isDark ? 'bg-secondary border-[#444]' : 'bg-white border-gray-300'}`}>
+            <label className={`w-full max-w-md rounded-2xl border-2 border-dashed p-8 flex flex-col items-center cursor-pointer ${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-300'}`}>
               <input ref={fileInputRef} type="file" accept=".pdf" onChange={handleFileUpload} className="hidden" />
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-muted' : 'bg-[#0d9488]/10'}`}>
                 <Upload className={`w-8 h-8 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
               </div>
-              <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>Upload Document</h3>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Tap to select PDF</p>
+              <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Upload Document</h3>
+              <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Tap to select PDF</p>
             </label>
           </div>
         ) : (
@@ -806,7 +806,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
       {pdfFile && (
         <div className={`flex items-center justify-between px-4 py-2 ${isDark ? 'bg-secondary border-t border-border' : 'bg-white border-t border-gray-200'}`}>
           <div className="flex items-center gap-2">
-            <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+            <span className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
               Page {currentPage}/{totalPages}
             </span>
             {signers.length > 0 ? (
@@ -825,18 +825,18 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                 })}
               </div>
             ) : (
-              <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+              <span className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                 | {fields.length} fields
               </span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setZoom(z => Math.max(0.5, z - 0.25))} className={`p-1.5 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}>
-              <ZoomOut className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+              <ZoomOut className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`} />
             </button>
-            <span className={`text-xs w-10 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{Math.round(zoom * 100)}%</span>
+            <span className={`text-xs w-10 text-center ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>{Math.round(zoom * 100)}%</span>
             <button onClick={() => setZoom(z => Math.min(2, z + 0.25))} className={`p-1.5 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}>
-              <ZoomIn className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+              <ZoomIn className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`} />
             </button>
           </div>
         </div>
@@ -872,7 +872,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
           {signers.length === 0 && (
             <button
               onClick={() => setShowAddSigner(true)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-muted text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-secondary text-foreground' : 'bg-white text-gray-700 border border-gray-200'}`}
             >
               <UserPlus className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
               <span className="text-sm font-medium">Add Signer</span>
@@ -882,7 +882,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
           {/* Fields Button */}
           <button
             onClick={() => setShowPalette(true)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-muted text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg ${isDark ? 'bg-secondary text-foreground' : 'bg-white text-gray-700 border border-gray-200'}`}
           >
             <PenLine className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
             <span className="text-sm font-medium">Fields</span>
@@ -898,7 +898,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             style={{ bottom: 'calc(100px + env(safe-area-inset-bottom))', width: '160px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={`text-[9px] text-center py-1 border-b ${isDark ? 'text-gray-500 border-border' : 'text-gray-400 border-gray-100'}`}>
+            <div className={`text-[9px] text-center py-1 border-b ${isDark ? 'text-muted-foreground border-border' : 'text-gray-400 border-gray-100'}`}>
               Select Field
             </div>
             <div className="overflow-y-auto max-h-[180px] p-1">
@@ -910,7 +910,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                     className={`flex flex-col items-center py-1.5 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
                   >
                     <field.icon className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-                    <span className={`text-[7px] mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                    <span className={`text-[7px] mt-0.5 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>{field.name}</span>
                   </button>
                 ))}
               </div>
@@ -927,7 +927,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
           <div className="fixed left-3 z-40 flex gap-2" style={{ bottom: 'calc(56px + env(safe-area-inset-bottom))' }}>
             <button
               onClick={() => openFieldInput(field)}
-              className={`p-2.5 rounded-full shadow-lg ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'}`}
+              className={`p-2.5 rounded-full shadow-lg ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'}`}
             >
               <Edit3 className="w-5 h-5" />
             </button>
@@ -948,16 +948,16 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
           >
             {/* Handle */}
             <div className="flex justify-center py-2">
-              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-[#444]' : 'bg-gray-300'}`} />
+              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-border' : 'bg-gray-300'}`} />
             </div>
 
             {/* Header */}
             <div className={`flex items-center justify-between px-4 py-2 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
-              <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+              <span className={`font-semibold ${isDark ? 'text-foreground' : 'text-gray-800'}`}>
                 {inputModalField.label}
               </span>
               <button onClick={() => closeInputModal()} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}>
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
@@ -978,8 +978,8 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                         onClick={() => setSignatureTab(tab.id as any)}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium transition-colors ${
                           signatureTab === tab.id
-                            ? (isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white')
-                            : (isDark ? 'text-gray-400' : 'text-gray-600')
+                            ? (isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white')
+                            : (isDark ? 'text-muted-foreground' : 'text-gray-600')
                         }`}
                       >
                         <tab.icon className="w-4 h-4" />
@@ -993,7 +993,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                     <div>
                       <canvas
                         ref={canvasRef}
-                        className={`w-full h-40 rounded-xl border-2 border-dashed ${isDark ? 'bg-secondary border-[#444]' : 'bg-gray-50 border-gray-300'}`}
+                        className={`w-full h-40 rounded-xl border-2 border-dashed ${isDark ? 'bg-secondary border-border' : 'bg-gray-50 border-gray-300'}`}
                         style={{ touchAction: 'none' }}
                         onTouchStart={startDrawing}
                         onTouchMove={draw}
@@ -1003,12 +1003,12 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                         onMouseUp={stopDrawing}
                         onMouseLeave={stopDrawing}
                       />
-                      <p className={`text-xs text-center mt-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                      <p className={`text-xs text-center mt-2 ${isDark ? 'text-muted-foreground' : 'text-gray-400'}`}>
                         Draw your {inputModalField.type === 'initials' ? 'initials' : inputModalField.type === 'stamp' ? 'stamp' : 'signature'} above
                       </p>
                       <button
                         onClick={clearCanvas}
-                        className={`w-full mt-2 py-2 rounded-lg text-sm ${isDark ? 'bg-muted text-white' : 'bg-gray-100 text-gray-700'}`}
+                        className={`w-full mt-2 py-2 rounded-lg text-sm ${isDark ? 'bg-muted text-foreground' : 'bg-gray-100 text-gray-700'}`}
                       >
                         Clear
                       </button>
@@ -1017,16 +1017,16 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
 
                   {/* Camera Tab */}
                   {signatureTab === 'camera' && (
-                    <div className={`flex flex-col items-center justify-center h-40 rounded-xl border-2 border-dashed ${isDark ? 'bg-secondary border-[#444]' : 'bg-gray-50 border-gray-300'}`}>
-                      <Camera className={`w-12 h-12 mb-2 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
-                      <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Camera not available</p>
-                      <p className={`text-xs ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>Use Draw or Upload instead</p>
+                    <div className={`flex flex-col items-center justify-center h-40 rounded-xl border-2 border-dashed ${isDark ? 'bg-secondary border-border' : 'bg-gray-50 border-gray-300'}`}>
+                      <Camera className={`w-12 h-12 mb-2 ${isDark ? 'text-muted-foreground' : 'text-gray-400'}`} />
+                      <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-400'}`}>Camera not available</p>
+                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Use Draw or Upload instead</p>
                     </div>
                   )}
 
                   {/* Upload Tab */}
                   {signatureTab === 'upload' && (
-                    <label className={`flex flex-col items-center justify-center h-40 rounded-xl border-2 border-dashed cursor-pointer ${isDark ? 'bg-secondary border-[#444] hover:border-[#c4ff0e]' : 'bg-gray-50 border-gray-300 hover:border-[#0d9488]'}`}>
+                    <label className={`flex flex-col items-center justify-center h-40 rounded-xl border-2 border-dashed cursor-pointer ${isDark ? 'bg-secondary border-border hover:border-primary' : 'bg-gray-50 border-gray-300 hover:border-[#0d9488]'}`}>
                       <input
                         ref={imageInputRef}
                         type="file"
@@ -1035,7 +1035,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                         className="hidden"
                       />
                       <Upload className={`w-12 h-12 mb-2 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-                      <p className={`text-sm ${isDark ? 'text-white' : 'text-gray-700'}`}>Tap to upload image</p>
+                      <p className={`text-sm ${isDark ? 'text-foreground' : 'text-gray-700'}`}>Tap to upload image</p>
                     </label>
                   )}
                 </>
@@ -1049,7 +1049,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder={`Enter ${inputModalField.label.toLowerCase()}`}
                   autoFocus
-                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
+                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
                 />
               )}
 
@@ -1059,7 +1059,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   type="date"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-white' : 'bg-gray-50 border-gray-200 text-gray-800'}`}
+                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-foreground' : 'bg-gray-50 border-gray-200 text-gray-800'}`}
                 />
               )}
 
@@ -1069,9 +1069,9 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   onClick={() => setInputValue(inputValue === 'true' ? '' : 'true')}
                   className={`w-full flex items-center justify-between px-4 py-4 rounded-xl border ${isDark ? 'bg-secondary border-border' : 'bg-gray-50 border-gray-200'}`}
                 >
-                  <span className={`text-base ${isDark ? 'text-white' : 'text-gray-800'}`}>Checked</span>
+                  <span className={`text-base ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Checked</span>
                   <div className={`w-6 h-6 rounded flex items-center justify-center ${inputValue === 'true' ? (isDark ? 'bg-primary' : 'bg-[#0d9488]') : (isDark ? 'bg-muted' : 'bg-gray-300')}`}>
-                    {inputValue === 'true' && <Check className={`w-4 h-4 ${isDark ? 'text-black' : 'text-white'}`} />}
+                    {inputValue === 'true' && <Check className={`w-4 h-4 ${isDark ? 'text-primary-foreground' : 'text-white'}`} />}
                   </div>
                 </button>
               )}
@@ -1082,13 +1082,13 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             <div className={`flex gap-3 px-4 py-4 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
               <button
                 onClick={() => closeInputModal()}
-                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-muted text-white' : 'bg-gray-100 text-gray-700'}`}
+                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-muted text-foreground' : 'bg-gray-100 text-gray-700'}`}
               >
                 Cancel
               </button>
               <button
                 onClick={saveFieldValue}
-                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'}`}
+                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'}`}
               >
                 Apply
               </button>
@@ -1106,23 +1106,23 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
           >
             {/* Handle */}
             <div className="flex justify-center py-2">
-              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-[#444]' : 'bg-gray-300'}`} />
+              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-border' : 'bg-gray-300'}`} />
             </div>
 
             {/* Header */}
             <div className={`flex items-center justify-between px-4 py-2 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
-              <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+              <span className={`font-semibold ${isDark ? 'text-foreground' : 'text-gray-800'}`}>
                 Add Signer
               </span>
               <button onClick={() => setShowAddSigner(false)} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}>
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
             {/* Content */}
             <div className="p-4 space-y-4">
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-700'}`}>
                   Name
                 </label>
                 <input
@@ -1130,11 +1130,11 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   value={newSignerName}
                   onChange={(e) => setNewSignerName(e.target.value)}
                   placeholder="Signer name"
-                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
+                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-700'}`}>
                   Email
                 </label>
                 <input
@@ -1142,7 +1142,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   value={newSignerEmail}
                   onChange={(e) => setNewSignerEmail(e.target.value)}
                   placeholder="signer@email.com"
-                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
+                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
                 />
               </div>
             </div>
@@ -1151,7 +1151,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             <div className={`flex gap-3 px-4 py-4 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
               <button
                 onClick={() => setShowAddSigner(false)}
-                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-muted text-white' : 'bg-gray-100 text-gray-700'}`}
+                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-muted text-foreground' : 'bg-gray-100 text-gray-700'}`}
               >
                 Cancel
               </button>
@@ -1172,7 +1172,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   }
                 }}
                 disabled={!newSignerEmail.trim()}
-                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-primary text-black disabled:opacity-50' : 'bg-[#0d9488] text-white disabled:opacity-50'}`}
+                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-primary text-primary-foreground disabled:opacity-50' : 'bg-[#0d9488] text-white disabled:opacity-50'}`}
               >
                 Add Signer
               </button>
@@ -1191,16 +1191,16 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
           >
             {/* Handle */}
             <div className="flex justify-center py-2">
-              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-[#444]' : 'bg-gray-300'}`} />
+              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-border' : 'bg-gray-300'}`} />
             </div>
 
             {/* Header */}
             <div className={`flex items-center justify-between px-4 py-2 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
-              <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+              <span className={`font-semibold ${isDark ? 'text-foreground' : 'text-gray-800'}`}>
                 Send for Signature
               </span>
               <button onClick={() => setShowEmailModal(false)} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}>
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
@@ -1208,7 +1208,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             <div className="p-4 space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
               {/* Recipients */}
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-700'}`}>
                   To
                 </label>
                 {signers.length > 0 ? (
@@ -1239,14 +1239,14 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                     value={emailTo}
                     onChange={(e) => setEmailTo(e.target.value)}
                     placeholder="recipient@email.com"
-                    className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
+                    className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
                   />
                 )}
               </div>
 
               {/* Subject */}
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-700'}`}>
                   Subject
                 </label>
                 <input
@@ -1254,13 +1254,13 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Document signing request"
-                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
+                  className={`w-full px-4 py-3 rounded-xl text-base border ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
                 />
               </div>
 
               {/* Message */}
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-700'}`}>
                   Message
                 </label>
                 <textarea
@@ -1268,7 +1268,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   onChange={(e) => setEmailMessage(e.target.value)}
                   placeholder="Please review and sign the attached document."
                   rows={4}
-                  className={`w-full px-4 py-3 rounded-xl text-base border resize-none ${isDark ? 'bg-secondary border-border text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
+                  className={`w-full px-4 py-3 rounded-xl text-base border resize-none ${isDark ? 'bg-secondary border-border text-foreground placeholder-muted-foreground' : 'bg-gray-50 border-gray-200 text-gray-800 placeholder-gray-400'}`}
                 />
               </div>
 
@@ -1278,10 +1278,10 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   <FileText className={`w-6 h-6 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                  <p className={`text-sm font-medium truncate ${isDark ? 'text-foreground' : 'text-gray-800'}`}>
                     {pdfFile?.name}
                   </p>
-                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                  <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                     {fields.length} fields added
                   </p>
                 </div>
@@ -1292,7 +1292,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
             <div className={`flex gap-3 px-4 py-4 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
               <button
                 onClick={() => setShowEmailModal(false)}
-                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-muted text-white' : 'bg-gray-100 text-gray-700'}`}
+                className={`flex-1 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-muted text-foreground' : 'bg-gray-100 text-gray-700'}`}
               >
                 Cancel
               </button>
@@ -1322,7 +1322,7 @@ const MobileSignDocument: React.FC<MobileSignDocumentProps> = ({
                   }
                 }}
                 disabled={signers.length === 0 && !emailTo.trim()}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-primary text-black disabled:opacity-50' : 'bg-[#0d9488] text-white disabled:opacity-50'}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-primary text-primary-foreground disabled:opacity-50' : 'bg-[#0d9488] text-white disabled:opacity-50'}`}
               >
                 <Send className="w-4 h-4" />
                 Send

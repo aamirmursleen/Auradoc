@@ -61,11 +61,11 @@ export default function EmailCapturePopup() {
       />
 
       {/* Modal - Small & Centered */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-72 overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-white rounded-2xl shadow-xl w-72 overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-2 right-2 p-1 bg-black/10 hover:bg-black/20 rounded-full text-white z-10 transition-all"
+          className="absolute top-2 right-2 p-1 bg-white/20 hover:bg-white/30 rounded-full text-white z-10 transition-all"
         >
           <X className="w-4 h-4" />
         </button>
@@ -81,19 +81,19 @@ export default function EmailCapturePopup() {
           {/* Discount Code */}
           <div
             onClick={handleCopyCode}
-            className="relative bg-violet-50 dark:bg-violet-900/30 border border-dashed border-violet-300 dark:border-violet-600 rounded-lg py-2.5 px-3 text-center cursor-pointer hover:border-violet-400 transition-all"
+            className="relative bg-violet-50 border border-dashed border-violet-300 rounded-lg py-2.5 px-3 text-center cursor-pointer hover:border-violet-400 transition-all"
           >
-            <p className="text-xl font-bold text-violet-600 dark:text-violet-400 tracking-wide">
+            <p className="text-xl font-bold text-violet-600 tracking-wide">
               {DISCOUNT_CODE}
             </p>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1 mt-1">
+            <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1 mt-1">
               <Copy className="w-3 h-3" />
               {copied ? 'Copied!' : 'Tap to copy'}
             </p>
           </div>
 
           {/* Benefits - Inline */}
-          <div className="flex flex-wrap gap-1.5 justify-center mt-3 text-[10px] text-gray-500">
+          <div className="flex flex-wrap gap-1.5 justify-center mt-3 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <CheckCircle className="w-3 h-3 text-green-500" />
               Unlimited signs

@@ -561,12 +561,12 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
           {cameraError ? (
             <div className="w-full flex flex-col items-center justify-center p-4" style={{ height: `${canvasHeight}px` }}>
               <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
-                <X className="w-8 h-8 text-red-400" />
+                <X className="w-8 h-8 text-red-600" />
               </div>
               <p className="text-red-600 font-medium text-center">{cameraError}</p>
               <button
                 onClick={() => handleModeChange('upload')}
-                className="mt-4 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+                className="mt-4 px-4 py-2 bg-primary-500 text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
               >
                 Use Upload Instead
               </button>
@@ -597,7 +597,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
                 <button
                   onClick={capturePhoto}
-                  className="px-6 py-3 bg-primary-500 text-white rounded-full font-semibold hover:bg-primary-600 transition-colors flex items-center gap-2 shadow-lg"
+                  className="px-6 py-3 bg-primary-500 text-primary-foreground rounded-full font-semibold hover:bg-primary-600 transition-colors flex items-center gap-2 shadow-lg"
                 >
                   <Camera className="w-5 h-5" />
                   Capture

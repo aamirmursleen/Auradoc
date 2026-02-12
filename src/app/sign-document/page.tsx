@@ -1829,7 +1829,7 @@ const SignDocumentPage: React.FC = () => {
           >
             {/* Lock icon for locked fields */}
             {locked && (
-              <div className="absolute -top-1 -left-1 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center z-10">
+              <div className="absolute -top-1 -left-1 w-4 h-4 bg-muted-foreground rounded-full flex items-center justify-center z-10">
                 <Lock className="w-2.5 h-2.5 text-white" />
               </div>
             )}
@@ -1991,11 +1991,11 @@ const SignDocumentPage: React.FC = () => {
             <div className="md:hidden flex items-center gap-2 flex-1 min-w-0">
               <button
                 onClick={() => { setDocument(null); setPreUploadedUrl(null) }}
-                className={`p-1.5 -ml-1 rounded-lg ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`p-1.5 -ml-1 rounded-lg ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-800'}`}>
+              <span className={`text-sm font-medium truncate ${isDark ? 'text-foreground' : 'text-gray-800'}`}>
                 {document.name.length > 20 ? document.name.slice(0, 20) + '...' : document.name}
               </span>
             </div>
@@ -2004,13 +2004,13 @@ const SignDocumentPage: React.FC = () => {
               <button
                 onClick={() => setShowSendModal(true)}
                 disabled={placedFields.length === 0}
-                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'}`}
               >
                 Finish
               </button>
               <button
                 onClick={() => setShowTemplateModal(true)}
-                className={`p-2 rounded-lg ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`p-2 rounded-lg ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 <Settings className="w-5 h-5" />
               </button>
@@ -2020,14 +2020,14 @@ const SignDocumentPage: React.FC = () => {
           /* Mobile Header - No document */
           <div className="md:hidden flex items-center gap-2">
             <FileSignature className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>Sign Document</span>
+            <span className={`text-sm font-bold ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>Sign Document</span>
           </div>
         )}
 
         {/* Desktop Header */}
         <div className="hidden md:flex items-center gap-4 min-w-0">
           <FileSignature className={`w-6 h-6 flex-shrink-0 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-          <span className={`text-xl font-bold truncate ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+          <span className={`text-xl font-bold truncate ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
             {templateProps.name || 'New Template'}
           </span>
         </div>
@@ -2039,7 +2039,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={() => { setShowShareModal(true); handleShare(); }}
             disabled={!document}
-            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-muted hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#134e4a]'}`}
+            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-muted-foreground hover:bg-muted hover:text-foreground' : 'text-gray-500 hover:bg-gray-100 hover:text-[#134e4a]'}`}
           >
             <Share2 className="w-4 h-4" />
             <span className="text-sm font-medium hidden lg:inline">Share</span>
@@ -2048,7 +2048,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={generatePreview}
             disabled={!document || isGeneratingPreview || placedFields.filter(f => f.value).length === 0}
-            className={`hidden md:flex items-center gap-2 px-2 md:px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-gray-400 hover:bg-muted hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-[#134e4a]'}`}
+            className={`hidden md:flex items-center gap-2 px-2 md:px-3 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'text-muted-foreground hover:bg-muted hover:text-foreground' : 'text-gray-500 hover:bg-gray-100 hover:text-[#134e4a]'}`}
             title="Preview"
           >
             {isGeneratingPreview ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
@@ -2070,21 +2070,21 @@ const SignDocumentPage: React.FC = () => {
               <div className={`absolute top-full right-0 mt-1 w-40 ${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} border rounded-xl shadow-xl py-1 z-50`}>
                 <button
                   onClick={() => handleDownload('pdf')}
-                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-muted text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-muted text-muted-foreground' : 'hover:bg-gray-50 text-gray-700'}`}
                 >
                   <img src="/icon-pdf.png" alt="PDF" className="w-8 h-8 object-contain" />
                   Download PDF
                 </button>
                 <button
                   onClick={() => handleDownload('png')}
-                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-muted text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-muted text-muted-foreground' : 'hover:bg-gray-50 text-gray-700'}`}
                 >
                   <img src="/icon-png.png" alt="PNG" className="w-8 h-8 object-contain" />
                   Download PNG
                 </button>
                 <button
                   onClick={() => handleDownload('jpg')}
-                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-muted text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${isDark ? 'hover:bg-muted text-muted-foreground' : 'hover:bg-gray-50 text-gray-700'}`}
                 >
                   <img src="/icon-jpg.png" alt="JPG" className="w-8 h-8 object-contain" />
                   Download JPG
@@ -2096,7 +2096,7 @@ const SignDocumentPage: React.FC = () => {
           <button
             onClick={() => setShowSendModal(true)}
             disabled={!document || placedFields.length === 0}
-            className={`hidden md:flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-primary text-black hover:bg-[#b8f206]' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
+            className={`hidden md:flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
           >
             <Send className="w-4 h-4" />
             <span className="text-sm font-medium hidden sm:inline">Send</span>
@@ -2143,13 +2143,13 @@ const SignDocumentPage: React.FC = () => {
                             updateSigner(signer.id, 'name', e.target.value)
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className={`font-semibold bg-transparent outline-none border-b border-transparent transition-colors w-full max-w-[140px] ${isDark ? 'text-white hover:border-border focus:border-primary placeholder-gray-500' : 'text-[#134e4a] hover:border-gray-300 focus:border-[#0d9488] placeholder-gray-400'}`}
+                          className={`font-semibold bg-transparent outline-none border-b border-transparent transition-colors w-full max-w-[140px] ${isDark ? 'text-foreground hover:border-border focus:border-primary placeholder-muted-foreground' : 'text-[#134e4a] hover:border-gray-300 focus:border-[#0d9488] placeholder-gray-400'}`}
                         />
                         {signer.is_self && (
                           <span className={`text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${isDark ? 'bg-primary/20 text-primary' : 'bg-[#0d9488]/20 text-[#0d9488]'}`}>Me</span>
                         )}
                       </div>
-                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                         {placedFields.filter(f => f.signerId === signer.id).length} fields
                       </p>
                     </div>
@@ -2161,13 +2161,13 @@ const SignDocumentPage: React.FC = () => {
                           e.stopPropagation()
                           removeSigner(signer.id)
                         }}
-                        className={`p-1 rounded text-red-400 ${isDark ? 'hover:bg-red-900/50' : 'hover:bg-red-50'}`}
+                        className={`p-1 rounded text-red-400 ${isDark ? 'hover:bg-red-50' : 'hover:bg-red-50'}`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                     <ChevronDown
-                      className={`w-5 h-5 transition-transform ${isDark ? 'text-gray-400' : 'text-gray-500'} ${
+                      className={`w-5 h-5 transition-transform ${isDark ? 'text-muted-foreground' : 'text-gray-500'} ${
                         (expandedSignerId === signer.id || (!userToggledExpand && activeSignerId === signer.id)) ? 'rotate-180' : ''
                       }`}
                     />
@@ -2179,24 +2179,24 @@ const SignDocumentPage: React.FC = () => {
                   <div className="px-3 pb-4 space-y-3">
                     {/* Name Input */}
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? 'bg-muted border border-border' : 'bg-gray-50 border border-gray-200'}`}>
-                      <User className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <User className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                       <input
                         type="text"
                         placeholder="Enter signer name..."
                         value={signer.name}
                         onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
-                        className={`flex-1 bg-transparent text-sm outline-none ${isDark ? 'text-white placeholder-gray-500' : 'text-[#134e4a] placeholder-gray-400'}`}
+                        className={`flex-1 bg-transparent text-sm outline-none ${isDark ? 'text-foreground placeholder-muted-foreground' : 'text-[#134e4a] placeholder-gray-400'}`}
                       />
                     </div>
                     {/* Email Input */}
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? 'bg-muted border border-border' : 'bg-gray-50 border border-gray-200'}`}>
-                      <Mail className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <Mail className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                       <input
                         type="email"
                         placeholder="Enter email address..."
                         value={signer.email}
                         onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                        className={`flex-1 bg-transparent text-sm outline-none ${isDark ? 'text-white placeholder-gray-500' : 'text-[#134e4a] placeholder-gray-400'}`}
+                        className={`flex-1 bg-transparent text-sm outline-none ${isDark ? 'text-foreground placeholder-muted-foreground' : 'text-[#134e4a] placeholder-gray-400'}`}
                       />
                     </div>
 
@@ -2255,7 +2255,7 @@ const SignDocumentPage: React.FC = () => {
               return (
                 <div className={`p-3 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
                   {myselfSigned ? (
-                    <div className={`flex items-center justify-center gap-2 p-3 rounded-xl ${isDark ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                    <div className={`flex items-center justify-center gap-2 p-3 rounded-xl ${isDark ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
                       <Lock className="w-4 h-4" />
                       <span className="font-medium text-sm">My Signing Complete</span>
                     </div>
@@ -2263,7 +2263,7 @@ const SignDocumentPage: React.FC = () => {
                     <button
                       onClick={() => setMyselfSigned(true)}
                       disabled={!allSelfFieldsFilled}
-                      className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-green-600 text-white hover:bg-green-500 disabled:bg-green-900/50' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                      className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-green-600 text-white hover:bg-green-500 disabled:bg-green-100' : 'bg-green-600 text-white hover:bg-green-700'}`}
                     >
                       <PenLine className="w-4 h-4" />
                       Complete My Signing
@@ -2286,23 +2286,23 @@ const SignDocumentPage: React.FC = () => {
                     onClick={() => setZoom(z => Math.max(0.25, z - 0.25))}
                     className={`p-1.5 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-200'}`}
                   >
-                    <ZoomOut className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <ZoomOut className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`} />
                   </button>
-                  <span className={`text-xs md:text-sm min-w-[40px] md:min-w-[50px] text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <span className={`text-xs md:text-sm min-w-[40px] md:min-w-[50px] text-center ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>
                     {Math.round(zoom * 100)}%
                   </span>
                   <button
                     onClick={() => setZoom(z => Math.min(3, z + 0.25))}
                     className={`p-1.5 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-200'}`}
                   >
-                    <ZoomIn className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <ZoomIn className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`} />
                   </button>
                   <button
                     onClick={() => setZoom(1)}
                     className={`p-1.5 rounded hidden md:block ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-200'}`}
                     title="Reset Zoom"
                   >
-                    <RotateCcw className={`w-5 h-5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <RotateCcw className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`} />
                   </button>
                 </div>
 
@@ -2310,7 +2310,7 @@ const SignDocumentPage: React.FC = () => {
                   onClick={uploadNewDocument}
                   className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     isDark
-                      ? 'bg-muted hover:bg-[#333] text-gray-300 border border-border'
+                      ? 'bg-muted hover:bg-secondary text-muted-foreground border border-border'
                       : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-300'
                   }`}
                   title="Upload New Document"
@@ -2320,7 +2320,7 @@ const SignDocumentPage: React.FC = () => {
                 </button>
 
                 {/* Mobile info */}
-                <div className={`md:hidden flex items-center gap-2 text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                <div className={`md:hidden flex items-center gap-2 text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   <span>{totalPages}p</span>
                   <span>•</span>
                   <span>{placedFields.length} fields</span>
@@ -2367,7 +2367,7 @@ const SignDocumentPage: React.FC = () => {
                   {/* Add Signer button for mobile */}
                   <button
                     onClick={addSigner}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center ${isDark ? 'bg-muted text-gray-400' : 'bg-gray-100 text-gray-500'}`}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center ${isDark ? 'bg-muted text-muted-foreground' : 'bg-gray-100 text-gray-500'}`}
                     title="Add Signer"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -2388,10 +2388,10 @@ const SignDocumentPage: React.FC = () => {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center my-auto">
                 <Loader2 className={`w-12 h-12 animate-spin mb-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-                <p className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                <p className={`text-lg font-medium ${isDark ? 'text-foreground' : 'text-gray-700'}`}>
                   Converting image to PDF...
                 </p>
-                <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-sm mt-2 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   This ensures perfect field positioning
                 </p>
               </div>
@@ -2406,14 +2406,14 @@ const SignDocumentPage: React.FC = () => {
                 <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-primary/20' : 'bg-[#0d9488]/10'}`}>
                   <Upload className={`w-10 h-10 md:w-12 md:h-12 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 </div>
-                <h3 className={`text-xl md:text-2xl font-bold mb-2 text-center ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+                <h3 className={`text-xl md:text-2xl font-bold mb-2 text-center ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                   Upload Document
                 </h3>
-                <p className={`text-center text-sm md:text-base mb-4 max-w-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-center text-sm md:text-base mb-4 max-w-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   <span className="hidden md:inline">Drag and drop your document here, or click to browse</span>
                   <span className="md:hidden">Tap here to select your document</span>
                 </p>
-                <div className={`flex items-center gap-3 text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                <div className={`flex items-center gap-3 text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-400'}`}>
                   <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-muted">
                     <FileText className="w-3 h-3" /> PDF, PNG, JPG
                   </span>
@@ -2594,7 +2594,7 @@ const SignDocumentPage: React.FC = () => {
                           >
                             {/* Lock icon for locked fields */}
                             {locked && (
-                              <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center z-20">
+                              <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-muted-foreground rounded-full flex items-center justify-center z-20">
                                 <Lock className="w-2.5 h-2.5 text-white" />
                               </div>
                             )}
@@ -3206,7 +3206,7 @@ const SignDocumentPage: React.FC = () => {
                         >
                           {/* Lock icon for locked fields */}
                           {locked && (
-                            <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center z-20">
+                            <div className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-muted-foreground rounded-full flex items-center justify-center z-20">
                               <Lock className="w-2.5 h-2.5 text-white" />
                             </div>
                           )}
@@ -3360,12 +3360,12 @@ const SignDocumentPage: React.FC = () => {
             ${isDark ? 'bg-secondary border-t md:border-t-0 md:border-l border-border' : 'bg-white border-t md:border-t-0 md:border-l border-gray-200'}
           `}>
             <div className={`p-4 flex items-center justify-between ${isDark ? 'border-b border-border' : 'border-b border-gray-200'}`}>
-              <h2 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>Field Properties</h2>
+              <h2 className={`text-sm font-semibold ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>Field Properties</h2>
               <button
                 onClick={() => setShowPropertiesPanel(false)}
                 className={`p-1 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
               >
-                <X className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
@@ -3383,8 +3383,8 @@ const SignDocumentPage: React.FC = () => {
                         <Icon className="w-5 h-5" style={{ color: selectedField.signerColor }} />
                       </div>
                       <div>
-                        <p className={`font-medium capitalize ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{selectedField.type}</p>
-                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Field Type</p>
+                        <p className={`font-medium capitalize ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{selectedField.type}</p>
+                        <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Field Type</p>
                       </div>
                     </>
                   )
@@ -3393,18 +3393,18 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Label */}
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Label</label>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Label</label>
                 <input
                   type="text"
                   value={selectedField.label}
                   onChange={(e) => updateFieldProperty('label', e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 />
               </div>
 
               {/* Assigned Signer */}
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Assigned To</label>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Assigned To</label>
                 <select
                   value={selectedField.signerId}
                   onChange={(e) => {
@@ -3412,7 +3412,7 @@ const SignDocumentPage: React.FC = () => {
                     updateFieldProperty('signerId', e.target.value)
                     if (signer) updateFieldProperty('signerColor', signer.color)
                   }}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 >
                   {signers.map((signer) => (
                     <option key={signer.id} value={signer.id}>{signer.name}</option>
@@ -3422,7 +3422,7 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Mandatory Toggle */}
               <div className="flex items-center justify-between">
-                <label className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Required</label>
+                <label className={`text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Required</label>
                 <button
                   onClick={() => updateFieldProperty('mandatory', !selectedField.mandatory)}
                   className={`relative w-10 h-6 rounded-full transition-colors ${
@@ -3437,65 +3437,65 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Placeholder */}
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Placeholder</label>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Placeholder</label>
                 <input
                   type="text"
                   value={selectedField.placeholder}
                   onChange={(e) => updateFieldProperty('placeholder', e.target.value)}
                   placeholder="Enter placeholder text..."
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 />
               </div>
 
               {/* Tip */}
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Tooltip</label>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Tooltip</label>
                 <input
                   type="text"
                   value={selectedField.tip}
                   onChange={(e) => updateFieldProperty('tip', e.target.value)}
                   placeholder="Help text for signer..."
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 />
               </div>
 
               {/* Size */}
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Size</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Size</label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Width</label>
+                    <label className={`block text-xs mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Width</label>
                     <div className="flex items-center">
                       <button
                         onClick={() => updateFieldProperty('width', Math.max(selectedField.type === 'checkbox' ? 12 : 30, selectedField.width - 10))}
                         className={`p-1 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
                       >
-                        <Minus className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                        <Minus className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                       </button>
-                      <span className={`flex-1 text-center text-sm ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{Math.round(selectedField.width)}</span>
+                      <span className={`flex-1 text-center text-sm ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{Math.round(selectedField.width)}</span>
                       <button
                         onClick={() => updateFieldProperty('width', selectedField.width + 10)}
                         className={`p-1 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
                       >
-                        <Plus className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                        <Plus className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Height</label>
+                    <label className={`block text-xs mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Height</label>
                     <div className="flex items-center">
                       <button
                         onClick={() => updateFieldProperty('height', Math.max(selectedField.type === 'checkbox' ? 12 : 20, selectedField.height - 10))}
                         className={`p-1 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
                       >
-                        <Minus className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                        <Minus className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                       </button>
-                      <span className={`flex-1 text-center text-sm ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{Math.round(selectedField.height)}</span>
+                      <span className={`flex-1 text-center text-sm ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{Math.round(selectedField.height)}</span>
                       <button
                         onClick={() => updateFieldProperty('height', selectedField.height + 10)}
                         className={`p-1 rounded ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
                       >
-                        <Plus className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                        <Plus className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                       </button>
                     </div>
                   </div>
@@ -3504,13 +3504,13 @@ const SignDocumentPage: React.FC = () => {
 
               {/* Position */}
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Position</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Position</label>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className={`rounded-lg p-2 text-center ${isDark ? 'bg-muted text-white' : 'bg-gray-50 text-[#134e4a]'}`}>
-                    <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>X:</span> {Math.round(selectedField.x)}
+                  <div className={`rounded-lg p-2 text-center ${isDark ? 'bg-muted text-foreground' : 'bg-gray-50 text-[#134e4a]'}`}>
+                    <span className={`${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>X:</span> {Math.round(selectedField.x)}
                   </div>
-                  <div className={`rounded-lg p-2 text-center ${isDark ? 'bg-muted text-white' : 'bg-gray-50 text-[#134e4a]'}`}>
-                    <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Y:</span> {Math.round(selectedField.y)}
+                  <div className={`rounded-lg p-2 text-center ${isDark ? 'bg-muted text-foreground' : 'bg-gray-50 text-[#134e4a]'}`}>
+                    <span className={`${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Y:</span> {Math.round(selectedField.y)}
                   </div>
                 </div>
               </div>
@@ -3520,14 +3520,14 @@ const SignDocumentPage: React.FC = () => {
             <div className={`p-4 space-y-2 ${isDark ? 'border-t border-border' : 'border-t border-gray-200'}`}>
               <button
                 onClick={duplicateSelectedField}
-                className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 <Copy className="w-4 h-4" />
                 <span className="text-sm font-medium">Duplicate</span>
               </button>
               <button
                 onClick={deleteSelectedField}
-                className={`w-full flex items-center justify-center gap-2 py-2 text-red-400 rounded-lg transition-colors ${isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-50'}`}
+                className={`w-full flex items-center justify-center gap-2 py-2 text-red-400 rounded-lg transition-colors ${isDark ? 'hover:bg-red-50' : 'hover:bg-red-50'}`}
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="text-sm font-medium">Delete</span>
@@ -3540,7 +3540,7 @@ const SignDocumentPage: React.FC = () => {
         {document && !showMobileFields && (
           <button
             onClick={() => setShowMobileFields(true)}
-            className={`md:hidden fixed right-3 z-40 flex items-center gap-1.5 px-3 py-2.5 rounded-full shadow-lg transition-all active:scale-95 ${isDark ? 'bg-[#333] text-white' : 'bg-white text-gray-700 shadow-md border border-gray-200'}`}
+            className={`md:hidden fixed right-3 z-40 flex items-center gap-1.5 px-3 py-2.5 rounded-full shadow-lg transition-all active:scale-95 ${isDark ? 'bg-secondary text-foreground' : 'bg-white text-gray-700 shadow-md border border-gray-200'}`}
             style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}
           >
             <PenLine className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
@@ -3572,7 +3572,7 @@ const SignDocumentPage: React.FC = () => {
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             <div className="flex items-center justify-between px-4 py-2">
-              <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+              <div className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                 <span className="font-medium">{document.name.split('.')[0]}</span>
                 <span className="mx-2">•</span>
                 <span>{currentPage} of {totalPages}</span>
@@ -3580,7 +3580,7 @@ const SignDocumentPage: React.FC = () => {
               <button
                 onClick={() => setShowSendModal(true)}
                 disabled={placedFields.length === 0}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#0d9488] text-white'}`}
               >
                 <Mail className="w-4 h-4" />
                 Send
@@ -3616,10 +3616,10 @@ const SignDocumentPage: React.FC = () => {
                   <button
                     key={field.id}
                     onClick={() => { setMobileFieldToPlace(field.id); setShowMobileFields(false); }}
-                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-[#333]' : 'active:bg-gray-100'}`}
+                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-secondary' : 'active:bg-gray-100'}`}
                   >
                     <field.icon className={`w-6 h-6 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} strokeWidth={1.5} />
-                    <span className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                    <span className={`text-[10px] mt-1 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>{field.name}</span>
                   </button>
                 ))}
                 {/* Row 2 */}
@@ -3627,10 +3627,10 @@ const SignDocumentPage: React.FC = () => {
                   <button
                     key={field.id}
                     onClick={() => { setMobileFieldToPlace(field.id); setShowMobileFields(false); }}
-                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-[#333]' : 'active:bg-gray-100'}`}
+                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-secondary' : 'active:bg-gray-100'}`}
                   >
                     <field.icon className={`w-6 h-6 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} strokeWidth={1.5} />
-                    <span className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                    <span className={`text-[10px] mt-1 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>{field.name}</span>
                   </button>
                 ))}
                 {/* Row 3 */}
@@ -3638,10 +3638,10 @@ const SignDocumentPage: React.FC = () => {
                   <button
                     key={field.id}
                     onClick={() => { setMobileFieldToPlace(field.id); setShowMobileFields(false); }}
-                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-[#333]' : 'active:bg-gray-100'}`}
+                    className={`flex flex-col items-center py-3 ${isDark ? 'active:bg-secondary' : 'active:bg-gray-100'}`}
                   >
                     <field.icon className={`w-6 h-6 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} strokeWidth={1.5} />
-                    <span className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{field.name}</span>
+                    <span className={`text-[10px] mt-1 ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>{field.name}</span>
                   </button>
                 ))}
               </div>
@@ -3652,27 +3652,27 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Success Message */}
       {sendSuccess && (
-        <div className="fixed bottom-4 right-4 bg-green-900/80 border border-green-500/30 rounded-xl p-4 flex items-center gap-3 shadow-lg z-50">
-          <div className="w-8 h-8 bg-green-900/50 rounded-full flex items-center justify-center">
-            <Send className="w-4 h-4 text-green-400" />
+        <div className="fixed bottom-4 right-4 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 shadow-lg z-50">
+          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+            <Send className="w-4 h-4 text-green-600" />
           </div>
           <div>
-            <p className="font-medium text-green-300">Document Sent!</p>
-            <p className="text-sm text-green-400">Email sent to {signers.length} signer(s)</p>
+            <p className="font-medium text-green-700">Document Sent!</p>
+            <p className="text-sm text-green-600">Email sent to {signers.length} signer(s)</p>
           </div>
-          <button onClick={() => setSendSuccess(false)} className="p-1 hover:bg-green-800 rounded">
-            <X className="w-4 h-4 text-green-400" />
+          <button onClick={() => setSendSuccess(false)} className="p-1 hover:bg-green-100 rounded">
+            <X className="w-4 h-4 text-green-600" />
           </button>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-900/80 border border-red-500/30 rounded-xl p-4 flex items-center gap-3 shadow-lg z-50">
-          <AlertCircle className="w-5 h-5 text-red-400" />
-          <p className="text-sm text-red-300">{error}</p>
-          <button onClick={() => setError(null)} className="p-1 hover:bg-red-800 rounded">
-            <X className="w-4 h-4 text-red-400" />
+        <div className="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 shadow-lg z-50">
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <p className="text-sm text-red-700">{error}</p>
+          <button onClick={() => setError(null)} className="p-1 hover:bg-red-100 rounded">
+            <X className="w-4 h-4 text-red-600" />
           </button>
         </div>
       )}
@@ -3682,7 +3682,7 @@ const SignDocumentPage: React.FC = () => {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] p-4">
           <div className={`rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-auto ${isDark ? 'bg-secondary border border-border' : 'bg-white border border-gray-200'}`}>
             <div className={`flex items-center justify-between p-5 ${isDark ? 'border-b border-border' : 'border-b border-gray-200'}`}>
-              <h3 className={`text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+              <h3 className={`text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                 <Settings className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 Template Properties
               </h3>
@@ -3690,39 +3690,39 @@ const SignDocumentPage: React.FC = () => {
                 onClick={() => setShowTemplateModal(false)}
                 className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
               >
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Template Name</label>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Template Name</label>
                 <input
                   type="text"
                   value={templateProps.name}
                   onChange={(e) => setTemplateProps(prev => ({ ...prev, name: e.target.value }))}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                   placeholder="Enter template name..."
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   <Tag className="w-4 h-4 inline mr-1" />
                   Tags
                 </label>
                 <input
                   type="text"
                   placeholder="Add tags (comma separated)..."
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   Signed Document Workspace
                 </label>
-                <select className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}>
+                <select className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}>
                   <option value="default">Default Workspace</option>
                   <option value="contracts">Contracts</option>
                   <option value="agreements">Agreements</option>
@@ -3730,7 +3730,7 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   <Link2 className="w-4 h-4 inline mr-1" />
                   Redirect Link (after signing)
                 </label>
@@ -3739,28 +3739,28 @@ const SignDocumentPage: React.FC = () => {
                   value={templateProps.redirectUrl}
                   onChange={(e) => setTemplateProps(prev => ({ ...prev, redirectUrl: e.target.value }))}
                   placeholder="https://..."
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                   <Lock className="w-4 h-4 inline mr-1" />
                   Authorized Users
                 </label>
                 <input
                   type="text"
                   placeholder="Enter user emails (comma separated)..."
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50 focus:border-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50 focus:border-[#0d9488]/50'}`}
                 />
-                <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Leave empty to allow all users</p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Leave empty to allow all users</p>
               </div>
             </div>
 
             <div className={`flex items-center justify-end gap-3 p-5 rounded-b-2xl ${isDark ? 'border-t border-border bg-secondary' : 'border-t border-gray-200 bg-white'}`}>
               <button
                 onClick={() => setShowTemplateModal(false)}
-                className={`px-4 py-2 font-medium rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`px-4 py-2 font-medium rounded-lg transition-colors ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 Cancel
               </button>
@@ -3773,7 +3773,7 @@ const SignDocumentPage: React.FC = () => {
                   }
                   setShowTemplateModal(false)
                 }}
-                className={`px-6 py-2 font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${isDark ? 'bg-primary text-black hover:bg-[#b8f206]' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
+                className={`px-6 py-2 font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
               >
                 Save Properties
               </button>
@@ -3791,11 +3791,11 @@ const SignDocumentPage: React.FC = () => {
           >
             {/* Mobile Handle */}
             <div className="md:hidden flex justify-center pt-2 pb-1">
-              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
+              <div className={`w-10 h-1 rounded-full ${isDark ? 'bg-border' : 'bg-gray-300'}`} />
             </div>
 
             <div className={`flex items-center justify-between px-4 py-2.5 ${isDark ? 'border-b border-border' : 'border-b border-gray-200'}`}>
-              <h3 className={`text-base font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+              <h3 className={`text-base font-semibold flex items-center gap-2 ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                 {signers.length === 1 && signers[0]?.is_self ? (
                   <>
                     <FileSignature className={`w-4 h-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
@@ -3812,7 +3812,7 @@ const SignDocumentPage: React.FC = () => {
                 onClick={() => setShowSendModal(false)}
                 className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
               >
-                <X className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
@@ -3821,32 +3821,32 @@ const SignDocumentPage: React.FC = () => {
               <div className={`rounded-lg p-2.5 flex items-center gap-2.5 ${isDark ? 'bg-muted' : 'bg-[#ccfbf1]'}`}>
                 <FileText className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 <div className="min-w-0">
-                  <p className={`font-medium text-sm truncate ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{templateProps.name || 'Untitled Template'}</p>
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{placedFields.length} fields</p>
+                  <p className={`font-medium text-sm truncate ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>{templateProps.name || 'Untitled Template'}</p>
+                  <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>{placedFields.length} fields</p>
                 </div>
               </div>
 
               {/* Your Name (Sender) */}
               <div>
-                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Your Name</label>
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Your Name</label>
                 <input
                   type="text"
                   placeholder="Enter your name..."
                   value={senderName}
                   onChange={(e) => setSenderName(e.target.value)}
-                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
                 />
               </div>
 
               {/* Signers - Compact */}
               <div>
-                <label className={`block text-xs font-medium mb-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Signers</label>
+                <label className={`block text-xs font-medium mb-1.5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Signers</label>
                 <div className="space-y-2 max-h-[30vh] overflow-auto">
                   {signers.map((signer, idx) => {
                     const signerFields = placedFields.filter(f => f.signerId === signer.id)
                     const isSelfAndSigned = signer.is_self && myselfSigned
                     return (
-                      <div key={signer.id} className={`p-2 rounded-lg space-y-1.5 ${isSelfAndSigned ? (isDark ? 'bg-green-900/20 border border-green-800/30' : 'bg-green-50 border border-green-200') : (isDark ? 'bg-muted' : 'bg-gray-50')}`}>
+                      <div key={signer.id} className={`p-2 rounded-lg space-y-1.5 ${isSelfAndSigned ? (isDark ? 'bg-green-50 border border-green-200' : 'bg-green-50 border border-green-200') : (isDark ? 'bg-muted' : 'bg-gray-50')}`}>
                         <div className="flex items-center gap-2">
                           <div
                             className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
@@ -3860,12 +3860,12 @@ const SignDocumentPage: React.FC = () => {
                             value={signer.name}
                             onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
                             readOnly={signer.is_self}
-                            className={`flex-1 px-2 py-1 rounded text-sm focus:ring-1 ${signer.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50' : 'bg-white border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
+                            className={`flex-1 px-2 py-1 rounded text-sm focus:ring-1 ${signer.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-white border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
                           />
                           {isSelfAndSigned ? (
-                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${isDark ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700'}`}>Signed</span>
+                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${isDark ? 'bg-green-50 text-green-600' : 'bg-green-100 text-green-700'}`}>Signed</span>
                           ) : (
-                            <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{signerFields.length} fields</span>
+                            <span className={`text-[10px] ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>{signerFields.length} fields</span>
                           )}
                         </div>
                         <div className="pl-8">
@@ -3875,9 +3875,9 @@ const SignDocumentPage: React.FC = () => {
                                 type="email"
                                 value={signer.email}
                                 readOnly
-                                className={`w-full px-2 py-1 rounded text-sm cursor-default ${isDark ? 'bg-muted border border-border text-gray-400' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
+                                className={`w-full px-2 py-1 rounded text-sm cursor-default ${isDark ? 'bg-muted border border-border text-muted-foreground' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
                               />
-                              <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Will not receive email</p>
+                              <p className={`text-[10px] mt-0.5 ${isDark ? 'text-muted-foreground' : 'text-gray-400'}`}>Will not receive email</p>
                             </div>
                           ) : (
                             <input
@@ -3885,7 +3885,7 @@ const SignDocumentPage: React.FC = () => {
                               placeholder="Email..."
                               value={signer.email}
                               onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                              className={`w-full px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50' : 'bg-white border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
+                              className={`w-full px-2 py-1 rounded text-sm focus:ring-1 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-white border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
                             />
                           )}
                         </div>
@@ -3896,23 +3896,23 @@ const SignDocumentPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Email Subject</label>
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Email Subject</label>
                 <input
                   type="text"
                   value={emailSubject || `Please sign: ${templateProps.name}`}
                   onChange={(e) => setEmailSubject(e.target.value)}
-                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
                 />
               </div>
 
               <div>
-                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Message (optional)</label>
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Message (optional)</label>
                 <textarea
                   rows={2}
                   placeholder="Add a personal message..."
                   value={emailMessage}
                   onChange={(e) => setEmailMessage(e.target.value)}
-                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 resize-none ${isDark ? 'bg-muted border border-border text-white focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
+                  className={`w-full px-3 py-1.5 rounded-lg text-sm focus:ring-2 resize-none ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-[#134e4a] focus:ring-[#0d9488]/50'}`}
                 />
               </div>
             </div>
@@ -3921,14 +3921,14 @@ const SignDocumentPage: React.FC = () => {
               <button
                 onClick={() => setShowSendModal(false)}
                 disabled={isSending}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendForSigning}
                 disabled={isSending}
-                className={`px-5 py-1.5 text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50 ${isDark ? 'bg-primary text-black hover:bg-[#b8f206]' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
+                className={`px-5 py-1.5 text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50 ${isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
               >
                 {isSending ? (
                   <>
@@ -3961,7 +3961,7 @@ const SignDocumentPage: React.FC = () => {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] p-4">
           <div className={`rounded-2xl shadow-2xl max-w-md w-full ${isDark ? 'bg-secondary border border-border' : 'bg-white border border-gray-200'}`}>
             <div className={`flex items-center justify-between p-5 ${isDark ? 'border-b border-border' : 'border-b border-gray-200'}`}>
-              <h3 className={`text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+              <h3 className={`text-xl font-semibold flex items-center gap-2 ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                 <Share2 className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 Share Document
               </h3>
@@ -3969,7 +3969,7 @@ const SignDocumentPage: React.FC = () => {
                 onClick={() => setShowShareModal(false)}
                 className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-100'}`}
               >
-                <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                <X className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
               </button>
             </div>
 
@@ -3977,17 +3977,17 @@ const SignDocumentPage: React.FC = () => {
               {isGeneratingShare && (
                 <div className="flex items-center justify-center gap-2 py-6">
                   <Loader2 className={`w-5 h-5 animate-spin ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-                  <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Generating share link...</span>
+                  <span className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>Generating share link...</span>
                 </div>
               )}
 
               {!isGeneratingShare && !shareUrl && (
                 <div className={`text-center py-4`}>
                   <AlertCircle className={`w-8 h-8 mx-auto mb-2 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
-                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Failed to generate share link. Please try again.</p>
+                  <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>Failed to generate share link. Please try again.</p>
                   <button
                     onClick={handleShare}
-                    className={`mt-3 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${isDark ? 'bg-muted text-white hover:bg-[#333]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    className={`mt-3 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${isDark ? 'bg-muted text-foreground hover:bg-secondary' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                   >
                     Retry
                   </button>
@@ -3996,7 +3996,7 @@ const SignDocumentPage: React.FC = () => {
 
               {shareUrl && (
                 <>
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                     Anyone with this link can sign the document.
                   </p>
 
@@ -4005,18 +4005,18 @@ const SignDocumentPage: React.FC = () => {
                       type="text"
                       value={shareUrl}
                       readOnly
-                      className={`flex-1 px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-muted border border-border text-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-600'}`}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-muted border border-border text-muted-foreground' : 'bg-gray-50 border border-gray-200 text-gray-600'}`}
                     />
                     <button
                       onClick={copyShareUrl}
-                      className={`px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${shareCopied ? 'bg-green-500 text-white' : isDark ? 'bg-primary text-black hover:bg-[#b8f206]' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
+                      className={`px-4 py-2 font-medium rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${shareCopied ? 'bg-green-500 text-white' : isDark ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#3d00cc]'}`}
                     >
                       {shareCopied ? <CheckSquare className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     </button>
                   </div>
 
                   <div>
-                    <p className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Share via</p>
+                    <p className={`text-xs font-medium mb-2 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>Share via</p>
                     <div className="flex gap-3">
                       <button
                         onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Please sign this document: ${shareUrl}`)}`, '_blank')}
@@ -4034,7 +4034,7 @@ const SignDocumentPage: React.FC = () => {
                       </button>
                       <button
                         onClick={() => window.open(`mailto:?subject=${encodeURIComponent(`Please sign: ${templateProps.name || 'Document'}`)}&body=${encodeURIComponent(`Please sign this document using the link below:\n\n${shareUrl}`)}`, '_self')}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md ${isDark ? 'bg-muted text-white hover:bg-[#333]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md ${isDark ? 'bg-muted text-foreground hover:bg-secondary' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                       >
                         <Mail className="w-4 h-4" />
                         Email
@@ -4048,7 +4048,7 @@ const SignDocumentPage: React.FC = () => {
             <div className={`flex items-center justify-end gap-3 p-5 rounded-b-2xl ${isDark ? 'border-t border-border bg-secondary' : 'border-t border-gray-200 bg-white'}`}>
               <button
                 onClick={() => setShowShareModal(false)}
-                className={`px-4 py-2 font-medium rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`px-4 py-2 font-medium rounded-lg transition-colors ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 Close
               </button>
@@ -4062,7 +4062,7 @@ const SignDocumentPage: React.FC = () => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[200] p-4">
           <div className={`rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col ${isDark ? 'bg-muted/30' : 'bg-white'}`}>
             <div className={`flex items-center justify-between p-4 ${isDark ? 'border-b border-border bg-secondary' : 'border-b border-gray-200 bg-gray-50'}`}>
-              <h3 className={`text-lg font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
+              <h3 className={`text-lg font-semibold flex items-center gap-2 ${isDark ? 'text-foreground' : 'text-[#134e4a]'}`}>
                 <Eye className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
                 Preview - How Document Will Look After Signing
               </h3>
@@ -4086,7 +4086,7 @@ const SignDocumentPage: React.FC = () => {
                   onClick={() => setShowPreviewModal(false)}
                   className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-muted' : 'hover:bg-gray-200'}`}
                 >
-                  <X className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <X className={`w-5 h-5 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
                 </button>
               </div>
             </div>
@@ -4096,7 +4096,7 @@ const SignDocumentPage: React.FC = () => {
                 {/* IMAGE documents: HTML rendering (same as editor = pixel-perfect) */}
                 {!isPDF && documentPreview && imageDimensions ? (
                   <div className="relative" data-sign-preview="true">
-                    <div className={`absolute -top-6 left-0 text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`absolute -top-6 left-0 text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>
                       Page 1 of 1
                     </div>
                     <div
@@ -4176,7 +4176,7 @@ const SignDocumentPage: React.FC = () => {
                   /* PDF documents: rendered canvas images */
                   previewImages.map((img, idx) => (
                     <div key={idx} className="relative">
-                      <div className={`absolute -top-6 left-0 text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className={`absolute -top-6 left-0 text-sm font-medium ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>
                         Page {idx + 1} of {previewImages.length}
                       </div>
                       <img
@@ -4204,12 +4204,12 @@ const SignDocumentPage: React.FC = () => {
             </div>
 
             <div className={`p-4 flex justify-between items-center ${isDark ? 'border-t border-border bg-secondary' : 'border-t border-gray-200 bg-gray-50'}`}>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>
                 {isPDF ? previewImages.length : 1} page{(isPDF ? previewImages.length : 1) !== 1 ? 's' : ''} • Right-click to save individual pages
               </p>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-muted' : 'text-gray-500 hover:bg-gray-200'}`}
+                className={`px-4 py-2 rounded-lg transition-colors ${isDark ? 'text-muted-foreground hover:bg-muted' : 'text-gray-500 hover:bg-gray-200'}`}
               >
                 Close
               </button>

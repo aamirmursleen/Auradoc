@@ -28,7 +28,7 @@ const MobileBottomNav: React.FC = () => {
   return (
     <nav
       className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t
-        ${isDark ? 'bg-[#1e1e1e] border-[#2a2a2a]' : 'bg-white border-gray-200'}`}
+        ${isDark ? 'bg-white border-border' : 'bg-white border-gray-200'}`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-center justify-around h-16">
@@ -41,7 +41,7 @@ const MobileBottomNav: React.FC = () => {
               className={`flex flex-col items-center justify-center flex-1 h-full pt-2 pb-1 transition-colors
                 ${active
                   ? isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'
-                  : isDark ? 'text-gray-500' : 'text-gray-400'
+                  : isDark ? 'text-muted-foreground' : 'text-gray-400'
                 }`}
             >
               <item.icon className={`w-6 h-6 mb-1 ${active ? 'stroke-[2.5]' : ''}`} />

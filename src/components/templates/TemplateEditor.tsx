@@ -605,7 +605,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
           >
             <X className="w-5 h-5" />
           </button>
-          <span className="text-gray-400">|</span>
+          <span className="text-muted-foreground">|</span>
           <span className="font-medium text-gray-900">{template.name}</span>
         </div>
 
@@ -638,7 +638,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
           {/* Editable Doc Info */}
           <div className="p-4 border-b border-gray-200">
-            <p className="text-xs text-gray-500 mb-2">Here is your editable doc</p>
+            <p className="text-xs text-muted-foreground mb-2">Here is your editable doc</p>
           </div>
 
           {/* AI Generator Panel */}
@@ -651,7 +651,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                 <FileText className="w-4 h-4 text-primary-500" />
                 <span className="text-sm font-medium">{categoryLabels[template.category]} Generator</span>
               </div>
-              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showAiPanel ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showAiPanel ? 'rotate-180' : ''}`} />
             </button>
           </div>
 
@@ -674,7 +674,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                     className={`px-4 py-1.5 text-sm rounded-full transition-colors flex items-center gap-2 flex-shrink-0 ${
                       aiPrompt.trim()
                         ? 'bg-primary hover:bg-primary/90 text-primary-foreground font-medium'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-200 text-muted-foreground cursor-not-allowed'
                     } ${isGenerating ? 'opacity-70' : ''}`}
                   >
                     {isGenerating ? (
@@ -694,7 +694,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
               {/* AI Suggestions */}
               <div className="mt-3">
-                <p className="text-xs text-gray-500 mb-2">Quick suggestions:</p>
+                <p className="text-xs text-muted-foreground mb-2">Quick suggestions:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {getAiSuggestions().map((suggestion, idx) => (
                     <button
@@ -734,14 +734,14 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
           <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-1">
             <button
               onClick={() => execCommand('undo')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Undo"
             >
               <Undo className="w-4 h-4" />
             </button>
             <button
               onClick={() => execCommand('redo')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Redo"
             >
               <Redo className="w-4 h-4" />
@@ -763,21 +763,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
             <button
               onClick={() => execCommand('bold')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Bold"
             >
               <Bold className="w-4 h-4" />
             </button>
             <button
               onClick={() => execCommand('italic')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Italic"
             >
               <Italic className="w-4 h-4" />
             </button>
             <button
               onClick={() => execCommand('underline')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Underline"
             >
               <Underline className="w-4 h-4" />
@@ -787,14 +787,14 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
             <button
               onClick={() => execCommand('insertUnorderedList')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Bullet List"
             >
               <List className="w-4 h-4" />
             </button>
             <button
               onClick={() => execCommand('insertOrderedList')}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Numbered List"
             >
               <ListOrdered className="w-4 h-4" />
@@ -807,7 +807,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                 const url = prompt('Enter URL:')
                 if (url) execCommand('createLink', url)
               }}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Insert Link"
             >
               <Link2 className="w-4 h-4" />
@@ -817,7 +817,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
             <button
               onClick={() => navigator.clipboard.writeText(documentHtml)}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
               title="Copy"
             >
               <Copy className="w-4 h-4" />

@@ -221,16 +221,16 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ template, onClose, on
             </span>
             <div className="flex items-center gap-2">
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Star className="w-5 h-5 text-gray-400" />
+                <Star className="w-5 h-5 text-muted-foreground" />
               </button>
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Share2 className="w-5 h-5 text-gray-400" />
+                <Share2 className="w-5 h-5 text-muted-foreground" />
               </button>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
           </div>
@@ -240,13 +240,13 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ template, onClose, on
             {/* Main CTA Button */}
             <button
               onClick={() => onUseTemplate(template)}
-              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl mb-3"
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl mb-3"
             >
               <PenLine className="w-5 h-5" />
               Edit this free template
             </button>
 
-            <p className="text-center text-gray-500 text-sm mb-6">
+            <p className="text-center text-muted-foreground text-sm mb-6">
               No sign up needed
             </p>
 
@@ -275,25 +275,25 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ template, onClose, on
                 Generate my free {template.name}
               </button>
 
-              <p className="text-center text-gray-400 text-xs mt-3">
+              <p className="text-center text-muted-foreground text-xs mt-3">
                 Text or voice to generate a free document
               </p>
             </div>
 
             {/* Template Info */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <h4 className="text-sm font-medium text-gray-500 mb-2">Template Details</h4>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Template Details</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Category</span>
+                  <span className="text-muted-foreground">Category</span>
                   <span className="text-gray-900 font-medium">{categoryLabels[template.category]}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Fields to fill</span>
+                  <span className="text-muted-foreground">Fields to fill</span>
                   <span className="text-gray-900 font-medium">{template.fields.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Format</span>
+                  <span className="text-muted-foreground">Format</span>
                   <span className="text-gray-900 font-medium">PDF, HTML</span>
                 </div>
               </div>

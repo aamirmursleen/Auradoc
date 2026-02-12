@@ -60,11 +60,11 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
   }
 
   return (
-    <div className={`md:hidden min-h-screen ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
+    <div className={`md:hidden min-h-screen ${isDark ? 'bg-white' : 'bg-gray-50'}`}>
       {/* Mobile Header */}
       {showHeader && (
         <header
-          className={`fixed top-0 left-0 right-0 z-40 ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'} border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}
+          className={`fixed top-0 left-0 right-0 z-40 ${isDark ? 'bg-white' : 'bg-white'} border-b ${isDark ? 'border-border' : 'border-gray-200'}`}
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: '60px', padding: '0 12px', width: '100%', boxSizing: 'border-box' }}>
@@ -136,11 +136,11 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
           className={`absolute top-14 left-0 right-0 max-h-[80vh] overflow-y-auto transition-all duration-300 ${isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
-          <div className={`mx-4 mt-2 rounded-2xl shadow-xl ${isDark ? 'bg-[#1e1e1e] border border-[#2a2a2a]' : 'bg-white border border-gray-200'}`}>
+          <div className={`mx-4 mt-2 rounded-2xl shadow-xl ${isDark ? 'bg-white border border-border' : 'bg-white border border-gray-200'}`}>
             <div className="p-4 space-y-1">
               <button onClick={() => handleNavClick('/')}
                 className={`w-full font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                  ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                  ${isDark ? 'text-foreground hover:text-primary hover:bg-secondary' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
               >
                 Home
               </button>
@@ -149,7 +149,7 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
               <div>
                 <button onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
                   className={`w-full flex items-center justify-between font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                    ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                    ${isDark ? 'text-foreground hover:text-primary hover:bg-secondary' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
                 >
                   Products
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
@@ -158,36 +158,36 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
                 <div className={`overflow-hidden transition-all duration-500 ease-out ${isMobileProductsOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className={`ml-4 mt-2 space-y-1 border-l-2 pl-4 max-h-[50vh] overflow-y-auto
                     ${isDark ? 'border-[#c4ff0e]/30' : 'border-[#4C00FF]/30'}`}>
-                    <p className={`text-xs font-semibold uppercase tracking-wider py-2 ${isDark ? 'text-gray-500' : 'text-[#6B7280]'}`}>E-Signature</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wider py-2 ${isDark ? 'text-muted-foreground' : 'text-[#6B7280]'}`}>E-Signature</p>
                     {products.signing.map((product) => (
                       <Link key={product.name} href={product.href} onClick={() => setIsMenuOpen(false)}
                         className={`flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl transition-all duration-300 active:scale-[0.98]
-                          ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                          ${isDark ? 'hover:bg-secondary' : 'hover:bg-[#EDE5FF]'}`}
                       >
-                        <product.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                        <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#26065D]'}`}>{product.name}</span>
+                        <product.icon className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#4C00FF]'}`} />
+                        <span className={`text-sm ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>{product.name}</span>
                       </Link>
                     ))}
 
-                    <p className={`text-xs font-semibold uppercase tracking-wider py-2 mt-3 ${isDark ? 'text-gray-500' : 'text-[#6B7280]'}`}>PDF Tools</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wider py-2 mt-3 ${isDark ? 'text-muted-foreground' : 'text-[#6B7280]'}`}>PDF Tools</p>
                     {products.documents.map((product) => (
                       <Link key={product.name} href={product.href} onClick={() => setIsMenuOpen(false)}
                         className={`flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl transition-all duration-300 active:scale-[0.98]
-                          ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                          ${isDark ? 'hover:bg-secondary' : 'hover:bg-[#EDE5FF]'}`}
                       >
-                        <product.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                        <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#26065D]'}`}>{product.name}</span>
+                        <product.icon className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#4C00FF]'}`} />
+                        <span className={`text-sm ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>{product.name}</span>
                       </Link>
                     ))}
 
-                    <p className={`text-xs font-semibold uppercase tracking-wider py-2 mt-3 ${isDark ? 'text-gray-500' : 'text-[#6B7280]'}`}>Business</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wider py-2 mt-3 ${isDark ? 'text-muted-foreground' : 'text-[#6B7280]'}`}>Business</p>
                     {products.business.map((product) => (
                       <Link key={product.name} href={product.href} onClick={() => setIsMenuOpen(false)}
                         className={`flex items-center gap-3 min-h-[44px] py-2.5 px-3 rounded-xl transition-all duration-300 active:scale-[0.98]
-                          ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-[#EDE5FF]'}`}
+                          ${isDark ? 'hover:bg-secondary' : 'hover:bg-[#EDE5FF]'}`}
                       >
-                        <product.icon className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
-                        <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#26065D]'}`}>{product.name}</span>
+                        <product.icon className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-[#4C00FF]'}`} />
+                        <span className={`text-sm ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>{product.name}</span>
                       </Link>
                     ))}
                   </div>
@@ -196,7 +196,7 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
 
               <button onClick={() => handleNavClick('/pricing')}
                 className={`w-full font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                  ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                  ${isDark ? 'text-foreground hover:text-primary hover:bg-secondary' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
               >
                 Pricing
               </button>
@@ -204,19 +204,19 @@ const MobileAppShell: React.FC<MobileAppShellProps> = ({
               <SignedIn>
                 <button onClick={() => handleNavClick('/documents')}
                   className={`w-full flex items-center gap-3 font-medium min-h-[44px] py-3 px-4 text-left rounded-xl transition-all duration-300 active:scale-[0.98]
-                    ${isDark ? 'text-white hover:text-[#c4ff0e] hover:bg-[#2a2a2a]' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
+                    ${isDark ? 'text-foreground hover:text-primary hover:bg-secondary' : 'text-[#26065D] hover:text-[#4C00FF] hover:bg-[#EDE5FF]'}`}
                 >
                   <LayoutDashboard className="w-5 h-5" />
                   Dashboard
                 </button>
               </SignedIn>
 
-              <hr className={`my-2 ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`} />
+              <hr className={`my-2 ${isDark ? 'border-border' : 'border-gray-200'}`} />
 
               <SignedOut>
                 <button onClick={() => handleNavClick('/sign-up')}
                   className={`w-full min-h-[44px] py-3 px-4 font-semibold rounded-xl transition-all duration-300 active:scale-[0.98]
-                    ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`}
+                    ${isDark ? 'bg-primary text-primary-foreground' : 'bg-[#4C00FF] text-white'}`}
                 >
                   Get Started Free
                 </button>

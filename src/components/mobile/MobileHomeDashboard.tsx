@@ -42,7 +42,7 @@ const MobileHomeDashboard: React.FC = () => {
     <div className="px-4 py-4 space-y-6">
       {/* Quick Actions Grid */}
       <div>
-        <h2 className={`text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+        <h2 className={`text-lg font-semibold mb-3 ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>
           Quick Actions
         </h2>
         <div className="grid grid-cols-4 gap-3">
@@ -51,23 +51,23 @@ const MobileHomeDashboard: React.FC = () => {
               key={action.name}
               href={action.href}
               className={`flex flex-col items-center p-3 rounded-xl transition-all active:scale-95
-                ${isDark ? 'bg-[#252525] hover:bg-[#2a2a2a]' : 'bg-white hover:bg-gray-50'} shadow-sm`}
+                ${isDark ? 'bg-secondary hover:bg-secondary/80' : 'bg-white hover:bg-gray-50'} shadow-sm`}
             >
               <div
                 className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2
                   ${action.primary
-                    ? isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'
-                    : isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'
+                    ? isDark ? 'bg-primary' : 'bg-[#4C00FF]'
+                    : isDark ? 'bg-muted' : 'bg-gray-100'
                   }`}
               >
                 <action.icon
                   className={`w-6 h-6 ${action.primary
-                    ? isDark ? 'text-black' : 'text-white'
-                    : isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'
+                    ? isDark ? 'text-primary-foreground' : 'text-white'
+                    : isDark ? 'text-primary' : 'text-[#4C00FF]'
                   }`}
                 />
               </div>
-              <span className={`text-xs font-medium text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+              <span className={`text-xs font-medium text-center ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>
                 {action.name}
               </span>
             </Link>
@@ -79,7 +79,7 @@ const MobileHomeDashboard: React.FC = () => {
       <SignedIn>
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+            <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>
               Recent Documents
             </h2>
             <Link
@@ -93,10 +93,10 @@ const MobileHomeDashboard: React.FC = () => {
           {/* Empty State */}
           <div
             className={`p-6 rounded-xl text-center border-2 border-dashed
-              ${isDark ? 'border-[#2a2a2a] bg-[#252525]' : 'border-gray-200 bg-white'}`}
+              ${isDark ? 'border-border bg-secondary' : 'border-gray-200 bg-white'}`}
           >
-            <FileText className={`w-12 h-12 mx-auto mb-3 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            <FileText className={`w-12 h-12 mx-auto mb-3 ${isDark ? 'text-muted-foreground' : 'text-gray-300'}`} />
+            <p className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
               No recent documents
             </p>
             <Link
@@ -112,9 +112,9 @@ const MobileHomeDashboard: React.FC = () => {
       {/* Signed Out - Benefits */}
       <SignedOut>
         <div
-          className={`p-4 rounded-xl ${isDark ? 'bg-[#252525]' : 'bg-white'} shadow-sm`}
+          className={`p-4 rounded-xl ${isDark ? 'bg-secondary' : 'bg-white'} shadow-sm`}
         >
-          <h3 className={`font-semibold mb-3 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+          <h3 className={`font-semibold mb-3 ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>
             Why MamaSign?
           </h3>
           <ul className="space-y-2">
@@ -125,8 +125,8 @@ const MobileHomeDashboard: React.FC = () => {
               '$27 lifetime deal (90% off)',
             ].map((benefit, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <CheckCircle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{benefit}</span>
+                <CheckCircle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-green-600' : 'text-green-600'}`} />
+                <span className={`text-sm ${isDark ? 'text-muted-foreground' : 'text-gray-600'}`}>{benefit}</span>
               </li>
             ))}
           </ul>
@@ -136,7 +136,7 @@ const MobileHomeDashboard: React.FC = () => {
       {/* Popular Tools */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>
             Free PDF Tools
           </h2>
           <Link
@@ -152,12 +152,12 @@ const MobileHomeDashboard: React.FC = () => {
               key={tool.name}
               href={tool.href}
               className={`flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-xl transition-all active:scale-95
-                ${isDark ? 'bg-[#252525]' : 'bg-white'} shadow-sm`}
+                ${isDark ? 'bg-secondary' : 'bg-white'} shadow-sm`}
             >
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}>
-                <tool.icon className={`w-5 h-5 ${isDark ? 'text-black' : 'text-white'}`} />
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-primary' : 'bg-[#4C00FF]'}`}>
+                <tool.icon className={`w-5 h-5 ${isDark ? 'text-primary-foreground' : 'text-white'}`} />
               </div>
-              <span className={`text-sm font-medium whitespace-nowrap ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+              <span className={`text-sm font-medium whitespace-nowrap ${isDark ? 'text-foreground' : 'text-[#26065D]'}`}>
                 {tool.name}
               </span>
             </Link>
