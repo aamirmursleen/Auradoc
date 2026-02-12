@@ -135,7 +135,7 @@ const AISupportChat: React.FC = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-[999]"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-[999]"
           title="Need help? Chat with us!"
         >
           <MessageCircle className="w-6 h-6" />
@@ -145,7 +145,7 @@ const AISupportChat: React.FC = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 z-[1000] bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#2a2a2a] overflow-hidden transition-all ${
+          className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 z-[1000] bg-white rounded-2xl shadow-2xl border border-border overflow-hidden transition-all ${
             isMinimized ? 'h-14' : 'h-[85vh] sm:h-[500px]'
           } sm:w-96`}
         >
@@ -159,13 +159,13 @@ const AISupportChat: React.FC = () => {
           </button>
 
           {/* Header */}
-          <div className="flex items-center p-4 bg-[#252525] border-b border-[#2a2a2a] pr-14">
+          <div className="flex items-center p-4 bg-muted border-b border-border pr-14">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#c4ff0e] rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5 text-black" />
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                <Bot className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-white text-sm">Mamasign Support</h3>
+                <h3 className="font-semibold text-foreground text-sm">Mamasign Support</h3>
                 <p className="text-xs text-green-400 flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-400 rounded-full"></span>
                   Online
@@ -185,20 +185,20 @@ const AISupportChat: React.FC = () => {
                   >
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        message.role === 'user' ? 'bg-[#c4ff0e]' : 'bg-[#333]'
+                        message.role === 'user' ? 'bg-primary' : 'bg-muted'
                       }`}
                     >
                       {message.role === 'user' ? (
-                        <User className="w-4 h-4 text-black" />
+                        <User className="w-4 h-4 text-primary-foreground" />
                       ) : (
-                        <Bot className="w-4 h-4 text-[#c4ff0e]" />
+                        <Bot className="w-4 h-4 text-primary" />
                       )}
                     </div>
                     <div
                       className={`max-w-[75%] rounded-2xl px-4 py-3 ${
                         message.role === 'user'
-                          ? 'bg-[#c4ff0e] text-black rounded-tr-sm'
-                          : 'bg-[#2a2a2a] text-gray-200 rounded-tl-sm'
+                          ? 'bg-primary text-primary-foreground rounded-tr-sm'
+                          : 'bg-muted text-foreground rounded-tl-sm'
                       }`}
                     >
                       <div className="text-sm leading-relaxed">
@@ -209,11 +209,11 @@ const AISupportChat: React.FC = () => {
                 ))}
                 {isLoading && (
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#333] flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-[#c4ff0e]" />
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                      <Bot className="w-4 h-4 text-primary" />
                     </div>
-                    <div className="bg-[#2a2a2a] rounded-2xl rounded-tl-sm px-4 py-3">
-                      <Loader2 className="w-5 h-5 animate-spin text-[#c4ff0e]" />
+                    <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     </div>
                   </div>
                 )}
@@ -221,7 +221,7 @@ const AISupportChat: React.FC = () => {
               </div>
 
               {/* Input */}
-              <div className="p-4 border-t border-[#2a2a2a]">
+              <div className="p-4 border-t border-border">
                 <div className="flex items-center gap-2">
                   <input
                     ref={inputRef}
@@ -230,15 +230,15 @@ const AISupportChat: React.FC = () => {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your question..."
-                    className="flex-1 bg-[#2a2a2a] border border-[#3a3a3a] rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#c4ff0e] transition-colors"
+                    className="flex-1 bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
                     disabled={isLoading}
                   />
                   <button
                     onClick={handleSend}
                     disabled={!inputValue.trim() || isLoading}
-                    className="w-11 h-11 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center transition-colors"
+                    className="w-11 h-11 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center transition-colors"
                   >
-                    <Send className="w-5 h-5 text-black" />
+                    <Send className="w-5 h-5 text-primary-foreground" />
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 text-center">

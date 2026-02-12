@@ -3,15 +3,12 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { FileType, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Clock } from 'lucide-react'
 import Link from 'next/link'
-import { useTheme } from '@/components/ThemeProvider'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 // We'll use pdfjs-dist for text extraction
 let pdfjsLib: any = null
 
 export default function PDFToWordPage() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
   const [file, setFile] = useState<File | null>(null)
   const [converting, setConverting] = useState(false)
   const [converted, setConverted] = useState(false)
@@ -211,7 +208,7 @@ export default function PDFToWordPage() {
   ]
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+    <div className="min-h-screen bg-muted/30">
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
@@ -222,14 +219,14 @@ export default function PDFToWordPage() {
           ]} />
         </div>
         <div className="max-w-4xl mx-auto text-center">
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${isDark ? 'bg-[#2a2a2a] text-[#c4ff0e]' : 'bg-[#EDE5FF] text-[#4C00FF]'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 bg-muted text-primary">
             <FileType className="w-4 h-4" />
             PDF Tool
           </div>
-          <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             PDF to Word Converter
           </h1>
-          <p className={`text-xl mb-8 max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
             Convert PDF files to editable Word documents (.docx).
             Extract text and download as Word format.
           </p>
@@ -238,8 +235,8 @@ export default function PDFToWordPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-12 transition-all ${
               dragActive
-                ? isDark ? 'border-[#c4ff0e] bg-[#252525]' : 'border-[#4C00FF] bg-[#EDE5FF]'
-                : isDark ? 'border-[#3a3a3a] hover:border-[#c4ff0e] bg-[#1F1F1F]' : 'border-gray-300 hover:border-[#4C00FF] bg-gray-50'
+                ? 'border-primary bg-secondary'
+                : 'border-border hover:border-primary bg-white'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -248,13 +245,13 @@ export default function PDFToWordPage() {
           >
             {!file ? (
               <div className="text-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
-                  <Upload className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-muted">
+                  <Upload className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+                <h3 className="text-lg font-semibold mb-2 text-foreground">
                   Drop your PDF here
                 </h3>
-                <p className={`mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>or click to browse</p>
+                <p className="mb-4 text-muted-foreground">or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -264,20 +261,20 @@ export default function PDFToWordPage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg cursor-pointer transition-colors ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'}`}
+                  className="inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg cursor-pointer transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF File
                 </label>
-                <p className={`text-sm mt-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Max file size: 50MB</p>
+                <p className="text-sm mt-4 text-muted-foreground">Max file size: 50MB</p>
               </div>
             ) : (
               <div className="text-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
-                  <FileText className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-muted">
+                  <FileText className="w-8 h-8 text-primary" />
                 </div>
-                <p className={`font-medium mb-1 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{file.name}</p>
-                <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className="font-medium mb-1 text-foreground">{file.name}</p>
+                <p className="text-sm mb-6 text-muted-foreground">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
 
@@ -285,13 +282,13 @@ export default function PDFToWordPage() {
                   <div>
                     {converting && (
                       <div className="mb-4">
-                        <div className={`w-full rounded-full h-2 mb-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-200'}`}>
+                        <div className="w-full rounded-full h-2 mb-2 bg-muted">
                           <div
-                            className={`h-2 rounded-full transition-all duration-300 ${isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]'}`}
+                            className="h-2 rounded-full transition-all duration-300 bg-primary"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <p className="text-sm text-muted-foreground">
                           {progress < 80 ? 'Extracting text...' : progress < 95 ? 'Creating Word document...' : 'Finalizing...'}
                         </p>
                       </div>
@@ -299,7 +296,7 @@ export default function PDFToWordPage() {
                     <button
                       onClick={handleConvert}
                       disabled={converting}
-                      className={`inline-flex items-center gap-2 px-8 py-3 font-medium rounded-lg transition-all disabled:opacity-50 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'}`}
+                      className="inline-flex items-center gap-2 px-8 py-3 font-medium rounded-lg transition-all disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       {converting ? (
                         <>
@@ -316,15 +313,15 @@ export default function PDFToWordPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className={`flex items-center justify-center gap-2 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
+                    <div className="flex items-center justify-center gap-2 text-primary">
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">Conversion Complete!</span>
                     </div>
 
                     {/* Preview Box */}
-                    <div className={`rounded-xl p-4 text-left border max-h-48 overflow-y-auto ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-200'}`}>
-                      <p className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Preview (first 500 characters):</p>
-                      <pre className={`text-sm whitespace-pre-wrap font-sans ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <div className="rounded-xl p-4 text-left border max-h-48 overflow-y-auto bg-secondary border-border">
+                      <p className="text-xs mb-2 text-muted-foreground">Preview (first 500 characters):</p>
+                      <pre className="text-sm whitespace-pre-wrap font-sans text-muted-foreground">
                         {extractedText.substring(0, 500)}{extractedText.length > 500 ? '...' : ''}
                       </pre>
                     </div>
@@ -332,7 +329,7 @@ export default function PDFToWordPage() {
                     {/* Download Button */}
                     <button
                       onClick={downloadWord}
-                      className={`inline-flex items-center gap-2 px-8 py-3 font-medium rounded-lg transition-colors ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-[#4C00FF] text-white hover:bg-[#3D00CC]'}`}
+                      className="inline-flex items-center gap-2 px-8 py-3 font-medium rounded-lg transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       <Download className="w-5 h-5" />
                       Download Word Document (.docx)
@@ -342,7 +339,7 @@ export default function PDFToWordPage() {
 
                 <button
                   onClick={clearFile}
-                  className={`block mx-auto mt-4 text-sm ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+                  className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground"
                 >
                   Upload different file
                 </button>
@@ -351,8 +348,8 @@ export default function PDFToWordPage() {
           </div>
 
           {/* Note */}
-          <div className={`max-w-2xl mx-auto mt-6 p-4 rounded-xl border ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-200'}`}>
-            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+          <div className="max-w-2xl mx-auto mt-6 p-4 rounded-xl border bg-secondary border-border">
+            <p className="text-sm text-muted-foreground">
               <strong>Note:</strong> This tool extracts text from PDFs. For scanned PDFs (images),
               the text extraction may be limited. Best results with text-based PDFs.
             </p>
@@ -361,19 +358,19 @@ export default function PDFToWordPage() {
       </section>
 
       {/* Features */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
+      <section className="py-16 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
-          <h2 className={`text-3xl font-bold text-center mb-12 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">
             Why Use Our Converter?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, idx) => (
-              <div key={idx} className={`text-center p-6 rounded-2xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'}`}>
-                  <feature.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-secondary">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 bg-muted">
+                  <feature.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{feature.title}</h3>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{feature.desc}</p>
+                <h3 className="font-semibold mb-2 text-foreground">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -381,40 +378,40 @@ export default function PDFToWordPage() {
       </section>
 
       {/* Other Tools */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+      <section className="py-16 px-4 bg-muted/30">
         <div className="max-w-4xl mx-auto">
-          <h2 className={`text-3xl font-bold text-center mb-12 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">
             Other Tools You Might Need
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href="/tools/image-to-pdf" className={`block p-6 rounded-2xl hover:shadow-lg transition-all group border ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-200 hover:border-[#4C00FF]/50'}`}>
-              <h3 className={`font-semibold mb-2 ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>Image to PDF</h3>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Convert images to PDF documents</p>
+            <Link href="/tools/image-to-pdf" className="block p-6 rounded-2xl hover:shadow-lg transition-all group border bg-secondary border-border hover:border-primary/50">
+              <h3 className="font-semibold mb-2 text-foreground group-hover:text-primary">Image to PDF</h3>
+              <p className="text-sm text-muted-foreground">Convert images to PDF documents</p>
             </Link>
-            <Link href="/tools/pdf-compressor" className={`block p-6 rounded-2xl hover:shadow-lg transition-all group border ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-200 hover:border-[#4C00FF]/50'}`}>
-              <h3 className={`font-semibold mb-2 ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>PDF Optimizer</h3>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Reduce PDF file size</p>
+            <Link href="/tools/pdf-compressor" className="block p-6 rounded-2xl hover:shadow-lg transition-all group border bg-secondary border-border hover:border-primary/50">
+              <h3 className="font-semibold mb-2 text-foreground group-hover:text-primary">PDF Optimizer</h3>
+              <p className="text-sm text-muted-foreground">Reduce PDF file size</p>
             </Link>
-            <Link href="/verify" className={`block p-6 rounded-2xl hover:shadow-lg transition-all group border ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-gray-50 border-gray-200 hover:border-[#4C00FF]/50'}`}>
-              <h3 className={`font-semibold mb-2 ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'}`}>Verify PDF</h3>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Check document authenticity</p>
+            <Link href="/verify" className="block p-6 rounded-2xl hover:shadow-lg transition-all group border bg-secondary border-border hover:border-primary/50">
+              <h3 className="font-semibold mb-2 text-foreground group-hover:text-primary">Verify PDF</h3>
+              <p className="text-sm text-muted-foreground">Check document authenticity</p>
             </Link>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#252525]' : 'bg-[#4C00FF]'}`}>
+      <section className="py-16 px-4 bg-secondary">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Need More PDF Tools?
           </h2>
-          <p className={`mb-8 ${isDark ? 'text-gray-300' : 'text-white/80'}`}>
+          <p className="mb-8 text-muted-foreground">
             Check out our complete suite of document tools
           </p>
           <Link
             href="/"
-            className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg transition-all ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#d4ff3e]' : 'bg-white text-[#4C00FF] hover:bg-gray-100'}`}
+            className="inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg transition-all bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Explore All Tools
             <ArrowRight className="w-5 h-5" />

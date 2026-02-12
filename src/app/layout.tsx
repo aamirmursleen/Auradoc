@@ -2,13 +2,11 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
+import AppShell from '@/components/layout/AppShell'
 import EmailCapturePopup from '@/components/EmailCapturePopup'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { ToastProvider } from '@/contexts/ToastContext'
-// import AnnouncementBar from '@/components/AnnouncementBar' // Removed - moved to Hero Section
 import FloatingLifetimeDeal from '@/components/FloatingLifetimeDeal'
 import AISupportChat from '@/components/support/AISupportChat'
 
@@ -21,8 +19,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#4C00FF' },
-    { media: '(prefers-color-scheme: dark)', color: '#1F1F1F' },
+    { media: '(prefers-color-scheme: light)', color: '#0d9488' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d9488' },
   ],
   viewportFit: 'cover',
 }
@@ -176,17 +174,9 @@ export default function RootLayout({
         <body className={`${inter.className} antialiased`}>
           <ThemeProvider>
             <ToastProvider>
-              <div className="flex flex-col min-h-screen">
-                {/* Skip navigation link for keyboard/screen reader users */}
-                <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  Skip to main content
-                </a>
-                <Header />
-                <main id="main-content" className="flex-grow" role="main">
-                  {children}
-                </main>
-                <Footer />
-              </div>
+              <AppShell>
+                {children}
+              </AppShell>
               <EmailCapturePopup />
               <FloatingLifetimeDeal />
               <AISupportChat />

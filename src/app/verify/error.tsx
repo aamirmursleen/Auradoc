@@ -16,7 +16,7 @@ export default function VerifyError({
         </p>
         <button
           onClick={reset}
-          className="px-6 py-3 bg-[#4C00FF] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+          className="px-6 py-3 bg-[#0d9488] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
         >
           Try again
         </button>

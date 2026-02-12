@@ -145,7 +145,7 @@ const NotificationBell: React.FC = () => {
       case 'document_completed':
         return <FileCheck className="w-5 h-5 text-green-400" />
       case 'document_signed':
-        return <Check className="w-5 h-5 text-[#c4ff0e]" />
+        return <Check className="w-5 h-5 text-primary" />
       case 'document_viewed':
         return <Eye className="w-5 h-5 text-blue-400" />
       case 'document_declined':
@@ -180,10 +180,10 @@ const NotificationBell: React.FC = () => {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+        className="relative p-2 hover:bg-muted rounded-lg transition-colors"
         title="Notifications"
       >
-        <Bell className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+        <Bell className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -195,11 +195,11 @@ const NotificationBell: React.FC = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="fixed right-4 top-16 w-[360px] max-w-[calc(100vw-2rem)] bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl shadow-2xl z-[9999] overflow-hidden">
+        <div className="fixed right-4 top-16 w-[360px] max-w-[calc(100vw-2rem)] bg-white border border-border rounded-xl shadow-2xl z-[9999] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#c4ff0e]" />
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <Bell className="w-4 h-4 text-primary" />
               Notifications
               {/* Live indicator */}
               <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
@@ -222,7 +222,7 @@ const NotificationBell: React.FC = () => {
               <button
                 onClick={markAllAsRead}
                 disabled={isLoading}
-                className="text-xs text-[#c4ff0e] hover:underline disabled:opacity-50 flex items-center gap-1"
+                className="text-xs text-primary hover:underline disabled:opacity-50 flex items-center gap-1"
               >
                 <CheckCheck className="w-3 h-3" />
                 Mark all read
@@ -242,8 +242,8 @@ const NotificationBell: React.FC = () => {
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b border-[#2a2a2a] hover:bg-[#252525] cursor-pointer transition-colors ${
-                    !notification.is_read ? 'bg-[#252525]/50' : ''
+                  className={`p-4 border-b border-border hover:bg-muted cursor-pointer transition-colors ${
+                    !notification.is_read ? 'bg-muted/50' : ''
                   }`}
                   onClick={() => {
                     if (!notification.is_read) {
@@ -263,11 +263,11 @@ const NotificationBell: React.FC = () => {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-sm font-medium ${notification.is_read ? 'text-gray-400' : 'text-white'}`}>
+                        <p className={`text-sm font-medium ${notification.is_read ? 'text-muted-foreground' : 'text-foreground'}`}>
                           {notification.title}
                         </p>
                         {!notification.is_read && (
-                          <span className="w-2 h-2 bg-[#c4ff0e] rounded-full flex-shrink-0 mt-1.5 animate-pulse" />
+                          <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1.5 animate-pulse" />
                         )}
                       </div>
                       <p className="text-xs text-gray-500 mt-1 line-clamp-2">
@@ -278,7 +278,7 @@ const NotificationBell: React.FC = () => {
                           {formatTimeAgo(notification.created_at)}
                         </span>
                         {notification.document_name && (
-                          <span className="text-xs text-[#c4ff0e] bg-[#c4ff0e]/10 px-2 py-0.5 rounded">
+                          <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded">
                             {notification.document_name}
                           </span>
                         )}
@@ -292,10 +292,10 @@ const NotificationBell: React.FC = () => {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="p-3 border-t border-[#2a2a2a] bg-[#1a1a1a]">
+            <div className="p-3 border-t border-border bg-muted/30">
               <a
                 href="/documents"
-                className="block text-center text-sm text-[#c4ff0e] hover:underline"
+                className="block text-center text-sm text-primary hover:underline"
               >
                 View all documents
               </a>

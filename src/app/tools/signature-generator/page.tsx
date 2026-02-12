@@ -3,13 +3,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { PenTool, Download, Trash2, Type, Palette, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useTheme } from '@/components/ThemeProvider'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SignatureGeneratorPage() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
-
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [mode, setMode] = useState<'draw' | 'type'>('draw')
@@ -190,7 +186,7 @@ export default function SignatureGeneratorPage() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+    <div className="min-h-screen bg-muted/30">
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
@@ -201,14 +197,14 @@ export default function SignatureGeneratorPage() {
           ]} />
         </div>
         <div className="max-w-4xl mx-auto text-center">
-          <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} px-4 py-2 rounded-full text-sm font-medium mb-6`}>
+          <div className="inline-flex items-center gap-2 bg-muted text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
             <PenTool className="w-4 h-4" />
             Free Signature Tool
           </div>
-          <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Signature Generator
           </h1>
-          <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-8 max-w-2xl mx-auto`}>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Create your digital signature in seconds.
             Draw by hand or type your name with beautiful fonts.
           </p>
@@ -219,8 +215,8 @@ export default function SignatureGeneratorPage() {
               onClick={() => setMode('draw')}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                 mode === 'draw'
-                  ? `${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`
-                  : `${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'} ${isDark ? 'text-gray-400' : 'text-gray-500'} ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'} border ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white text-muted-foreground hover:bg-muted border border-border'
               }`}
             >
               <PenTool className="w-5 h-5" />
@@ -230,8 +226,8 @@ export default function SignatureGeneratorPage() {
               onClick={() => setMode('type')}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                 mode === 'type'
-                  ? `${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'}`
-                  : `${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'} ${isDark ? 'text-gray-400' : 'text-gray-500'} ${isDark ? 'hover:bg-[#2a2a2a]' : 'hover:bg-gray-100'} border ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white text-muted-foreground hover:bg-muted border border-border'
               }`}
             >
               <Type className="w-5 h-5" />
@@ -240,19 +236,19 @@ export default function SignatureGeneratorPage() {
           </div>
 
           {/* Signature Area */}
-          <div className={`max-w-2xl mx-auto ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'} rounded-2xl shadow-lg overflow-hidden border ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+          <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-border">
             {/* Toolbar */}
-            <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'} ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
+            <div className="flex items-center justify-between p-4 border-b border-border bg-secondary">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Palette className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <Palette className="w-4 h-4 text-muted-foreground" />
                   <div className="flex gap-1">
                     {colors.map((color) => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
                         className={`w-7 h-7 rounded-full border-2 transition-all ${
-                          selectedColor === color ? `scale-110 ${isDark ? 'border-gray-400' : 'border-gray-500'} ring-2 ring-offset-1 ring-gray-300` : `${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`
+                          selectedColor === color ? 'scale-110 border-gray-500 ring-2 ring-offset-1 ring-gray-300' : 'border-border'
                         }`}
                         style={{ backgroundColor: color }}
                       />
@@ -262,7 +258,7 @@ export default function SignatureGeneratorPage() {
               </div>
               <button
                 onClick={clearCanvas}
-                className={`flex items-center gap-1 px-3 py-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'} hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors`}
+                className="flex items-center gap-1 px-3 py-1.5 text-muted-foreground hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="text-sm">Clear</span>
@@ -274,7 +270,7 @@ export default function SignatureGeneratorPage() {
               <div className="p-4">
                 <canvas
                   ref={canvasRef}
-                  className={`w-full h-[200px] cursor-crosshair touch-none border ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'} rounded-lg`}
+                  className="w-full h-[200px] cursor-crosshair touch-none border border-border rounded-lg"
                   style={{
                     background: 'white',
                     backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px)',
@@ -288,7 +284,7 @@ export default function SignatureGeneratorPage() {
                   onTouchMove={draw}
                   onTouchEnd={stopDrawing}
                 />
-                <p className={`text-center text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
+                <p className="text-center text-sm text-muted-foreground mt-2">
                   Draw your signature above using mouse or touch
                 </p>
               </div>
@@ -302,12 +298,12 @@ export default function SignatureGeneratorPage() {
                     setHasSignature(!!e.target.value)
                   }}
                   placeholder="Type your name..."
-                  className={`w-full text-center text-4xl border-b-2 ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'} ${isDark ? 'focus:border-[#c4ff0e]' : 'focus:border-[#4C00FF]'} outline-none pb-2 mb-6 bg-transparent ${isDark ? 'placeholder:text-gray-600' : 'placeholder:text-gray-400'}`}
+                  className="w-full text-center text-4xl border-b-2 border-border focus:border-primary outline-none pb-2 mb-6 bg-transparent placeholder:text-gray-400"
                   style={{ fontFamily: `"${selectedFont}", cursive`, color: selectedColor }}
                 />
 
                 {/* Font Selection */}
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-3 text-center`}>Choose a font style:</p>
+                <p className="text-sm text-muted-foreground mb-3 text-center">Choose a font style:</p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {fonts.map((font) => (
                     <button
@@ -315,8 +311,8 @@ export default function SignatureGeneratorPage() {
                       onClick={() => setSelectedFont(font.name)}
                       className={`px-4 py-2 rounded-lg text-lg transition-all ${
                         selectedFont === font.name
-                          ? `${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} border-2 ${isDark ? 'border-[#c4ff0e]' : 'border-[#4C00FF]'}`
-                          : `${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} ${isDark ? 'text-gray-400' : 'text-gray-500'} ${isDark ? 'hover:bg-[#3a3a3a]' : 'hover:bg-[#E0D4FF]'} border-2 border-transparent`
+                          ? 'bg-muted text-primary border-2 border-primary'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80 border-2 border-transparent'
                       }`}
                       style={{ fontFamily: `"${font.name}", ${font.style}` }}
                     >
@@ -328,11 +324,11 @@ export default function SignatureGeneratorPage() {
             )}
 
             {/* Download Button */}
-            <div className={`p-4 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} border-t ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+            <div className="p-4 bg-secondary border-t border-border">
               <button
                 onClick={downloadSignature}
                 disabled={mode === 'draw' ? !hasSignature : !typedName}
-                className={`w-full flex items-center justify-center gap-2 px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download className="w-5 h-5" />
                 Download Signature (PNG)
@@ -343,9 +339,9 @@ export default function SignatureGeneratorPage() {
       </section>
 
       {/* Use Cases */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
+      <section className="py-16 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
-          <h2 className={`text-3xl font-bold text-center ${isDark ? 'text-white' : 'text-[#26065D]'} mb-12`}>
+          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
             Use Your Signature For
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -354,12 +350,12 @@ export default function SignatureGeneratorPage() {
               { title: 'Email Signatures', desc: 'Add a personal touch to your emails' },
               { title: 'Digital Artwork', desc: 'Sign your creative work and designs' },
             ].map((item, idx) => (
-              <div key={idx} className={`text-center p-6 rounded-2xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
-                <div className={`w-12 h-12 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-xl flex items-center justify-center mx-auto mb-4`}>
-                  <CheckCircle className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-secondary">
+                <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>{item.title}</h3>
-                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>{item.desc}</p>
+                <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -367,17 +363,17 @@ export default function SignatureGeneratorPage() {
       </section>
 
       {/* CTA */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
+      <section className="py-16 px-4 bg-secondary">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Ready to Sign Documents?
           </h2>
-          <p className={`${isDark ? 'text-gray-300' : 'text-gray-500'} mb-8`}>
+          <p className="text-muted-foreground mb-8">
             Use our complete e-signature platform for legally binding signatures
           </p>
           <Link
             href="/sign-document"
-            className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'} ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} font-medium rounded-lg hover:shadow-lg transition-all`}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary border border-border font-medium rounded-lg hover:shadow-lg transition-all"
           >
             Sign Documents Now
             <PenTool className="w-5 h-5" />

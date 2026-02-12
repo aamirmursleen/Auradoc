@@ -39,7 +39,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
   const getIcon = () => {
     switch (toast.type) {
       case 'document_signed':
-        return <CheckCircle className="w-5 h-5 text-[#c4ff0e]" />
+        return <CheckCircle className="w-5 h-5 text-primary" />
       case 'document_completed':
         return <FileCheck className="w-5 h-5 text-green-400" />
       case 'document_viewed':
@@ -53,14 +53,14 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       case 'error':
         return <XCircle className="w-5 h-5 text-red-400" />
       default:
-        return <Bell className="w-5 h-5 text-[#c4ff0e]" />
+        return <Bell className="w-5 h-5 text-primary" />
     }
   }
 
   const getBorderColor = () => {
     switch (toast.type) {
       case 'document_signed':
-        return 'border-l-[#c4ff0e]'
+        return 'border-l-primary'
       case 'document_completed':
         return 'border-l-green-500'
       case 'document_viewed':
@@ -74,14 +74,14 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       case 'error':
         return 'border-l-red-500'
       default:
-        return 'border-l-[#c4ff0e]'
+        return 'border-l-primary'
     }
   }
 
   return (
     <div
       className={`
-        flex items-start gap-3 bg-[#1e1e1e] border border-[#2a2a2a] border-l-4 ${getBorderColor()}
+        flex items-start gap-3 bg-white border border-border border-l-4 ${getBorderColor()}
         rounded-lg p-4 shadow-2xl min-w-[320px] max-w-[420px]
         transform transition-all duration-300 ease-out
         ${isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}
@@ -91,11 +91,11 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
         {getIcon()}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-white text-sm">{toast.title}</p>
-        <p className="text-gray-400 text-xs mt-1">{toast.message}</p>
+        <p className="font-semibold text-foreground text-sm">{toast.title}</p>
+        <p className="text-muted-foreground text-xs mt-1">{toast.message}</p>
         {toast.documentName && (
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs text-[#c4ff0e] bg-[#c4ff0e]/10 px-2 py-0.5 rounded">
+            <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded">
               {toast.documentName}
             </span>
             {toast.signerName && (
@@ -106,7 +106,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       </div>
       <button
         onClick={handleDismiss}
-        className="flex-shrink-0 p-1 hover:bg-[#2a2a2a] rounded transition-colors"
+        className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors"
       >
         <X className="w-4 h-4 text-gray-500" />
       </button>

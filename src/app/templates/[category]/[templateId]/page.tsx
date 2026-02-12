@@ -31,16 +31,16 @@ import { useTheme } from '@/components/ThemeProvider'
 
 // Category colors for styling - CalendarJet dark theme
 const categoryStyles: Record<string, { gradient: string; bgLight: string; textColor: string }> = {
-  'contracts': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'agreements': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'invoices': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'hr': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'real-estate': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'legal': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'resume': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'letters': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'business': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
-  'planning': { gradient: 'from-[#c4ff0e] to-[#c4ff0e]', bgLight: 'bg-[#c4ff0e]', textColor: 'text-[#c4ff0e]' },
+  'contracts': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'agreements': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'invoices': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'hr': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'real-estate': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'legal': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'resume': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'letters': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'business': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
+  'planning': { gradient: 'from-primary to-primary', bgLight: 'bg-primary', textColor: 'text-primary' },
 }
 
 // Sample data for previews
@@ -175,10 +175,10 @@ export default function TemplateDetailPage() {
 
   if (!mainTemplate) {
     return (
-      <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'} flex items-center justify-center`}>
+      <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-gray-50'} flex items-center justify-center`}>
         <div className="text-center">
           <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-4`}>Template not found</h1>
-          <Link href="/templates" className="text-[#c4ff0e] hover:underline">
+          <Link href="/templates" className="text-primary hover:underline">
             Back to Templates
           </Link>
         </div>
@@ -187,9 +187,9 @@ export default function TemplateDetailPage() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-gray-50'}`}>
       {/* Hero Section */}
-      <section className={`${isDark ? 'bg-[#1F1F1F] border-[#2a2a2a]' : 'bg-white border-gray-200'} pt-8 pb-6 px-4 border-b`}>
+      <section className={`${isDark ? 'bg-white border-border' : 'bg-white border-gray-200'} pt-8 pb-6 px-4 border-b`}>
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>
@@ -215,7 +215,7 @@ export default function TemplateDetailPage() {
               placeholder={`Search ${categoryName.toLowerCase()} templates...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-[#2a2a2a] text-white border-[#3a3a3a]' : 'bg-gray-100 text-gray-900 border-gray-200'} placeholder-gray-400 shadow-lg focus:ring-4 focus:ring-[#c4ff0e]/30 outline-none text-sm border`}
+              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-muted text-white border-border' : 'bg-gray-100 text-gray-900 border-gray-200'} placeholder-gray-400 shadow-lg focus:ring-4 focus:ring-primary/30 outline-none text-sm border`}
             />
             {searchQuery && (
               <button
@@ -236,7 +236,7 @@ export default function TemplateDetailPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/templates"
-              className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'} hover:text-[#c4ff0e] transition-colors`}
+              className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'} hover:text-primary transition-colors`}
             >
               <ArrowLeft className="w-5 h-5" />
               All Templates
@@ -245,15 +245,15 @@ export default function TemplateDetailPage() {
             <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
               <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{categoryTemplates.length}</span> templates
               {searchQuery && (
-                <span> matching "<span className="font-medium text-[#c4ff0e]">{searchQuery}</span>"</span>
+                <span> matching "<span className="font-medium text-primary">{searchQuery}</span>"</span>
               )}
             </p>
           </div>
-          <div className={`flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-gray-100 border-gray-200'} rounded-lg border p-1`}>
+          <div className={`flex items-center gap-2 ${isDark ? 'bg-muted border-border' : 'bg-gray-100 border-gray-200'} rounded-lg border p-1`}>
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-[#c4ff0e] text-black' : 'text-gray-400 hover:text-gray-300'
+                viewMode === 'grid' ? 'bg-primary text-black' : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -261,7 +261,7 @@ export default function TemplateDetailPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-[#c4ff0e] text-black' : 'text-gray-400 hover:text-gray-300'
+                viewMode === 'list' ? 'bg-primary text-black' : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <List className="w-5 h-5" />
@@ -282,10 +282,10 @@ export default function TemplateDetailPage() {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateClick(template)}
-                  className={`group relative ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-2xl border hover:border-[#c4ff0e] shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
+                  className={`group relative ${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-2xl border hover:border-primary shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
                 >
                   {/* Document Preview Thumbnail */}
-                  <div className={`relative h-52 ${isDark ? 'bg-[#2a2a2a] border-[#2a2a2a]' : 'bg-gray-100 border-gray-200'} border-b overflow-hidden`}>
+                  <div className={`relative h-52 ${isDark ? 'bg-muted border-border' : 'bg-gray-100 border-gray-200'} border-b overflow-hidden`}>
                     {/* Badges */}
                     <div className="absolute top-2 left-2 z-10 flex gap-1.5">
                       {template.popular && (
@@ -303,7 +303,7 @@ export default function TemplateDetailPage() {
                     </div>
 
                     {/* Mini Document Preview */}
-                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'}`}>
+                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden border ${isDark ? 'border-border' : 'border-gray-200'}`}>
                       <div
                         className="w-[400%] h-[400%] origin-top-left transform scale-[0.25] pointer-events-none"
                         dangerouslySetInnerHTML={{ __html: generatePreview(template) }}
@@ -312,7 +312,7 @@ export default function TemplateDetailPage() {
 
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      <span className="px-4 py-2 bg-[#c4ff0e] rounded-full text-sm font-medium text-black shadow-lg flex items-center gap-2">
+                      <span className="px-4 py-2 bg-primary rounded-full text-sm font-medium text-black shadow-lg flex items-center gap-2">
                         <Eye className="w-4 h-4 text-black" />
                         Preview Template
                       </span>
@@ -333,7 +333,7 @@ export default function TemplateDetailPage() {
                     </div>
 
                     {/* Title */}
-                    <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-[#c4ff0e] transition-colors mb-1 line-clamp-1`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-primary transition-colors mb-1 line-clamp-1`}>
                       {template.name}
                     </h3>
 
@@ -348,7 +348,7 @@ export default function TemplateDetailPage() {
                         e.stopPropagation()
                         handleUseTemplate(template)
                       }}
-                      className={`w-full py-2 ${isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-gray-100 text-gray-700'} hover:bg-[#c4ff0e] hover:text-black rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
+                      className={`w-full py-2 ${isDark ? 'bg-muted text-gray-300' : 'bg-gray-100 text-gray-700'} hover:bg-primary hover:text-black rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -360,10 +360,10 @@ export default function TemplateDetailPage() {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateClick(template)}
-                  className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-xl border hover:border-[#c4ff0e] p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group`}
+                  className={`${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-xl border hover:border-primary p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group`}
                 >
                   {/* Mini Preview */}
-                  <div className={`w-20 h-28 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-gray-100 border-gray-200'} rounded-lg border overflow-hidden flex-shrink-0 relative`}>
+                  <div className={`w-20 h-28 ${isDark ? 'bg-muted border-border' : 'bg-gray-100 border-gray-200'} rounded-lg border overflow-hidden flex-shrink-0 relative`}>
                     <div
                       className="w-[500%] h-[500%] origin-top-left transform scale-[0.2] pointer-events-none"
                       dangerouslySetInnerHTML={{ __html: generatePreview(template) }}
@@ -386,7 +386,7 @@ export default function TemplateDetailPage() {
                         </span>
                       )}
                     </div>
-                    <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-[#c4ff0e] transition-colors`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-primary transition-colors`}>
                       {template.name}
                     </h3>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} line-clamp-1`}>{template.description}</p>
@@ -398,7 +398,7 @@ export default function TemplateDetailPage() {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg text-sm font-medium hover:bg-[#c4ff0e]/90 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2"
                   >
                     Use
                     <ArrowRight className="w-4 h-4" />
@@ -410,7 +410,7 @@ export default function TemplateDetailPage() {
         ) : (
           // No results
           <div className="text-center py-16">
-            <div className={`w-20 h-20 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+            <div className={`w-20 h-20 ${isDark ? 'bg-muted' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
               <Search className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>No templates found</h3>
@@ -419,7 +419,7 @@ export default function TemplateDetailPage() {
             </p>
             <button
               onClick={() => setSearchQuery('')}
-              className="px-6 py-3 bg-[#c4ff0e] text-black rounded-xl font-medium hover:bg-[#c4ff0e]/90 transition-colors"
+              className="px-6 py-3 bg-primary text-black rounded-xl font-medium hover:bg-primary/90 transition-colors"
             >
               Clear Search
             </button>
@@ -439,7 +439,7 @@ export default function TemplateDetailPage() {
         >
           {/* Popup Container - Smaller */}
           <div
-            className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden relative border`}
+            className={`${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden relative border`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button - Top Right */}
@@ -448,7 +448,7 @@ export default function TemplateDetailPage() {
                 setShowPreviewPopup(false)
                 setSelectedTemplate(null)
               }}
-              className={`absolute top-2 right-2 z-10 p-1.5 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-gray-100 hover:bg-gray-200'} rounded-full transition-colors shadow-sm`}
+              className={`absolute top-2 right-2 z-10 p-1.5 ${isDark ? 'bg-muted hover:bg-muted/80' : 'bg-gray-100 hover:bg-gray-200'} rounded-full transition-colors shadow-sm`}
             >
               <X className="w-5 h-5 text-gray-400" />
             </button>
@@ -456,8 +456,8 @@ export default function TemplateDetailPage() {
             {/* Scrollable Content */}
             <div className="overflow-y-auto max-h-[80vh] overscroll-contain touch-pan-y">
               {/* Template Preview - Larger */}
-              <div className={`${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'} p-4`}>
-                <div className={`bg-white rounded-lg shadow border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'} overflow-hidden h-[280px] overflow-y-auto`}>
+              <div className={`${isDark ? 'bg-muted' : 'bg-gray-100'} p-4`}>
+                <div className={`bg-white rounded-lg shadow border ${isDark ? 'border-border' : 'border-gray-200'} overflow-hidden h-[280px] overflow-y-auto`}>
                   <div
                     className="transform scale-[0.55] origin-top-left"
                     style={{ width: '182%' }}
@@ -476,7 +476,7 @@ export default function TemplateDetailPage() {
                 {/* Main CTA Button */}
                 <button
                   onClick={() => handleUseTemplate(selectedTemplate)}
-                  className="w-full py-3 bg-[#c4ff0e] hover:bg-[#c4ff0e]/90 text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-all mb-3"
+                  className="w-full py-3 bg-primary hover:bg-primary/90 text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-all mb-3"
                 >
                   <PenLine className="w-4 h-4" />
                   Edit this free template
@@ -499,7 +499,7 @@ export default function TemplateDetailPage() {
                 {/* AI Generator Button */}
                 <button
                   onClick={() => handleUseTemplate(selectedTemplate)}
-                  className="w-full py-2.5 bg-[#c4ff0e] text-black rounded-lg font-medium flex items-center justify-center gap-2 text-sm transition-all hover:bg-[#c4ff0e]/90"
+                  className="w-full py-2.5 bg-primary text-black rounded-lg font-medium flex items-center justify-center gap-2 text-sm transition-all hover:bg-primary/90"
                 >
                   <Sparkles className="w-4 h-4" />
                   Generate with AI

@@ -655,7 +655,7 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
           <button
             onClick={handleDone}
             disabled={isEmpty && !uploadedImage}
-            className="px-6 py-2.5 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black font-semibold rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <Check className="w-5 h-5" />
             Done

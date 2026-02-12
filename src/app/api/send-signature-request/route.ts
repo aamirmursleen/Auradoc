@@ -143,7 +143,7 @@ function getEmailTemplate(params: {
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #4C00FF 0%, #7B2FFF 100%); padding: 30px 40px; text-align: center;">
+            <td style="background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); padding: 30px 40px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">MamaSign</h1>
               <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.8); font-size: 14px;">Secure Document Signing</p>
             </td>
@@ -158,17 +158,17 @@ function getEmailTemplate(params: {
               </p>
 
               ${message ? `
-              <div style="background-color: #f0f0ff; border-left: 4px solid #4C00FF; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 0 8px 8px 0;">
+              <div style="background-color: #f0fdfa; border-left: 4px solid #0d9488; padding: 15px 20px; margin: 0 0 25px 0; border-radius: 0 8px 8px 0;">
                 <p style="margin: 0; font-size: 14px; color: #555555; font-style: italic;">"${message}"</p>
               </div>
               ` : ''}
 
               <!-- Document Card -->
-              <div style="background-color: #f9f9ff; border: 1px solid #e0e0ff; border-radius: 12px; padding: 20px; margin: 0 0 30px 0;">
+              <div style="background-color: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 12px; padding: 20px; margin: 0 0 30px 0;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
                     <td width="50" valign="top">
-                      <div style="width: 44px; height: 44px; background-color: #4C00FF; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                      <div style="width: 44px; height: 44px; background-color: #0d9488; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
                         <span style="color: #ffffff; font-size: 20px;">📄</span>
                       </div>
                     </td>
@@ -183,7 +183,7 @@ function getEmailTemplate(params: {
 
               <!-- CTA Button -->
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${APP_URL}" style="display: inline-block; background: linear-gradient(135deg, #4C00FF 0%, #7B2FFF 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(76, 0, 255, 0.3);">
+                <a href="${APP_URL}" style="display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);">
                   View Document
                 </a>
               </div>
@@ -197,7 +197,7 @@ function getEmailTemplate(params: {
           <!-- Footer -->
           <tr>
             <td style="background-color: #f9f9f9; padding: 25px 40px; border-top: 1px solid #e0e0e0; text-align: center;">
-              <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #4C00FF;">MamaSign</p>
+              <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #0d9488;">MamaSign</p>
               <p style="margin: 0; font-size: 12px; color: #888888;">Secure document signing made simple</p>
             </td>
           </tr>

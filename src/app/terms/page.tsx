@@ -227,24 +227,24 @@ Your continued use of the Service after the changes take effect constitutes your
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-[#1F1F1F]">
+      <section className="relative py-20 bg-white">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full opacity-10 blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary rounded-full opacity-10 blur-3xl" />
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
               <FileText className="w-8 h-8 text-black" />
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight mb-6">
               Terms of Service
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-4">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
               Please read these terms carefully before using MamaSign. By using our service, you agree to be bound by these terms.
             </p>
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
+            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
               <span>Effective: {effectiveDate}</span>
               <span>•</span>
               <span>Last Updated: {lastUpdated}</span>
@@ -254,18 +254,18 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Table of Contents */}
-      <section className="py-12 bg-[#1e1e1e]">
+      <section className="py-12 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Table of Contents</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-6">Table of Contents</h2>
           <nav className="grid sm:grid-cols-2 gap-4">
             {sections.map((section, index) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center p-4 bg-[#2a2a2a] rounded-lg border border-[#3a3a3a] hover:bg-[#252525] transition-colors"
+                className="flex items-center p-4 bg-muted rounded-lg border border-border hover:bg-secondary transition-colors"
               >
-                <span className="text-[#c4ff0e] font-medium mr-3">{index + 1}.</span>
-                <span className="text-gray-300">{section.title}</span>
+                <span className="text-primary font-medium mr-3">{index + 1}.</span>
+                <span className="text-muted-foreground">{section.title}</span>
               </a>
             ))}
           </nav>
@@ -273,23 +273,23 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Terms Content */}
-      <section className="py-12 bg-[#1F1F1F]">
+      <section className="py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {sections.map((section, index) => (
             <div key={section.id} id={section.id} className="mb-12 scroll-mt-8">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4">
                   <section.icon className="w-6 h-6 text-black" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-foreground">
                   {index + 1}. {section.title}
                 </h2>
               </div>
 
-              <div className="bg-[#2a2a2a] rounded-xl p-8 shadow-lg border border-[#3a3a3a]">
+              <div className="bg-muted rounded-xl p-8 shadow-lg border border-border">
                 <div className="prose prose-gray max-w-none">
                   {section.content.split('\n\n').map((paragraph, i) => (
-                    <p key={i} className="text-gray-300 leading-relaxed mb-4 whitespace-pre-line">
+                    <p key={i} className="text-muted-foreground leading-relaxed mb-4 whitespace-pre-line">
                       {paragraph}
                     </p>
                   ))}
@@ -301,17 +301,17 @@ Your continued use of the Service after the changes take effect constitutes your
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-[#1e1e1e]">
+      <section className="py-16 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#2a2a2a] rounded-2xl p-8 text-center">
-            <Mail className="w-12 h-12 text-[#c4ff0e] mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Questions About These Terms?</h2>
-            <p className="text-gray-300 mb-6 max-w-lg mx-auto">
+          <div className="bg-muted rounded-2xl p-8 text-center">
+            <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-4">Questions About These Terms?</h2>
+            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
               If you have any questions about these Terms of Service, please contact our legal team.
             </p>
             <Link
               href="mailto:legal@mamasign.com"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-black bg-[#c4ff0e] rounded-lg shadow-lg hover:bg-[#a8d60c] transition-all duration-300"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-black bg-primary rounded-lg shadow-lg hover:bg-primary/90 transition-all duration-300"
             >
               legal@mamasign.com
             </Link>

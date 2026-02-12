@@ -243,28 +243,28 @@ const CareersPage: React.FC = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-[#1F1F1F]">
+      <section className="relative py-20 bg-white">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full opacity-10 blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary rounded-full opacity-10 blur-3xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-[#c4ff0e]/20 rounded-full border border-[#c4ff0e]/50 mb-6">
-              <Briefcase className="w-4 h-4 text-[#c4ff0e]" />
-              <span className="text-[#c4ff0e] text-sm font-medium">We're Hiring!</span>
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-primary/20 rounded-full border border-primary/50 mb-6">
+              <Briefcase className="w-4 h-4 text-primary" />
+              <span className="text-primary text-sm font-medium">We're Hiring!</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-tight mb-6">
               Build the Future of
-              <span className="block mt-2 text-[#c4ff0e]">
+              <span className="block mt-2 text-primary">
                 Document Signing
               </span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Join our remote-first team and help millions of people sign documents faster. We're looking for passionate people to grow with us.
             </p>
-            <a href="#jobs" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-black bg-[#c4ff0e] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <a href="#jobs" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-black bg-primary rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
               View Open Positions
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
@@ -273,13 +273,13 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-[#252525]">
+      <section className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Our Values
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-muted-foreground">
               The principles that guide how we work
             </p>
           </div>
@@ -287,11 +287,11 @@ const CareersPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <div key={index} className="text-center p-8">
-                <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <value.icon className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{value.title}</h3>
-                <p className="text-gray-300">{value.description}</p>
+                <h3 className="text-xl font-semibold text-foreground mb-3">{value.title}</h3>
+                <p className="text-muted-foreground">{value.description}</p>
               </div>
             ))}
           </div>
@@ -299,25 +299,25 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-[#1e1e1e]">
+      <section className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Benefits & Perks
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-muted-foreground">
               We take care of our team so they can do their best work
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
-              <div key={index} className="bg-[#2a2a2a]/50 backdrop-blur-xl p-6 rounded-xl border border-[#2a2a2a]/50 hover:shadow-lg hover:shadow-[#c4ff0e]/20 transition-all duration-300">
-                <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center mb-4">
-                  <benefit.icon className="w-6 h-6 text-[#c4ff0e]" />
+              <div key={index} className="bg-muted/50 backdrop-blur-xl p-6 rounded-xl border border-border/50 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
+                <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-4">
+                  <benefit.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{benefit.title}</h3>
-                <p className="text-gray-300 text-sm">{benefit.description}</p>
+                <h3 className="font-semibold text-foreground mb-2">{benefit.title}</h3>
+                <p className="text-muted-foreground text-sm">{benefit.description}</p>
               </div>
             ))}
           </div>
@@ -325,13 +325,13 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* Jobs Section */}
-      <section id="jobs" className="py-20 bg-[#252525]">
+      <section id="jobs" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Open Positions
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-muted-foreground">
               Find your next opportunity
             </p>
           </div>
@@ -344,8 +344,8 @@ const CareersPage: React.FC = () => {
                 onClick={() => setActiveCategory(dept.id)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                   activeCategory === dept.id
-                    ? 'bg-[#c4ff0e] text-black'
-                    : 'bg-[#2a2a2a]/50 text-gray-300 hover:bg-[#2a2a2a] border border-[#2a2a2a]/50'
+                    ? 'bg-primary text-black'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border/50'
                 }`}
               >
                 {dept.name} ({dept.count})
@@ -358,7 +358,7 @@ const CareersPage: React.FC = () => {
             {filteredJobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-[#2a2a2a]/50 backdrop-blur-xl border border-[#2a2a2a]/50 rounded-xl overflow-hidden hover:border-[#c4ff0e]/50 hover:shadow-lg hover:shadow-[#c4ff0e]/20 transition-all duration-300"
+                className="bg-muted/50 backdrop-blur-xl border border-border/50 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
               >
                 <div
                   className="p-6 cursor-pointer"
@@ -366,8 +366,8 @@ const CareersPage: React.FC = () => {
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-white mb-2">{job.title}</h3>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
+                      <h3 className="text-xl font-semibold text-foreground mb-2">{job.title}</h3>
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center">
                           <Building2 className="w-4 h-4 mr-1" />
                           {job.department.charAt(0).toUpperCase() + job.department.slice(1)}
@@ -389,29 +389,29 @@ const CareersPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <Link
                         href={`/careers/${job.id}/apply`}
-                        className="px-6 py-2 bg-[#c4ff0e] text-black rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+                        className="px-6 py-2 bg-primary text-black rounded-lg font-medium hover:shadow-lg transition-all duration-300"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Apply Now
                       </Link>
                       {expandedJob === job.id ? (
-                        <ChevronUp className="w-5 h-5 text-gray-300" />
+                        <ChevronUp className="w-5 h-5 text-muted-foreground" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-300" />
+                        <ChevronDown className="w-5 h-5 text-muted-foreground" />
                       )}
                     </div>
                   </div>
                 </div>
 
                 {expandedJob === job.id && (
-                  <div className="px-6 pb-6 border-t border-[#2a2a2a]/50">
+                  <div className="px-6 pb-6 border-t border-border/50">
                     <div className="pt-6">
-                      <p className="text-gray-300 mb-6">{job.description}</p>
-                      <h4 className="font-semibold text-white mb-3">Requirements</h4>
+                      <p className="text-muted-foreground mb-6">{job.description}</p>
+                      <h4 className="font-semibold text-foreground mb-3">Requirements</h4>
                       <ul className="space-y-2">
                         {job.requirements.map((req, i) => (
-                          <li key={i} className="flex items-start text-gray-300">
-                            <span className="w-1.5 h-1.5 bg-[#c4ff0e] rounded-full mt-2 mr-3 flex-shrink-0" />
+                          <li key={i} className="flex items-start text-muted-foreground">
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0" />
                             {req}
                           </li>
                         ))}
@@ -426,7 +426,7 @@ const CareersPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-[#c4ff0e]">
+      <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-black mb-4">
             Don't See Your Role?
@@ -434,7 +434,7 @@ const CareersPage: React.FC = () => {
           <p className="text-xl text-black/80 mb-8 max-w-2xl mx-auto">
             We're always looking for talented people. Send us your resume and we'll reach out when we have a role that matches your skills.
           </p>
-          <Link href="/careers/general" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-black rounded-lg shadow-lg hover:bg-[#1F1F1F] transition-all duration-300">
+          <Link href="/careers/general" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-black rounded-lg shadow-lg hover:bg-gray-800 transition-all duration-300">
             Submit General Application
             <ArrowRight className="w-5 h-5 ml-2" />
           </Link>

@@ -104,10 +104,10 @@ export default function ResumeTemplateDetailPage() {
 
   if (!template) {
     return (
-      <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'} flex items-center justify-center`}>
+      <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-gray-50'} flex items-center justify-center`}>
         <div className="text-center">
           <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-4`}>Template not found</h1>
-          <Link href="/resume-templates" className="text-[#c4ff0e] hover:underline">
+          <Link href="/resume-templates" className="text-primary hover:underline">
             Back to Resume Templates
           </Link>
         </div>
@@ -116,9 +116,9 @@ export default function ResumeTemplateDetailPage() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-gray-50'}`}>
       {/* Hero Section */}
-      <section className={`${isDark ? 'bg-[#1F1F1F] border-[#2a2a2a]' : 'bg-white border-gray-200'} pt-8 pb-6 px-4 border-b`}>
+      <section className={`${isDark ? 'bg-white border-border' : 'bg-white border-gray-200'} pt-8 pb-6 px-4 border-b`}>
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>
@@ -165,9 +165,9 @@ export default function ResumeTemplateDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Full-size Preview */}
           <div className="lg:col-span-2">
-            <div className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-2xl border shadow-sm overflow-hidden`}>
-              <div className={`${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'} p-6`}>
-                <div className={`bg-white rounded-lg shadow-lg border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'} overflow-hidden`}>
+            <div className={`${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-2xl border shadow-sm overflow-hidden`}>
+              <div className={`${isDark ? 'bg-muted' : 'bg-gray-100'} p-6`}>
+                <div className={`bg-white rounded-lg shadow-lg border ${isDark ? 'border-border' : 'border-gray-200'} overflow-hidden`}>
                   <div dangerouslySetInnerHTML={{ __html: generatePreview(template) }} />
                 </div>
               </div>
@@ -176,14 +176,14 @@ export default function ResumeTemplateDetailPage() {
 
           {/* Info Panel */}
           <div className="lg:col-span-1">
-            <div className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-2xl border shadow-sm p-6 sticky top-8`}>
+            <div className={`${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-2xl border shadow-sm p-6 sticky top-8`}>
               <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>{template.name}</h2>
               <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-sm mb-6`}>{template.description}</p>
 
               {/* CTA Button */}
               <button
                 onClick={handleUseTemplate}
-                className="w-full py-3.5 bg-[#c4ff0e] hover:bg-[#c4ff0e]/90 text-black rounded-xl font-semibold flex items-center justify-center gap-2 transition-all mb-4 shadow-lg"
+                className="w-full py-3.5 bg-primary hover:bg-primary/90 text-black rounded-xl font-semibold flex items-center justify-center gap-2 transition-all mb-4 shadow-lg"
               >
                 <PenLine className="w-5 h-5" />
                 Edit this free template
@@ -205,7 +205,7 @@ export default function ResumeTemplateDetailPage() {
               </div>
 
               {/* Template Info */}
-              <div className={`border-t ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'} pt-4`}>
+              <div className={`border-t ${isDark ? 'border-border' : 'border-gray-200'} pt-4`}>
                 <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-3`}>Template Details</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -240,7 +240,7 @@ export default function ResumeTemplateDetailPage() {
               </h2>
               <Link
                 href="/resume-templates"
-                className="text-sm text-[#c4ff0e] hover:underline flex items-center gap-1"
+                className="text-sm text-primary hover:underline flex items-center gap-1"
               >
                 View all
                 <ArrowRight className="w-4 h-4" />
@@ -252,10 +252,10 @@ export default function ResumeTemplateDetailPage() {
                 <Link
                   key={related.id}
                   href={`/resume-templates/${related.id}`}
-                  className={`group ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-2xl border hover:border-[#c4ff0e] shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden`}
+                  className={`group ${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-2xl border hover:border-primary shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden`}
                 >
-                  <div className={`relative h-44 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'} border-b ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'} overflow-hidden`}>
-                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'}`}>
+                  <div className={`relative h-44 ${isDark ? 'bg-muted' : 'bg-gray-100'} border-b ${isDark ? 'border-border' : 'border-gray-200'} overflow-hidden`}>
+                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden border ${isDark ? 'border-border' : 'border-gray-200'}`}>
                       <div
                         className="w-[400%] h-[400%] origin-top-left transform scale-[0.25] pointer-events-none"
                         dangerouslySetInnerHTML={{ __html: generatePreview(related) }}
@@ -263,7 +263,7 @@ export default function ResumeTemplateDetailPage() {
                     </div>
                   </div>
                   <div className="p-3">
-                    <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-[#c4ff0e] transition-colors`}>
+                    <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-primary transition-colors`}>
                       {related.name}
                     </h3>
                     <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'} line-clamp-1 mt-0.5`}>

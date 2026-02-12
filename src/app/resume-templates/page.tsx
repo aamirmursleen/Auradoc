@@ -124,9 +124,9 @@ export default function ResumeTemplatesPage() {
   const badgeColor = (style: ResumeStyleCategory) => styleBadgeColors[style]
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-gray-50'}`}>
       {/* Hero Section */}
-      <section className={`${isDark ? 'bg-[#1F1F1F] border-[#2a2a2a]' : 'bg-white border-gray-200'} pt-8 pb-6 px-4 border-b`}>
+      <section className={`${isDark ? 'bg-white border-border' : 'bg-white border-gray-200'} pt-8 pb-6 px-4 border-b`}>
         <div className="max-w-7xl mx-auto">
           {/* Back link */}
           <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>
@@ -155,7 +155,7 @@ export default function ResumeTemplatesPage() {
               placeholder="Search resume templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-[#2a2a2a] text-white border-[#3a3a3a]' : 'bg-gray-100 text-gray-900 border-gray-200'} placeholder-gray-400 shadow-lg focus:ring-4 focus:ring-[#c4ff0e]/30 outline-none text-sm border`}
+              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-muted text-white border-border' : 'bg-gray-100 text-gray-900 border-gray-200'} placeholder-gray-400 shadow-lg focus:ring-4 focus:ring-primary/30 outline-none text-sm border`}
             />
             {searchQuery && (
               <button
@@ -175,9 +175,9 @@ export default function ResumeTemplatesPage() {
                 onClick={() => { setActiveStyle(cat.key); setSearchQuery('') }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeStyle === cat.key
-                    ? 'bg-[#c4ff0e] text-black'
+                    ? 'bg-primary text-black'
                     : isDark
-                      ? 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'
+                      ? 'bg-muted text-gray-300 hover:bg-muted/80'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
@@ -195,7 +195,7 @@ export default function ResumeTemplatesPage() {
           <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
             <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{filteredTemplates.length}</span> templates
             {searchQuery && (
-              <span> matching &quot;<span className="font-medium text-[#c4ff0e]">{searchQuery}</span>&quot;</span>
+              <span> matching &quot;<span className="font-medium text-primary">{searchQuery}</span>&quot;</span>
             )}
             {activeStyle !== 'all' && !searchQuery && (
               <span> in <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{styleLabels[activeStyle]}</span></span>
@@ -210,10 +210,10 @@ export default function ResumeTemplatesPage() {
               <div
                 key={template.id}
                 onClick={() => handleTemplateClick(template)}
-                className={`group relative ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-2xl border hover:border-[#c4ff0e] shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
+                className={`group relative ${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-2xl border hover:border-primary shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
               >
                 {/* Document Preview Thumbnail */}
-                <div className={`relative h-52 ${isDark ? 'bg-[#2a2a2a] border-[#2a2a2a]' : 'bg-gray-100 border-gray-200'} border-b overflow-hidden`}>
+                <div className={`relative h-52 ${isDark ? 'bg-muted border-border' : 'bg-gray-100 border-gray-200'} border-b overflow-hidden`}>
                   {/* Badges */}
                   <div className="absolute top-2 left-2 z-10 flex gap-1.5">
                     {template.popular && (
@@ -231,7 +231,7 @@ export default function ResumeTemplatesPage() {
                   </div>
 
                   {/* Mini Document Preview */}
-                  <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'}`}>
+                  <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden border ${isDark ? 'border-border' : 'border-gray-200'}`}>
                     <div
                       className="w-[400%] h-[400%] origin-top-left transform scale-[0.25] pointer-events-none"
                       dangerouslySetInnerHTML={{ __html: generatePreview(template) }}
@@ -240,7 +240,7 @@ export default function ResumeTemplatesPage() {
 
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span className="px-4 py-2 bg-[#c4ff0e] rounded-full text-sm font-medium text-black shadow-lg flex items-center gap-2">
+                    <span className="px-4 py-2 bg-primary rounded-full text-sm font-medium text-black shadow-lg flex items-center gap-2">
                       <Eye className="w-4 h-4 text-black" />
                       Preview Template
                     </span>
@@ -264,7 +264,7 @@ export default function ResumeTemplatesPage() {
                   </div>
 
                   {/* Title */}
-                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-[#c4ff0e] transition-colors mb-1 line-clamp-1`}>
+                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-primary transition-colors mb-1 line-clamp-1`}>
                     {template.name}
                   </h3>
 
@@ -279,7 +279,7 @@ export default function ResumeTemplatesPage() {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className={`w-full py-2 ${isDark ? 'bg-[#2a2a2a] text-gray-300' : 'bg-gray-100 text-gray-700'} hover:bg-[#c4ff0e] hover:text-black rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
+                    className={`w-full py-2 ${isDark ? 'bg-muted text-gray-300' : 'bg-gray-100 text-gray-700'} hover:bg-primary hover:text-black rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
                   >
                     Use Template
                     <ArrowRight className="w-4 h-4" />
@@ -290,7 +290,7 @@ export default function ResumeTemplatesPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className={`w-20 h-20 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+            <div className={`w-20 h-20 ${isDark ? 'bg-muted' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
               <Search className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>No templates found</h3>
@@ -299,7 +299,7 @@ export default function ResumeTemplatesPage() {
             </p>
             <button
               onClick={() => { setSearchQuery(''); setActiveStyle('all') }}
-              className="px-6 py-3 bg-[#c4ff0e] text-black rounded-xl font-medium hover:bg-[#c4ff0e]/90 transition-colors"
+              className="px-6 py-3 bg-primary text-black rounded-xl font-medium hover:bg-primary/90 transition-colors"
             >
               Clear Search
             </button>
@@ -314,20 +314,20 @@ export default function ResumeTemplatesPage() {
           onClick={() => { setShowPreviewPopup(false); setSelectedTemplate(null) }}
         >
           <div
-            className={`${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border-gray-200'} rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden relative border`}
+            className={`${isDark ? 'bg-secondary border-border' : 'bg-white border-gray-200'} rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden relative border`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => { setShowPreviewPopup(false); setSelectedTemplate(null) }}
-              className={`absolute top-2 right-2 z-10 p-1.5 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-gray-100 hover:bg-gray-200'} rounded-full transition-colors shadow-sm`}
+              className={`absolute top-2 right-2 z-10 p-1.5 ${isDark ? 'bg-muted hover:bg-muted/80' : 'bg-gray-100 hover:bg-gray-200'} rounded-full transition-colors shadow-sm`}
             >
               <X className="w-5 h-5 text-gray-400" />
             </button>
 
             <div className="overflow-y-auto max-h-[80vh] overscroll-contain touch-pan-y">
               {/* Template Preview */}
-              <div className={`${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'} p-4`}>
-                <div className={`bg-white rounded-lg shadow border ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'} overflow-hidden h-[280px] overflow-y-auto`}>
+              <div className={`${isDark ? 'bg-muted' : 'bg-gray-100'} p-4`}>
+                <div className={`bg-white rounded-lg shadow border ${isDark ? 'border-border' : 'border-gray-200'} overflow-hidden h-[280px] overflow-y-auto`}>
                   <div
                     className="transform scale-[0.55] origin-top-left"
                     style={{ width: '182%' }}
@@ -352,7 +352,7 @@ export default function ResumeTemplatesPage() {
 
                 <button
                   onClick={() => handleUseTemplate(selectedTemplate)}
-                  className="w-full py-3 bg-[#c4ff0e] hover:bg-[#c4ff0e]/90 text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-all mb-3"
+                  className="w-full py-3 bg-primary hover:bg-primary/90 text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-all mb-3"
                 >
                   <PenLine className="w-4 h-4" />
                   Edit this free template
@@ -373,7 +373,7 @@ export default function ResumeTemplatesPage() {
 
                 <Link
                   href={`/resume-templates/${selectedTemplate.id}`}
-                  className={`w-full py-2.5 ${isDark ? 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} rounded-lg font-medium flex items-center justify-center gap-2 text-sm transition-all`}
+                  className={`w-full py-2.5 ${isDark ? 'bg-muted text-gray-300 hover:bg-muted/80' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} rounded-lg font-medium flex items-center justify-center gap-2 text-sm transition-all`}
                 >
                   <Eye className="w-4 h-4" />
                   View Full Details

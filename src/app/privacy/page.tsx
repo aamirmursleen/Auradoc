@@ -199,24 +199,24 @@ const PrivacyPage: React.FC = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-[#1F1F1F]">
+      <section className="relative py-20 bg-white">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full opacity-10 blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary rounded-full opacity-10 blur-3xl" />
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Shield className="w-8 h-8 text-black" />
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight mb-6">
               Privacy Policy
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-4">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
               Your privacy is important to us. This policy explains how we collect, use, and protect your personal information.
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Last updated: {lastUpdated}
             </p>
           </div>
@@ -224,29 +224,29 @@ const PrivacyPage: React.FC = () => {
       </section>
 
       {/* Quick Summary */}
-      <section className="py-12 bg-[#1F1F1F]">
+      <section className="py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#2a2a2a] backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-[#3a3a3a]">
-            <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
-              <CheckCircle className="w-6 h-6 text-[#c4ff0e] mr-2" />
+          <div className="bg-muted backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center">
+              <CheckCircle className="w-6 h-6 text-primary mr-2" />
               Privacy at a Glance
             </h2>
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="flex items-start">
-                <Lock className="w-5 h-5 text-[#c4ff0e] mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-300">Your documents are encrypted with 256-bit encryption</p>
+                <Lock className="w-5 h-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <p className="text-muted-foreground">Your documents are encrypted with 256-bit encryption</p>
               </div>
               <div className="flex items-start">
-                <UserCheck className="w-5 h-5 text-[#c4ff0e] mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-300">We never sell your personal information to third parties</p>
+                <UserCheck className="w-5 h-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <p className="text-muted-foreground">We never sell your personal information to third parties</p>
               </div>
               <div className="flex items-start">
-                <Eye className="w-5 h-5 text-[#c4ff0e] mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-300">You control who can access your documents</p>
+                <Eye className="w-5 h-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <p className="text-muted-foreground">You control who can access your documents</p>
               </div>
               <div className="flex items-start">
-                <Database className="w-5 h-5 text-[#c4ff0e] mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-300">You can export or delete your data at any time</p>
+                <Database className="w-5 h-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <p className="text-muted-foreground">You can export or delete your data at any time</p>
               </div>
             </div>
           </div>
@@ -254,18 +254,18 @@ const PrivacyPage: React.FC = () => {
       </section>
 
       {/* Table of Contents */}
-      <section className="py-12 bg-[#1e1e1e]">
+      <section className="py-12 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Table of Contents</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-6">Table of Contents</h2>
           <nav className="grid sm:grid-cols-2 gap-4">
             {sections.map((section, index) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center p-4 bg-[#2a2a2a] rounded-lg hover:bg-[#252525] transition-colors border border-[#3a3a3a]"
+                className="flex items-center p-4 bg-muted rounded-lg hover:bg-secondary transition-colors border border-border"
               >
-                <span className="text-[#c4ff0e] font-medium mr-3">{index + 1}.</span>
-                <span className="text-gray-300">{section.title}</span>
+                <span className="text-primary font-medium mr-3">{index + 1}.</span>
+                <span className="text-muted-foreground">{section.title}</span>
               </a>
             ))}
           </nav>
@@ -273,24 +273,24 @@ const PrivacyPage: React.FC = () => {
       </section>
 
       {/* Policy Content */}
-      <section className="py-12 bg-[#1F1F1F]">
+      <section className="py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {sections.map((section, index) => (
             <div key={section.id} id={section.id} className="mb-12 scroll-mt-8">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4">
                   <section.icon className="w-6 h-6 text-black" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-foreground">
                   {index + 1}. {section.title}
                 </h2>
               </div>
 
-              <div className="bg-[#2a2a2a] backdrop-blur-xl rounded-xl p-8 shadow-lg border border-[#3a3a3a] space-y-6">
+              <div className="bg-muted backdrop-blur-xl rounded-xl p-8 shadow-lg border border-border space-y-6">
                 {section.content.map((item, i) => (
                   <div key={i}>
-                    <h3 className="font-semibold text-white mb-2">{item.subtitle}</h3>
-                    <p className="text-gray-300 leading-relaxed">{item.text}</p>
+                    <h3 className="font-semibold text-foreground mb-2">{item.subtitle}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -300,17 +300,17 @@ const PrivacyPage: React.FC = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-[#1e1e1e]">
+      <section className="py-16 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#2a2a2a] rounded-2xl p-8 text-center border border-[#3a3a3a]">
-            <Mail className="w-12 h-12 text-[#c4ff0e] mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Questions About Privacy?</h2>
-            <p className="text-gray-300 mb-6 max-w-lg mx-auto">
+          <div className="bg-muted rounded-2xl p-8 text-center border border-border">
+            <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-4">Questions About Privacy?</h2>
+            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
               If you have any questions about this Privacy Policy or our data practices, please contact our privacy team.
             </p>
             <Link
               href="mailto:privacy@mamasign.com"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-black bg-[#c4ff0e] rounded-lg shadow-lg hover:bg-[#a8d60c] transition-all duration-300"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-black bg-primary rounded-lg shadow-lg hover:bg-primary/90 transition-all duration-300"
             >
               privacy@mamasign.com
             </Link>

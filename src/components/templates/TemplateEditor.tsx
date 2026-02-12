@@ -673,7 +673,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                     disabled={isGenerating}
                     className={`px-4 py-1.5 text-sm rounded-full transition-colors flex items-center gap-2 flex-shrink-0 ${
                       aiPrompt.trim()
-                        ? 'bg-[#c4ff0e] hover:bg-[#b3e60d] text-black font-medium'
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground font-medium'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     } ${isGenerating ? 'opacity-70' : ''}`}
                   >

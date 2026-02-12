@@ -150,12 +150,12 @@ const faqData: FAQCategory[] = [
 
 function FAQAccordion({ faq, isOpen, onClick }: { faq: FAQItem; isOpen: boolean; onClick: () => void }) {
   return (
-    <div className="border-b border-[#3a3a3a] last:border-b-0">
+    <div className="border-b border-border last:border-b-0">
       <button
         onClick={onClick}
-        className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-[#1e1e1e] transition-colors"
+        className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-muted/30 transition-colors"
       >
-        <span className="font-medium text-white pr-8">{faq.question}</span>
+        <span className="font-medium text-foreground pr-8">{faq.question}</span>
         <ChevronDown
           className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-300 ${
             isOpen ? 'rotate-180' : ''
@@ -167,7 +167,7 @@ function FAQAccordion({ faq, isOpen, onClick }: { faq: FAQItem; isOpen: boolean;
           isOpen ? 'max-h-96 pb-5' : 'max-h-0'
         }`}
       >
-        <p className="px-6 text-gray-300 leading-relaxed">{faq.answer}</p>
+        <p className="px-6 text-muted-foreground leading-relaxed">{faq.answer}</p>
       </div>
     </div>
   )
@@ -203,9 +203,9 @@ export default function FAQPage() {
   const currentCategory = filteredCategories.find(cat => cat.name === activeCategory) || filteredCategories[0]
 
   return (
-    <div className="min-h-screen bg-[#1F1F1F]">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-[#c4ff0e]">
+      <section className="py-20 px-4 bg-primary">
         <div className="max-w-4xl mx-auto text-center">
           <div className="w-20 h-20 bg-black/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <HelpCircle className="w-10 h-10 text-black" />
@@ -219,7 +219,7 @@ export default function FAQPage() {
 
           {/* Search Box */}
           <div className="max-w-lg mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search for answers..."
@@ -237,18 +237,18 @@ export default function FAQPage() {
           {searchQuery ? (
             // Search Results View
             <div>
-              <p className="text-gray-300 mb-8">
+              <p className="text-muted-foreground mb-8">
                 Found {filteredCategories.reduce((acc, cat) => acc + cat.faqs.length, 0)} results for &quot;{searchQuery}&quot;
               </p>
               {filteredCategories.length > 0 ? (
                 <div className="space-y-8">
                   {filteredCategories.map((category) => (
                     <div key={category.name}>
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                        <category.icon className="w-5 h-5 text-[#c4ff0e]" />
+                      <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                        <category.icon className="w-5 h-5 text-primary" />
                         {category.name}
                       </h3>
-                      <div className="bg-[#252525] rounded-xl border border-[#2a2a2a] overflow-hidden">
+                      <div className="bg-secondary rounded-xl border border-border overflow-hidden">
                         {category.faqs.map((faq) => (
                           <FAQAccordion
                             key={faq.question}
@@ -263,10 +263,10 @@ export default function FAQPage() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-300 mb-4">No results found. Try a different search term.</p>
+                  <p className="text-muted-foreground mb-4">No results found. Try a different search term.</p>
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="text-[#c4ff0e] font-medium hover:text-[#b3e60d]"
+                    className="text-primary font-medium hover:text-primary/90"
                   >
                     Clear search
                   </button>
@@ -278,8 +278,8 @@ export default function FAQPage() {
             <div className="grid lg:grid-cols-4 gap-8">
               {/* Category Sidebar */}
               <div className="lg:col-span-1">
-                <div className="bg-[#252525] rounded-xl border border-[#2a2a2a] p-4 sticky top-24">
-                  <h3 className="font-semibold text-white mb-4">Categories</h3>
+                <div className="bg-secondary rounded-xl border border-border p-4 sticky top-24">
+                  <h3 className="font-semibold text-foreground mb-4">Categories</h3>
                   <nav className="space-y-1">
                     {faqData.map((category) => (
                       <button
@@ -287,8 +287,8 @@ export default function FAQPage() {
                         onClick={() => setActiveCategory(category.name)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
                           activeCategory === category.name
-                            ? 'bg-[#c4ff0e]/20 text-[#c4ff0e] font-medium'
-                            : 'text-gray-300 hover:bg-[#1e1e1e]'
+                            ? 'bg-primary/20 text-primary font-medium'
+                            : 'text-muted-foreground hover:bg-muted/30'
                         }`}
                       >
                         <category.icon className="w-5 h-5" />
@@ -304,16 +304,16 @@ export default function FAQPage() {
                 {currentCategory && (
                   <div>
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-[#c4ff0e]/20 rounded-xl flex items-center justify-center">
-                        <currentCategory.icon className="w-6 h-6 text-[#c4ff0e]" />
+                      <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
+                        <currentCategory.icon className="w-6 h-6 text-primary" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white">{currentCategory.name}</h2>
-                        <p className="text-gray-300">{currentCategory.faqs.length} questions</p>
+                        <h2 className="text-2xl font-bold text-foreground">{currentCategory.name}</h2>
+                        <p className="text-muted-foreground">{currentCategory.faqs.length} questions</p>
                       </div>
                     </div>
 
-                    <div className="bg-[#252525] rounded-xl border border-[#2a2a2a] overflow-hidden">
+                    <div className="bg-secondary rounded-xl border border-border overflow-hidden">
                       {currentCategory.faqs.map((faq) => (
                         <FAQAccordion
                           key={faq.question}
@@ -332,9 +332,9 @@ export default function FAQPage() {
       </section>
 
       {/* Still Need Help? */}
-      <section className="py-20 px-4 bg-[#1e1e1e]">
+      <section className="py-20 px-4 bg-muted/30">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[#c4ff0e] rounded-2xl p-8 md:p-12 text-center">
+          <div className="bg-primary rounded-2xl p-8 md:p-12 text-center">
             <div className="w-16 h-16 bg-black/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <MessageCircle className="w-8 h-8 text-black" />
             </div>
@@ -347,7 +347,7 @@ export default function FAQPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-black text-[#c4ff0e] font-semibold rounded-xl hover:shadow-xl transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-black text-primary font-semibold rounded-xl hover:shadow-xl transition-all"
               >
                 <Mail className="w-5 h-5" />
                 Contact Support

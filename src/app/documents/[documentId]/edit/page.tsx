@@ -470,9 +470,9 @@ const DocumentEditorInner: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1e1e1e]">
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#c4ff0e] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
           <p className="text-gray-400">Loading document...</p>
         </div>
       </div>
@@ -481,14 +481,14 @@ const DocumentEditorInner: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1e1e1e]">
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-          <p className="text-white font-medium mb-2">Error loading document</p>
+          <p className="text-foreground font-medium mb-2">Error loading document</p>
           <p className="text-gray-400 mb-4">{error}</p>
           <button
             onClick={() => router.push('/documents')}
-            className="px-4 py-2 bg-[#c4ff0e] text-black rounded-lg hover:bg-[#b3e60d]"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
           >
             Go Back
           </button>
@@ -498,18 +498,18 @@ const DocumentEditorInner: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e] flex flex-col">
+    <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Header */}
-      <header className="h-16 bg-[#1F1F1F] border-b border-[#2a2a2a] flex items-center justify-between px-4 shrink-0">
+      <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/documents')}
-            className="p-2 text-gray-400 hover:bg-[#252525] rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:bg-secondary rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-semibold text-white">{document?.name}</h1>
+            <h1 className="font-semibold text-foreground">{document?.name}</h1>
             <p className="text-xs text-gray-400">
               {totalPages} page{totalPages !== 1 ? 's' : ''} • {signers.length} signer{signers.length !== 1 ? 's' : ''} • {fields.length} field{fields.length !== 1 ? 's' : ''}
             </p>
@@ -520,7 +520,7 @@ const DocumentEditorInner: React.FC = () => {
           <button
             onClick={handleSend}
             disabled={sending || signers.length === 0 || fields.length === 0}
-            className="px-5 py-2.5 bg-[#c4ff0e] text-black rounded-lg hover:bg-[#b3e60d] transition-all font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
             {sending ? (
               <>
@@ -540,15 +540,15 @@ const DocumentEditorInner: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
-        <div className="w-80 bg-[#1F1F1F] border-r border-[#2a2a2a] flex flex-col shrink-0">
+        <div className="w-80 bg-white border-r border-border flex flex-col shrink-0">
           {/* Tabs */}
-          <div className="flex border-b border-[#2a2a2a]">
+          <div className="flex border-b border-border">
             <button
               onClick={() => setActiveTab('fields')}
               className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors
                 ${activeTab === 'fields'
-                  ? 'text-[#c4ff0e] border-b-2 border-[#c4ff0e] bg-[#c4ff0e]/10'
-                  : 'text-gray-400 hover:text-white hover:bg-[#252525]'
+                  ? 'text-primary border-b-2 border-primary bg-primary/10'
+                  : 'text-gray-400 hover:text-foreground hover:bg-secondary'
                 }
               `}
             >
@@ -559,8 +559,8 @@ const DocumentEditorInner: React.FC = () => {
               onClick={() => setActiveTab('signers')}
               className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors
                 ${activeTab === 'signers'
-                  ? 'text-[#c4ff0e] border-b-2 border-[#c4ff0e] bg-[#c4ff0e]/10'
-                  : 'text-gray-400 hover:text-white hover:bg-[#252525]'
+                  ? 'text-primary border-b-2 border-primary bg-primary/10'
+                  : 'text-gray-400 hover:text-foreground hover:bg-secondary'
                 }
               `}
             >
@@ -600,11 +600,11 @@ const DocumentEditorInner: React.FC = () => {
         {/* Document Viewer - Continuous Scroll */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Zoom Toolbar */}
-          <div className="h-12 bg-[#1F1F1F] border-b border-[#2a2a2a] flex items-center justify-center px-4 shrink-0">
+          <div className="h-12 bg-white border-b border-border flex items-center justify-center px-4 shrink-0">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setScale(prev => Math.max(0.5, prev - 0.25))}
-                className="p-1.5 rounded hover:bg-[#252525] text-gray-300"
+                className="p-1.5 rounded hover:bg-secondary text-gray-300"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-5 h-5" />
@@ -614,14 +614,14 @@ const DocumentEditorInner: React.FC = () => {
               </span>
               <button
                 onClick={() => setScale(prev => Math.min(2, prev + 0.25))}
-                className="p-1.5 rounded hover:bg-[#252525] text-gray-300"
+                className="p-1.5 rounded hover:bg-secondary text-gray-300"
                 title="Zoom In"
               >
                 <ZoomIn className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setScale(1)}
-                className="p-1.5 rounded hover:bg-[#252525] text-gray-300"
+                className="p-1.5 rounded hover:bg-secondary text-gray-300"
                 title="Reset Zoom"
               >
                 <Maximize2 className="w-5 h-5" />
@@ -638,7 +638,7 @@ const DocumentEditorInner: React.FC = () => {
               scrollContainerRef.current = el
               drop(el)
             }}
-            className="flex-1 overflow-auto bg-[#252525] p-6"
+            className="flex-1 overflow-auto bg-secondary p-6"
             onClick={() => setSelectedFieldId(null)}
           >
             <div

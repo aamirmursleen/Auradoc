@@ -79,28 +79,28 @@ const TemplatesPage: React.FC = () => {
     color: string
     bgColor: string
   }> = [
-    { key: 'all', label: 'All Templates', icon: Grid3X3, color: isDark ? 'text-gray-300' : 'text-gray-600', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'popular', label: 'Popular', icon: Star, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'resume', label: 'Resume', icon: FileText, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'letters', label: 'Cover Letter', icon: FileText, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'contracts', label: 'Contract', icon: FileText, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'business', label: 'Business', icon: FileText, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'agreements', label: 'Agreement', icon: FileCheck, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'invoices', label: 'Invoice', icon: Receipt, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'hr', label: 'HR & Jobs', icon: Users, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'planning', label: 'Planning', icon: FileText, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'real-estate', label: 'Real Estate', icon: Home, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
-    { key: 'legal', label: 'Legal', icon: Scale, color: isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]', bgColor: isDark ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a]' : 'bg-[#EDE5FF] hover:bg-[#E0D4FF]' },
+    { key: 'all', label: 'All Templates', icon: Grid3X3, color: isDark ? 'text-gray-300' : 'text-gray-600', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'popular', label: 'Popular', icon: Star, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'resume', label: 'Resume', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'letters', label: 'Cover Letter', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'contracts', label: 'Contract', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'business', label: 'Business', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'agreements', label: 'Agreement', icon: FileCheck, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'invoices', label: 'Invoice', icon: Receipt, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'hr', label: 'HR & Jobs', icon: Users, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'planning', label: 'Planning', icon: FileText, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'real-estate', label: 'Real Estate', icon: Home, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
+    { key: 'legal', label: 'Legal', icon: Scale, color: isDark ? 'text-primary' : 'text-[#0d9488]', bgColor: isDark ? 'bg-muted hover:bg-muted/80' : 'bg-[#ccfbf1] hover:bg-[#E0D4FF]' },
   ]
 
   // Category colors for cards - theme-aware
   const categoryColors: Record<string, { bg: string; border: string; gradient: string }> = {
-    'contracts': { bg: isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]', border: isDark ? 'border-[#2a2a2a]' : 'border-gray-200', gradient: isDark ? 'from-[#c4ff0e] to-[#c4ff0e]' : 'from-[#4C00FF] to-[#4C00FF]' },
-    'agreements': { bg: isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]', border: isDark ? 'border-[#2a2a2a]' : 'border-gray-200', gradient: isDark ? 'from-[#c4ff0e] to-[#c4ff0e]' : 'from-[#4C00FF] to-[#4C00FF]' },
-    'invoices': { bg: isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]', border: isDark ? 'border-[#2a2a2a]' : 'border-gray-200', gradient: isDark ? 'from-[#c4ff0e] to-[#c4ff0e]' : 'from-[#4C00FF] to-[#4C00FF]' },
-    'hr': { bg: isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]', border: isDark ? 'border-[#2a2a2a]' : 'border-gray-200', gradient: isDark ? 'from-[#c4ff0e] to-[#c4ff0e]' : 'from-[#4C00FF] to-[#4C00FF]' },
-    'real-estate': { bg: isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]', border: isDark ? 'border-[#2a2a2a]' : 'border-gray-200', gradient: isDark ? 'from-[#c4ff0e] to-[#c4ff0e]' : 'from-[#4C00FF] to-[#4C00FF]' },
-    'legal': { bg: isDark ? 'bg-[#c4ff0e]' : 'bg-[#4C00FF]', border: isDark ? 'border-[#2a2a2a]' : 'border-gray-200', gradient: isDark ? 'from-[#c4ff0e] to-[#c4ff0e]' : 'from-[#4C00FF] to-[#4C00FF]' }
+    'contracts': { bg: isDark ? 'bg-primary' : 'bg-[#0d9488]', border: isDark ? 'border-border' : 'border-gray-200', gradient: isDark ? 'from-primary to-primary' : 'from-[#0d9488] to-[#0d9488]' },
+    'agreements': { bg: isDark ? 'bg-primary' : 'bg-[#0d9488]', border: isDark ? 'border-border' : 'border-gray-200', gradient: isDark ? 'from-primary to-primary' : 'from-[#0d9488] to-[#0d9488]' },
+    'invoices': { bg: isDark ? 'bg-primary' : 'bg-[#0d9488]', border: isDark ? 'border-border' : 'border-gray-200', gradient: isDark ? 'from-primary to-primary' : 'from-[#0d9488] to-[#0d9488]' },
+    'hr': { bg: isDark ? 'bg-primary' : 'bg-[#0d9488]', border: isDark ? 'border-border' : 'border-gray-200', gradient: isDark ? 'from-primary to-primary' : 'from-[#0d9488] to-[#0d9488]' },
+    'real-estate': { bg: isDark ? 'bg-primary' : 'bg-[#0d9488]', border: isDark ? 'border-border' : 'border-gray-200', gradient: isDark ? 'from-primary to-primary' : 'from-[#0d9488] to-[#0d9488]' },
+    'legal': { bg: isDark ? 'bg-primary' : 'bg-[#0d9488]', border: isDark ? 'border-border' : 'border-gray-200', gradient: isDark ? 'from-primary to-primary' : 'from-[#0d9488] to-[#0d9488]' }
   }
 
   const router = useRouter()
@@ -196,12 +196,12 @@ const TemplatesPage: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-white'}`}>
       {/* Hero Section - Compact */}
-      <section className={`${isDark ? 'bg-[#1F1F1F] text-white border-[#2a2a2a]' : 'bg-gray-50 text-[#26065D] border-gray-200'} pt-8 pb-6 px-4 border-b`}>
+      <section className={`${isDark ? 'bg-white text-white border-border' : 'bg-gray-50 text-[#134e4a] border-gray-200'} pt-8 pb-6 px-4 border-b`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6">
-            <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+            <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
               Document Templates
             </h1>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm md:text-base max-w-xl mx-auto`}>
@@ -217,7 +217,7 @@ const TemplatesPage: React.FC = () => {
               placeholder="Search templates... (contract, invoice, NDA, offer letter)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-[#2a2a2a] text-white placeholder-gray-400 border-[#3a3a3a] focus:ring-[#c4ff0e]/30' : 'bg-white text-[#26065D] placeholder-gray-500 border-gray-200 focus:ring-[#4C00FF]/30'} shadow-lg focus:ring-4 outline-none text-sm border`}
+              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-muted text-white placeholder-gray-400 border-border focus:ring-primary/30' : 'bg-white text-[#134e4a] placeholder-gray-500 border-gray-200 focus:ring-[#0d9488]/30'} shadow-lg focus:ring-4 outline-none text-sm border`}
             />
             {searchQuery && (
               <button
@@ -232,14 +232,14 @@ const TemplatesPage: React.FC = () => {
       </section>
 
       {/* Category Tags - Scrollable like template.net */}
-      <div className={`sticky top-0 z-40 ${isDark ? 'bg-[#1e1e1e] border-[#2a2a2a]' : 'bg-white border-gray-200'} border-b shadow-sm`}>
+      <div className={`sticky top-0 z-40 ${isDark ? 'bg-muted/30 border-border' : 'bg-white border-gray-200'} border-b shadow-sm`}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="relative flex items-center py-3">
             {/* Left scroll button */}
             {canScrollLeft && (
               <button
                 onClick={() => scrollCategories('left')}
-                className={`absolute left-0 z-10 w-10 h-10 ${isDark ? 'bg-gradient-to-r from-[#1e1e1e] via-[#1e1e1e] to-transparent' : 'bg-gradient-to-r from-white via-white to-transparent'} flex items-center justify-start`}
+                className={`absolute left-0 z-10 w-10 h-10 ${isDark ? 'bg-gradient-to-r from-muted/30 via-muted/30 to-transparent' : 'bg-gradient-to-r from-white via-white to-transparent'} flex items-center justify-start`}
               >
                 <ChevronLeft className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
               </button>
@@ -283,7 +283,7 @@ const TemplatesPage: React.FC = () => {
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all
                       ${isActive
-                        ? isDark ? 'bg-[#c4ff0e] text-black shadow-md scale-105' : 'bg-[#4C00FF] text-white shadow-md scale-105'
+                        ? isDark ? 'bg-primary text-black shadow-md scale-105' : 'bg-[#0d9488] text-white shadow-md scale-105'
                         : `${cat.bgColor} ${cat.color}`
                       }
                     `}
@@ -291,7 +291,7 @@ const TemplatesPage: React.FC = () => {
                     <Icon className="w-4 h-4" />
                     {cat.label}
                     {cat.key === 'popular' && !isActive && (
-                      <span className={`px-1.5 py-0.5 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} text-xs rounded-full`}>
+                      <span className={`px-1.5 py-0.5 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} text-xs rounded-full`}>
                         Hot
                       </span>
                     )}
@@ -304,7 +304,7 @@ const TemplatesPage: React.FC = () => {
             {canScrollRight && (
               <button
                 onClick={() => scrollCategories('right')}
-                className={`absolute right-0 z-10 w-10 h-10 ${isDark ? 'bg-gradient-to-l from-[#1e1e1e] via-[#1e1e1e] to-transparent' : 'bg-gradient-to-l from-white via-white to-transparent'} flex items-center justify-end`}
+                className={`absolute right-0 z-10 w-10 h-10 ${isDark ? 'bg-gradient-to-l from-muted/30 via-muted/30 to-transparent' : 'bg-gradient-to-l from-white via-white to-transparent'} flex items-center justify-end`}
               >
                 <ChevronRight className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
               </button>
@@ -319,20 +319,20 @@ const TemplatesPage: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-              <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{filteredTemplates.length}</span> templates
+              <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{filteredTemplates.length}</span> templates
               {searchQuery && (
-                <span> for "<span className={`font-medium ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>{searchQuery}</span>"</span>
+                <span> for "<span className={`font-medium ${isDark ? 'text-primary' : 'text-[#0d9488]'}`}>{searchQuery}</span>"</span>
               )}
               {selectedCategory !== 'all' && selectedCategory !== 'popular' && (
                 <span> in <span className="font-medium">{categoryLabels[selectedCategory as TemplateCategory]}</span></span>
               )}
             </p>
           </div>
-          <div className={`flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-[#EDE5FF] border-gray-200'} rounded-lg border p-1`}>
+          <div className={`flex items-center gap-2 ${isDark ? 'bg-muted border-border' : 'bg-[#ccfbf1] border-gray-200'} rounded-lg border p-1`}>
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
+                viewMode === 'grid' ? isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -340,7 +340,7 @@ const TemplatesPage: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
+                viewMode === 'list' ? isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
               }`}
             >
               <List className="w-5 h-5" />
@@ -364,10 +364,10 @@ const TemplatesPage: React.FC = () => {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className={`group relative ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]' : 'bg-white border border-gray-200 hover:border-[#4C00FF]'} rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
+                  className={`group relative ${isDark ? 'bg-secondary border-border hover:border-primary' : 'bg-white border border-gray-200 hover:border-[#0d9488]'} rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
                 >
                   {/* Document Preview Thumbnail */}
-                  <div className={`relative h-52 ${isDark ? 'bg-[#2a2a2a] border-[#2a2a2a]' : 'bg-[#EDE5FF] border-gray-200'} border-b overflow-hidden`}>
+                  <div className={`relative h-52 ${isDark ? 'bg-muted border-border' : 'bg-[#ccfbf1] border-gray-200'} border-b overflow-hidden`}>
                     {/* Badges */}
                     <div className="absolute top-2 left-2 z-10 flex gap-1.5">
                       {template.popular && (
@@ -385,7 +385,7 @@ const TemplatesPage: React.FC = () => {
                     </div>
 
                     {/* Mini Document Preview */}
-                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'} border`}>
+                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden ${isDark ? 'border-border' : 'border-gray-200'} border`}>
                       <div
                         className="w-[400%] h-[400%] origin-top-left transform scale-[0.25] pointer-events-none"
                         dangerouslySetInnerHTML={{ __html: generateMiniPreview(template) }}
@@ -394,7 +394,7 @@ const TemplatesPage: React.FC = () => {
 
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      <span className={`px-4 py-2 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} rounded-full text-sm font-medium shadow-lg flex items-center gap-2`}>
+                      <span className={`px-4 py-2 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full text-sm font-medium shadow-lg flex items-center gap-2`}>
                         <Zap className={`w-4 h-4 ${isDark ? 'text-black' : 'text-white'}`} />
                         Preview Template
                       </span>
@@ -415,7 +415,7 @@ const TemplatesPage: React.FC = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'} transition-colors mb-1 line-clamp-1`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors mb-1 line-clamp-1`}>
                       {template.name}
                     </h3>
 
@@ -430,7 +430,7 @@ const TemplatesPage: React.FC = () => {
                         e.stopPropagation()
                         handleUseTemplate(template)
                       }}
-                      className={`w-full py-2 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#c4ff0e] text-gray-300 hover:text-black' : 'bg-[#EDE5FF] hover:bg-[#4C00FF] text-gray-600 hover:text-white'} rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
+                      className={`w-full py-2 ${isDark ? 'bg-muted hover:bg-primary text-gray-300 hover:text-black' : 'bg-[#ccfbf1] hover:bg-[#0d9488] text-gray-600 hover:text-white'} rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -442,10 +442,10 @@ const TemplatesPage: React.FC = () => {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className={`${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]' : 'bg-white border border-gray-200 hover:border-[#4C00FF]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group`}
+                  className={`${isDark ? 'bg-secondary border-border hover:border-primary' : 'bg-white border border-gray-200 hover:border-[#0d9488]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group`}
                 >
                   {/* Mini Preview */}
-                  <div className={`w-20 h-28 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-[#EDE5FF] border-gray-200'} rounded-lg border overflow-hidden flex-shrink-0 relative`}>
+                  <div className={`w-20 h-28 ${isDark ? 'bg-muted border-border' : 'bg-[#ccfbf1] border-gray-200'} rounded-lg border overflow-hidden flex-shrink-0 relative`}>
                     <div
                       className="w-[500%] h-[500%] origin-top-left transform scale-[0.2] pointer-events-none"
                       dangerouslySetInnerHTML={{ __html: generateMiniPreview(template) }}
@@ -468,7 +468,7 @@ const TemplatesPage: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'} transition-colors`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors`}>
                       {template.name}
                     </h3>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} line-clamp-1`}>{template.description}</p>
@@ -480,7 +480,7 @@ const TemplatesPage: React.FC = () => {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className={`px-4 py-2 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#c4ff0e]/90' : 'bg-[#4C00FF] text-white hover:bg-[#4C00FF]/90'} rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
+                    className={`px-4 py-2 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
                   >
                     Use
                     <ArrowRight className="w-4 h-4" />
@@ -492,10 +492,10 @@ const TemplatesPage: React.FC = () => {
         ) : (
           // No results
           <div className="text-center py-16">
-            <div className={`w-20 h-20 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+            <div className={`w-20 h-20 ${isDark ? 'bg-muted' : 'bg-[#ccfbf1]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
               <Search className={`w-10 h-10 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             </div>
-            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>No templates found</h3>
+            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'} mb-2`}>No templates found</h3>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6`}>
               Try adjusting your search or filter to find what you're looking for.
             </p>
@@ -504,7 +504,7 @@ const TemplatesPage: React.FC = () => {
                 setSearchQuery('')
                 setSelectedCategory('all')
               }}
-              className={`px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#c4ff0e]/90' : 'bg-[#4C00FF] text-white hover:bg-[#4C00FF]/90'} rounded-xl font-medium transition-colors`}
+              className={`px-6 py-3 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-medium transition-colors`}
             >
               Clear Filters
             </button>
@@ -512,8 +512,8 @@ const TemplatesPage: React.FC = () => {
         )}
 
         {/* CTA Section */}
-        <div className={`mt-16 ${isDark ? 'bg-[#252525] border-[#2a2a2a]' : 'bg-white border border-gray-200'} rounded-2xl p-8 md:p-12 text-center`}>
-          <h2 className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
+        <div className={`mt-16 ${isDark ? 'bg-secondary border-border' : 'bg-white border border-gray-200'} rounded-2xl p-8 md:p-12 text-center`}>
+          <h2 className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-white' : 'text-[#134e4a]'} mb-4`}>
             Can't Find What You Need?
           </h2>
           <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6 max-w-xl mx-auto`}>
@@ -522,7 +522,7 @@ const TemplatesPage: React.FC = () => {
           </p>
           <button
             onClick={() => router.push('/sign')}
-            className={`inline-flex items-center gap-2 px-8 py-4 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#c4ff0e]/90' : 'bg-[#4C00FF] text-white hover:bg-[#4C00FF]/90'} rounded-xl font-semibold transition-colors`}
+            className={`inline-flex items-center gap-2 px-8 py-4 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-semibold transition-colors`}
           >
             Upload Your Document
             <ArrowRight className="w-5 h-5" />

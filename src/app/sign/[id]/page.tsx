@@ -1725,7 +1725,7 @@ export default function SignDocumentPage() {
                   <button
                     onClick={handleTextInputSave}
                     disabled={!textInputValue.trim()}
-                    className="flex-1 py-4 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                    className="flex-1 py-4 bg-blue-500 text-black rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
                     Done
                   </button>
@@ -1776,7 +1776,7 @@ export default function SignDocumentPage() {
                   <button
                     onClick={handleDateSave}
                     disabled={!textInputValue}
-                    className="flex-1 py-4 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                    className="flex-1 py-4 bg-blue-500 text-black rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
                     Done
                   </button>
@@ -1821,7 +1821,7 @@ export default function SignDocumentPage() {
                   <button
                     onClick={() => handleSelectionSave(textInputValue)}
                     disabled={!textInputValue}
-                    className="flex-1 py-3 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 py-3 bg-blue-500 text-black rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Save
                   </button>
@@ -1893,7 +1893,7 @@ export default function SignDocumentPage() {
                     setShowStrikethroughPicker(false)
                     setActiveFieldId(null)
                   }}
-                  className="flex-1 py-3 bg-blue-500 text-black rounded-xl font-semibold hover:bg-[#b3e60d] transition-colors"
+                  className="flex-1 py-3 bg-blue-500 text-black rounded-xl font-semibold hover:bg-primary/90 transition-colors"
                 >
                   Apply
                 </button>
@@ -1954,7 +1954,7 @@ export default function SignDocumentPage() {
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
                       <button
                         onClick={captureStamp}
-                        className="px-4 py-2 bg-blue-500 text-black rounded-lg font-medium hover:bg-[#b3e60d]"
+                        className="px-4 py-2 bg-blue-500 text-black rounded-lg font-medium hover:bg-primary/90"
                       >
                         Capture
                       </button>
@@ -1997,7 +1997,7 @@ export default function SignDocumentPage() {
                     </button>
                     <button
                       onClick={handleStampImageSave}
-                      className="flex-1 py-2 bg-blue-500 text-black rounded-lg font-semibold hover:bg-[#b3e60d]"
+                      className="flex-1 py-2 bg-blue-500 text-black rounded-lg font-semibold hover:bg-primary/90"
                     >
                       Use This Stamp
                     </button>

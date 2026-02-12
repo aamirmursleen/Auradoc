@@ -3,13 +3,9 @@
 import React, { useState, useCallback } from 'react'
 import { Minimize2, Upload, Download, Loader2, FileText, CheckCircle, ArrowRight, Zap, Shield, Clock, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useTheme } from '@/components/ThemeProvider'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function PDFCompressorPage() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
-
   const [file, setFile] = useState<File | null>(null)
   const [compressing, setCompressing] = useState(false)
   const [compressed, setCompressed] = useState(false)
@@ -115,7 +111,7 @@ export default function PDFCompressorPage() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+    <div className="min-h-screen bg-muted/30">
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
@@ -126,14 +122,14 @@ export default function PDFCompressorPage() {
           ]} />
         </div>
         <div className="max-w-4xl mx-auto text-center">
-          <div className={`inline-flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6`}>
+          <div className="inline-flex items-center gap-2 bg-muted text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Minimize2 className="w-4 h-4" />
             Free PDF Tool
           </div>
-          <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             PDF Optimizer
           </h1>
-          <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-8 max-w-2xl mx-auto`}>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Optimize your PDF files by removing metadata and unused objects.
             Processing happens entirely in your browser.
           </p>
@@ -142,8 +138,8 @@ export default function PDFCompressorPage() {
           <div
             className={`max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-12 transition-all ${
               dragActive
-                ? `${isDark ? 'border-[#c4ff0e]' : 'border-[#4C00FF]'} ${isDark ? 'bg-[#252525]' : 'bg-gray-50'}`
-                : `${isDark ? 'border-[#3a3a3a]' : 'border-gray-300'} ${isDark ? 'hover:border-[#c4ff0e]' : 'hover:border-[#4C00FF]'} ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`
+                ? 'border-primary bg-secondary'
+                : 'border-border hover:border-primary bg-white'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -152,13 +148,13 @@ export default function PDFCompressorPage() {
           >
             {!file ? (
               <div className="text-center">
-                <div className={`w-16 h-16 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                  <Upload className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   Drop your PDF here
                 </h3>
-                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4`}>or click to browse</p>
+                <p className="text-muted-foreground mb-4">or click to browse</p>
                 <input
                   type="file"
                   accept=".pdf"
@@ -168,20 +164,20 @@ export default function PDFCompressorPage() {
                 />
                 <label
                   htmlFor="pdf-upload"
-                  className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg cursor-pointer hover:opacity-90 transition-colors`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg cursor-pointer hover:opacity-90 transition-colors"
                 >
                   <Upload className="w-5 h-5" />
                   Select PDF File
                 </label>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-4`}>Max file size: 50MB</p>
+                <p className="text-sm text-muted-foreground mt-4">Max file size: 50MB</p>
               </div>
             ) : (
               <div className="text-center">
-                <div className={`w-16 h-16 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                  <FileText className={`w-8 h-8 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-primary" />
                 </div>
-                <p className={`font-medium ${isDark ? 'text-white' : 'text-[#26065D]'} mb-1`}>{file.name}</p>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6`}>
+                <p className="font-medium text-foreground mb-1">{file.name}</p>
+                <p className="text-sm text-muted-foreground mb-6">
                   Original size: {formatSize(file.size)}
                 </p>
 
@@ -189,7 +185,7 @@ export default function PDFCompressorPage() {
                   <button
                     onClick={handleCompress}
                     disabled={compressing}
-                    className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50`}
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
                   >
                     {compressing ? (
                       <>
@@ -205,26 +201,26 @@ export default function PDFCompressorPage() {
                   </button>
                 ) : result && (
                   <div className="space-y-4">
-                    <div className={`flex items-center justify-center gap-2 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>
+                    <div className="flex items-center justify-center gap-2 text-primary">
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">Optimization Complete!</span>
                     </div>
 
                     {/* Results */}
-                    <div className={`${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-xl p-4 max-w-sm mx-auto ${isDark ? 'border border-[#2a2a2a]' : ''}`}>
+                    <div className="bg-secondary rounded-xl p-4 max-w-sm mx-auto border border-border">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Original:</span>
+                        <span className="text-muted-foreground">Original:</span>
                         <span className="font-medium">{formatSize(result.original)}</span>
                       </div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Optimized:</span>
-                        <span className={`font-medium ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>{formatSize(result.compressed)}</span>
+                        <span className="text-muted-foreground">Optimized:</span>
+                        <span className="font-medium text-primary">{formatSize(result.compressed)}</span>
                       </div>
-                      <div className={`flex justify-between text-sm pt-2 border-t ${isDark ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
-                        <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <div className="flex justify-between text-sm pt-2 border-t border-border">
+                        <span className="text-muted-foreground">
                           {result.compressed < result.original ? 'Saved:' : 'Change:'}
                         </span>
-                        <span className={`font-bold ${result.compressed < result.original ? (isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]') : (isDark ? 'text-gray-400' : 'text-gray-500')}`}>
+                        <span className={`font-bold ${result.compressed < result.original ? 'text-primary' : 'text-muted-foreground'}`}>
                           {result.compressed < result.original
                             ? `${Math.round((1 - result.compressed / result.original) * 100)}%`
                             : 'Already optimized'}
@@ -234,7 +230,7 @@ export default function PDFCompressorPage() {
 
                     <button
                       onClick={downloadCompressed}
-                      className={`inline-flex items-center gap-2 px-8 py-3 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} font-medium rounded-lg hover:opacity-90 transition-colors`}
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-colors"
                     >
                       <Download className="w-5 h-5" />
                       Download Optimized PDF
@@ -244,7 +240,7 @@ export default function PDFCompressorPage() {
 
                 <button
                   onClick={clearFile}
-                  className={`block mx-auto mt-4 text-sm ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'}`}
+                  className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground"
                 >
                   Upload different file
                 </button>
@@ -253,10 +249,10 @@ export default function PDFCompressorPage() {
           </div>
 
           {/* Info Note */}
-          <div className={`max-w-2xl mx-auto mt-6 p-4 ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'} rounded-xl ${isDark ? 'border border-[#2a2a2a]' : ''}`}>
+          <div className="max-w-2xl mx-auto mt-6 p-4 bg-secondary rounded-xl border border-border">
             <div className="flex items-start gap-3">
-              <AlertCircle className={`w-5 h-5 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'} flex-shrink-0 mt-0.5`} />
-              <div className={`text-left text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+              <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-left text-sm text-muted-foreground">
                 <p className="font-medium mb-1">How it works</p>
                 <p>This tool removes metadata and optimizes the PDF structure. For PDFs with large images, consider using dedicated image compression tools for better results.</p>
               </div>
@@ -266,9 +262,9 @@ export default function PDFCompressorPage() {
       </section>
 
       {/* Features */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#1F1F1F]' : 'bg-gray-50'}`}>
+      <section className="py-16 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
-          <h2 className={`text-3xl font-bold text-center ${isDark ? 'text-white' : 'text-[#26065D]'} mb-12`}>
+          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
             Why Use Our PDF Optimizer?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -277,12 +273,12 @@ export default function PDFCompressorPage() {
               { icon: Shield, title: '100% Private', desc: 'Files never leave your device - processed locally' },
               { icon: Clock, title: 'No Limits', desc: 'Optimize as many PDFs as you want, completely free' },
             ].map((feature, idx) => (
-              <div key={idx} className={`text-center p-6 rounded-2xl ${isDark ? 'bg-[#252525]' : 'bg-white border border-gray-200'}`}>
-                <div className={`w-12 h-12 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-xl flex items-center justify-center mx-auto mb-4`}>
-                  <feature.icon className={`w-6 h-6 ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`} />
+              <div key={idx} className="text-center p-6 rounded-2xl bg-secondary">
+                <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>{feature.title}</h3>
-                <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>{feature.desc}</p>
+                <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -290,17 +286,17 @@ export default function PDFCompressorPage() {
       </section>
 
       {/* CTA */}
-      <section className={`py-16 px-4 ${isDark ? 'bg-[#252525]' : 'bg-gray-50'}`}>
+      <section className="py-16 px-4 bg-secondary">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-4`}>
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Need to Sign Documents?
           </h2>
-          <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
+          <p className="text-muted-foreground mb-8">
             Try our free e-signature tool for legally binding signatures
           </p>
           <Link
             href="/sign-document"
-            className={`inline-flex items-center gap-2 px-6 py-3 ${isDark ? 'bg-[#1F1F1F] text-[#c4ff0e]' : 'bg-white text-[#4C00FF] border border-gray-200'} font-medium rounded-lg hover:shadow-lg transition-all`}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary border border-border font-medium rounded-lg hover:shadow-lg transition-all"
           >
             Sign Documents Free
             <ArrowRight className="w-5 h-5" />

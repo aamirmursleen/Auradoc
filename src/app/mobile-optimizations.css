@@ -734,19 +734,19 @@ body {
   /* Dark mode tables */
   .dark .table-responsive th:first-child,
   .dark .table-responsive td:first-child {
-    background: #1e1e1e !important;
+    background: hsl(var(--muted)) !important;
   }
 
   /* Dark mode sticky bars */
   .dark .sticky-action-bar {
-    background: #1e1e1e !important;
-    border-top-color: #2a2a2a !important;
+    background: hsl(var(--background)) !important;
+    border-top-color: hsl(var(--border)) !important;
   }
 
   /* Dark mode modal */
   .dark .modal,
   .dark [role="dialog"] {
-    background: #1e1e1e !important;
+    background: hsl(var(--background)) !important;
   }
 }
 

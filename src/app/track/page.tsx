@@ -74,8 +74,8 @@ const statusConfig: Record<DocumentStatus, {
     label: 'Created',
     icon: FileText,
     color: 'text-gray-300',
-    bgColor: 'bg-[#2a2a2a]',
-    borderColor: 'border-[#3a3a3a]'
+    bgColor: 'bg-muted',
+    borderColor: 'border-border'
   },
   delivered: {
     label: 'Delivered',
@@ -101,9 +101,9 @@ const statusConfig: Record<DocumentStatus, {
   completed: {
     label: 'Completed',
     icon: Shield,
-    color: 'text-[#c4ff0e]',
-    bgColor: 'bg-[#c4ff0e]/10',
-    borderColor: 'border-[#c4ff0e]/30'
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    borderColor: 'border-primary/30'
   }
 }
 
@@ -349,8 +349,8 @@ const TrackDocumentPageInner: React.FC = () => {
 
   if (!documentData) {
     return (
-      <div className="min-h-screen bg-[#1e1e1e] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c4ff0e]" />
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     )
   }
@@ -359,15 +359,15 @@ const TrackDocumentPageInner: React.FC = () => {
   const currentStatusIndex = statusOrder.indexOf(documentData.currentStatus)
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e]">
+    <div className="min-h-screen bg-muted/30">
       {/* Header */}
-      <header className="bg-[#252525] border-b border-[#2a2a2a] sticky top-0 z-40">
+      <header className="bg-secondary border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-300" />
               </Link>
@@ -379,14 +379,14 @@ const TrackDocumentPageInner: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 text-gray-300 hover:bg-[#2a2a2a] rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-gray-300 hover:bg-muted rounded-lg transition-colors flex items-center gap-2"
               >
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied!' : 'Copy Link'}
               </button>
               <button
                 onClick={handleResetDemo}
-                className="px-4 py-2 text-gray-300 hover:bg-[#2a2a2a] rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-gray-300 hover:bg-muted rounded-lg transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reset Demo
@@ -401,15 +401,15 @@ const TrackDocumentPageInner: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Status Progress Bar */}
-            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+            <div className="bg-secondary rounded-2xl shadow-sm border border-border p-6">
               <h2 className="text-lg font-semibold text-white mb-6">Document Status</h2>
 
               {/* Progress Steps */}
               <div className="relative">
                 {/* Progress Line */}
-                <div className="absolute top-6 left-6 right-6 h-1 bg-[#2a2a2a] rounded-full">
+                <div className="absolute top-6 left-6 right-6 h-1 bg-muted rounded-full">
                   <div
-                    className="h-full bg-gradient-to-r from-[#c4ff0e] to-green-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-primary to-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${(currentStatusIndex / (statusOrder.length - 1)) * 100}%` }}
                   />
                 </div>
@@ -431,7 +431,7 @@ const TrackDocumentPageInner: React.FC = () => {
                               ? isCurrent
                                 ? `${config.bgColor} ${config.borderColor} border-2 ring-4 ring-${config.color.split('-')[1]}-100`
                                 : 'bg-green-500 border-green-500'
-                              : 'bg-[#2a2a2a] border-[#2a2a2a] border-2'
+                              : 'bg-muted border-border border-2'
                             }
                           `}
                         >
@@ -456,7 +456,7 @@ const TrackDocumentPageInner: React.FC = () => {
                   <button
                     onClick={handleSendDocument}
                     disabled={isSimulating}
-                    className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:bg-[#c4ff0e]/50 text-black rounded-xl font-medium flex items-center gap-2 transition-colors"
+                    className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-primary-foreground rounded-xl font-medium flex items-center gap-2 transition-colors"
                   >
                     {isSimulating ? (
                       <>
@@ -476,7 +476,7 @@ const TrackDocumentPageInner: React.FC = () => {
                   <button
                     onClick={handleOpenDocument}
                     disabled={isSimulating}
-                    className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:bg-[#c4ff0e]/50 text-black rounded-xl font-medium flex items-center gap-2 transition-colors"
+                    className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-primary-foreground rounded-xl font-medium flex items-center gap-2 transition-colors"
                   >
                     {isSimulating ? (
                       <>
@@ -496,7 +496,7 @@ const TrackDocumentPageInner: React.FC = () => {
                   <button
                     onClick={handleSignDocument}
                     disabled={isSimulating}
-                    className="px-6 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] disabled:bg-[#c4ff0e]/50 text-black rounded-xl font-medium flex items-center gap-2 transition-colors"
+                    className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-primary-foreground rounded-xl font-medium flex items-center gap-2 transition-colors"
                   >
                     {isSimulating ? (
                       <>
@@ -513,7 +513,7 @@ const TrackDocumentPageInner: React.FC = () => {
                 )}
 
                 {documentData.currentStatus === 'completed' && (
-                  <div className="flex items-center gap-3 px-6 py-3 bg-[#c4ff0e]/10 text-[#c4ff0e] rounded-xl border border-[#c4ff0e]/30">
+                  <div className="flex items-center gap-3 px-6 py-3 bg-primary/10 text-primary rounded-xl border border-primary/30">
                     <Shield className="w-5 h-5" />
                     <span className="font-medium">Document Complete - All parties have signed</span>
                   </div>
@@ -522,9 +522,9 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Audit Trail Timeline */}
-            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+            <div className="bg-secondary rounded-2xl shadow-sm border border-border p-6">
               <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-[#c4ff0e]" />
+                <Clock className="w-5 h-5 text-primary" />
                 Audit Trail
               </h2>
 
@@ -592,7 +592,7 @@ const TrackDocumentPageInner: React.FC = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Document Info */}
-            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+            <div className="bg-secondary rounded-2xl shadow-sm border border-border p-6">
               <h2 className="text-lg font-semibold text-white mb-4">Document Details</h2>
 
               <div className="space-y-4">
@@ -640,7 +640,7 @@ const TrackDocumentPageInner: React.FC = () => {
               </div>
 
               {documentData.currentStatus === 'completed' && (
-                <button className="w-full mt-6 px-4 py-3 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
+                <button className="w-full mt-6 px-4 py-3 bg-primary hover:bg-primary/90 text-black rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
                   <Download className="w-5 h-5" />
                   Download Signed Document
                 </button>
@@ -648,9 +648,9 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Email Notifications */}
-            <div className="bg-[#252525] rounded-2xl shadow-sm border border-[#2a2a2a] p-6">
+            <div className="bg-secondary rounded-2xl shadow-sm border border-border p-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-[#c4ff0e]" />
+                <Mail className="w-5 h-5 text-primary" />
                 Email Notifications
               </h2>
 
@@ -659,11 +659,11 @@ const TrackDocumentPageInner: React.FC = () => {
                   {documentData.emailNotifications.slice().reverse().map((notification) => (
                     <div
                       key={notification.id}
-                      className="p-3 bg-[#2a2a2a] rounded-lg border border-[#3a3a3a]"
+                      className="p-3 bg-muted rounded-lg border border-border"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
-                          <Bell className="w-4 h-4 text-[#c4ff0e]" />
+                          <Bell className="w-4 h-4 text-primary" />
                           <span className="font-medium text-sm text-white">
                             {notification.type}
                           </span>
@@ -691,10 +691,10 @@ const TrackDocumentPageInner: React.FC = () => {
             </div>
 
             {/* Help Box */}
-            <div className="bg-[#252525] rounded-2xl p-6 border border-[#2a2a2a]">
+            <div className="bg-secondary rounded-2xl p-6 border border-border">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-[#2a2a2a] rounded-lg shadow-sm">
-                  <Sparkles className="w-5 h-5 text-[#c4ff0e]" />
+                <div className="p-2 bg-muted rounded-lg shadow-sm">
+                  <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-white">Demo Mode</h3>
@@ -711,8 +711,8 @@ const TrackDocumentPageInner: React.FC = () => {
       {/* Email Simulation Modal */}
       {showEmailSimulation && emailContent && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#252525] rounded-2xl shadow-2xl max-w-lg w-full animate-in border border-[#2a2a2a]">
-            <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
+          <div className="bg-secondary rounded-2xl shadow-2xl max-w-lg w-full animate-in border border-border">
+            <div className="p-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-950/50 rounded-lg">
                   <Mail className="w-5 h-5 text-green-400" />
@@ -724,15 +724,15 @@ const TrackDocumentPageInner: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowEmailSimulation(false)}
-                className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="w-5 h-5 text-gray-300" />
               </button>
             </div>
 
             <div className="p-6">
-              <div className="bg-[#2a2a2a] rounded-xl p-4 border border-[#3a3a3a]">
-                <div className="mb-3 pb-3 border-b border-[#3a3a3a]">
+              <div className="bg-muted rounded-xl p-4 border border-border">
+                <div className="mb-3 pb-3 border-b border-border">
                   <p className="text-sm text-gray-400">Subject:</p>
                   <p className="font-medium text-white">{emailContent.subject}</p>
                 </div>
@@ -750,10 +750,10 @@ const TrackDocumentPageInner: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-[#2a2a2a] flex justify-end">
+            <div className="p-4 border-t border-border flex justify-end">
               <button
                 onClick={() => setShowEmailSimulation(false)}
-                className="px-6 py-2 bg-[#c4ff0e] hover:bg-[#b3e60d] text-black rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-primary hover:bg-primary/90 text-black rounded-lg font-medium transition-colors"
               >
                 Close
               </button>
@@ -768,8 +768,8 @@ const TrackDocumentPageInner: React.FC = () => {
 const TrackDocumentPage: React.FC = () => {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#1e1e1e] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c4ff0e]" />
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     }>
       <TrackDocumentPageInner />

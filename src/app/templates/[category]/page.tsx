@@ -142,21 +142,21 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-muted/30' : 'bg-white'}`}>
       {/* Hero Section */}
-      <section className={`${isDark ? 'bg-[#1F1F1F] text-white border-[#2a2a2a]' : 'bg-gray-50 text-[#26065D] border-gray-200'} pt-8 pb-6 px-4 border-b`}>
+      <section className={`${isDark ? 'bg-white text-white border-border' : 'bg-gray-50 text-[#134e4a] border-gray-200'} pt-8 pb-6 px-4 border-b`}>
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <Link
             href="/templates"
-            className={`inline-flex items-center gap-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#26065D]'} mb-6 transition-colors`}
+            className={`inline-flex items-center gap-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#134e4a]'} mb-6 transition-colors`}
           >
             <ArrowLeft className="w-5 h-5" />
             All Templates
           </Link>
 
           <div className="text-center mb-6">
-            <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#26065D]'}`}>
+            <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>
               {categoryName} Templates
             </h1>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm md:text-base max-w-xl mx-auto`}>
@@ -172,7 +172,7 @@ export default function CategoryPage() {
               placeholder={`Search ${categoryName.toLowerCase()} templates...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-[#2a2a2a] text-white placeholder-gray-400 border-[#3a3a3a] focus:ring-[#c4ff0e]/30' : 'bg-white text-[#26065D] placeholder-gray-500 border-gray-200 focus:ring-[#4C00FF]/30'} shadow-lg focus:ring-4 outline-none text-sm border`}
+              className={`w-full pl-12 pr-4 py-3.5 rounded-xl ${isDark ? 'bg-muted text-white placeholder-gray-400 border-border focus:ring-primary/30' : 'bg-white text-[#134e4a] placeholder-gray-500 border-gray-200 focus:ring-[#0d9488]/30'} shadow-lg focus:ring-4 outline-none text-sm border`}
             />
             {searchQuery && (
               <button
@@ -191,16 +191,16 @@ export default function CategoryPage() {
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-            <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'}`}>{categoryTemplates.length}</span> templates
+            <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'}`}>{categoryTemplates.length}</span> templates
             {searchQuery && (
-              <span> matching "<span className={`font-medium ${isDark ? 'text-[#c4ff0e]' : 'text-[#4C00FF]'}`}>{searchQuery}</span>"</span>
+              <span> matching "<span className={`font-medium ${isDark ? 'text-primary' : 'text-[#0d9488]'}`}>{searchQuery}</span>"</span>
             )}
           </p>
-          <div className={`flex items-center gap-2 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-[#EDE5FF] border-gray-200'} rounded-lg border p-1`}>
+          <div className={`flex items-center gap-2 ${isDark ? 'bg-muted border-border' : 'bg-[#ccfbf1] border-gray-200'} rounded-lg border p-1`}>
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
+                viewMode === 'grid' ? isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -208,7 +208,7 @@ export default function CategoryPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
+                viewMode === 'list' ? isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white' : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-600'
               }`}
             >
               <List className="w-5 h-5" />
@@ -229,10 +229,10 @@ export default function CategoryPage() {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className={`group relative ${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]' : 'bg-white border border-gray-200 hover:border-[#4C00FF]'} rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
+                  className={`group relative ${isDark ? 'bg-secondary border-border hover:border-primary' : 'bg-white border border-gray-200 hover:border-[#0d9488]'} rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden`}
                 >
                   {/* Document Preview Thumbnail */}
-                  <div className={`relative h-52 ${isDark ? 'bg-[#2a2a2a] border-[#2a2a2a]' : 'bg-[#EDE5FF] border-gray-200'} border-b overflow-hidden`}>
+                  <div className={`relative h-52 ${isDark ? 'bg-muted border-border' : 'bg-[#ccfbf1] border-gray-200'} border-b overflow-hidden`}>
                     {/* Badges */}
                     <div className="absolute top-2 left-2 z-10 flex gap-1.5">
                       {template.popular && (
@@ -250,7 +250,7 @@ export default function CategoryPage() {
                     </div>
 
                     {/* Mini Document Preview */}
-                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'} border`}>
+                    <div className={`absolute inset-2 bg-white rounded-lg shadow-md overflow-hidden ${isDark ? 'border-border' : 'border-gray-200'} border`}>
                       <div
                         className="w-[400%] h-[400%] origin-top-left transform scale-[0.25] pointer-events-none"
                         dangerouslySetInnerHTML={{ __html: generateMiniPreview(template) }}
@@ -259,7 +259,7 @@ export default function CategoryPage() {
 
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      <span className={`px-4 py-2 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} rounded-full text-sm font-medium shadow-lg flex items-center gap-2`}>
+                      <span className={`px-4 py-2 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} rounded-full text-sm font-medium shadow-lg flex items-center gap-2`}>
                         <Eye className="w-4 h-4" />
                         Preview Template
                       </span>
@@ -270,7 +270,7 @@ export default function CategoryPage() {
                   <div className="p-4">
                     {/* Category Badge */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} text-xs font-medium rounded-full`}>
                         {categoryName}
                       </span>
                       <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -279,7 +279,7 @@ export default function CategoryPage() {
                     </div>
 
                     {/* Title */}
-                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'} transition-colors mb-1 line-clamp-1`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors mb-1 line-clamp-1`}>
                       {template.name}
                     </h3>
 
@@ -294,7 +294,7 @@ export default function CategoryPage() {
                         e.stopPropagation()
                         handleUseTemplate(template)
                       }}
-                      className={`w-full py-2 ${isDark ? 'bg-[#2a2a2a] hover:bg-[#c4ff0e] text-gray-300 hover:text-black' : 'bg-[#EDE5FF] hover:bg-[#4C00FF] text-gray-600 hover:text-white'} rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
+                      className={`w-full py-2 ${isDark ? 'bg-muted hover:bg-primary text-gray-300 hover:text-black' : 'bg-[#ccfbf1] hover:bg-[#0d9488] text-gray-600 hover:text-white'} rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2`}
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -306,10 +306,10 @@ export default function CategoryPage() {
                 <div
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className={`${isDark ? 'bg-[#252525] border-[#2a2a2a] hover:border-[#c4ff0e]' : 'bg-white border border-gray-200 hover:border-[#4C00FF]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group`}
+                  className={`${isDark ? 'bg-secondary border-border hover:border-primary' : 'bg-white border border-gray-200 hover:border-[#0d9488]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group`}
                 >
                   {/* Mini Preview */}
-                  <div className={`w-20 h-28 ${isDark ? 'bg-[#2a2a2a] border-[#3a3a3a]' : 'bg-[#EDE5FF] border-gray-200'} rounded-lg border overflow-hidden flex-shrink-0 relative`}>
+                  <div className={`w-20 h-28 ${isDark ? 'bg-muted border-border' : 'bg-[#ccfbf1] border-gray-200'} rounded-lg border overflow-hidden flex-shrink-0 relative`}>
                     <div
                       className="w-[500%] h-[500%] origin-top-left transform scale-[0.2] pointer-events-none"
                       dangerouslySetInnerHTML={{ __html: generateMiniPreview(template) }}
@@ -318,7 +318,7 @@ export default function CategoryPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 ${isDark ? 'bg-[#c4ff0e] text-black' : 'bg-[#4C00FF] text-white'} text-xs font-medium rounded-full`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 ${isDark ? 'bg-primary text-black' : 'bg-[#0d9488] text-white'} text-xs font-medium rounded-full`}>
                         {categoryName}
                       </span>
                       {template.popular && (
@@ -332,7 +332,7 @@ export default function CategoryPage() {
                         </span>
                       )}
                     </div>
-                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-[#c4ff0e]' : 'text-[#26065D] group-hover:text-[#4C00FF]'} transition-colors`}>
+                    <h3 className={`font-semibold ${isDark ? 'text-white group-hover:text-primary' : 'text-[#134e4a] group-hover:text-[#0d9488]'} transition-colors`}>
                       {template.name}
                     </h3>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} line-clamp-1`}>{template.description}</p>
@@ -344,7 +344,7 @@ export default function CategoryPage() {
                       e.stopPropagation()
                       handleUseTemplate(template)
                     }}
-                    className={`px-4 py-2 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#c4ff0e]/90' : 'bg-[#4C00FF] text-white hover:bg-[#4C00FF]/90'} rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
+                    className={`px-4 py-2 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
                   >
                     Use
                     <ArrowRight className="w-4 h-4" />
@@ -356,16 +356,16 @@ export default function CategoryPage() {
         ) : (
           // No results
           <div className="text-center py-16">
-            <div className={`w-20 h-20 ${isDark ? 'bg-[#2a2a2a]' : 'bg-[#EDE5FF]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+            <div className={`w-20 h-20 ${isDark ? 'bg-muted' : 'bg-[#ccfbf1]'} rounded-full flex items-center justify-center mx-auto mb-4`}>
               <Search className={`w-10 h-10 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             </div>
-            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#26065D]'} mb-2`}>No templates found</h3>
+            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#134e4a]'} mb-2`}>No templates found</h3>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6`}>
               Try adjusting your search to find what you're looking for.
             </p>
             <button
               onClick={() => setSearchQuery('')}
-              className={`px-6 py-3 ${isDark ? 'bg-[#c4ff0e] text-black hover:bg-[#c4ff0e]/90' : 'bg-[#4C00FF] text-white hover:bg-[#4C00FF]/90'} rounded-xl font-medium transition-colors`}
+              className={`px-6 py-3 ${isDark ? 'bg-primary text-black hover:bg-primary/90' : 'bg-[#0d9488] text-white hover:bg-[#0d9488]/90'} rounded-xl font-medium transition-colors`}
             >
               Clear Search
             </button>

@@ -189,38 +189,38 @@ const FeaturesPage: React.FC = () => {
   ]
 
   return (
-    <div className="overflow-hidden bg-[#1F1F1F]">
+    <div className="overflow-hidden bg-white">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-[#1e1e1e] via-[#1F1F1F] to-[#252525]">
+      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-muted/30 via-white to-secondary">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl animate-pulse" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full opacity-10 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary rounded-full opacity-10 blur-3xl animate-pulse" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-[#2a2a2a] rounded-full border border-[#3a3a3a] mb-6">
-              <Sparkles className="w-4 h-4 text-[#c4ff0e]" />
-              <span className="text-[#c4ff0e] text-sm font-medium">All Features Included Free</span>
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-muted rounded-full border border-border mb-6">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-primary text-sm font-medium">All Features Included Free</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-tight mb-6">
               See How
-              <span className="block mt-2 bg-gradient-to-r from-[#c4ff0e] via-[#c4ff0e] to-[#c4ff0e] bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">
                 MamaSign Works
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
               Discover all the powerful features that make MamaSign the ultimate platform for e-signatures, PDF tools, and business documents.
             </p>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-12">
               {stats.map((stat, index) => (
-                <div key={index} className="text-center p-4 bg-[#2a2a2a]/50 backdrop-blur-sm rounded-2xl border border-[#3a3a3a]">
-                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#c4ff0e] to-[#c4ff0e] bg-clip-text text-transparent">
+                <div key={index} className="text-center p-4 bg-muted/50 backdrop-blur-sm rounded-2xl border border-border">
+                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
+                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -229,16 +229,16 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* Why Choose Us - Quick Overview */}
-      <section className="py-12 bg-gradient-to-r from-[#2a2a2a] via-[#1e1e1e] to-[#2a2a2a] border-y border-[#3a3a3a]">
+      <section className="py-12 bg-gradient-to-r from-muted via-muted/30 to-muted border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {whyChooseUs.map((item, index) => (
               <div key={index} className="flex flex-col items-center text-center p-4">
-                <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-[#c4ff0e]/30">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-primary/30">
                   <item.icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="font-semibold text-white mb-1">{item.title}</h3>
-                <p className="text-sm text-gray-400">{item.description}</p>
+                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
@@ -246,14 +246,14 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* All Features - Bullet Points */}
-      <section className="py-16 md:py-24 bg-[#1F1F1F]">
+      <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Complete Feature
-              <span className="bg-gradient-to-r from-[#c4ff0e] via-[#c4ff0e] to-[#c4ff0e] bg-clip-text text-transparent"> Overview</span>
+              <span className="bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent"> Overview</span>
             </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Everything you need to manage documents, get signatures, and run your business efficiently.
             </p>
           </div>
@@ -262,14 +262,14 @@ const FeaturesPage: React.FC = () => {
             {platformFeatures.map((category, index) => (
               <div
                 key={index}
-                className="group bg-[#2a2a2a] rounded-3xl p-6 md:p-8 border border-[#3a3a3a] hover:border-[#c4ff0e] transition-all duration-300 hover:shadow-xl"
+                className="group bg-muted rounded-3xl p-6 md:p-8 border border-border hover:border-primary transition-all duration-300 hover:shadow-xl"
               >
                 {/* Category Header */}
                 <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-14 h-14 bg-[#c4ff0e] rounded-2xl flex items-center justify-center shadow-lg shadow-[#c4ff0e]/30 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300`}>
                     <category.icon className="w-7 h-7 text-black" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-xl font-bold text-foreground">
                     {category.category}
                   </h3>
                 </div>
@@ -279,9 +279,9 @@ const FeaturesPage: React.FC = () => {
                   {category.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-1">
-                        <Check className="w-5 h-5 text-[#c4ff0e]" />
+                        <Check className="w-5 h-5 text-primary" />
                       </div>
-                      <span className="text-gray-300 text-sm leading-relaxed">
+                      <span className="text-muted-foreground text-sm leading-relaxed">
                         {feature}
                       </span>
                     </li>
@@ -294,41 +294,41 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* PDF Tools Highlight */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-[#1e1e1e] to-[#252525]">
+      <section className="py-16 md:py-24 bg-gradient-to-br from-muted/30 to-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-[#2a2a2a] text-[#c4ff0e] px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-muted text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Zap className="w-4 h-4" />
               100% Free - No Sign Up Required
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Free PDF Tools
             </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               All tools work directly in your browser. No uploads, no waiting - complete privacy.
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { name: 'PDF to Word', icon: FileType, href: '/tools/pdf-to-word', color: 'bg-[#c4ff0e]' },
-              { name: 'Compress PDF', icon: Minimize2, href: '/tools/pdf-compressor', color: 'bg-[#c4ff0e]' },
-              { name: 'Merge PDF', icon: Layers, href: '/tools/pdf-merge', color: 'bg-[#c4ff0e]' },
-              { name: 'Split PDF', icon: Scissors, href: '/tools/pdf-split', color: 'bg-[#c4ff0e]' },
-              { name: 'Image to PDF', icon: Image, href: '/tools/image-to-pdf', color: 'bg-[#c4ff0e]' },
-              { name: 'Word to PDF', icon: FileText, href: '/tools/word-to-pdf', color: 'bg-[#c4ff0e]' },
-              { name: 'Watermark PDF', icon: Droplets, href: '/tools/watermark-pdf', color: 'bg-[#c4ff0e]' },
-              { name: 'Sign Document', icon: PenTool, href: '/sign-document', color: 'bg-[#c4ff0e]' },
+              { name: 'PDF to Word', icon: FileType, href: '/tools/pdf-to-word', color: 'bg-primary' },
+              { name: 'Compress PDF', icon: Minimize2, href: '/tools/pdf-compressor', color: 'bg-primary' },
+              { name: 'Merge PDF', icon: Layers, href: '/tools/pdf-merge', color: 'bg-primary' },
+              { name: 'Split PDF', icon: Scissors, href: '/tools/pdf-split', color: 'bg-primary' },
+              { name: 'Image to PDF', icon: Image, href: '/tools/image-to-pdf', color: 'bg-primary' },
+              { name: 'Word to PDF', icon: FileText, href: '/tools/word-to-pdf', color: 'bg-primary' },
+              { name: 'Watermark PDF', icon: Droplets, href: '/tools/watermark-pdf', color: 'bg-primary' },
+              { name: 'Sign Document', icon: PenTool, href: '/sign-document', color: 'bg-primary' },
             ].map((tool, index) => (
               <Link
                 key={index}
                 href={tool.href}
-                className="group p-4 md:p-6 bg-[#2a2a2a] rounded-2xl border border-[#3a3a3a] hover:border-[#c4ff0e] hover:shadow-xl hover:shadow-[#c4ff0e]/10 transition-all duration-300"
+                className="group p-4 md:p-6 bg-muted rounded-2xl border border-border hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all duration-300"
               >
                 <div className={`w-12 h-12 ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
                   <tool.icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="font-semibold text-white group-hover:text-[#c4ff0e] transition-colors">
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                   {tool.name}
                 </h3>
               </Link>
@@ -338,7 +338,7 @@ const FeaturesPage: React.FC = () => {
           <div className="text-center mt-10">
             <Link
               href="/tools"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#c4ff0e] text-black font-medium rounded-full hover:shadow-lg hover:shadow-[#c4ff0e]/30 transition-all duration-300 hover:scale-105"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-full hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-105"
             >
               View All Tools
               <ArrowRight className="w-5 h-5" />
@@ -348,19 +348,19 @@ const FeaturesPage: React.FC = () => {
       </section>
 
       {/* Value Proposition */}
-      <section className="py-16 bg-[#1F1F1F] border-y border-[#3a3a3a]">
+      <section className="py-16 bg-white border-y border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xl md:text-2xl text-gray-300 mb-6">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-6">
             E-signatures, PDF tools, invoices, and templates &mdash; everything you need to manage documents, in one platform.
           </p>
-          <p className="text-lg text-gray-400">
+          <p className="text-lg text-muted-foreground">
             Pay once, use forever. No subscriptions, no hidden fees.
           </p>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-[#c4ff0e] relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-72 h-72 bg-black/10 rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-black/10 rounded-full blur-3xl" />
@@ -376,7 +376,7 @@ const FeaturesPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/sign-document"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-[#c4ff0e] bg-black rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-primary bg-black rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
               Start Signing Free
               <ArrowRight className="w-5 h-5 ml-2" />

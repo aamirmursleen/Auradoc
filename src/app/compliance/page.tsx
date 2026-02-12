@@ -181,32 +181,32 @@ const CompliancePage: React.FC = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-20 bg-[#1e1e1e]">
+      <section className="relative py-20 bg-muted/30">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#c4ff0e] rounded-full opacity-10 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full opacity-10 blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary rounded-full opacity-10 blur-3xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
               <FileCheck className="w-8 h-8 text-black" />
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-tight mb-6">
               Compliance &
-              <span className="block mt-2 text-[#c4ff0e]">
+              <span className="block mt-2 text-primary">
                 Certifications
               </span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               MamaSign meets the highest standards for security and compliance, helping you meet your regulatory requirements with confidence.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-black bg-[#c4ff0e] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-black bg-primary rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                 Request Compliance Pack
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
-              <a href="#regulations" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-300 bg-[#1e1e1e]/80 border-2 border-[#2a2a2a]/50 rounded-xl hover:border-[#c4ff0e] hover:bg-[#2a2a2a]/80 transition-all duration-300">
+              <a href="#regulations" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-muted-foreground bg-muted/20 border-2 border-border/50 rounded-xl hover:border-primary hover:bg-muted/80 transition-all duration-300">
                 View Certifications
               </a>
             </div>
@@ -215,7 +215,7 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Certifications Overview */}
-      <section className="py-16 bg-[#1e1e1e]">
+      <section className="py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -225,11 +225,11 @@ const CompliancePage: React.FC = () => {
               { name: 'HIPAA', status: 'Ready' },
             ].map((cert, index) => (
               <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-[#c4ff0e] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Award className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-1">{cert.name}</h3>
-                <span className="text-[#c4ff0e] text-sm font-medium">{cert.status}</span>
+                <h3 className="text-xl font-bold text-foreground mb-1">{cert.name}</h3>
+                <span className="text-primary text-sm font-medium">{cert.status}</span>
               </div>
             ))}
           </div>
@@ -237,39 +237,39 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Regulations */}
-      <section id="regulations" className="py-20 bg-[#1e1e1e]/80">
+      <section id="regulations" className="py-20 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Regulatory Compliance
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We help you meet compliance requirements across multiple regulations and jurisdictions
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {regulations.map((reg) => (
-              <div key={reg.id} className="bg-[#1e1e1e]/80 border border-[#2a2a2a]/50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300">
+              <div key={reg.id} className="bg-muted/20 border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
                     <reg.icon className="w-6 h-6 text-black" />
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    reg.status === 'Certified' ? 'bg-[#c4ff0e]/20 text-[#c4ff0e]' :
-                    reg.status === 'Compliant' ? 'bg-[#c4ff0e]/20 text-[#c4ff0e]' :
+                    reg.status === 'Certified' ? 'bg-primary/20 text-primary' :
+                    reg.status === 'Compliant' ? 'bg-primary/20 text-primary' :
                     'bg-yellow-500/20 text-yellow-400'
                   }`}>
                     {reg.status}
                   </span>
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-1">{reg.name}</h3>
-                <p className="text-sm text-[#c4ff0e] mb-3">{reg.region}</p>
-                <p className="text-gray-300 text-sm mb-4">{reg.description}</p>
+                <h3 className="text-xl font-semibold text-foreground mb-1">{reg.name}</h3>
+                <p className="text-sm text-primary mb-3">{reg.region}</p>
+                <p className="text-muted-foreground text-sm mb-4">{reg.description}</p>
                 <ul className="space-y-2">
                   {reg.features.map((feature, i) => (
-                    <li key={i} className="flex items-start text-sm text-gray-300">
-                      <CheckCircle className="w-4 h-4 text-[#c4ff0e] mr-2 flex-shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start text-sm text-muted-foreground">
+                      <CheckCircle className="w-4 h-4 text-primary mr-2 flex-shrink-0 mt-0.5" />
                       {feature}
                     </li>
                   ))}
@@ -281,27 +281,27 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Industry Compliance */}
-      <section className="py-20 bg-[#1e1e1e]/80">
+      <section className="py-20 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Industry-Specific Compliance
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We understand the unique compliance needs of different industries
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {industries.map((industry, index) => (
-              <div key={index} className="bg-[#1e1e1e]/80 rounded-xl p-8 border border-[#2a2a2a]/50 hover:shadow-lg transition-all duration-300">
-                <div className="w-12 h-12 bg-[#c4ff0e] rounded-xl flex items-center justify-center mb-4">
+              <div key={index} className="bg-muted/20 rounded-xl p-8 border border-border/50 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4">
                   <industry.icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-4">{industry.name}</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">{industry.name}</h3>
                 <div className="flex flex-wrap gap-2">
                   {industry.regulations.map((reg, i) => (
-                    <span key={i} className="px-3 py-1 bg-[#2a2a2a] text-gray-300 text-xs rounded-full">
+                    <span key={i} className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
                       {reg}
                     </span>
                   ))}
@@ -313,39 +313,39 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* Documentation */}
-      <section className="py-20 bg-[#1e1e1e]/80">
+      <section className="py-20 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Compliance Documentation
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Access the documentation you need for your compliance requirements
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {documents.map((doc, index) => (
-              <div key={index} className="flex items-center justify-between p-6 bg-[#1e1e1e]/80 border border-[#2a2a2a]/50 rounded-xl hover:bg-[#c4ff0e]/20 transition-colors cursor-pointer">
+              <div key={index} className="flex items-center justify-between p-6 bg-muted/20 border border-border/50 rounded-xl hover:bg-primary/20 transition-colors cursor-pointer">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-[#c4ff0e]/20 rounded-lg flex items-center justify-center mr-4">
-                    <FileText className="w-5 h-5 text-[#c4ff0e]" />
+                  <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center mr-4">
+                    <FileText className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">{doc.name}</h4>
-                    <p className="text-sm text-gray-300">{doc.description}</p>
+                    <h4 className="font-medium text-foreground">{doc.name}</h4>
+                    <p className="text-sm text-muted-foreground">{doc.description}</p>
                   </div>
                 </div>
-                <Download className="w-5 h-5 text-gray-300" />
+                <Download className="w-5 h-5 text-muted-foreground" />
               </div>
             ))}
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-gray-300 mb-4">
+            <p className="text-muted-foreground mb-4">
               Need additional documentation for your compliance review?
             </p>
-            <Link href="/contact" className="inline-flex items-center text-[#c4ff0e] font-medium hover:text-[#c4ff0e]/80">
+            <Link href="/contact" className="inline-flex items-center text-primary font-medium hover:text-primary/80">
               Contact our compliance team
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -354,25 +354,25 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-[#1e1e1e]/80">
+      <section className="py-20 bg-muted/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Compliance FAQ
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-muted-foreground">
               Common questions about e-signature compliance
             </p>
           </div>
 
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <div key={index} className="bg-[#1e1e1e]/80 rounded-xl p-6 border border-[#2a2a2a]/50">
-                <h3 className="flex items-start text-lg font-semibold text-white mb-3">
-                  <HelpCircle className="w-5 h-5 text-[#c4ff0e] mr-3 flex-shrink-0 mt-0.5" />
+              <div key={index} className="bg-muted/20 rounded-xl p-6 border border-border/50">
+                <h3 className="flex items-start text-lg font-semibold text-foreground mb-3">
+                  <HelpCircle className="w-5 h-5 text-primary mr-3 flex-shrink-0 mt-0.5" />
                   {faq.question}
                 </h3>
-                <p className="text-gray-300 ml-8">{faq.answer}</p>
+                <p className="text-muted-foreground ml-8">{faq.answer}</p>
               </div>
             ))}
           </div>
@@ -380,7 +380,7 @@ const CompliancePage: React.FC = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#c4ff0e]">
+      <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FileCheck className="w-16 h-16 text-black/80 mx-auto mb-6" />
           <h2 className="text-3xl sm:text-4xl font-bold text-black mb-4">
@@ -390,7 +390,7 @@ const CompliancePage: React.FC = () => {
             Our team can help you understand how MamaSign meets your specific compliance requirements.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-[#c4ff0e] bg-black rounded-lg shadow-lg hover:bg-[#1e1e1e] transition-all duration-300">
+            <Link href="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-primary bg-black rounded-lg shadow-lg hover:bg-gray-800 transition-all duration-300">
               Talk to Compliance Team
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
