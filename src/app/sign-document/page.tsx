@@ -961,7 +961,7 @@ const SignDocumentPage: React.FC = () => {
     setPlacedFields(prev => [...prev, newField])
     setSelectedFieldId(newField.id)
     setDraggedFieldType(null)
-    setShowPropertiesPanel(true)
+    // Field properties panel disabled
   }, [draggedFieldType, zoom, currentPage, activeSigner, imageDimensions, isPDF])
 
   // Handle field drag start from sidebar
@@ -993,7 +993,7 @@ const SignDocumentPage: React.FC = () => {
       xPercent: field.xPercent,
       yPercent: field.yPercent
     }
-    setShowPropertiesPanel(true)
+    // Field properties panel disabled
   }, [placedFields])
 
   // Handle mouse move for dragging fields
@@ -1847,7 +1847,7 @@ const SignDocumentPage: React.FC = () => {
               e.stopPropagation()
               if (!locked) {
                 setSelectedFieldId(field.id)
-                setShowPropertiesPanel(true)
+                // Field properties panel disabled
               }
             }}
           >
@@ -2525,7 +2525,7 @@ const SignDocumentPage: React.FC = () => {
                         setSelectedFieldId(newField.id)
                         setDraggedFieldType(null)
                         setMobileFieldToPlace(null)
-                        setShowPropertiesPanel(true)
+                        // Field properties panel disabled
 
                         // Auto-open editing for text fields, signature/stamp modals for those types
                         const textTypes = ['text', 'name', 'firstName', 'lastName', 'email', 'company', 'title']
@@ -2603,7 +2603,7 @@ const SignDocumentPage: React.FC = () => {
                               }
                               if (!isEditing) {
                                 setSelectedFieldId(field.id)
-                                setShowPropertiesPanel(true)
+                                // Field properties panel disabled
                               }
                             }}
                             onDoubleClick={(e) => {
@@ -3141,7 +3141,7 @@ const SignDocumentPage: React.FC = () => {
                         setSelectedFieldId(newField.id)
                         setDraggedFieldType(null)
                         setMobileFieldToPlace(null)
-                        setShowPropertiesPanel(true)
+                        // Field properties panel disabled
 
                         // Auto-open editing for text fields, signature/stamp modals for those types
                         const textTypes = ['text', 'name', 'firstName', 'lastName', 'email', 'company', 'title']
@@ -3229,7 +3229,7 @@ const SignDocumentPage: React.FC = () => {
                               setEditingFieldId(field.id)
                             }
                             setSelectedFieldId(field.id)
-                            setShowPropertiesPanel(true)
+                            // Field properties panel disabled
                           }}
                         >
                           {/* Lock icon for locked fields */}
