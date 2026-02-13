@@ -18,7 +18,7 @@ export default function DashboardTopbar({ onMenuToggle }: DashboardTopbarProps) 
         {/* Mobile menu button */}
         <button
           onClick={onMenuToggle}
-          className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="lg:hidden p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <Menu className="w-5 h-5" />
         </button>
