@@ -2164,6 +2164,39 @@ const SignDocumentPage: React.FC = () => {
                 </option>
               ))}
             </select>
+            {/* Name & Email inputs for active signer */}
+            {(() => {
+              const activeSigner = signers.find(s => s.id === activeSignerId)
+              if (!activeSigner) return null
+              return (
+                <div className="mt-2 space-y-1.5">
+                  <input
+                    type="text"
+                    placeholder="Name..."
+                    value={activeSigner.name}
+                    onChange={(e) => updateSigner(activeSigner.id, 'name', e.target.value)}
+                    readOnly={activeSigner.is_self}
+                    className={`w-full px-2 py-1.5 rounded-lg text-sm ${activeSigner.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-muted border border-border text-foreground focus:ring-1 focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-gray-800 focus:ring-1 focus:ring-[#0d9488]/50'}`}
+                  />
+                  {activeSigner.is_self ? (
+                    <input
+                      type="email"
+                      value={activeSigner.email}
+                      readOnly
+                      className={`w-full px-2 py-1.5 rounded-lg text-sm cursor-default ${isDark ? 'bg-muted border border-border text-muted-foreground' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
+                    />
+                  ) : (
+                    <input
+                      type="email"
+                      placeholder="Email..."
+                      value={activeSigner.email}
+                      onChange={(e) => updateSigner(activeSigner.id, 'email', e.target.value)}
+                      className={`w-full px-2 py-1.5 rounded-lg text-sm ${isDark ? 'bg-muted border border-border text-foreground focus:ring-1 focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-gray-800 focus:ring-1 focus:ring-[#0d9488]/50'}`}
+                    />
+                  )}
+                </div>
+              )
+            })()}
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-3">
