@@ -291,12 +291,11 @@ const DocumentEditorInner: React.FC = () => {
     drop: (item: any, monitor) => {
       const offset = monitor.getClientOffset()
       const containerRect = pagesContainerRef.current?.getBoundingClientRect()
-      const scrollTop = scrollContainerRef.current?.scrollTop || 0
 
       if (!offset || !containerRect || !pdfRendered) return
 
       const relativeX = offset.x - containerRect.left
-      const relativeY = offset.y - containerRect.top + scrollTop
+      const relativeY = offset.y - containerRect.top
 
       // Determine which page
       const pageNum = getPageFromY(relativeY)
