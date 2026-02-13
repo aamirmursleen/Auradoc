@@ -2183,7 +2183,7 @@ const SignDocumentPage: React.FC = () => {
                       {!signer.is_self && signers.length > 1 && (
                         <button
                           onClick={(e) => { e.stopPropagation(); removeSigner(signer.id) }}
-                          className={`p-0.5 rounded flex-shrink-0 transition-colors ${isDark ? 'text-muted-foreground hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+                          className={`p-0.5 rounded flex-shrink-0 transition-colors ${isDark ? 'text-red-400 hover:bg-red-400/10' : 'text-red-500 hover:bg-red-50'}`}
                           title="Remove Signer"
                         >
                           <X className="w-3 h-3" />
