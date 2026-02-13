@@ -2059,6 +2059,15 @@ const SignDocumentPage: React.FC = () => {
         {/* Desktop Right side - Actions */}
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
 
+          {/* New Document button */}
+          <button
+            onClick={uploadNewDocument}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${isDark ? 'text-muted-foreground hover:bg-muted hover:text-foreground' : 'text-gray-500 hover:bg-gray-100 hover:text-[#134e4a]'}`}
+          >
+            <Upload className="w-4 h-4" />
+            <span className="hidden lg:inline">New Document</span>
+          </button>
+
           {/* Desktop buttons */}
           <button
             onClick={() => { setShowShareModal(true); handleShare(); }}
