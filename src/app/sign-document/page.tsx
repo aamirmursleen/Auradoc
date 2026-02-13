@@ -2130,180 +2130,40 @@ const SignDocumentPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Sidebar - Signers & Field Types (Hidden on mobile) */}
-        <div className={`hidden md:flex w-64 lg:w-80 flex-col overflow-hidden ${isDark ? 'bg-secondary border-r border-border' : 'bg-white border-r border-gray-200'}`}>
-          <div className="flex-1 overflow-y-auto">
-            {/* Signers List */}
-            {signers.map((signer, idx) => (
-              <div key={signer.id} className={`${isDark ? 'border-b border-border' : 'border-b border-gray-200'}`}>
-                {/* Signer Header */}
-                <div
-                  className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                    activeSignerId === signer.id
-                      ? (isDark ? 'bg-muted' : 'bg-[#ccfbf1]')
-                      : (isDark ? 'hover:bg-muted' : 'hover:bg-gray-50')
-                  }`}
-                  onClick={() => {
-                    setActiveSignerId(signer.id)
-                    setUserToggledExpand(true)
-                    setExpandedSignerId(expandedSignerId === signer.id ? null : signer.id)
-                  }}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                      style={{ backgroundColor: signer.color }}
-                    >
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder="Enter name..."
-                          value={signer.name}
-                          onChange={(e) => {
-                            e.stopPropagation()
-                            updateSigner(signer.id, 'name', e.target.value)
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className={`font-semibold bg-transparent outline-none border-b border-transparent transition-colors w-full max-w-[140px] ${isDark ? 'text-foreground hover:border-border focus:border-primary placeholder-muted-foreground' : 'text-[#134e4a] hover:border-gray-300 focus:border-[#0d9488] placeholder-gray-400'}`}
-                        />
-                        {signer.is_self && (
-                          <span className={`text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${isDark ? 'bg-primary/20 text-primary' : 'bg-[#0d9488]/20 text-[#0d9488]'}`}>Me</span>
-                        )}
-                      </div>
-                      <p className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
-                        {placedFields.filter(f => f.signerId === signer.id).length} fields
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {signers.length > 1 && !signer.is_self && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          removeSigner(signer.id)
-                        }}
-                        className={`p-1 rounded text-red-400 ${isDark ? 'hover:bg-red-50' : 'hover:bg-red-50'}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                    <ChevronDown
-                      className={`w-5 h-5 transition-transform ${isDark ? 'text-muted-foreground' : 'text-gray-500'} ${
-                        (expandedSignerId === signer.id || (!userToggledExpand && activeSignerId === signer.id)) ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </div>
-                </div>
+        {/* Left Sidebar - Compact Fields Panel (DocuSign style) */}
+        <div className={`hidden md:flex w-48 flex-col flex-shrink-0 overflow-hidden ${isDark ? 'bg-secondary border-r border-border' : 'bg-white border-r border-gray-200'}`}>
+          <div className="flex-1 overflow-y-auto px-4 py-4">
+            {/* FIELDS Header */}
+            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Fields</p>
 
-                {/* Expanded Signer Content - auto-expand active signer until user manually toggles */}
-                {(expandedSignerId === signer.id || (!userToggledExpand && activeSignerId === signer.id)) && (
-                  <div className="px-3 pb-4 space-y-3">
-                    {/* Name Input */}
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? 'bg-muted border border-border' : 'bg-gray-50 border border-gray-200'}`}>
-                      <User className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
-                      <input
-                        type="text"
-                        placeholder="Enter signer name..."
-                        value={signer.name}
-                        onChange={(e) => updateSigner(signer.id, 'name', e.target.value)}
-                        className={`flex-1 bg-transparent text-sm outline-none ${isDark ? 'text-foreground placeholder-muted-foreground' : 'text-[#134e4a] placeholder-gray-400'}`}
-                      />
-                    </div>
-                    {/* Email Input */}
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? 'bg-muted border border-border' : 'bg-gray-50 border border-gray-200'}`}>
-                      <Mail className={`w-4 h-4 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`} />
-                      <input
-                        type="email"
-                        placeholder="Enter email address..."
-                        value={signer.email}
-                        onChange={(e) => updateSigner(signer.id, 'email', e.target.value)}
-                        className={`flex-1 bg-transparent text-sm outline-none ${isDark ? 'text-foreground placeholder-muted-foreground' : 'text-[#134e4a] placeholder-gray-400'}`}
-                      />
-                    </div>
-
-                    {/* Fields Section */}
-                    <div className="space-y-3">
-                      {/* Signature Fields */}
-                      <div>
-                        <p className={`text-xs font-semibold mb-2 uppercase tracking-wide ${isDark ? 'text-purple-400' : 'text-[#0d9488]'}`}>Fields</p>
-                        <div className="space-y-1">
-                          {SIGNATURE_FIELDS.map(field => renderFieldButton(field))}
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className={`border-t ${isDark ? 'border-border' : 'border-gray-200'}`} />
-
-                      {/* Contact Fields */}
-                      <div>
-                        <div className="space-y-1">
-                          {CONTACT_FIELDS.map(field => renderFieldButton(field))}
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className={`border-t ${isDark ? 'border-border' : 'border-gray-200'}`} />
-
-                      {/* Other Fields */}
-                      <div>
-                        <div className="space-y-1">
-                          {OTHER_FIELDS.map(field => renderFieldButton(field))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* Add Signer Button */}
-            <div className={`flex flex-col gap-2 p-3 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
-              <button
-                onClick={addSigner}
-                className={`w-full flex items-center justify-center gap-2 p-3 rounded-lg transition-colors ${isDark ? 'text-primary hover:bg-primary/10' : 'text-[#0d9488] hover:bg-[#0d9488]/10'}`}
-              >
-                <Plus className="w-5 h-5" />
-                <span className="font-medium">Add Other Signer</span>
-              </button>
+            {/* Signature Fields */}
+            <div className="space-y-0.5">
+              {SIGNATURE_FIELDS.map(field => renderFieldButton(field))}
             </div>
 
-            {/* Complete My Signing Button */}
-            {(() => {
-              const selfSigner = signers.find(s => s.is_self)
-              const selfFields = selfSigner ? placedFields.filter(f => f.signerId === selfSigner.id) : []
-              const allSelfFieldsFilled = selfFields.length > 0 && selfFields.every(f => !!f.value)
-              if (!selfSigner || selfFields.length === 0) return null
-              return (
-                <div className={`p-3 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
-                  {myselfSigned ? (
-                    <div className={`flex items-center justify-center gap-2 p-3 rounded-xl ${isDark ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
-                      <Lock className="w-4 h-4" />
-                      <span className="font-medium text-sm">My Signing Complete</span>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setMyselfSigned(true)}
-                      disabled={!allSelfFieldsFilled}
-                      className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-green-600 text-white hover:bg-green-500 disabled:bg-green-100' : 'bg-green-600 text-white hover:bg-green-700'}`}
-                    >
-                      <PenLine className="w-4 h-4" />
-                      Complete My Signing
-                    </button>
-                  )}
-                </div>
-              )
-            })()}
+            {/* Divider */}
+            <div className={`border-t my-3 ${isDark ? 'border-border' : 'border-gray-200'}`} />
+
+            {/* Contact Fields */}
+            <div className="space-y-0.5">
+              {CONTACT_FIELDS.map(field => renderFieldButton(field))}
+            </div>
+
+            {/* Divider */}
+            <div className={`border-t my-3 ${isDark ? 'border-border' : 'border-gray-200'}`} />
+
+            {/* Other Fields */}
+            <div className="space-y-0.5">
+              {OTHER_FIELDS.map(field => renderFieldButton(field))}
+            </div>
           </div>
         </div>
 
         {/* Center - Document Viewer */}
-        <div className={`flex-1 flex flex-col overflow-hidden ${isDark ? 'bg-muted/30' : 'bg-white'}`}>
-          {/* Toolbar - Responsive */}
+        <div className={`flex-1 flex flex-col overflow-hidden ${isDark ? 'bg-muted/30' : 'bg-gray-100'}`}>
+          {/* Toolbar - Hidden on desktop for max document space, visible on mobile */}
           {document && (
-            <div className={`px-2 md:px-4 py-2 flex items-center justify-between md:justify-center ${isDark ? 'bg-secondary border-b border-border' : 'bg-gray-50 border-b border-gray-200'}`}>
+            <div className={`px-2 md:px-4 py-2 flex items-center justify-between md:justify-center md:hidden ${isDark ? 'bg-secondary border-b border-border' : 'bg-gray-50 border-b border-gray-200'}`}>
               <div className="flex items-center gap-2 md:gap-4">
                 <div className="flex items-center gap-1 md:gap-2">
                   <button
