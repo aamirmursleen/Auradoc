@@ -2180,6 +2180,15 @@ const SignDocumentPage: React.FC = () => {
                         className={`flex-1 min-w-0 px-2 py-1 rounded text-xs focus:ring-1 ${signer.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-white border border-gray-200 text-gray-800 focus:ring-[#0d9488]/50'}`}
                       />
                       <span className={`text-[10px] flex-shrink-0 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>{signerFields.length} fields</span>
+                      {!signer.is_self && signers.length > 1 && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeSigner(signer.id) }}
+                          className={`p-0.5 rounded flex-shrink-0 transition-colors ${isDark ? 'text-muted-foreground hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+                          title="Remove Signer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                     <div className="pl-8">
                       {signer.is_self ? (
