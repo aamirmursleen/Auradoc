@@ -154,7 +154,8 @@ const DocumentsPage: React.FC = () => {
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
 
   const loadDocuments = useCallback(async (showLoader = true) => {
-    if (!isLoaded || !user) return
+    if (!isLoaded) return
+    if (!user) { setLoading(false); return }
     try {
       if (showLoader) setLoading(true)
       const email = user.emailAddresses?.[0]?.emailAddress || ''
