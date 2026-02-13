@@ -2160,7 +2160,7 @@ const SignDocumentPage: React.FC = () => {
                 return (
                   <div
                     key={signer.id}
-                    className={`p-2 rounded-lg cursor-pointer transition-all ${isActive ? (isDark ? 'bg-muted ring-1 ring-primary/50' : 'bg-gray-50 ring-1 ring-[#0d9488]/30') : (isDark ? 'hover:bg-muted/50' : 'hover:bg-gray-50')}`}
+                    className={`p-2 rounded-lg cursor-pointer transition-all ${isActive ? (isDark ? 'bg-primary/20 ring-1 ring-primary' : 'bg-[#0d9488]/10 ring-1 ring-[#0d9488]/50') : (isDark ? 'hover:bg-muted/50' : 'hover:bg-gray-50')}`}
                     onClick={() => setActiveSignerId(signer.id)}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
