@@ -31,7 +31,10 @@ import {
   Users,
   Ban,
   RotateCw,
-  XCircle
+  XCircle,
+  FolderOpen,
+  FolderPlus,
+  Pencil,
 } from 'lucide-react'
 import { getUserDocuments, deleteDocument, getUserSigningRequests, deleteSigningRequest, getInboxSigningRequests, SigningRequest } from '@/lib/documents'
 import { Document, DocumentStatus } from '@/lib/types'
@@ -127,6 +130,15 @@ const DocumentsPage: React.FC = () => {
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  // Folder state
+  interface Folder { id: string; name: string; color: string; parent_id: string | null }
+  const [folders, setFolders] = useState<Folder[]>([])
+  const [activeFolder, setActiveFolder] = useState<string | null>(null)
+  const [showFolderInput, setShowFolderInput] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [editingFolder, setEditingFolder] = useState<string | null>(null)
+  const [editFolderName, setEditFolderName] = useState('')
+
   // Tab state from URL param
   const activeTab = (searchParams.get('tab') as DashboardTab) || 'all'
   const setActiveTab = (tab: DashboardTab) => {
@@ -209,6 +221,61 @@ const DocumentsPage: React.FC = () => {
   })
 
   useEffect(() => { loadDocuments() }, [loadDocuments])
+
+  // Fetch folders
+  const fetchFolders = useCallback(async () => {
+    try {
+      const res = await fetch('/api/folders')
+      const json = await res.json()
+      if (json.success) setFolders(json.data || [])
+    } catch {}
+  }, [])
+
+  useEffect(() => { if (user) fetchFolders() }, [user, fetchFolders])
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return
+    try {
+      const res = await fetch('/api/folders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newFolderName.trim() }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setFolders(prev => [...prev, json.data])
+        setNewFolderName('')
+        setShowFolderInput(false)
+      }
+    } catch {}
+  }
+
+  const handleRenameFolder = async (id: string) => {
+    if (!editFolderName.trim()) return
+    try {
+      const res = await fetch(`/api/folders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editFolderName.trim() }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setFolders(prev => prev.map(f => f.id === id ? { ...f, name: editFolderName.trim() } : f))
+        setEditingFolder(null)
+      }
+    } catch {}
+  }
+
+  const handleDeleteFolder = async (id: string) => {
+    try {
+      const res = await fetch(`/api/folders/${id}`, { method: 'DELETE' })
+      const json = await res.json()
+      if (json.success) {
+        setFolders(prev => prev.filter(f => f.id !== id))
+        if (activeFolder === id) setActiveFolder(null)
+      }
+    } catch {}
+  }
 
   useEffect(() => {
     if (!user) return
@@ -588,6 +655,90 @@ const DocumentsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Folders Bar */}
+      {folders.length > 0 || showFolderInput ? (
+        <div className="mb-4 flex items-center gap-2 flex-wrap">
+          <FolderOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+          <button
+            onClick={() => setActiveFolder(null)}
+            className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+              !activeFolder ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:bg-secondary'
+            }`}
+          >
+            All
+          </button>
+          {folders.map(f => (
+            <div key={f.id} className="relative group">
+              {editingFolder === f.id ? (
+                <form onSubmit={e => { e.preventDefault(); handleRenameFolder(f.id) }} className="flex items-center gap-1">
+                  <input
+                    value={editFolderName}
+                    onChange={e => setEditFolderName(e.target.value)}
+                    className="px-2 py-1 text-xs border border-border rounded bg-background w-24"
+                    autoFocus
+                    onBlur={() => setEditingFolder(null)}
+                  />
+                </form>
+              ) : (
+                <button
+                  onClick={() => setActiveFolder(activeFolder === f.id ? null : f.id)}
+                  className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                    activeFolder === f.id ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:bg-secondary'
+                  }`}
+                >
+                  {f.name}
+                </button>
+              )}
+              <div className="absolute -top-1 -right-1 hidden group-hover:flex gap-0.5">
+                <button
+                  onClick={() => { setEditingFolder(f.id); setEditFolderName(f.name) }}
+                  className="w-4 h-4 bg-background border border-border rounded-full flex items-center justify-center hover:bg-secondary"
+                >
+                  <Pencil className="w-2.5 h-2.5" />
+                </button>
+                <button
+                  onClick={() => handleDeleteFolder(f.id)}
+                  className="w-4 h-4 bg-background border border-border rounded-full flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <XCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {showFolderInput ? (
+            <form onSubmit={e => { e.preventDefault(); handleCreateFolder() }} className="flex items-center gap-1">
+              <input
+                value={newFolderName}
+                onChange={e => setNewFolderName(e.target.value)}
+                placeholder="Folder name"
+                className="px-2 py-1 text-xs border border-border rounded bg-background w-28"
+                autoFocus
+                onBlur={() => { if (!newFolderName.trim()) setShowFolderInput(false) }}
+              />
+              <button type="submit" className="text-xs text-primary hover:underline">Add</button>
+            </form>
+          ) : (
+            <button
+              onClick={() => setShowFolderInput(true)}
+              className="px-2 py-1 text-xs rounded-full border border-dashed border-border text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1"
+            >
+              <FolderPlus className="w-3 h-3" />
+              New
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowFolderInput(true)}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+          >
+            <FolderPlus className="w-3.5 h-3.5" />
+            Create folder to organize documents
+          </button>
+        </div>
+      )}
 
       {/* Tab Bar */}
       <div className="mb-6 overflow-x-auto">
