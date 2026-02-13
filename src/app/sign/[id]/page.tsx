@@ -268,15 +268,16 @@ export default function SignDocumentPage() {
   }
 
   // Field editing state (position, size, formatting)
+  // fieldPositions stores custom positions as 0-1 fractions (percentage of page dimensions)
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
   const [showFormatting, setShowFormatting] = useState(false)
-  const [fieldPositions, setFieldPositions] = useState<Record<string, { x: number; y: number; width: number; height: number }>>({})
+  const [fieldPositions, setFieldPositions] = useState<Record<string, { xPct: number; yPct: number; wPct: number; hPct: number }>>({})
   const [fieldFormatting, setFieldFormatting] = useState<Record<string, { fontSize: number; fontFamily: string; bold: boolean; italic: boolean; color: string }>>({})
   const [signatureScales, setSignatureScales] = useState<Record<string, number>>({})
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
-  const [dragStart, setDragStart] = useState<{ x: number; y: number; fieldX: number; fieldY: number } | null>(null)
-  const [resizeStart, setResizeStart] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
+  const [dragStart, setDragStart] = useState<{ mouseX: number; mouseY: number; xPct: number; yPct: number } | null>(null)
+  const [resizeStart, setResizeStart] = useState<{ mouseX: number; mouseY: number; wPct: number; hPct: number } | null>(null)
 
   const pagesContainerRef = useRef<HTMLDivElement>(null)
   const documentContainerRef = useRef<HTMLDivElement>(null)
@@ -682,12 +683,54 @@ export default function SignDocumentPage() {
     setActiveFieldId(null)
   }
 
-  // Get field position (custom or original)
-  const getCustomFieldPosition = (field: SignatureFieldInfo) => {
+  // Get field position as 0-1 fractions (custom drag position or original)
+  const getFieldFractions = (field: SignatureFieldInfo): { xPct: number; yPct: number; wPct: number; hPct: number } => {
     if (fieldPositions[field.id]) {
       return fieldPositions[field.id]
     }
-    return { x: field.x, y: field.y, width: field.width, height: field.height }
+    // Convert original field position to 0-1 fractions
+    if (field.xPercent !== undefined && field.yPercent !== undefined &&
+        field.widthPercent !== undefined && field.heightPercent !== undefined) {
+      return { xPct: field.xPercent, yPct: field.yPercent, wPct: field.widthPercent, hPct: field.heightPercent }
+    }
+    // Legacy: no percentage data available, return 0 (will fall back to pixel rendering)
+    return { xPct: 0, yPct: 0, wPct: 0, hPct: 0 }
+  }
+
+  // Check if a field uses percentage-based coordinates
+  const isPercentageField = (field: SignatureFieldInfo): boolean => {
+    return field.xPercent !== undefined || fieldPositions[field.id] !== undefined
+  }
+
+  // Get the pixel position for a field at current scale (including custom drag positions)
+  const getFieldPixelPosition = (field: SignatureFieldInfo) => {
+    const pageNum = field.page || field.pageNumber || 1
+    const pageIndex = pageNum - 1
+    let topOffset = 0
+    for (let i = 0; i < pageNum - 1; i++) topOffset += (pageHeights[i] || 842) + 4
+
+    const pageW = pageWidths[pageIndex] || 595 * scale
+    const pageH = pageHeights[pageIndex] || 842 * scale
+
+    if (isPercentageField(field)) {
+      const frac = getFieldFractions(field)
+      return {
+        left: frac.xPct * pageW,
+        top: topOffset + frac.yPct * pageH,
+        width: frac.wPct * pageW,
+        height: frac.hPct * pageH,
+        pageNum
+      }
+    }
+
+    // Legacy raw pixel values
+    return {
+      left: field.x * scale,
+      top: topOffset + field.y * scale,
+      width: field.width * scale,
+      height: field.height * scale,
+      pageNum
+    }
   }
 
   // Get field formatting
@@ -704,10 +747,10 @@ export default function SignDocumentPage() {
     e.stopPropagation()
     const field = myFields.find(f => f.id === fieldId)
     if (!field) return
-    const pos = getCustomFieldPosition(field)
+    const frac = getFieldFractions(field)
     setSelectedFieldId(fieldId)
     setIsDragging(true)
-    setDragStart({ x: e.clientX, y: e.clientY, fieldX: pos.x, fieldY: pos.y })
+    setDragStart({ mouseX: e.clientX, mouseY: e.clientY, xPct: frac.xPct, yPct: frac.yPct })
   }
 
   // Handle resize start
@@ -716,40 +759,51 @@ export default function SignDocumentPage() {
     e.stopPropagation()
     const field = myFields.find(f => f.id === fieldId)
     if (!field) return
-    const pos = getCustomFieldPosition(field)
+    const frac = getFieldFractions(field)
     setSelectedFieldId(fieldId)
     setIsResizing(true)
-    setResizeStart({ x: e.clientX, y: e.clientY, width: pos.width, height: pos.height })
+    setResizeStart({ mouseX: e.clientX, mouseY: e.clientY, wPct: frac.wPct, hPct: frac.hPct })
   }
 
   // Handle mouse move for drag/resize
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!selectedFieldId) return
 
+    const field = myFields.find(f => f.id === selectedFieldId)
+    if (!field) return
+    const pageNum = field.page || field.pageNumber || 1
+    const pageIndex = pageNum - 1
+    const pageW = pageWidths[pageIndex] || 595 * scale
+    const pageH = pageHeights[pageIndex] || 842 * scale
+
     if (isDragging && dragStart) {
-      const deltaX = e.clientX - dragStart.x
-      const deltaY = e.clientY - dragStart.y
+      const deltaX = e.clientX - dragStart.mouseX
+      const deltaY = e.clientY - dragStart.mouseY
+      // Convert pixel delta to fraction delta (pageW/pageH include scale, so it cancels correctly)
+      const frac = getFieldFractions(field)
       setFieldPositions(prev => ({
         ...prev,
         [selectedFieldId]: {
-          ...getCustomFieldPosition(myFields.find(f => f.id === selectedFieldId)!),
-          x: dragStart.fieldX + deltaX / scale,
-          y: dragStart.fieldY + deltaY / scale
+          ...frac,
+          xPct: Math.max(0, Math.min(1, dragStart.xPct + deltaX / pageW)),
+          yPct: Math.max(0, Math.min(1, dragStart.yPct + deltaY / pageH))
         }
       }))
     }
 
     if (isResizing && resizeStart) {
-      const deltaX = e.clientX - resizeStart.x
-      const deltaY = e.clientY - resizeStart.y
-      const newWidth = Math.max(50, resizeStart.width + deltaX / scale)
-      const newHeight = Math.max(20, resizeStart.height + deltaY / scale)
+      const deltaX = e.clientX - resizeStart.mouseX
+      const deltaY = e.clientY - resizeStart.mouseY
+      const frac = getFieldFractions(field)
+      // Convert pixel delta to fraction delta for resize
+      const minWPct = 30 / pageW // minimum 30px at current scale
+      const minHPct = 15 / pageH // minimum 15px at current scale
       setFieldPositions(prev => ({
         ...prev,
         [selectedFieldId]: {
-          ...getCustomFieldPosition(myFields.find(f => f.id === selectedFieldId)!),
-          width: newWidth,
-          height: newHeight
+          ...frac,
+          wPct: Math.max(minWPct, resizeStart.wPct + deltaX / pageW),
+          hPct: Math.max(minHPct, resizeStart.hPct + deltaY / pageH)
         }
       }))
     }
@@ -802,12 +856,19 @@ export default function SignDocumentPage() {
     setIsSubmitting(true)
     setError(null)
     try {
-      // Build custom positions map - only include fields that were resized
-      const customPositions: Record<string, { x: number; y: number; width: number; height: number }> = {}
+      // Build custom positions map - send as 0-1 fractions for the download route
+      const customPositions: Record<string, { xPct: number; yPct: number; wPct: number; hPct: number }> = {}
       Object.entries(fieldPositions).forEach(([fieldId, pos]) => {
         const field = myFields.find(f => f.id === fieldId)
-        if (field && (pos.width !== field.width || pos.height !== field.height || pos.x !== field.x || pos.y !== field.y)) {
-          customPositions[fieldId] = pos
+        if (field) {
+          const orig = getFieldFractions(field)
+          // Only include if actually changed
+          if (Math.abs(pos.xPct - (field.xPercent ?? orig.xPct)) > 0.001 ||
+              Math.abs(pos.yPct - (field.yPercent ?? orig.yPct)) > 0.001 ||
+              Math.abs(pos.wPct - (field.widthPercent ?? orig.wPct)) > 0.001 ||
+              Math.abs(pos.hPct - (field.heightPercent ?? orig.hPct)) > 0.001) {
+            customPositions[fieldId] = pos
+          }
         }
       })
 
@@ -846,22 +907,6 @@ export default function SignDocumentPage() {
     finally { setIsSubmitting(false) }
   }
 
-  const getFieldPosition = (field: SignatureFieldInfo) => {
-    // Support both 'page' and 'pageNumber' field names
-    const pageNum = field.page || field.pageNumber || 1
-    let topOffset = 0
-    for (let i = 0; i < pageNum - 1; i++) topOffset += (pageHeights[i] || 842) + 4
-
-    // Fields are stored in original PDF coordinate space (when zoom=1 in sign-document)
-    // Scale them according to current viewing scale
-    return {
-      left: field.x * scale,
-      top: topOffset + (field.y * scale),
-      width: field.width * scale,
-      height: field.height * scale,
-      pageNum
-    }
-  }
 
   if (loading) return (<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" /><p className="text-gray-600">Loading document...</p></div></div>)
 
@@ -1052,10 +1097,10 @@ export default function SignDocumentPage() {
                   )}
                   {/* Other signers' signed fields - rendered as read-only locked overlays */}
                   {otherFields.filter(f => f.signerStatus === 'signed' && f.signedValue).map((field) => {
-                    const originalPos = getFieldPosition(field)
-                    const pageIndex = ((field.page || field.pageNumber || 1)) - 1
-                    const actualPageWidth = pageWidths[pageIndex] || 595 * scale
-                    const leftCalc = 'calc(50% - ' + (actualPageWidth / 2) + 'px + ' + (field.x * scale) + 'px)'
+                    const otherPixelPos = getFieldPixelPosition(field)
+                    const otherPageIndex = ((field.page || field.pageNumber || 1)) - 1
+                    const otherPageWidth = pageWidths[otherPageIndex] || 595 * scale
+                    const otherLeftCalc = 'calc(50% - ' + (otherPageWidth / 2) + 'px + ' + otherPixelPos.left + 'px)'
                     const signerColor = field.signerColor || '#9CA3AF'
 
                     return (
@@ -1063,10 +1108,10 @@ export default function SignDocumentPage() {
                         key={`other-${field.id}`}
                         className="absolute pointer-events-none z-[5]"
                         style={{
-                          left: leftCalc,
-                          top: originalPos.top,
-                          width: field.width * scale,
-                          height: field.height * scale,
+                          left: otherLeftCalc,
+                          top: otherPixelPos.top,
+                          width: otherPixelPos.width,
+                          height: otherPixelPos.height,
                           border: `1px solid ${signerColor}40`,
                           borderRadius: '4px',
                           backgroundColor: `${signerColor}05`,
@@ -1095,19 +1140,18 @@ export default function SignDocumentPage() {
                           ) : field.type === 'stamp' && field.signedValue?.startsWith('data:') ? (
                             <img src={field.signedValue} alt="Stamp" className="w-full h-full object-contain" style={{ mixBlendMode: 'multiply', opacity: 0.8 }} draggable={false} />
                           ) : field.signedValue ? (
-                            <span className="text-xs text-gray-700 truncate px-1" style={{ fontSize: `${Math.min(field.fontSize || 12, field.height * scale * 0.6)}px` }}>{field.signedValue}</span>
+                            <span className="text-xs text-gray-700 truncate px-1" style={{ fontSize: `${Math.min(field.fontSize || 12, otherPixelPos.height * 0.6)}px` }}>{field.signedValue}</span>
                           ) : null}
                         </div>
                       </div>
                     )
                   })}
                   {myFields.map((field) => {
-                    const originalPos = getFieldPosition(field)
-                    const customPos = getCustomFieldPosition(field)
-                    // Use actual page width instead of hardcoded 595
-                    const pageIndex = (originalPos.pageNum || 1) - 1
+                    // Use unified pixel position calculation (handles both percentage and legacy coords)
+                    const pixelPos = getFieldPixelPosition(field)
+                    const pageIndex = (pixelPos.pageNum || 1) - 1
                     const actualPageWidth = pageWidths[pageIndex] || 595 * scale
-                    const leftCalc = 'calc(50% - ' + (actualPageWidth / 2) + 'px + ' + (customPos.x * scale) + 'px)'
+                    const leftCalc = 'calc(50% - ' + (actualPageWidth / 2) + 'px + ' + pixelPos.left + 'px)'
 
                     // Get appropriate icon for field type
                     const getFieldIcon = (type: string) => {
@@ -1195,9 +1239,9 @@ export default function SignDocumentPage() {
                         data-field-id={field.id}
                         style={{
                           left: leftCalc,
-                          top: originalPos.top + ((customPos.y - field.y) * scale),
-                          width: customPos.width * scale,
-                          height: customPos.height * scale,
+                          top: pixelPos.top,
+                          width: pixelPos.width,
+                          height: pixelPos.height,
                           zIndex: isEditing ? 200 : (isSelected ? 100 : 10),
                           backgroundColor: isEditing ? 'rgba(255,255,255,0.95)' : 'transparent'
                         }}
@@ -1384,7 +1428,7 @@ export default function SignDocumentPage() {
                               {fieldValue ? (
                                 <span style={{
                                   color: '#000000',
-                                  fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                                  fontSize: `${Math.max(12, Math.min(formatting.fontSize, (pixelPos.height * 0.6)))}px`,
                                   fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal',
@@ -1416,7 +1460,7 @@ export default function SignDocumentPage() {
                               <div className="w-full h-full flex items-center px-2" onClick={() => setEditingFieldId(field.id)}>
                                 <span style={{
                                   color: '#000000',
-                                  fontSize: `${Math.max(12, Math.min(formatting.fontSize, (customPos.height * scale * 0.6)))}px`,
+                                  fontSize: `${Math.max(12, Math.min(formatting.fontSize, (pixelPos.height * 0.6)))}px`,
                                   fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal',
@@ -1429,7 +1473,7 @@ export default function SignDocumentPage() {
                             {isDtType && fieldValue && (
                               <div className="w-full h-full flex items-center px-1">
                                 <span className="w-full text-left text-black" style={{
-                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.7))}px`,
+                                  fontSize: `${Math.min(formatting.fontSize, (pixelPos.height * 0.7))}px`,
                                   fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal'
@@ -1446,7 +1490,7 @@ export default function SignDocumentPage() {
                             {isSelType && fieldValue && (
                               <div className="w-full h-full flex items-center px-1">
                                 <span className="w-full text-left text-black" style={{
-                                  fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.7))}px`,
+                                  fontSize: `${Math.min(formatting.fontSize, (pixelPos.height * 0.7))}px`,
                                   fontFamily: formatting.fontFamily || 'Arial',
                                   fontWeight: formatting.bold ? 'bold' : 'normal',
                                   fontStyle: formatting.italic ? 'italic' : 'normal'
@@ -1465,7 +1509,7 @@ export default function SignDocumentPage() {
                                 <img src={fieldValue} alt="Stamp" className="w-full h-full object-contain" style={{ display: 'block', mixBlendMode: 'multiply' }} />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center overflow-hidden">
-                                  <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${Math.min(formatting.fontSize, (customPos.height * scale * 0.6))}px` }}>{fieldValue}</span>
+                                  <span className="text-red-600 font-bold border-2 border-red-600 px-2 py-0.5 rounded transform -rotate-12" style={{ fontSize: `${Math.min(formatting.fontSize, (pixelPos.height * 0.6))}px` }}>{fieldValue}</span>
                                 </div>
                               )
                             )}
@@ -1477,10 +1521,13 @@ export default function SignDocumentPage() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    const pos = getCustomFieldPosition(field)
+                                    const frac = getFieldFractions(field)
+                                    const pageIdx = (field.page || field.pageNumber || 1) - 1
+                                    const pw = pageWidths[pageIdx] || 595 * scale
+                                    const ph = pageHeights[pageIdx] || 842 * scale
                                     setFieldPositions(prev => ({
                                       ...prev,
-                                      [field.id]: { ...pos, width: Math.max(30, pos.width - 10), height: Math.max(20, pos.height - 5) }
+                                      [field.id]: { ...frac, wPct: Math.max(30 / pw, frac.wPct - 10 / pw), hPct: Math.max(15 / ph, frac.hPct - 5 / ph) }
                                     }))
                                   }}
                                   className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium"
@@ -1491,10 +1538,13 @@ export default function SignDocumentPage() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    const pos = getCustomFieldPosition(field)
+                                    const frac = getFieldFractions(field)
+                                    const pageIdx = (field.page || field.pageNumber || 1) - 1
+                                    const pw = pageWidths[pageIdx] || 595 * scale
+                                    const ph = pageHeights[pageIdx] || 842 * scale
                                     setFieldPositions(prev => ({
                                       ...prev,
-                                      [field.id]: { ...pos, width: pos.width + 10, height: pos.height + 5 }
+                                      [field.id]: { ...frac, wPct: Math.min(1, frac.wPct + 10 / pw), hPct: Math.min(1, frac.hPct + 5 / ph) }
                                     }))
                                   }}
                                   className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium"

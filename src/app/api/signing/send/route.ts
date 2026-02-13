@@ -89,6 +89,38 @@ export async function POST(req: NextRequest) {
       status: 'pending'
     }))
 
+    // Transform editor fields (document_fields table format) to signing view format
+    // Editor fields have: field_type, page_number, signer_id, x/y as 0-100 percentages
+    // Signing view expects: type, page, signerOrder, xPercent/yPercent as 0-1 fractions
+    const normalizedFields = (fields || []).map((field: any) => {
+      // Look up signer order from signer_id
+      const fieldSigner = signersWithTokens.find((s: any) => s.id === field.signer_id)
+      const signerOrder = fieldSigner?.order ?? 1
+
+      return {
+        id: field.id,
+        signerOrder,
+        type: field.field_type || field.type || 'text',
+        page: field.page_number || field.page || 1,
+        pageNumber: field.page_number || field.page || 1,
+        // Store x/y as raw values (0-100 percentage from editor)
+        x: field.x,
+        y: field.y,
+        width: field.width,
+        height: field.height,
+        // Store normalized percentages (0-1 range) for accurate PDF positioning
+        xPercent: field.x / 100,
+        yPercent: field.y / 100,
+        widthPercent: field.width / 100,
+        heightPercent: field.height / 100,
+        required: field.required ?? true,
+        label: field.label,
+        fontSize: field.fontSize || field.font_size,
+        fontFamily: field.fontFamily || field.font_family,
+        fontBold: field.fontBold || field.font_bold,
+      }
+    })
+
     // Insert signing request (don't await - do in background)
     const insertPromise = supabase
       .from('signing_requests')
@@ -101,7 +133,7 @@ export async function POST(req: NextRequest) {
         sender_name: senderName,
         sender_email: senderEmail,
         signers: signersWithTokens,
-        signature_fields: fields,
+        signature_fields: normalizedFields,
         status: 'pending',
         current_signer_index: 0,
         created_at: new Date().toISOString(),

@@ -116,14 +116,21 @@ export async function GET(
       let xPct: number, yPct: number, wPct: number, hPct: number
 
       if (customPos) {
-        // Use signer's custom position (they resized the field)
-        // customPos has x, y, width, height in the same space as original field coords
-        if (field.pageBaseWidth && field.pageBaseHeight) {
+        // Use signer's custom position (they resized/dragged the field)
+        if (customPos.xPct !== undefined && customPos.yPct !== undefined) {
+          // New format: custom position already in 0-1 fraction space
+          xPct = customPos.xPct
+          yPct = customPos.yPct
+          wPct = customPos.wPct
+          hPct = customPos.hPct
+        } else if (field.pageBaseWidth && field.pageBaseHeight) {
+          // Legacy format: custom position in pixel space, convert via pageBase
           xPct = customPos.x / field.pageBaseWidth
           yPct = customPos.y / field.pageBaseHeight
           wPct = customPos.width / field.pageBaseWidth
           hPct = customPos.height / field.pageBaseHeight
         } else {
+          // Legacy format: custom position in pixel space, convert via PDF page size
           xPct = customPos.x / pageW
           yPct = customPos.y / pageH
           wPct = customPos.width / pageW
