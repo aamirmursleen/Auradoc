@@ -284,66 +284,32 @@ const DocumentEditorInner: React.FC = () => {
     return pageHeights.length || 1
   }
 
-  // Drop handler - hit-test individual page elements for reliable multi-page positioning
+  // Drop handler
   const [, drop] = useDrop(() => ({
     accept: ['new-field', 'existing-field'],
     canDrop: () => pdfRendered && pageHeights.length > 0,
     drop: (item: any, monitor) => {
       const offset = monitor.getClientOffset()
-      if (!offset || !pdfRendered) return
+      const containerRect = pagesContainerRef.current?.getBoundingClientRect()
+      const scrollTop = scrollContainerRef.current?.scrollTop || 0
 
-      // Find which page element the cursor is over by checking each page's visual rect
-      // This avoids all scroll offset issues since getBoundingClientRect on individual
-      // page elements always returns their correct visual position
-      const pageElements = pagesContainerRef.current?.querySelectorAll('[data-page-num]')
-      if (!pageElements || pageElements.length === 0) return
+      if (!offset || !containerRect || !pdfRendered) return
 
-      let targetPageNum: number | null = null
-      let relativeX = 0
-      let relativeY = 0
-      let targetPageHeight = 0
+      const relativeX = offset.x - containerRect.left
+      const relativeY = offset.y - containerRect.top + scrollTop
 
-      for (let i = 0; i < pageElements.length; i++) {
-        const pageEl = pageElements[i] as HTMLElement
-        const rect = pageEl.getBoundingClientRect()
-
-        if (offset.x >= rect.left && offset.x <= rect.right &&
-            offset.y >= rect.top && offset.y <= rect.bottom) {
-          targetPageNum = parseInt(pageEl.dataset.pageNum || '1')
-          relativeX = offset.x - rect.left
-          relativeY = offset.y - rect.top
-          targetPageHeight = rect.height
-          break
-        }
-      }
-
-      // If cursor isn't directly over a page, find the nearest page
-      if (targetPageNum === null) {
-        let minDist = Infinity
-        for (let i = 0; i < pageElements.length; i++) {
-          const pageEl = pageElements[i] as HTMLElement
-          const rect = pageEl.getBoundingClientRect()
-          const centerY = (rect.top + rect.bottom) / 2
-          const dist = Math.abs(offset.y - centerY)
-          if (dist < minDist) {
-            minDist = dist
-            targetPageNum = parseInt(pageEl.dataset.pageNum || '1')
-            relativeX = Math.max(0, Math.min(offset.x - rect.left, rect.width))
-            relativeY = Math.max(0, Math.min(offset.y - rect.top, rect.height))
-            targetPageHeight = rect.height
-          }
-        }
-      }
-
-      if (!targetPageNum) return
+      const pageNum = getPageFromY(relativeY)
+      const pageTopOffset = getCumulativeHeight(pageNum - 1)
+      const currentPageHeight = pageHeights[pageNum - 1] || 792 * scale
 
       const xPercent = Math.max(0, Math.min(100, (relativeX / pageWidth) * 100))
-      const yPercent = Math.max(0, Math.min(100, (relativeY / targetPageHeight) * 100))
+      const yInPage = relativeY - pageTopOffset
+      const yPercent = Math.max(0, Math.min(100, (yInPage / currentPageHeight) * 100))
 
       if (item.type === 'new-field') {
-        handleAddField(item.fieldType, xPercent, yPercent, targetPageNum)
+        handleAddField(item.fieldType, xPercent, yPercent, pageNum)
       } else if (item.type === 'existing-field') {
-        handleUpdateField(item.fieldId, { x: xPercent, y: yPercent, page_number: targetPageNum })
+        handleUpdateField(item.fieldId, { x: xPercent, y: yPercent, page_number: pageNum })
       }
     },
   }), [pageHeights, pageWidth, scale, pdfRendered, selectedSignerId])
