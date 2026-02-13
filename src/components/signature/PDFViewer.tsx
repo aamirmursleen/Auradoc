@@ -262,7 +262,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       <div className="flex flex-col">
         <div
           ref={containerRef}
-          className="flex flex-col items-center gap-6"
+          className="flex flex-col gap-6"
         >
             {pagesLoading ? (
               <div className="flex items-center justify-center h-96">
@@ -272,7 +272,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
               allPages.map((page, index) => {
                 const pageNum = index + 1
                 return (
-                  <div key={pageNum} className="relative">
+                  <div key={pageNum} className="relative w-fit mx-auto">
                     {/* Page number label - outside the clickable area */}
                     <div className="text-xs text-gray-500 font-medium mb-1.5">
                       Page {pageNum}
