@@ -47,22 +47,56 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [activeSection, setActiveSection] = useState<'notifications' | 'signing' | 'profile'>('notifications')
 
-  // Load preferences from localStorage (will migrate to Supabase later)
+  // Load preferences from Supabase API
   useEffect(() => {
     if (!user) return
-    const stored = localStorage.getItem(`mamasign_prefs_${user.id}`)
-    if (stored) {
+    const loadPreferences = async () => {
       try {
-        setPreferences({ ...defaultPreferences, ...JSON.parse(stored) })
-      } catch {}
+        const res = await fetch('/api/settings')
+        const json = await res.json()
+        if (json.success && json.data) {
+          const d = json.data
+          setPreferences({
+            emailNotificationsEnabled: d.email_notifications_enabled ?? true,
+            notifyOnView: d.notify_on_view ?? true,
+            notifyOnSign: d.notify_on_sign ?? true,
+            notifyOnComplete: d.notify_on_complete ?? true,
+            defaultReminderEnabled: d.default_reminder_enabled ?? true,
+            defaultReminderIntervalDays: d.default_reminder_interval_days ?? 3,
+            defaultExpirationDays: d.default_expiration_days ?? null,
+            companyName: d.company_name ?? '',
+            companyLogo: d.company_logo ?? '',
+          })
+        }
+      } catch {
+        // Fall back to localStorage for backwards compatibility
+        const stored = localStorage.getItem(`mamasign_prefs_${user.id}`)
+        if (stored) {
+          try { setPreferences({ ...defaultPreferences, ...JSON.parse(stored) }) } catch {}
+        }
+      }
     }
+    loadPreferences()
   }, [user])
 
   const handleSave = async () => {
     if (!user) return
     setSaving(true)
     try {
-      // Save to localStorage for now
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preferences),
+      })
+      const json = await res.json()
+      if (json.success) {
+        // Also update localStorage as fallback
+        localStorage.setItem(`mamasign_prefs_${user.id}`, JSON.stringify(preferences))
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      }
+    } catch {
+      // Fallback to localStorage if API fails
       localStorage.setItem(`mamasign_prefs_${user.id}`, JSON.stringify(preferences))
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
