@@ -2141,7 +2141,32 @@ const SignDocumentPage: React.FC = () => {
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Sidebar - Compact Fields Panel (DocuSign style) */}
         <div className={`hidden md:flex w-48 flex-col flex-shrink-0 overflow-hidden ${isDark ? 'bg-secondary border-r border-border' : 'bg-white border-r border-gray-200'}`}>
-          <div className="flex-1 overflow-y-auto px-4 py-4">
+          {/* Signer selector + Add Signer at top */}
+          <div className={`px-4 py-3 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Signer</p>
+              <button
+                onClick={addSigner}
+                className={`p-1 rounded transition-colors ${isDark ? 'text-primary hover:bg-primary/10' : 'text-[#0d9488] hover:bg-[#0d9488]/10'}`}
+                title="Add Other Signer"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            <select
+              value={activeSignerId}
+              onChange={(e) => setActiveSignerId(e.target.value)}
+              className={`w-full px-2 py-1.5 rounded-lg text-sm ${isDark ? 'bg-muted border border-border text-foreground' : 'bg-gray-50 border border-gray-200 text-gray-800'}`}
+            >
+              {signers.map((signer, idx) => (
+                <option key={signer.id} value={signer.id}>
+                  {signer.name || `Signer ${idx + 1}`}{signer.is_self ? ' (Me)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 py-3">
             {/* FIELDS Header */}
             <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Fields</p>
 
