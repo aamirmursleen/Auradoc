@@ -842,6 +842,7 @@ const SignDocumentPage: React.FC = () => {
     let heightPercent: number | undefined
     let pageBaseWidth: number | undefined
     let pageBaseHeight: number | undefined
+    let dropPageNum = currentPage
 
     // For IMAGES: Get position relative to the CONTAINER element
     // (not the img, as img may have different rendered size)
@@ -878,7 +879,24 @@ const SignDocumentPage: React.FC = () => {
       y = yPercent * pageBaseHeight + fieldHeight / 2
     } else {
       // For PDFs: find the actual page element at drop position for accurate coordinates
-      const pageElement = (e.target as HTMLElement).closest('[data-pdf-page="true"]') as HTMLElement
+      // First try e.target.closest, then fall back to finding the nearest page via coordinates
+      let pageElement = (e.target as HTMLElement).closest('[data-pdf-page="true"]') as HTMLElement
+      if (!pageElement && documentContainerRef.current) {
+        // Fallback: find the page element closest to the drop point
+        const allPages = documentContainerRef.current.querySelectorAll('[data-pdf-page="true"]')
+        for (const pg of allPages) {
+          const rect = pg.getBoundingClientRect()
+          if (e.clientX >= rect.left && e.clientX <= rect.right &&
+              e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            pageElement = pg as HTMLElement
+            break
+          }
+        }
+        // If still not found, use the first page as last resort
+        if (!pageElement && allPages.length > 0) {
+          pageElement = allPages[0] as HTMLElement
+        }
+      }
       if (pageElement) {
         const pageRect = pageElement.getBoundingClientRect()
         // Use actual rendered page dimensions (same approach as onPageClick)
@@ -895,6 +913,12 @@ const SignDocumentPage: React.FC = () => {
 
         x = xPercent * pageBaseWidth + fieldWidth / 2
         y = yPercent * pageBaseHeight + fieldHeight / 2
+
+        // Detect which page the drop occurred on (for multi-page continuous scroll)
+        const detectedPage = parseInt(pageElement.getAttribute('data-page-number') || '', 10)
+        if (!isNaN(detectedPage)) {
+          dropPageNum = detectedPage
+        }
       } else {
         // Fallback: use documentContainerRef
         if (!documentContainerRef.current) return
@@ -918,7 +942,7 @@ const SignDocumentPage: React.FC = () => {
       y: Math.max(0, y - fieldHeight / 2),
       width: fieldWidth,
       height: fieldHeight,
-      page: currentPage,
+      page: dropPageNum,
       signerId: activeSigner.id,
       signerColor: activeSigner.color,
       mandatory: true,
@@ -2380,23 +2404,26 @@ const SignDocumentPage: React.FC = () => {
 
           {/* Document Area - Full screen on mobile */}
           <div
-            className="flex-1 overflow-auto p-2 md:p-6 flex justify-center items-start"
+            className="flex-1 overflow-auto p-2 md:p-6"
             style={{ WebkitOverflowScrolling: 'touch' }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDocumentDrop}
           >
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center my-auto">
-                <Loader2 className={`w-12 h-12 animate-spin mb-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
-                <p className={`text-lg font-medium ${isDark ? 'text-foreground' : 'text-gray-700'}`}>
-                  Converting image to PDF...
-                </p>
-                <p className={`text-sm mt-2 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
-                  This ensures perfect field positioning
-                </p>
+              <div className="flex items-center justify-center h-full">
+                <div className="flex flex-col items-center justify-center">
+                  <Loader2 className={`w-12 h-12 animate-spin mb-4 ${isDark ? 'text-primary' : 'text-[#0d9488]'}`} />
+                  <p className={`text-lg font-medium ${isDark ? 'text-foreground' : 'text-gray-700'}`}>
+                    Converting image to PDF...
+                  </p>
+                  <p className={`text-sm mt-2 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
+                    This ensures perfect field positioning
+                  </p>
+                </div>
               </div>
             ) : !document ? (
-              <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center p-8 md:p-12 my-auto mx-4 md:mx-0 active:scale-[0.99] ${isDark ? 'bg-secondary border-border hover:border-primary/50 hover:bg-muted' : 'bg-white border-gray-300 hover:border-[#0d9488]/50 hover:bg-gray-50'}`}>
+              <div className="flex items-center justify-center h-full">
+              <label className={`w-full max-w-2xl rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center p-8 md:p-12 mx-4 md:mx-0 active:scale-[0.99] ${isDark ? 'bg-secondary border-border hover:border-primary/50 hover:bg-muted' : 'bg-white border-gray-300 hover:border-[#0d9488]/50 hover:bg-gray-50'}`}>
                 <input
                   type="file"
                   accept=".pdf,application/pdf,image/png,image/jpeg,.png,.jpg,.jpeg"
@@ -2420,10 +2447,11 @@ const SignDocumentPage: React.FC = () => {
                   <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-muted">Max 25MB</span>
                 </div>
               </label>
+              </div>
             ) : (
               <div
                 ref={documentContainerRef}
-                className={`relative max-h-full overflow-auto pb-20 md:pb-0 mx-auto shadow-lg ${isDark ? 'bg-secondary' : 'bg-white'}`}
+                className={`relative pb-20 md:pb-0 mx-auto shadow-lg ${isDark ? 'bg-secondary' : 'bg-white'}`}
               >
                 {isPDF ? (
                   <PDFViewer

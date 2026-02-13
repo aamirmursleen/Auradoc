@@ -281,6 +281,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
                     <div
                       className="relative bg-white shadow-xl"
                       data-pdf-page="true"
+                      data-page-number={pageNum}
                       style={{
                         width: page.width * zoom,
                         height: page.height * zoom,
