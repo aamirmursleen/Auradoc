@@ -20,6 +20,7 @@ const dashboardRoutes = [
   '/sign/',
   '/s/',
   '/settings',
+  '/bulk-send',
 ]
 
 // Routes that should have NO header/footer (clean pages)

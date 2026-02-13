@@ -25,6 +25,7 @@ import {
   Inbox,
   Send,
   Settings,
+  UsersRound,
 } from 'lucide-react'
 
 interface NavItem {
@@ -47,6 +48,7 @@ const navigation: NavGroup[] = [
     defaultOpen: true,
     items: [
       { name: 'Sign Document', href: '/sign-document', icon: FileSignature },
+      { name: 'Bulk Send', href: '/bulk-send', icon: UsersRound },
       { name: 'Signature Generator', href: '/tools/signature-generator', icon: PenTool },
     ],
   },
