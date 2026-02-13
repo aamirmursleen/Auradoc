@@ -2140,11 +2140,11 @@ const SignDocumentPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Sidebar - Compact Fields Panel (DocuSign style) */}
-        <div className={`hidden md:flex w-48 flex-col flex-shrink-0 overflow-hidden ${isDark ? 'bg-secondary border-r border-border' : 'bg-white border-r border-gray-200'}`}>
-          {/* Signer selector + Add Signer at top */}
-          <div className={`px-4 py-3 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
+        <div className={`hidden md:flex w-56 flex-col flex-shrink-0 overflow-hidden ${isDark ? 'bg-secondary border-r border-border' : 'bg-white border-r border-gray-200'}`}>
+          {/* Signers section at top */}
+          <div className={`px-3 py-3 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
             <div className="flex items-center justify-between mb-2">
-              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Signer</p>
+              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-foreground' : 'text-gray-800'}`}>Signers</p>
               <button
                 onClick={addSigner}
                 className={`p-1 rounded transition-colors ${isDark ? 'text-primary hover:bg-primary/10' : 'text-[#0d9488] hover:bg-[#0d9488]/10'}`}
@@ -2153,50 +2153,58 @@ const SignDocumentPage: React.FC = () => {
                 <Plus className="w-4 h-4" />
               </button>
             </div>
-            <select
-              value={activeSignerId}
-              onChange={(e) => setActiveSignerId(e.target.value)}
-              className={`w-full px-2 py-1.5 rounded-lg text-sm ${isDark ? 'bg-muted border border-border text-foreground' : 'bg-gray-50 border border-gray-200 text-gray-800'}`}
-            >
-              {signers.map((signer, idx) => (
-                <option key={signer.id} value={signer.id}>
-                  {signer.name || `Signer ${idx + 1}`}{signer.is_self ? ' (Me)' : ''}
-                </option>
-              ))}
-            </select>
-            {/* Name & Email inputs for active signer */}
-            {(() => {
-              const activeSigner = signers.find(s => s.id === activeSignerId)
-              if (!activeSigner) return null
-              return (
-                <div className="mt-2 space-y-1.5">
-                  <input
-                    type="text"
-                    placeholder="Name..."
-                    value={activeSigner.name}
-                    onChange={(e) => updateSigner(activeSigner.id, 'name', e.target.value)}
-                    readOnly={activeSigner.is_self}
-                    className={`w-full px-2 py-1.5 rounded-lg text-sm ${activeSigner.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-muted border border-border text-foreground focus:ring-1 focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-gray-800 focus:ring-1 focus:ring-[#0d9488]/50'}`}
-                  />
-                  {activeSigner.is_self ? (
-                    <input
-                      type="email"
-                      value={activeSigner.email}
-                      readOnly
-                      className={`w-full px-2 py-1.5 rounded-lg text-sm cursor-default ${isDark ? 'bg-muted border border-border text-muted-foreground' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
-                    />
-                  ) : (
-                    <input
-                      type="email"
-                      placeholder="Email..."
-                      value={activeSigner.email}
-                      onChange={(e) => updateSigner(activeSigner.id, 'email', e.target.value)}
-                      className={`w-full px-2 py-1.5 rounded-lg text-sm ${isDark ? 'bg-muted border border-border text-foreground focus:ring-1 focus:ring-primary/50' : 'bg-gray-50 border border-gray-200 text-gray-800 focus:ring-1 focus:ring-[#0d9488]/50'}`}
-                    />
-                  )}
-                </div>
-              )
-            })()}
+            <div className="space-y-2 max-h-[35vh] overflow-y-auto">
+              {signers.map((signer, idx) => {
+                const signerFields = placedFields.filter(f => f.signerId === signer.id)
+                const isActive = signer.id === activeSignerId
+                return (
+                  <div
+                    key={signer.id}
+                    className={`p-2 rounded-lg cursor-pointer transition-all ${isActive ? (isDark ? 'bg-muted ring-1 ring-primary/50' : 'bg-gray-50 ring-1 ring-[#0d9488]/30') : (isDark ? 'hover:bg-muted/50' : 'hover:bg-gray-50')}`}
+                    onClick={() => setActiveSignerId(signer.id)}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                        style={{ backgroundColor: signer.color }}
+                      >
+                        {idx + 1}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Name..."
+                        value={signer.name}
+                        onChange={(e) => { e.stopPropagation(); updateSigner(signer.id, 'name', e.target.value) }}
+                        readOnly={signer.is_self}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`flex-1 min-w-0 px-2 py-1 rounded text-xs focus:ring-1 ${signer.is_self ? 'cursor-default' : ''} ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-white border border-gray-200 text-gray-800 focus:ring-[#0d9488]/50'}`}
+                      />
+                      <span className={`text-[10px] flex-shrink-0 ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>{signerFields.length} fields</span>
+                    </div>
+                    <div className="pl-8">
+                      {signer.is_self ? (
+                        <input
+                          type="email"
+                          value={signer.email}
+                          readOnly
+                          onClick={(e) => e.stopPropagation()}
+                          className={`w-full px-2 py-1 rounded text-xs cursor-default ${isDark ? 'bg-muted border border-border text-muted-foreground' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
+                        />
+                      ) : (
+                        <input
+                          type="email"
+                          placeholder="Email..."
+                          value={signer.email}
+                          onChange={(e) => { e.stopPropagation(); updateSigner(signer.id, 'email', e.target.value) }}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`w-full px-2 py-1 rounded text-xs focus:ring-1 ${isDark ? 'bg-muted border border-border text-foreground focus:ring-primary/50' : 'bg-white border border-gray-200 text-gray-800 focus:ring-[#0d9488]/50'}`}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-3">
