@@ -10,7 +10,6 @@ import {
   PenTool,
   FileText,
   LayoutTemplate,
-  Eye,
   Shield,
   Minimize2,
   Layers,
@@ -26,6 +25,8 @@ import {
   Send,
   Settings,
   UsersRound,
+  Scale,
+  ClipboardList,
 } from 'lucide-react'
 
 interface NavItem {
@@ -61,7 +62,6 @@ const navigation: NavGroup[] = [
       { name: 'Inbox', href: '/documents?tab=inbox', icon: Inbox },
       { name: 'Sent', href: '/documents?tab=sent', icon: Send },
       { name: 'Templates', href: '/templates', icon: LayoutTemplate },
-      { name: 'Track', href: '/track', icon: Eye },
       { name: 'Verify', href: '/verify', icon: Shield },
     ],
   },
@@ -74,6 +74,15 @@ const navigation: NavGroup[] = [
       { name: 'PDF Merge', href: '/tools/pdf-merge', icon: Layers },
       { name: 'PDF Split', href: '/tools/pdf-split', icon: Scissors },
       { name: 'Watermark PDF', href: '/tools/watermark-pdf', icon: Droplets },
+    ],
+  },
+  {
+    name: 'Agreements',
+    icon: Scale,
+    defaultOpen: false,
+    items: [
+      { name: 'Templates', href: '/agreement-templates', icon: LayoutTemplate },
+      { name: 'Drafts', href: '/drafts', icon: ClipboardList },
     ],
   },
   {
