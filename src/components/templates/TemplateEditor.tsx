@@ -12,6 +12,7 @@ import {
   Bold,
   Italic,
   Underline,
+  Strikethrough,
   Link2,
   ListOrdered,
   List,
@@ -22,7 +23,15 @@ import {
   FileText,
   Loader2,
   Check,
-  ChevronDown
+  ChevronDown,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Palette,
+  Highlighter,
+  Eraser,
+  Minus,
 } from 'lucide-react'
 import { DocumentTemplate, categoryLabels, TemplateField } from '@/data/templates'
 import jsPDF from 'jspdf'
@@ -79,6 +88,24 @@ const sampleData: Record<string, string> = {
   about: 'Passionate professional dedicated to delivering high-quality work and continuous improvement.',
 }
 
+// Editor constants
+const editorFonts = ['Arial', 'Times New Roman', 'Georgia', 'Verdana', 'Courier New', 'Trebuchet MS', 'Palatino', 'Garamond', 'Tahoma', 'Calibri']
+const editorFontSizes = [
+  { label: '8', value: '1' }, { label: '10', value: '2' }, { label: '12', value: '3' },
+  { label: '14', value: '4' }, { label: '18', value: '5' }, { label: '24', value: '6' }, { label: '36', value: '7' },
+]
+const editorTextColors = [
+  '#000000', '#434343', '#666666', '#999999', '#cccccc',
+  '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00',
+  '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff',
+]
+const editorHighlightColors = [
+  { label: 'Yellow', value: '#ffff00' }, { label: 'Green', value: '#00ff00' },
+  { label: 'Cyan', value: '#00ffff' }, { label: 'Pink', value: '#ff00ff' },
+  { label: 'Red', value: '#ff9999' }, { label: 'Orange', value: '#ff9900' },
+  { label: 'Blue', value: '#99ccff' }, { label: 'None', value: 'transparent' },
+]
+
 const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onComplete, onSave, initialData, saveLabel }) => {
   const [formData, setFormData] = useState<Record<string, string>>(initialData || {})
   const [saving, setSaving] = useState(false)
@@ -90,6 +117,17 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
   const editorRef = useRef<HTMLDivElement>(null)
   const [selectedText, setSelectedText] = useState('')
+  const [formatState, setFormatState] = useState({
+    bold: false, italic: false, underline: false, strikethrough: false,
+    orderedList: false, unorderedList: false,
+    justifyLeft: true, justifyCenter: false, justifyRight: false, justifyFull: false,
+  })
+  const [currentFont, setCurrentFont] = useState('Arial')
+  const [currentFontSize, setCurrentFontSize] = useState('3')
+  const [showColorPicker, setShowColorPicker] = useState(false)
+  const [showHighlightPicker, setShowHighlightPicker] = useState(false)
+  const savedSelection = useRef<Range | null>(null)
+  const lastDocHtml = useRef('')
 
   // Initialize form data and document
   useEffect(() => {
@@ -123,13 +161,65 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
     setDocumentHtml(html)
   }, [formData, template])
 
+  // Track formatting state on selection change
+  useEffect(() => {
+    const update = () => {
+      try {
+        const sel = window.getSelection()
+        if (sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode)) {
+          savedSelection.current = sel.getRangeAt(0).cloneRange()
+        }
+        setFormatState({
+          bold: document.queryCommandState('bold'),
+          italic: document.queryCommandState('italic'),
+          underline: document.queryCommandState('underline'),
+          strikethrough: document.queryCommandState('strikeThrough'),
+          orderedList: document.queryCommandState('insertOrderedList'),
+          unorderedList: document.queryCommandState('insertUnorderedList'),
+          justifyLeft: document.queryCommandState('justifyLeft'),
+          justifyCenter: document.queryCommandState('justifyCenter'),
+          justifyRight: document.queryCommandState('justifyRight'),
+          justifyFull: document.queryCommandState('justifyFull'),
+        })
+        const fn = document.queryCommandValue('fontName')
+        if (fn) setCurrentFont(fn.replace(/"/g, ''))
+        const fs = document.queryCommandValue('fontSize')
+        if (fs) setCurrentFontSize(fs)
+      } catch {}
+    }
+    document.addEventListener('selectionchange', update)
+    return () => document.removeEventListener('selectionchange', update)
+  }, [])
+
+  // Sync editor content when form data changes
+  useEffect(() => {
+    if (editorRef.current && documentHtml && documentHtml !== lastDocHtml.current) {
+      editorRef.current.innerHTML = documentHtml
+      lastDocHtml.current = documentHtml
+    }
+  }, [documentHtml])
+
   // Handle field change
   const handleFieldChange = (fieldName: string, value: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }))
   }
 
-  // Execute formatting command
+  // Execute formatting command with focus/selection preservation
   const execCommand = (command: string, value?: string) => {
+    if (editorRef.current) {
+      if (!editorRef.current.contains(document.activeElement)) {
+        editorRef.current.focus()
+        if (savedSelection.current) {
+          try {
+            const sel = window.getSelection()
+            if (sel) {
+              sel.removeAllRanges()
+              sel.addRange(savedSelection.current)
+            }
+          } catch {}
+        }
+      }
+    }
     document.execCommand(command, false, value)
   }
 
@@ -554,7 +644,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
 
   // Proceed to sign
   const handleProceedToSign = () => {
-    onComplete(documentHtml, template)
+    const currentHtml = editorRef.current?.innerHTML || documentHtml
+    onComplete(currentHtml, template)
   }
 
   // Render field input
@@ -763,94 +854,182 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
         {/* Center - Document Editor */}
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
           {/* Toolbar */}
-          <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-1">
-            <button
-              onClick={() => execCommand('undo')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Undo"
-            >
+          <div className="bg-white border-b border-gray-200 px-3 py-1.5 flex items-center gap-0.5 flex-wrap">
+            {/* Undo/Redo */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('undo')} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Undo (Ctrl+Z)">
               <Undo className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => execCommand('redo')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Redo"
-            >
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('redo')} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Redo (Ctrl+Y)">
               <Redo className="w-4 h-4" />
             </button>
 
-            <div className="w-px h-6 bg-gray-200 mx-2" />
+            <div className="w-px h-6 bg-gray-200 mx-1" />
 
+            {/* Font Family */}
             <select
-              className="px-2 py-1.5 text-sm border border-gray-200 rounded hover:border-gray-300 focus:ring-2 focus:ring-primary-500"
-              onChange={(e) => execCommand('fontName', e.target.value)}
+              value={currentFont}
+              onMouseDown={() => {
+                const sel = window.getSelection()
+                if (sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode)) {
+                  savedSelection.current = sel.getRangeAt(0).cloneRange()
+                }
+              }}
+              onChange={(e) => { execCommand('fontName', e.target.value); setCurrentFont(e.target.value) }}
+              className="px-2 py-1 text-xs border border-gray-200 rounded hover:border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white max-w-[120px]"
             >
-              <option value="Arial">Arial</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Georgia">Georgia</option>
-              <option value="Verdana">Verdana</option>
+              {editorFonts.map(f => <option key={f} value={f}>{f}</option>)}
             </select>
 
-            <div className="w-px h-6 bg-gray-200 mx-2" />
-
-            <button
-              onClick={() => execCommand('bold')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Bold"
+            {/* Font Size */}
+            <select
+              value={currentFontSize}
+              onMouseDown={() => {
+                const sel = window.getSelection()
+                if (sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode)) {
+                  savedSelection.current = sel.getRangeAt(0).cloneRange()
+                }
+              }}
+              onChange={(e) => { execCommand('fontSize', e.target.value); setCurrentFontSize(e.target.value) }}
+              className="px-2 py-1 text-xs border border-gray-200 rounded hover:border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white w-[52px]"
             >
+              {editorFontSizes.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+
+            {/* Bold, Italic, Underline, Strikethrough */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('bold')} className={`p-1.5 rounded transition-colors ${formatState.bold ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Bold (Ctrl+B)">
               <Bold className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => execCommand('italic')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Italic"
-            >
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('italic')} className={`p-1.5 rounded transition-colors ${formatState.italic ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Italic (Ctrl+I)">
               <Italic className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => execCommand('underline')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Underline"
-            >
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('underline')} className={`p-1.5 rounded transition-colors ${formatState.underline ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Underline (Ctrl+U)">
               <Underline className="w-4 h-4" />
             </button>
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('strikeThrough')} className={`p-1.5 rounded transition-colors ${formatState.strikethrough ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Strikethrough">
+              <Strikethrough className="w-4 h-4" />
+            </button>
 
-            <div className="w-px h-6 bg-gray-200 mx-2" />
+            <div className="w-px h-6 bg-gray-200 mx-1" />
 
-            <button
-              onClick={() => execCommand('insertUnorderedList')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Bullet List"
-            >
+            {/* Text Color */}
+            <div className="relative">
+              <button onMouseDown={e => e.preventDefault()} onClick={() => { setShowColorPicker(!showColorPicker); setShowHighlightPicker(false) }} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Text Color">
+                <Palette className="w-4 h-4" />
+              </button>
+              {showColorPicker && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowColorPicker(false)} />
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl p-2 z-50 grid grid-cols-5 gap-1 min-w-[140px]" onMouseDown={e => e.preventDefault()}>
+                    {editorTextColors.map(color => (
+                      <button
+                        key={color}
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={() => { execCommand('foreColor', color); setShowColorPicker(false) }}
+                        className="w-6 h-6 rounded border border-gray-200 hover:scale-125 transition-transform"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Highlight Color */}
+            <div className="relative">
+              <button onMouseDown={e => e.preventDefault()} onClick={() => { setShowHighlightPicker(!showHighlightPicker); setShowColorPicker(false) }} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Highlight Color">
+                <Highlighter className="w-4 h-4" />
+              </button>
+              {showHighlightPicker && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowHighlightPicker(false)} />
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl p-2 z-50 grid grid-cols-4 gap-1 min-w-[120px]" onMouseDown={e => e.preventDefault()}>
+                    {editorHighlightColors.map(color => (
+                      <button
+                        key={color.value}
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={() => { execCommand('hiliteColor', color.value); setShowHighlightPicker(false) }}
+                        className="w-6 h-6 rounded border border-gray-200 hover:scale-125 transition-transform flex items-center justify-center text-[8px]"
+                        style={{ backgroundColor: color.value === 'transparent' ? '#ffffff' : color.value }}
+                        title={color.label}
+                      >
+                        {color.value === 'transparent' && <X className="w-3 h-3 text-gray-400" />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+
+            {/* Alignment */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('justifyLeft')} className={`p-1.5 rounded transition-colors ${formatState.justifyLeft ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Align Left">
+              <AlignLeft className="w-4 h-4" />
+            </button>
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('justifyCenter')} className={`p-1.5 rounded transition-colors ${formatState.justifyCenter ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Align Center">
+              <AlignCenter className="w-4 h-4" />
+            </button>
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('justifyRight')} className={`p-1.5 rounded transition-colors ${formatState.justifyRight ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Align Right">
+              <AlignRight className="w-4 h-4" />
+            </button>
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('justifyFull')} className={`p-1.5 rounded transition-colors ${formatState.justifyFull ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Justify">
+              <AlignJustify className="w-4 h-4" />
+            </button>
+
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+
+            {/* Lists */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('insertUnorderedList')} className={`p-1.5 rounded transition-colors ${formatState.unorderedList ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Bullet List">
               <List className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => execCommand('insertOrderedList')}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Numbered List"
-            >
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('insertOrderedList')} className={`p-1.5 rounded transition-colors ${formatState.orderedList ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`} title="Numbered List">
               <ListOrdered className="w-4 h-4" />
             </button>
 
-            <div className="w-px h-6 bg-gray-200 mx-2" />
+            {/* Indent / Outdent */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('indent')} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Increase Indent">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><polyline points="9 4 13 8 9 12"/></svg>
+            </button>
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('outdent')} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Decrease Indent">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><polyline points="13 4 9 8 13 12"/></svg>
+            </button>
 
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+
+            {/* Link */}
             <button
+              onMouseDown={e => e.preventDefault()}
               onClick={() => {
-                const url = prompt('Enter URL:')
-                if (url) execCommand('createLink', url)
+                const url = prompt('Enter URL:', 'https://')
+                if (url && url !== 'https://') execCommand('createLink', url)
               }}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Insert Link"
+              className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors"
+              title="Insert Link (select text first)"
             >
               <Link2 className="w-4 h-4" />
             </button>
 
-            <div className="w-px h-6 bg-gray-200 mx-2" />
+            {/* Horizontal Rule */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('insertHorizontalRule')} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Horizontal Line">
+              <Minus className="w-4 h-4" />
+            </button>
 
+            {/* Clear Formatting */}
+            <button onMouseDown={e => e.preventDefault()} onClick={() => execCommand('removeFormat')} className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors" title="Clear Formatting">
+              <Eraser className="w-4 h-4" />
+            </button>
+
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+
+            {/* Copy */}
             <button
-              onClick={() => navigator.clipboard.writeText(documentHtml)}
-              className="p-2 text-muted-foreground hover:bg-gray-100 rounded transition-colors"
-              title="Copy"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => navigator.clipboard.writeText(editorRef.current?.innerHTML || documentHtml)}
+              className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded transition-colors"
+              title="Copy HTML"
             >
               <Copy className="w-4 h-4" />
             </button>
@@ -864,10 +1043,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onClose, onCo
                 className="bg-white shadow-xl rounded-lg overflow-hidden min-h-[800px]"
                 contentEditable
                 suppressContentEditableWarning
-                onInput={(e) => {
-                  // Could capture edits here if needed
-                }}
-                dangerouslySetInnerHTML={{ __html: documentHtml }}
+                style={{ outline: 'none', cursor: 'text' }}
               />
             </div>
           </div>
