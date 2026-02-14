@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { PDFDocument, rgb } from 'pdf-lib'
+import { PDFDocument, rgb, degrees, PDFPage } from 'pdf-lib'
 
 export async function GET(
   req: NextRequest,
@@ -86,8 +86,6 @@ export async function GET(
     }
 
     // Embed each field into the PDF using percentage-based coordinates
-    // This matches the same approach as pdf-generator.ts for consistent alignment
-    // across PDF, PNG-to-PDF, and JPG-to-PDF documents
     for (const field of signatureFields) {
       const signer = signerByOrder[field.signerOrder]
       if (!signer || signer.status !== 'signed') {
@@ -97,9 +95,9 @@ export async function GET(
 
       const fieldValues = signer.fieldValues || {}
       const signatureImage = signer.signatureImage
-      const fieldPositions = signer.fieldPositions || {} // Custom positions set by signer during resize
-      const signatureScales = signer.signatureScales || {} // Signature scale factors set by signer
-      const signerFormatting = signer.fieldFormatting || {} // Custom formatting set by signer
+      const fieldPositions = signer.fieldPositions || {}
+      const signatureScales = signer.signatureScales || {}
+      const signerFormatting = signer.fieldFormatting || {}
 
       const pageNum = field.page || field.pageNumber || 1
       const pageIndex = pageNum - 1
@@ -112,46 +110,37 @@ export async function GET(
       const customPos = fieldPositions[field.id]
 
       // Use percentage-based coordinates for accurate positioning
-      // This handles PDF, PNG-to-PDF, and JPG-to-PDF correctly
       let xPct: number, yPct: number, wPct: number, hPct: number
 
       if (customPos) {
-        // Use signer's custom position (they resized/dragged the field)
         if (customPos.xPct !== undefined && customPos.yPct !== undefined) {
-          // New format: custom position already in 0-1 fraction space
           xPct = customPos.xPct
           yPct = customPos.yPct
           wPct = customPos.wPct
           hPct = customPos.hPct
         } else if (field.pageBaseWidth && field.pageBaseHeight) {
-          // Legacy format: custom position in pixel space, convert via pageBase
           xPct = customPos.x / field.pageBaseWidth
           yPct = customPos.y / field.pageBaseHeight
           wPct = customPos.width / field.pageBaseWidth
           hPct = customPos.height / field.pageBaseHeight
         } else {
-          // Legacy format: custom position in pixel space, convert via PDF page size
           xPct = customPos.x / pageW
           yPct = customPos.y / pageH
           wPct = customPos.width / pageW
           hPct = customPos.height / pageH
         }
-        console.log('📄 Using custom position for field', field.id, '- resized by signer')
       } else if (field.xPercent !== undefined && field.yPercent !== undefined &&
           field.widthPercent !== undefined && field.heightPercent !== undefined) {
-        // Use stored percentages (new format - most accurate)
         xPct = field.xPercent
         yPct = field.yPercent
         wPct = field.widthPercent
         hPct = field.heightPercent
       } else if (field.pageBaseWidth && field.pageBaseHeight) {
-        // Calculate percentages from raw coords + base dimensions
         xPct = field.x / field.pageBaseWidth
         yPct = field.y / field.pageBaseHeight
         wPct = field.width / field.pageBaseWidth
         hPct = field.height / field.pageBaseHeight
       } else {
-        // Fallback: raw coords assumed to be in PDF point space
         xPct = field.x / pageW
         yPct = field.y / pageH
         wPct = field.width / pageW
@@ -159,7 +148,6 @@ export async function GET(
       }
 
       // Convert percentage coordinates to PDF points
-      // Same formula as pdf-generator.ts: normalizedToPdfCoords()
       const pdfX = xPct * pageW
       const pdfWidth = wPct * pageW
       const pdfHeight = hPct * pageH
@@ -174,23 +162,24 @@ export async function GET(
         'coords:', { x: pdfX.toFixed(1), y: pdfY.toFixed(1), w: pdfWidth.toFixed(1), h: pdfHeight.toFixed(1) })
 
       try {
-        // For signature/initials: use signatureImage first, fallback to fieldValues if it contains image data
-        const sigImageSrc = (fieldType === 'signature' || fieldType === 'initials')
-          ? (signatureImage || (value && typeof value === 'string' && value.startsWith('data:image') ? value : null))
-          : null
+        // For signature/initials: use per-field value first (if it's an image), then signatureImage
+        if (fieldType === 'signature' || fieldType === 'initials') {
+          // Priority: per-field image value > shared signatureImage
+          const perFieldImage = value && typeof value === 'string' && value.startsWith('data:image') ? value : null
+          const sigImageSrc = perFieldImage || signatureImage || null
 
-        if ((fieldType === 'signature' || fieldType === 'initials') && sigImageSrc) {
-          // Apply signature scale if set by signer or uploader
-          const sigScale = signatureScales[field.id] || field.signatureScale || 1
-          const scaledW = pdfWidth * sigScale
-          const scaledH = pdfHeight * sigScale
-          const scaledX = pdfX + (pdfWidth - scaledW) / 2
-          const scaledY = pdfY + (pdfHeight - scaledH) / 2
-          await embedImageIntoPdf(pdfDoc, page, sigImageSrc, { x: scaledX, y: scaledY, width: scaledW, height: scaledH })
+          if (sigImageSrc) {
+            const sigScale = signatureScales[field.id] || field.signatureScale || 1
+            const scaledW = pdfWidth * sigScale
+            const scaledH = pdfHeight * sigScale
+            const scaledX = pdfX + (pdfWidth - scaledW) / 2
+            const scaledY = pdfY + (pdfHeight - scaledH) / 2
+            await embedImageIntoPdf(pdfDoc, page, sigImageSrc, { x: scaledX, y: scaledY, width: scaledW, height: scaledH })
+          }
         } else if (fieldType === 'checkbox' && value === 'checked') {
           page.drawRectangle({
             x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight,
-            color: rgb(0.133, 0.773, 0.369), // #22c55e (Tailwind green-500)
+            color: rgb(0.133, 0.773, 0.369),
           })
           const cx = pdfX + pdfWidth / 2, cy = pdfY + pdfHeight / 2
           const sz = Math.min(pdfWidth, pdfHeight) * 0.6
@@ -198,15 +187,11 @@ export async function GET(
           page.drawLine({ start: { x: cx - sz * 0.1, y: cy - sz * 0.3 }, end: { x: cx + sz * 0.4, y: cy + sz * 0.3 }, thickness: 2, color: rgb(1, 1, 1) })
         } else if (fieldType === 'stamp' && value) {
           if (value.startsWith('data:image')) {
+            // Image stamp - render as image exactly as uploaded (tilted, any shape)
             await embedImageIntoPdf(pdfDoc, page, value, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
           } else {
-            // CSS uses text-xs = 12px, with cap to prevent overflow
-            const fontSize = Math.min(12, pdfHeight * 0.7)
-            page.drawText(value, {
-              x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
-              size: fontSize, color: rgb(0.863, 0.149, 0.149),
-              maxWidth: pdfWidth - 8,
-            })
+            // Text stamp (APPROVED, PAID, etc.) - render with rotation and red border like preview
+            drawTextStamp(page, value, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
           }
         } else if (fieldType === 'strikethrough' && value) {
           const lineY = pdfY + pdfHeight / 2
@@ -216,7 +201,7 @@ export async function GET(
             thickness: 3, color,
           })
         } else if (value && fieldType !== 'checkbox') {
-          // If value is a base64 image (e.g. signature stored in fieldValues), embed as image
+          // If value is a base64 image, embed as image
           if (typeof value === 'string' && value.startsWith('data:image')) {
             await embedImageIntoPdf(pdfDoc, page, value, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight })
           } else {
@@ -224,13 +209,12 @@ export async function GET(
             if (fieldType === 'date') {
               try { displayValue = new Date(value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } catch { displayValue = value }
             }
-            // Use signer's custom font size if set, otherwise fall back to field's default
             const customFmt = signerFormatting[field.id]
             const baseFontSize = customFmt?.fontSize || field.fontSize || 14
             const fontSize = Math.min(baseFontSize, pdfHeight * 0.8)
             page.drawText(displayValue, {
-              x: pdfX + 8, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
-              size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 16,
+              x: pdfX + 4, y: pdfY + (pdfHeight - fontSize) / 2 + fontSize * 0.28,
+              size: fontSize, color: rgb(0, 0, 0), maxWidth: pdfWidth - 8,
             })
           }
         }
@@ -258,8 +242,63 @@ export async function GET(
   }
 }
 
+// Draw a text stamp with red border and -12 degree rotation (matches CSS transform -rotate-12)
+function drawTextStamp(
+  page: PDFPage, text: string,
+  coords: { x: number; y: number; width: number; height: number }
+) {
+  const stampColor = rgb(0.863, 0.149, 0.149) // Red (#DC2626)
+  const rotationAngle = -12 // Match CSS -rotate-12
+
+  // Center of the stamp box
+  const cx = coords.x + coords.width / 2
+  const cy = coords.y + coords.height / 2
+
+  // Calculate font size to fit within the box (with padding)
+  const maxTextWidth = coords.width * 0.85
+  const maxTextHeight = coords.height * 0.6
+  const charWidth = 0.6
+  const estimatedFontSize = Math.min(
+    maxTextWidth / (text.length * charWidth),
+    maxTextHeight
+  )
+  const fontSize = Math.max(6, Math.min(estimatedFontSize, 24))
+
+  // Draw rotated red border rectangle
+  const borderPadX = coords.width * 0.1
+  const borderPadY = coords.height * 0.15
+  const borderW = coords.width - borderPadX * 2
+  const borderH = coords.height - borderPadY * 2
+
+  // pdf-lib drawRectangle with rotate: the x,y is bottom-left of the unrotated rectangle,
+  // but rotation happens around x,y. We want rotation around center.
+  // So we position the rectangle at its center and use the rotate option.
+  page.drawRectangle({
+    x: cx - borderW / 2,
+    y: cy - borderH / 2,
+    width: borderW,
+    height: borderH,
+    borderColor: stampColor,
+    borderWidth: 2,
+    rotate: degrees(rotationAngle),
+  })
+
+  // Draw the rotated text centered in the box
+  const textWidth = text.length * fontSize * charWidth
+  const textX = cx - textWidth / 2
+  const textY = cy - fontSize / 3
+
+  page.drawText(text, {
+    x: textX,
+    y: textY,
+    size: fontSize,
+    color: stampColor,
+    rotate: degrees(rotationAngle),
+  })
+}
+
 async function embedImageIntoPdf(
-  pdfDoc: PDFDocument, page: any, imageDataUrl: string,
+  pdfDoc: PDFDocument, page: PDFPage, imageDataUrl: string,
   coords: { x: number; y: number; width: number; height: number }
 ) {
   const base64 = imageDataUrl.split(',')[1]
@@ -280,6 +319,7 @@ async function embedImageIntoPdf(
     try { image = await pdfDoc.embedPng(imageBytes) } catch { image = await pdfDoc.embedJpg(imageBytes) }
   }
 
+  // Preserve aspect ratio - fit image within the box
   const imgAspect = image.width / image.height
   const boxAspect = coords.width / coords.height
   let drawW, drawH, drawX, drawY
