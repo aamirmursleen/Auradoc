@@ -1637,18 +1637,19 @@ const SignDocumentPage: React.FC = () => {
       return
     }
 
-    // For myself-only: validate that I've completed signing
-    if (onlyMyselfSigning && !myselfSigned) {
-      setError('Please complete your signing before finishing')
-      return
-    }
-
-    // For mixed signing: validate myself has signed if they have fields
-    if (!onlyMyselfSigning && selfSigner) {
+    // Auto-complete self-signing if all self-signer fields are filled
+    let effectiveMyselfSigned = myselfSigned
+    if (selfSigner && !effectiveMyselfSigned) {
       const selfFields = placedFields.filter(f => f.signerId === selfSigner.id)
-      if (selfFields.length > 0 && !myselfSigned) {
-        setError('Please complete your signing before sending')
-        return
+      if (selfFields.length > 0) {
+        const allFilled = selfFields.every(f => !!f.value)
+        if (!allFilled) {
+          setError('Please fill all your signature fields before sending')
+          return
+        }
+        // Auto-mark as signed since all fields are filled
+        setMyselfSigned(true)
+        effectiveMyselfSigned = true
       }
     }
 
@@ -1739,7 +1740,7 @@ const SignDocumentPage: React.FC = () => {
 
       // Collect self-signer's field values if they've already signed
       let selfSignedFieldValues: Record<string, string> | undefined
-      if (myselfSigned && selfSigner) {
+      if (effectiveMyselfSigned && selfSigner) {
         selfSignedFieldValues = {}
         placedFields
           .filter(f => f.signerId === selfSigner.id && f.value)
@@ -1766,9 +1767,9 @@ const SignDocumentPage: React.FC = () => {
         subject: emailSubject || undefined,
         senderName: senderName.trim() || undefined,
         // Myself-only signing: complete immediately without emails
-        myselfOnly: onlyMyselfSigning && myselfSigned,
+        myselfOnly: onlyMyselfSigning && effectiveMyselfSigned,
         // Pre-signed self: mark self as signed in initial creation
-        myselfAlreadySigned: !onlyMyselfSigning && myselfSigned,
+        myselfAlreadySigned: !onlyMyselfSigning && effectiveMyselfSigned,
         selfSignedFieldValues
       })
 
