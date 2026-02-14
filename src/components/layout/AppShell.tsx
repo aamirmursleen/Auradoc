@@ -17,16 +17,18 @@ const dashboardRoutes = [
   '/templates',
   '/template-library',
   '/resume-templates',
-  '/sign/',
   '/s/',
   '/settings',
   '/bulk-send',
+  '/agreement-templates',
+  '/drafts',
 ]
 
 // Routes that should have NO header/footer (clean pages)
 const cleanRoutes = [
   '/sign-in',
   '/sign-up',
+  '/sign/',
 ]
 
 interface AppShellProps {
