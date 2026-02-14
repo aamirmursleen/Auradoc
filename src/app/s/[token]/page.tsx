@@ -13,6 +13,7 @@ export default function ShortSigningPage() {
   useEffect(() => {
     const resolveToken = async () => {
       try {
+        // Step 1: Resolve token to get documentId + email
         const response = await fetch(`/api/signing-requests/by-token/${token}`)
         const data = await response.json()
 
@@ -21,8 +22,22 @@ export default function ShortSigningPage() {
           return
         }
 
-        // Redirect to the full signing page
         const { documentId, email, token: signerToken } = data.data
+
+        // Step 2: Pre-fetch document metadata in parallel (so /sign/[id] loads instantly)
+        try {
+          const metaRes = await fetch(`/api/signing-requests/${documentId}?email=${encodeURIComponent(email)}&token=${signerToken}`)
+          if (metaRes.ok) {
+            const metaData = await metaRes.json()
+            if (metaData.success) {
+              sessionStorage.setItem(`sign-doc-${documentId}`, JSON.stringify(metaData))
+            }
+          }
+        } catch {
+          // Pre-fetch failed - signing page will fetch on its own
+        }
+
+        // Step 3: Navigate to signing page
         router.replace(`/sign/${documentId}?token=${signerToken}&email=${encodeURIComponent(email)}`)
       } catch (err) {
         setError('Failed to load signing link. Please try again.')
@@ -53,7 +68,8 @@ export default function ShortSigningPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-        <p className="text-gray-600">Loading document...</p>
+        <p className="text-gray-600">Loading your document...</p>
+        <p className="text-xs text-gray-400 mt-2">This will only take a moment</p>
       </div>
     </div>
   )

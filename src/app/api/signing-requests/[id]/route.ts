@@ -17,10 +17,11 @@ export async function GET(
       )
     }
 
-    // Fetch the signing request
+    // Fetch the signing request - exclude document_url to keep response small and fast
+    // PDF data is fetched separately via /api/signing-requests/[id]/pdf
     const { data: signingRequest, error } = await supabaseAdmin
       .from('signing_requests')
-      .select('*')
+      .select('id, user_id, document_name, sender_name, sender_email, signers, signature_fields, message, due_date, status, current_signer_index, created_at, updated_at')
       .eq('id', documentId)
       .single()
 
@@ -54,11 +55,9 @@ export async function GET(
     }
 
     // Debug logging
-    console.log('📄 Returning document for signing:', {
+    console.log('📄 Returning document metadata for signing:', {
       id: signingRequest.id,
       documentName: signingRequest.document_name,
-      documentUrlLength: signingRequest.document_url?.length || 0,
-      documentUrlPrefix: signingRequest.document_url?.substring(0, 100),
       signerEmail: email
     })
 
@@ -88,13 +87,13 @@ export async function GET(
       }
     })
 
-    // Return document data for signing
+    // Return document metadata for signing (PDF data loaded separately via /pdf endpoint)
     return NextResponse.json({
       success: true,
       data: {
         id: signingRequest.id,
         documentName: signingRequest.document_name,
-        documentUrl: signingRequest.document_url,
+        pdfUrl: `/api/signing-requests/${documentId}/pdf?email=${encodeURIComponent(email)}${token ? `&token=${token}` : ''}`,
         senderName: signingRequest.sender_name,
         senderEmail: signingRequest.sender_email,
         message: signingRequest.message,

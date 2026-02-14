@@ -89,7 +89,8 @@ interface SignatureFieldInfo {
 interface DocumentData {
   id: string
   documentName: string
-  documentUrl: string
+  documentUrl?: string
+  pdfUrl?: string
   senderName: string
   senderEmail: string
   message?: string
@@ -307,30 +308,34 @@ export default function SignDocumentPage() {
     const fetchDocument = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/signing-requests/${documentId}?email=${signerEmail}&token=${token}`)
 
-        // Safe JSON parsing - prevents "Unexpected token" errors
-        const contentType = response.headers.get('content-type')
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error('Server error. Please try again.')
+        let data: any = null
+
+        // Check sessionStorage first (pre-fetched by /s/[token] page for instant load)
+        try {
+          const cached = sessionStorage.getItem(`sign-doc-${documentId}`)
+          if (cached) {
+            data = JSON.parse(cached)
+            sessionStorage.removeItem(`sign-doc-${documentId}`)
+          }
+        } catch {}
+
+        // If no cache, fetch from API
+        if (!data) {
+          const response = await fetch(`/api/signing-requests/${documentId}?email=${signerEmail}&token=${token}`)
+          const contentType = response.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server error. Please try again.')
+          }
+          data = await response.json()
+          if (!response.ok) throw new Error(data.message || 'Failed to load document')
         }
 
-        const data = await response.json()
-        if (!response.ok) throw new Error(data.message || 'Failed to load document')
-
-        // Debug logging - track document loading
-        console.log('📄 Document loaded:', {
-          id: data.data.id,
-          name: data.data.documentName,
-          urlPrefix: data.data.documentUrl?.substring(0, 100),
-          fieldsCount: data.data.signatureFields?.length,
-          signersCount: data.data.signers?.length
-        })
+        if (!data.success) throw new Error(data.message || 'Failed to load document')
 
         setDocumentData(data.data)
         const signer = data.data.signers.find((s: SignerInfo) => s.email.toLowerCase() === signerEmail?.toLowerCase())
         setCurrentSigner(signer || null)
-        // Separate my fields from other signers' fields
         const allFields = data.data.signatureFields || []
         const mine = allFields.filter((f: SignatureFieldInfo) => f.isMine !== false && f.signerOrder === signer?.order)
         const others = allFields.filter((f: SignatureFieldInfo) => f.isMine === false || f.signerOrder !== signer?.order)
@@ -358,23 +363,22 @@ export default function SignDocumentPage() {
 
   useEffect(() => {
     const loadDocument = async () => {
-      if (!documentData?.documentUrl) {
+      // Use pdfUrl (new fast binary endpoint) or fall back to documentUrl (legacy base64)
+      const docSource = documentData?.pdfUrl || documentData?.documentUrl
+      if (!docSource) {
         setPdfError('No document data available')
         return
       }
 
-      const detectedType = getFileTypeFromUrl(documentData.documentUrl)
+      const detectedType = documentData?.pdfUrl ? 'pdf' : getFileTypeFromUrl(docSource)
       setFileType(detectedType)
 
       if (detectedType === 'image') {
-        // Load image document
         try {
           setPdfLoading(true)
           setPdfError(null)
-          setImageUrl(documentData.documentUrl)
+          setImageUrl(docSource)
           setTotalPages(1)
-
-          // Load image to get dimensions
           const img = new Image()
           img.onload = () => {
             setImageDimensions({ width: img.width, height: img.height })
@@ -382,32 +386,30 @@ export default function SignDocumentPage() {
             setPageHeights([img.height * scale])
             setPdfLoading(false)
           }
-          img.onerror = () => {
-            setPdfError('Failed to load image document.')
-            setPdfLoading(false)
-          }
-          img.src = documentData.documentUrl
+          img.onerror = () => { setPdfError('Failed to load image document.'); setPdfLoading(false) }
+          img.src = docSource
         } catch (err) {
           console.error('Error loading image:', err)
           setPdfError('Failed to load image document.')
           setPdfLoading(false)
         }
       } else {
-        // Load PDF document
         try {
           setPdfLoading(true)
           setPdfError(null)
 
-          console.log('Loading PDF, URL type:', documentData.documentUrl.substring(0, 50))
-
           let pdfData: Uint8Array
 
-          if (documentData.documentUrl.startsWith('data:')) {
-            // Extract base64 from data URL
-            const base64Match = documentData.documentUrl.match(/base64,(.*)/)
+          if (documentData?.pdfUrl || docSource.startsWith('http') || docSource.startsWith('/')) {
+            // Fast path: fetch binary PDF from streaming endpoint
+            const pdfResponse = await fetch(docSource)
+            if (!pdfResponse.ok) throw new Error('Failed to download document')
+            const arrayBuffer = await pdfResponse.arrayBuffer()
+            pdfData = new Uint8Array(arrayBuffer)
+          } else if (docSource.startsWith('data:')) {
+            const base64Match = docSource.match(/base64,(.*)/)
             if (base64Match) {
-              const base64 = base64Match[1]
-              const binaryString = atob(base64)
+              const binaryString = atob(base64Match[1])
               pdfData = new Uint8Array(binaryString.length)
               for (let i = 0; i < binaryString.length; i++) {
                 pdfData[i] = binaryString.charCodeAt(i)
@@ -415,15 +417,8 @@ export default function SignDocumentPage() {
             } else {
               throw new Error('Invalid data URL format')
             }
-          } else if (documentData.documentUrl.startsWith('http') || documentData.documentUrl.startsWith('/')) {
-            // Fetch PDF as binary data (avoids CORS issues with pdf.js)
-            const pdfResponse = await fetch(documentData.documentUrl)
-            if (!pdfResponse.ok) throw new Error('Failed to download document')
-            const arrayBuffer = await pdfResponse.arrayBuffer()
-            pdfData = new Uint8Array(arrayBuffer)
           } else {
-            // Assume raw base64
-            const binaryString = atob(documentData.documentUrl)
+            const binaryString = atob(docSource)
             pdfData = new Uint8Array(binaryString.length)
             for (let i = 0; i < binaryString.length; i++) {
               pdfData[i] = binaryString.charCodeAt(i)
@@ -439,7 +434,6 @@ export default function SignDocumentPage() {
             disableFontFace: false,
           })
           const pdf = await loadingTask.promise
-          console.log('PDF loaded successfully, pages:', pdf.numPages)
           setPdfDoc(pdf)
           setTotalPages(pdf.numPages)
         } catch (err) {
@@ -451,22 +445,18 @@ export default function SignDocumentPage() {
       }
     }
     loadDocument()
-  }, [documentData?.documentUrl, scale])
+  }, [documentData?.pdfUrl, documentData?.documentUrl, scale])
 
   const renderAllPages = useCallback(async () => {
     if (!pdfDoc) return
-    const renderScale = 1.5 // Fixed scale for rendering quality
+    const renderScale = 1.5
     const numPages = pdfDoc.numPages
 
-    // Initialize arrays with placeholders for progressive display
-    const initialImages = new Array(numPages).fill('')
-    const initialHeights = new Array(numPages).fill(842 * scale)
-    const initialWidths = new Array(numPages).fill(595 * scale)
-    setPageImages(initialImages)
-    setPageHeights(initialHeights)
-    setPageWidths(initialWidths)
+    // Initialize arrays with placeholders
+    setPageImages(new Array(numPages).fill(''))
+    setPageHeights(new Array(numPages).fill(842 * scale))
+    setPageWidths(new Array(numPages).fill(595 * scale))
 
-    // Render all pages in parallel using Promise.all
     const renderPage = async (pageNum: number) => {
       try {
         const page = await pdfDoc.getPage(pageNum)
@@ -478,19 +468,11 @@ export default function SignDocumentPage() {
 
         canvas.width = viewport.width
         canvas.height = viewport.height
-
-        context.setTransform(1, 0, 0, 1, 0, 0)
-        context.clearRect(0, 0, canvas.width, canvas.height)
         context.fillStyle = '#ffffff'
         context.fillRect(0, 0, canvas.width, canvas.height)
 
-        await page.render({
-          canvasContext: context,
-          viewport: viewport,
-          background: 'white'
-        }).promise
-
-        const imageUrl = canvas.toDataURL('image/png')
+        await page.render({ canvasContext: context, viewport, background: 'white' }).promise
+        const imageUrl = canvas.toDataURL('image/jpeg', 0.85)
         return {
           pageNum,
           image: imageUrl,
@@ -503,20 +485,43 @@ export default function SignDocumentPage() {
       }
     }
 
-    const pagePromises = Array.from({ length: numPages }, (_, i) => renderPage(i + 1))
-    const results = await Promise.all(pagePromises)
+    // Progressive rendering: render first page immediately, then rest in background
+    const firstResult = await renderPage(1)
+    setPageImages(prev => { const copy = [...prev]; copy[0] = firstResult.image; return copy })
+    setPageHeights(prev => { const copy = [...prev]; copy[0] = firstResult.height; return copy })
+    setPageWidths(prev => { const copy = [...prev]; copy[0] = firstResult.width; return copy })
 
-    // Sort by page number and set state
-    results.sort((a, b) => a.pageNum - b.pageNum)
-    setPageImages(results.map(r => r.image))
-    setPageHeights(results.map(r => r.height))
-    setPageWidths(results.map(r => r.width))
+    // Render remaining pages in batches of 3 for smooth loading
+    if (numPages > 1) {
+      const BATCH = 3
+      for (let start = 1; start < numPages; start += BATCH) {
+        const batch = Array.from(
+          { length: Math.min(BATCH, numPages - start) },
+          (_, i) => renderPage(start + i + 1)
+        )
+        const batchResults = await Promise.all(batch)
+        setPageImages(prev => {
+          const copy = [...prev]
+          batchResults.forEach(r => { copy[r.pageNum - 1] = r.image })
+          return copy
+        })
+        setPageHeights(prev => {
+          const copy = [...prev]
+          batchResults.forEach(r => { copy[r.pageNum - 1] = r.height })
+          return copy
+        })
+        setPageWidths(prev => {
+          const copy = [...prev]
+          batchResults.forEach(r => { copy[r.pageNum - 1] = r.width })
+          return copy
+        })
+      }
+    }
   }, [pdfDoc, scale])
 
   useEffect(() => {
     if (pdfDoc) {
-      const timer = setTimeout(() => renderAllPages(), 100)
-      return () => clearTimeout(timer)
+      renderAllPages()
     }
   }, [pdfDoc, renderAllPages])
 
@@ -526,6 +531,22 @@ export default function SignDocumentPage() {
       renderAllPages()
     }
   }, [scale])
+
+  // Auto-fit scale to screen width on mobile
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const adjustScale = () => {
+      const screenW = window.innerWidth
+      if (screenW < 768) {
+        // Mobile: fit PDF to available width (minus padding)
+        const availableW = screenW - 24
+        const pdfBaseW = 595
+        const fitScale = Math.min(Math.max(availableW / pdfBaseW, 0.4), 1.2)
+        setScale(fitScale)
+      }
+    }
+    adjustScale()
+  }, [])
 
   // Update image dimensions when scale changes
   useEffect(() => {
