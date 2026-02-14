@@ -39,7 +39,14 @@ import {
   Move,
   Maximize,
   Plus,
-  Minus
+  Minus,
+  PenLine,
+  Fingerprint,
+  CalendarCheck,
+  CircleUserRound,
+  UserRound,
+  Building2,
+  Briefcase
 } from 'lucide-react'
 
 // Set up PDF.js worker
@@ -84,6 +91,8 @@ interface SignatureFieldInfo {
   yPercent?: number
   widthPercent?: number
   heightPercent?: number
+  // Self-placed by signer
+  selfPlaced?: boolean
 }
 
 interface DocumentData {
@@ -100,6 +109,41 @@ interface DocumentData {
   currentSignerIndex: number
 }
 
+// Field Types - Signature Fields (for signer self-placement)
+const SIGNER_SIGNATURE_FIELDS = [
+  { id: 'signature', name: 'Signature', icon: PenLine },
+  { id: 'initials', name: 'Initial', icon: Fingerprint },
+  { id: 'stamp', name: 'Stamp', icon: Stamp },
+  { id: 'date', name: 'Date Signed', icon: CalendarCheck },
+]
+
+// Field Types - Contact/Identity Fields
+const SIGNER_CONTACT_FIELDS = [
+  { id: 'name', name: 'Name', icon: CircleUserRound },
+  { id: 'firstName', name: 'First Name', icon: UserRound },
+  { id: 'email', name: 'Email Address', icon: Mail },
+  { id: 'company', name: 'Company', icon: Building2 },
+  { id: 'title', name: 'Title', icon: Briefcase },
+]
+
+// Field Types - Other Fields
+const SIGNER_OTHER_FIELDS = [
+  { id: 'text', name: 'Text', icon: AlignLeft },
+  { id: 'checkbox', name: 'Checkbox', icon: CheckSquare },
+]
+
+// UUID generator for self-placed fields
+const generateFieldId = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
 export default function SignDocumentPage() {
   const params = useParams()
   const searchParams = useSearchParams()
@@ -113,6 +157,11 @@ export default function SignDocumentPage() {
   const [currentSigner, setCurrentSigner] = useState<SignerInfo | null>(null)
   const [myFields, setMyFields] = useState<SignatureFieldInfo[]>([])
   const [otherFields, setOtherFields] = useState<SignatureFieldInfo[]>([])
+  const [selfPlacedFields, setSelfPlacedFields] = useState<SignatureFieldInfo[]>([])
+  const [showAddFields, setShowAddFields] = useState(false)
+
+  // Combine assigned fields with self-placed fields
+  const allMyFields = [...myFields, ...selfPlacedFields]
 
   // PDF state
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
@@ -341,6 +390,8 @@ export default function SignDocumentPage() {
         const others = allFields.filter((f: SignatureFieldInfo) => f.isMine === false || f.signerOrder !== signer?.order)
         setMyFields(mine)
         setOtherFields(others)
+        // Auto-expand "Add Fields" when no pre-assigned fields (bulk send case)
+        if (mine.length === 0) setShowAddFields(true)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -608,9 +659,61 @@ export default function SignDocumentPage() {
     return labels[type] || 'Click to fill'
   }
 
+  // Add a self-placed field at center of first visible page
+  const handleAddSelfField = (fieldType: string, fieldLabel: string) => {
+    // Determine which page is currently visible
+    let visiblePage = 1
+    if (pagesContainerRef.current && documentContainerRef.current) {
+      const scrollTop = documentContainerRef.current.scrollTop
+      let accHeight = 0
+      for (let i = 0; i < pageHeights.length; i++) {
+        accHeight += (pageHeights[i] || 842 * scale) + 4
+        if (accHeight > scrollTop + 100) { visiblePage = i + 1; break }
+      }
+    }
+
+    const newField: SignatureFieldInfo = {
+      id: generateFieldId(),
+      signerOrder: currentSigner?.order || 1,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      type: fieldType,
+      label: fieldLabel,
+      page: visiblePage,
+      pageNumber: visiblePage,
+      xPercent: 0.3,
+      yPercent: 0.4,
+      widthPercent: fieldType === 'checkbox' ? 0.04 : 0.25,
+      heightPercent: fieldType === 'checkbox' ? 0.03 : 0.04,
+      selfPlaced: true,
+      isMine: true,
+    }
+
+    setSelfPlacedFields(prev => [...prev, newField])
+    // Auto-select the new field so user can drag it
+    setSelectedFieldId(newField.id)
+  }
+
+  // Delete a self-placed field
+  const handleDeleteSelfField = (fieldId: string, e?: React.MouseEvent) => {
+    if (e) { e.stopPropagation(); e.preventDefault() }
+    setSelfPlacedFields(prev => prev.filter(f => f.id !== fieldId))
+    // Clean up any values/state for this field
+    setFieldValues(prev => { const n = { ...prev }; delete n[fieldId]; return n })
+    setSignedFields(prev => { const s = new Set(prev); s.delete(fieldId); return s })
+    setFieldPositions(prev => { const n = { ...prev }; delete n[fieldId]; return n })
+    setFieldFormatting(prev => { const n = { ...prev }; delete n[fieldId]; return n })
+    setSignatureScales(prev => { const n = { ...prev }; delete n[fieldId]; return n })
+    if (selectedFieldId === fieldId) setSelectedFieldId(null)
+    if (activeFieldId === fieldId) setActiveFieldId(null)
+    if (editingFieldId === fieldId) setEditingFieldId(null)
+  }
+
   const handleFieldClick = (fieldId: string) => {
     if (signedFields.has(fieldId)) return
-    const field = myFields.find(f => f.id === fieldId)
+    const field = allMyFields.find(f => f.id === fieldId)
     if (!field) return
 
     setActiveFieldId(fieldId)
@@ -766,7 +869,7 @@ export default function SignDocumentPage() {
   const handleDragStart = (e: React.MouseEvent, fieldId: string) => {
     e.preventDefault()
     e.stopPropagation()
-    const field = myFields.find(f => f.id === fieldId)
+    const field = allMyFields.find(f => f.id === fieldId)
     if (!field) return
     const frac = getFieldFractions(field)
     setSelectedFieldId(fieldId)
@@ -778,7 +881,7 @@ export default function SignDocumentPage() {
   const handleResizeStart = (e: React.MouseEvent, fieldId: string) => {
     e.preventDefault()
     e.stopPropagation()
-    const field = myFields.find(f => f.id === fieldId)
+    const field = allMyFields.find(f => f.id === fieldId)
     if (!field) return
     const frac = getFieldFractions(field)
     setSelectedFieldId(fieldId)
@@ -790,7 +893,7 @@ export default function SignDocumentPage() {
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!selectedFieldId) return
 
-    const field = myFields.find(f => f.id === selectedFieldId)
+    const field = allMyFields.find(f => f.id === selectedFieldId)
     if (!field) return
     const pageNum = field.page || field.pageNumber || 1
     const pageIndex = pageNum - 1
@@ -840,7 +943,7 @@ export default function SignDocumentPage() {
 
   // Update field formatting
   const updateFieldFormatting = (fieldId: string, updates: Partial<{ fontSize: number; fontFamily: string; bold: boolean; italic: boolean; color: string }>) => {
-    const field = myFields.find(f => f.id === fieldId)
+    const field = allMyFields.find(f => f.id === fieldId)
     setFieldFormatting(prev => ({
       ...prev,
       [fieldId]: { ...getFieldFormatting(fieldId, field), ...updates }
@@ -863,13 +966,18 @@ export default function SignDocumentPage() {
   }
 
   const handleSubmit = async () => {
+    // Guard: must have at least one field
+    if (allMyFields.length === 0) {
+      setError('Please add at least one field before signing')
+      return
+    }
     // Check if all fields are filled
-    if (signedFields.size !== myFields.length) {
+    if (signedFields.size !== allMyFields.length) {
       setError('Please fill all required fields')
       return
     }
     // Check if signature is required and provided
-    const hasSignatureField = myFields.some(f => isSignatureType(f.type))
+    const hasSignatureField = allMyFields.some(f => isSignatureType(f.type))
     if (hasSignatureField && !signature) {
       setError('Please provide your signature')
       return
@@ -880,7 +988,7 @@ export default function SignDocumentPage() {
       // Build custom positions map - send as 0-1 fractions for the download route
       const customPositions: Record<string, { xPct: number; yPct: number; wPct: number; hPct: number }> = {}
       Object.entries(fieldPositions).forEach(([fieldId, pos]) => {
-        const field = myFields.find(f => f.id === fieldId)
+        const field = allMyFields.find(f => f.id === fieldId)
         if (field) {
           const orig = getFieldFractions(field)
           // Only include if actually changed
@@ -896,7 +1004,7 @@ export default function SignDocumentPage() {
       // Build custom formatting map - only include fields with changed formatting
       const customFormatting: Record<string, { fontSize: number; fontFamily: string; bold: boolean; italic: boolean; color: string }> = {}
       Object.entries(fieldFormatting).forEach(([fieldId, fmt]) => {
-        const field = myFields.find(f => f.id === fieldId)
+        const field = allMyFields.find(f => f.id === fieldId)
         if (field) {
           const defaultSize = field.fontSize || 14
           const defaultFamily = field.fontFamily || 'Arial'
@@ -904,6 +1012,22 @@ export default function SignDocumentPage() {
           if (fmt.fontSize !== defaultSize || fmt.fontFamily !== defaultFamily || fmt.bold !== defaultBold || fmt.italic || fmt.color !== '#000000') {
             customFormatting[fieldId] = fmt
           }
+        }
+      })
+
+      // Build self-placed fields data for the API
+      const selfPlacedFieldsData = selfPlacedFields.map(f => {
+        const pos = fieldPositions[f.id] || { xPct: f.xPercent || 0.3, yPct: f.yPercent || 0.4, wPct: f.widthPercent || 0.25, hPct: f.heightPercent || 0.04 }
+        return {
+          id: f.id,
+          type: f.type,
+          label: f.label,
+          page: f.page || f.pageNumber || 1,
+          signerOrder: f.signerOrder,
+          xPercent: pos.xPct,
+          yPercent: pos.yPct,
+          widthPercent: pos.wPct,
+          heightPercent: pos.hPct,
         }
       })
 
@@ -918,7 +1042,8 @@ export default function SignDocumentPage() {
           fieldValues: fieldValues,
           fieldPositions: customPositions,
           signatureScales: Object.keys(signatureScales).length > 0 ? signatureScales : undefined,
-          fieldFormatting: Object.keys(customFormatting).length > 0 ? customFormatting : undefined
+          fieldFormatting: Object.keys(customFormatting).length > 0 ? customFormatting : undefined,
+          selfPlacedFields: selfPlacedFieldsData.length > 0 ? selfPlacedFieldsData : undefined
         })
       })
       const data = await response.json()
@@ -981,9 +1106,9 @@ export default function SignDocumentPage() {
             )}
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-              <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Required Fields ({signedFields.size}/{myFields.length})</h3>
+              <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Required Fields ({signedFields.size}/{allMyFields.length})</h3>
               <div className="space-y-2">
-                {myFields.map((field) => {
+                {allMyFields.map((field) => {
                   const getSidebarIcon = (type: string) => {
                     const icons: Record<string, React.ReactNode> = {
                       signature: <PenTool className="w-5 h-5" />,
@@ -1027,27 +1152,117 @@ export default function SignDocumentPage() {
                     return labels[type] || field.label || 'Field'
                   }
                   return (
-                    <div key={field.id} className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' + (signedFields.has(field.id) ? 'bg-green-50 border-green-400' : 'bg-gray-100 border-gray-200 hover:border-blue-500')} onClick={() => handleFieldClick(field.id)}>
-                      <span className={signedFields.has(field.id) ? 'text-green-600' : 'text-gray-600'}>
+                    <div key={field.id} className={'flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ' + (signedFields.has(field.id) ? 'bg-green-50 border-green-400' : field.selfPlaced ? 'bg-emerald-50 border-emerald-200 hover:border-emerald-400' : 'bg-gray-100 border-gray-200 hover:border-blue-500')} onClick={() => handleFieldClick(field.id)}>
+                      <span className={signedFields.has(field.id) ? 'text-green-600' : field.selfPlaced ? 'text-emerald-600' : 'text-gray-600'}>
                         {signedFields.has(field.id) ? <CheckCircle className="w-5 h-5" /> : getSidebarIcon(field.type)}
                       </span>
-                      <span className={'font-medium flex-1 ' + (signedFields.has(field.id) ? 'text-green-600' : 'text-gray-600')}>{getSidebarLabel(field.type)}</span>
-                      {signedFields.has(field.id) ? (
-                        <button
-                          onClick={(e) => removeSignature(field.id, e)}
-                          className="p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 transition-colors"
-                          title="Re-do"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
-                      ) : null}
+                      <div className="flex-1 min-w-0">
+                        <span className={'font-medium block ' + (signedFields.has(field.id) ? 'text-green-600' : field.selfPlaced ? 'text-emerald-700' : 'text-gray-600')}>{getSidebarLabel(field.type)}</span>
+                        {field.selfPlaced && <span className="text-[10px] text-emerald-500 font-medium">You added</span>}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {signedFields.has(field.id) ? (
+                          <button
+                            onClick={(e) => removeSignature(field.id, e)}
+                            className="p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 transition-colors"
+                            title="Re-do"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                          </button>
+                        ) : null}
+                        {field.selfPlaced && !signedFields.has(field.id) && (
+                          <button
+                            onClick={(e) => handleDeleteSelfField(field.id, e)}
+                            className="p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 transition-colors"
+                            title="Remove field"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )
                 })}
               </div>
             </div>
 
-            <button onClick={handleSubmit} disabled={signedFields.size !== myFields.length || isSubmitting} className="w-full py-4 bg-blue-600 text-primary-foreground rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            {/* Add Fields Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() => setShowAddFields(!showAddFields)}
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Plus className="w-5 h-5 text-emerald-600" />
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base">Add Fields</span>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showAddFields ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showAddFields && (
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-4">
+                  {myFields.length === 0 && selfPlacedFields.length === 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+                      <p className="font-medium mb-1">No pre-assigned fields</p>
+                      <p className="text-blue-600 text-xs">Add fields below to place your signature, date, name, and other information on the document.</p>
+                    </div>
+                  )}
+
+                  {/* Signature Fields */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Signature</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {SIGNER_SIGNATURE_FIELDS.map((ft) => (
+                        <button
+                          key={ft.id}
+                          onClick={() => handleAddSelfField(ft.id, ft.name)}
+                          className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-left"
+                        >
+                          <ft.icon className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="text-sm text-gray-700 font-medium truncate">{ft.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Contact Fields */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Contact</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {SIGNER_CONTACT_FIELDS.map((ft) => (
+                        <button
+                          key={ft.id}
+                          onClick={() => handleAddSelfField(ft.id, ft.name)}
+                          className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-left"
+                        >
+                          <ft.icon className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="text-sm text-gray-700 font-medium truncate">{ft.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Other Fields */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Other</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {SIGNER_OTHER_FIELDS.map((ft) => (
+                        <button
+                          key={ft.id}
+                          onClick={() => handleAddSelfField(ft.id, ft.name)}
+                          className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-left"
+                        >
+                          <ft.icon className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="text-sm text-gray-700 font-medium truncate">{ft.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleSubmit} disabled={signedFields.size !== allMyFields.length || isSubmitting || allMyFields.length === 0} className="w-full py-4 bg-blue-600 text-primary-foreground rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
               {isSubmitting ? (<><Loader2 className="w-6 h-6 animate-spin" />Submitting...</>) : (<><Check className="w-6 h-6" />Complete Signing</>)}
             </button>
 
@@ -1167,7 +1382,7 @@ export default function SignDocumentPage() {
                       </div>
                     )
                   })}
-                  {myFields.map((field) => {
+                  {allMyFields.map((field) => {
                     // Use unified pixel position calculation (handles both percentage and legacy coords)
                     const pixelPos = getFieldPixelPosition(field)
                     const pageIndex = (pixelPos.pageNum || 1) - 1
@@ -1688,7 +1903,20 @@ export default function SignDocumentPage() {
                         )}
 
                         {/* Field label for unsigned fields */}
-                        {!hasValue && !isSelected && (<div className="absolute -top-6 left-0"><span className="text-xs font-bold px-2 py-0.5 rounded bg-primary-500 text-gray-900 whitespace-nowrap animate-bounce">{fieldLabel}</span></div>)}
+                        {!hasValue && !isSelected && (
+                          <div className="absolute -top-6 left-0 flex items-center gap-1">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap ${field.selfPlaced ? 'bg-emerald-500 text-white' : 'bg-primary-500 text-gray-900 animate-bounce'}`}>{fieldLabel}</span>
+                            {field.selfPlaced && (
+                              <button
+                                onClick={(e) => handleDeleteSelfField(field.id, e)}
+                                className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-sm"
+                                title="Remove field"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -1725,7 +1953,7 @@ export default function SignDocumentPage() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
                   {(() => {
-                    const field = myFields.find(f => f.id === activeFieldId)
+                    const field = allMyFields.find(f => f.id === activeFieldId)
                     const labels: Record<string, string> = {
                       name: 'Enter Your Name',
                       email: 'Enter Your Email',
@@ -1752,7 +1980,7 @@ export default function SignDocumentPage() {
               {/* Input Area */}
               <div className="space-y-4">
                 {(() => {
-                  const field = myFields.find(f => f.id === activeFieldId)
+                  const field = allMyFields.find(f => f.id === activeFieldId)
                   const isMultiline = field?.type === 'multiline'
                   const placeholders: Record<string, string> = {
                     name: 'Type your full name...',

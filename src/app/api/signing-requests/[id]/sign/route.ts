@@ -9,7 +9,7 @@ export async function POST(
   try {
     const documentId = params.id
     const body = await req.json()
-    const { signerEmail, token, signature, signedFields, fieldValues, fieldPositions, signatureScales, fieldFormatting } = body
+    const { signerEmail, token, signature, signedFields, fieldValues, fieldPositions, signatureScales, fieldFormatting, selfPlacedFields } = body
 
     // Capture IP and User Agent for audit trail
     const forwardedFor = req.headers.get('x-forwarded-for')
@@ -117,6 +117,32 @@ export async function POST(
     signers[signerIndex].fieldPositions = fieldPositions || {} // Store custom field positions (resized by signer)
     signers[signerIndex].signatureScales = signatureScales || {} // Store signature scale factors
     signers[signerIndex].fieldFormatting = fieldFormatting || {} // Store custom field formatting (font size, bold, etc.)
+    if (selfPlacedFields && Array.isArray(selfPlacedFields) && selfPlacedFields.length > 0) {
+      signers[signerIndex].selfPlacedFields = selfPlacedFields
+    }
+
+    // Merge self-placed fields into signature_fields so download route can render them
+    let signatureFields = signingRequest.signature_fields || []
+    if (selfPlacedFields && Array.isArray(selfPlacedFields) && selfPlacedFields.length > 0) {
+      const normalizedSelfFields = selfPlacedFields.map((f: { id: string; type: string; label: string; page: number; signerOrder: number; xPercent: number; yPercent: number; widthPercent: number; heightPercent: number }) => ({
+        id: f.id,
+        type: f.type,
+        label: f.label,
+        page: f.page,
+        pageNumber: f.page,
+        signerOrder: f.signerOrder,
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        xPercent: f.xPercent,
+        yPercent: f.yPercent,
+        widthPercent: f.widthPercent,
+        heightPercent: f.heightPercent,
+        selfPlaced: true,
+      }))
+      signatureFields = [...signatureFields, ...normalizedSelfFields]
+    }
 
     console.log('📝 Updated signer in array:', {
       signerIndex,
@@ -165,18 +191,23 @@ export async function POST(
     })
 
     // Update the signing request
-    const updatePayload = {
+    const updatePayload: Record<string, unknown> = {
       signers,
       current_signer_index: nextSignerIndex >= 0 ? nextSignerIndex : signerIndex,
       status: allSigned ? 'completed' : 'in_progress',
       updated_at: new Date().toISOString()
     }
 
+    // Include updated signature_fields if signer added self-placed fields
+    if (selfPlacedFields && Array.isArray(selfPlacedFields) && selfPlacedFields.length > 0) {
+      updatePayload.signature_fields = signatureFields
+    }
+
     console.log('💾 Updating signing_requests with:', {
       documentId,
       status: updatePayload.status,
-      signersCount: updatePayload.signers.length,
-      signersStatuses: updatePayload.signers.map((s: { email: string; status: string }) => ({ email: s.email, status: s.status }))
+      signersCount: signers.length,
+      signersStatuses: signers.map((s: { email: string; status: string }) => ({ email: s.email, status: s.status }))
     })
 
     const { data: updateData, error: updateError } = await supabaseAdmin
