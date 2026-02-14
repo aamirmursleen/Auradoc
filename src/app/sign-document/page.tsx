@@ -2241,6 +2241,33 @@ const SignDocumentPage: React.FC = () => {
               {OTHER_FIELDS.map(field => renderFieldButton(field))}
             </div>
           </div>
+
+          {/* Complete My Signing Button */}
+          {(() => {
+            const selfSigner = signers.find(s => s.is_self)
+            const selfFields = selfSigner ? placedFields.filter(f => f.signerId === selfSigner.id) : []
+            const allSelfFieldsFilled = selfFields.length > 0 && selfFields.every(f => !!f.value)
+            if (!selfSigner || selfFields.length === 0) return null
+            return (
+              <div className={`p-3 border-t ${isDark ? 'border-border' : 'border-gray-200'}`}>
+                {myselfSigned ? (
+                  <div className={`flex items-center justify-center gap-2 p-3 rounded-xl ${isDark ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                    <Lock className="w-4 h-4" />
+                    <span className="font-medium text-sm">My Signing Complete</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setMyselfSigned(true)}
+                    disabled={!allSelfFieldsFilled}
+                    className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isDark ? 'bg-green-600 text-white hover:bg-green-500 disabled:bg-green-900/50' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                  >
+                    <PenLine className="w-4 h-4" />
+                    Complete My Signing
+                  </button>
+                )}
+              </div>
+            )
+          })()}
         </div>
 
         {/* Center - Document Viewer */}
@@ -3543,6 +3570,25 @@ const SignDocumentPage: React.FC = () => {
             className={`md:hidden fixed bottom-0 left-0 right-0 z-20 ${isDark ? 'bg-muted/30 border-t border-border' : 'bg-gray-100 border-t border-gray-200'}`}
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
+            {/* Mobile Complete My Signing Button */}
+            {(() => {
+              const selfSigner = signers.find(s => s.is_self)
+              const selfFields = selfSigner ? placedFields.filter(f => f.signerId === selfSigner.id) : []
+              const allSelfFieldsFilled = selfFields.length > 0 && selfFields.every(f => !!f.value)
+              if (!selfSigner || selfFields.length === 0 || myselfSigned) return null
+              return (
+                <div className={`px-4 py-2 border-b ${isDark ? 'border-border' : 'border-gray-200'}`}>
+                  <button
+                    onClick={() => setMyselfSigned(true)}
+                    disabled={!allSelfFieldsFilled}
+                    className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-green-600 text-white hover:bg-green-700`}
+                  >
+                    <PenLine className="w-4 h-4" />
+                    Complete My Signing
+                  </button>
+                </div>
+              )
+            })()}
             <div className="flex items-center justify-between px-4 py-2">
               <div className={`text-xs ${isDark ? 'text-muted-foreground' : 'text-gray-500'}`}>
                 <span className="font-medium">{document.name.split('.')[0]}</span>
