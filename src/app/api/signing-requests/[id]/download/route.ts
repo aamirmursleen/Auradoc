@@ -242,7 +242,7 @@ export async function GET(
   }
 }
 
-// Draw a text stamp with red border and -12 degree rotation (matches CSS transform -rotate-12)
+// Draw a text stamp with -12 degree rotation matching the CSS preview
 function drawTextStamp(
   page: PDFPage, text: string,
   coords: { x: number; y: number; width: number; height: number }
@@ -254,7 +254,7 @@ function drawTextStamp(
   const cx = coords.x + coords.width / 2
   const cy = coords.y + coords.height / 2
 
-  // Calculate font size to fit within the box (with padding)
+  // Calculate font size to fit within the box
   const maxTextWidth = coords.width * 0.85
   const maxTextHeight = coords.height * 0.6
   const charWidth = 0.6
@@ -264,26 +264,7 @@ function drawTextStamp(
   )
   const fontSize = Math.max(6, Math.min(estimatedFontSize, 24))
 
-  // Draw rotated red border rectangle
-  const borderPadX = coords.width * 0.1
-  const borderPadY = coords.height * 0.15
-  const borderW = coords.width - borderPadX * 2
-  const borderH = coords.height - borderPadY * 2
-
-  // pdf-lib drawRectangle with rotate: the x,y is bottom-left of the unrotated rectangle,
-  // but rotation happens around x,y. We want rotation around center.
-  // So we position the rectangle at its center and use the rotate option.
-  page.drawRectangle({
-    x: cx - borderW / 2,
-    y: cy - borderH / 2,
-    width: borderW,
-    height: borderH,
-    borderColor: stampColor,
-    borderWidth: 2,
-    rotate: degrees(rotationAngle),
-  })
-
-  // Draw the rotated text centered in the box
+  // Draw rotated red text centered in the stamp area
   const textWidth = text.length * fontSize * charWidth
   const textX = cx - textWidth / 2
   const textY = cy - fontSize / 3
