@@ -159,10 +159,33 @@ const DocumentsPage: React.FC = () => {
     try {
       if (showLoader) setLoading(true)
       const email = user.emailAddresses?.[0]?.emailAddress || ''
+
+      // Fetch signing requests via API route (uses supabaseAdmin, bypasses RLS)
+      const fetchSigningRequests = async (): Promise<SigningRequest[]> => {
+        try {
+          const res = await fetch('/api/signing-requests')
+          const json = await res.json()
+          return json.success ? (json.data || []) : []
+        } catch { return [] }
+      }
+
+      // Fetch inbox via API route
+      const fetchInbox = async (): Promise<SigningRequest[]> => {
+        if (!email) return []
+        try {
+          const res = await fetch(`/api/signing-requests/inbox?email=${encodeURIComponent(email)}`)
+          const json = await res.json()
+          return json.success ? (json.data || []) : []
+        } catch {
+          // Fallback to direct Supabase call
+          try { return await getInboxSigningRequests(email) } catch { return [] }
+        }
+      }
+
       const [docs, requests, inbox] = await Promise.all([
-        getUserDocuments(user.id),
-        getUserSigningRequests(user.id),
-        email ? getInboxSigningRequests(email) : Promise.resolve([])
+        getUserDocuments(user.id).catch(() => [] as Document[]),
+        fetchSigningRequests(),
+        fetchInbox()
       ])
       setDocuments(docs)
       setSigningRequests(requests)
